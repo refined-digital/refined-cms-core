@@ -1,0 +1,179 @@
+.app {
+  &__holder {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: row;
+  }
+
+  &__left, &__right {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+  }
+
+  &__left {
+    flex: 0 0 240px;
+    background: #fff;
+    box-shadow: 1px 0px 20px rgba(0, 0, 0, 0.08);
+    z-index: 2;
+  }
+
+  &__right {
+    flex: 1;
+    z-index: 1
+  }
+
+  &__header, &__logo {
+    flex: 0 0 60px;
+  }
+
+  &__header {
+    background: #2CABE3;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 20px;
+  }
+
+  &__search {
+    margin-right: 20px;
+  }
+
+  &__profile {
+    span {
+      display: inline-block;
+      margin: 0 5px;
+    }
+    a {
+      color: #fff;
+
+      &:hover {
+        color: darken(#fff, 30);
+      }
+
+    }
+  }
+
+  &__logo {
+    margin: 0 0 20px;
+    img {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  &__body {
+    flex: 1;
+    overflow: hidden;
+    background: #EDF1F5;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__content {
+    padding: 25px;
+    flex: 1;
+    overflow: auto;
+
+    &-header {
+      background: #fff;
+      padding: 0 15px;
+      flex: 0 0 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 1px 0px 20px rgba(0, 0, 0, 0.08);
+      z-index: 3;
+
+      h2 {
+        text-transform: uppercase;
+        font-size: 16px;
+        line-height: 1;
+        margin: 0;
+        font-weight: bold;
+
+        a {
+          color: color(black);
+
+          &:hover {
+            color: color(link-hover);
+          }
+        }
+      }
+
+      .button {
+        font-size: 12px;
+        line-height: 1.5;
+        padding: 5px 15px;
+      }
+    }
+  }
+
+
+  &__nav {
+    overflow: auto;
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    li {
+      margin: 0;
+      padding: 0;
+
+      a {
+        display: block;
+        color: color(nav-color);
+      }
+    }
+
+    &-item {
+      & > a {
+        border-left: 3px solid transparent;
+        padding: 15px 15px 15px 20px;
+
+        &:hover {
+          background: #ededed;
+        }
+
+
+        i {
+          margin-right: 7px;
+        }
+      }
+
+      &--active > a {
+        background: #ededed;
+        border-color: color(main-color-1);
+      }
+    }
+
+    &-sub-item {
+      & > a {
+        padding: 5px 10px 5px 40px;
+        &:hover {
+          color: color(nav-color-hover);
+        }
+      }
+
+      &--active > a {
+        font-weight: bold;
+      }
+    }
+  }
+
+  &--has-media {
+    .app__left {
+      position: relative;
+      z-index: 1;
+    }
+  }
+}

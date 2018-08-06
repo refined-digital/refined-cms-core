@@ -1,0 +1,34 @@
+@import 'variables';
+@function color($name) {
+	@return map-get($colours, $name);
+}
+
+@import 'partials/setup';
+@import 'partials/normalize';
+@import 'partials/text';
+
+@import 'layouts/auth';
+@import 'layouts/app';
+@import 'layouts/pages';
+
+@import 'components/spinner';
+@import 'components/login';
+@import 'components/forms';
+@import 'components/buttons';
+@import 'components/alert';
+@import 'components/note';
+@import 'components/blocks';
+@import 'components/search';
+@import 'components/data-table';
+@import 'components/paging';
+@import 'components/tabs';
+@import 'components/tree';
+@import 'components/media-uploader';
+@import 'components/media';
+@import 'components/content-editor';
+
+
+@import 'components/settings';
+
+@import 'plugins/selectize';
+@import 'plugins/sweet-alert';

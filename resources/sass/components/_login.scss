@@ -1,0 +1,14 @@
+.login {
+  &__logo {
+    margin-bottom: 40px;
+
+    img {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  .alert + .login__header, .note + .login__header {
+    margin-top: 20px;
+  }
+}

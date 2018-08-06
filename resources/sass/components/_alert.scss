@@ -1,0 +1,42 @@
+.alert {
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,.1);
+  background: #fff;
+
+  &__header {
+    color: #fff;
+    background: color(blue);
+    padding: 20px 20px;
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  &__body {
+    padding: 20px;
+
+    ul, p {
+      margin-bottom: 0;
+    }
+  }
+
+  &--error {
+    .alert {
+      &__header {
+        background: color(red);
+        h4 { color: #fff; }
+      }
+      &__body {
+        color: color(red);
+      }
+    }
+  }
+}
+
+.app_content-header + .alert, .tabs__nav + .alert {
+  &__header {
+    padding: 10px 15px;
+  }
+}

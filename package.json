@@ -1,0 +1,36 @@
+{
+  "name": "refinedcms",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=webpack/webpack.config.js",
+    "watch": "NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=webpack/webpack.config.js",
+    "hot": "NODE_ENV=development webpack-dev-server --inline --hot --config=webpack/webpack.config.js",
+    "production": "NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --config=webpack/webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/refineddigital/cms.git"
+  },
+  "author": "Matthias Law",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/refineddigital/cms/issues"
+  },
+  "homepage": "https://gitlab.com/refineddigital/cms#README",
+  "devDependencies": {},
+  "dependencies": {
+    "axios": "^0.18.0",
+    "dragula": "^3.7.2",
+    "dropzone": "^5.5.1",
+    "flatpickr": "^4.5.1",
+    "javascript-natural-sort": "^0.7.1",
+    "jquery": "^3.3.1",
+    "laravel-mix": "^2.1.11",
+    "moment": "^2.22.2",
+    "sweetalert": "^2.1.0",
+    "vue": "^2.5.16",
+    "vue-multiselect": "^2.1.0",
+    "vue-trumbowyg": "^3.3.0",
+    "vue2-selectize": "^1.1.4"
+  }
+}

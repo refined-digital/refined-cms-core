@@ -1,0 +1,359 @@
+.form {
+
+  &__label {
+    cursor: pointer;
+    font-weight: 500;
+    color: color(form-label);
+    font-size: $systemFontSize;
+  }
+
+  &__control {
+    display: block;
+    width: 100%;
+    border: 0;
+    font-size: $systemFontSize;
+    line-height: 1.3;
+    padding: 2px 0 6px;
+
+    background: #fff no-repeat;
+    background-position: center bottom, center 99%;
+    background-image: linear-gradient(color(main-color-1), color(main-color-1)), linear-gradient(color(input-border), color(input-border));
+    background-size: 0 2px, 100% 1px;
+
+    transition: all 0s linear 0s;
+
+    &:focus {
+      background-size: 100% 2px, 100% 1px;
+      transition-duration: 0.2s;
+    }
+
+    &[readonly] {
+      cursor: default;
+      &:focus {
+        background-size: 0 2px, 100% 1px;
+      }
+    }
+
+    &--url {
+      display: flex;
+
+      span {
+        display: inline-block;
+        padding: 5px 6px;
+        background: #e5e5e5;
+      }
+
+      .form__control {
+        padding-left: 4px;
+        flex: 1;
+      }
+
+      .copy-url {
+        cursor: pointer;
+        flex: 0 0 20px;
+      }
+    }
+
+    &--rich-text {
+      textarea {
+        display: none;
+      }
+
+      .trumbowyg-box {
+        margin: 0 auto;
+      }
+    }
+
+    &--tags {
+      > input {
+        display: none;
+      }
+    }
+  }
+
+  select.form__control {
+    width: auto;
+    padding: 6px;
+    border: 1px solid color(input-border);
+    background-image: none;
+    border-radius: 4px;
+
+    &:focus {
+      border-bottom-color: color(main-color-1);
+    }
+
+    &--full-width {
+      width: 100%;
+    }
+  }
+
+  textarea.form__control {
+    height: 160px;
+    resize: none;
+    background-color: #fbfbfb;
+    padding: 2px 2px 4px;
+  }
+
+  &__row {
+    margin: 0 0 20px;
+
+    &--floating-labels {
+      margin: 25px 0 0;
+      position: relative;
+
+      .form {
+        &__label {
+          color: color(form-label);
+          cursor: text;
+          position: absolute;
+          transform: translateY(-29px);
+          transition: transform .2s ease-out, color .2s ease-out, -webkit-transform .2s ease-out;
+          transform-origin: 0% 100%;
+        }
+
+        &__control {
+          padding-top: 6px;
+        }
+      }
+
+      &--with-placeholder .form__label,
+      .form__control:focus ~ .form__label,
+      .form__control:valid ~ .form__label,
+      .form__control--active ~ .form__label {
+        transform: translateY(-48px);
+        font-size: 12px;
+        color: color(main-color-1);
+      }
+
+    }
+
+
+    &--required .form__label {
+      &:after {
+        content: '*';
+        font-size: 90%;
+        color: color(red);
+        display: inline-block;
+        margin: -2px 0 0 2px;
+      }
+    }
+
+    &--has-error {
+      .form {
+        &__label {
+          color: color(red);
+        }
+        &__control {
+          background-image: linear-gradient(color(main-color-1), color(main-color-1)), linear-gradient(color(red), color(red));
+        }
+      }
+    }
+
+    &--buttons {
+      margin-top: 20px;
+
+      .button {
+        width: 100%;
+      }
+
+      &-inline {
+        text-align: right;
+
+        .button {
+          width: auto;
+        }
+      }
+    }
+
+    &--remember {
+      display: flex;
+      justify-content: space-between;
+
+      * {
+        flex: 0 0 50%;
+      }
+    }
+  }
+
+  &__group {
+    display: flex;
+    justify-content: space-between;
+
+    &--1 .form__row {
+      flex: 0 0 100%;
+    }
+
+    &--2 .form__row {
+      flex: 0 0 49%;
+    }
+
+    &--3 .form__row {
+      flex: 0 0 32%;
+    }
+
+    &--4 .form__row {
+      flex: 0 0 23.5%;
+    }
+
+    &--auto .form__row {
+      flex: 1;
+
+      &--buttons {
+        flex: 0 0 130px;
+        text-align: right;
+      }
+    }
+  }
+
+  &__note {
+    font-size: $systemFontSize - 2px;
+    line-height: 1.5;
+    font-style: italic;
+    margin-top: 4px;
+  }
+
+  &__checkbox {
+    height: 17px;
+
+    label {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      font-weight: 500;
+      line-height: 1.3;
+      font-size: $systemFontSize;
+      overflow: hidden;
+
+      &:before {
+        content: '';
+        display: inline-block;
+        vertical-align: top;
+        width: 17px;
+        height: 17px;
+        margin-right: 4px;
+        border-radius: 2px;
+        border: 1px solid color(input-border);
+        transition: .2s ease-in-out;
+        cursor: pointer;
+      }
+
+      &:after {
+        content: '\f00c';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        position: absolute;
+        left: 3px;
+        top: 7px;
+        cursor: pointer;
+        font-size: 11px;
+        color: #fff;
+        opacity: 0;
+        transition: .2s ease-in-out;
+      }
+    }
+
+    input {
+      display: none;
+      &:checked ~ label {
+        &:before {
+          background: color(main-color-1);
+          border-color: color(main-color-1);
+        }
+        &:after {
+          opacity: 1;
+          top: 2px;
+        }
+      }
+    }
+
+  }
+
+  &__forgotten {
+    text-align: right;
+    line-height: 1.3;
+  }
+
+  &__horz {
+    .form {
+
+      &__row {
+        display: flex;
+        border-bottom: 1px solid color(input-border);
+        padding: 0 0 20px;
+
+        &:last-child {
+          margin: 0;
+          padding: 0;
+          border-bottom: 0;
+        }
+      }
+
+      &__label {
+        flex: 0 0 200px;
+        font-weight: bold;
+      }
+
+      &__horz-group {
+        flex: 1;
+      }
+
+      &__note {
+        margin-top: 8px;
+      }
+    }
+  }
+
+
+  &__image {
+    width: 300px;
+
+    figure {
+      border: 1px solid #e5e5e5;
+      background: #f7f7f7;
+      padding: 5px;
+      width: 300px;
+      height: 300px;
+
+      .form__image-thumb {
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+
+      img {
+        display: block;
+        width: 100%;
+        visibility: hidden;
+      }
+
+      .form__image-thumb-img {
+        display: block;
+        position: absolute;
+        background: #fff no-repeat center center / contain;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+      }
+    }
+
+    aside {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+  }
+
+  &__file {
+    &-name {
+      margin-bottom: 10px;
+      font-size: $systemFontSize - 2px;
+
+    }
+
+    &--title {
+      font-size: $systemFontSize;
+    }
+  }
+}

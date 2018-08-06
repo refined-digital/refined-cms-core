@@ -1,0 +1,41 @@
+.search {
+  display: flex;
+  background: #EAF7FC;
+  border-radius: 50px;
+  padding: 4px 5px 4px 15px;
+
+  input, button {
+    color: #4c5667;
+    border: 0;
+    background: none;
+  }
+
+  input[type="text"] {
+    line-height: 1;
+    width: 180px;
+    font-weight: 500;
+    transition: .3s ease-out;
+
+    &:focus {
+      width: 260px;
+    }
+  }
+
+  a {
+    display: inline-block;
+    line-height: 1.3;
+    color: color(red);
+
+    &:hover {
+      color: darken(color(red), $darkenAmount);
+    }
+  }
+
+  button {
+    cursor: pointer;
+    padding: 0;
+    width: 25px;
+    line-height: 1.3;
+  }
+
+}

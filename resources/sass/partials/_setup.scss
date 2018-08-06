@@ -1,0 +1,23 @@
+/* system */
+html { background:#fff; overflow-x:hidden; }
+body { padding:0; }
+body, button, input, select, textarea { font:#{$systemFontSize}/#{$systemLineHeight} $systemFont; color:color(text); -webkit-font-smoothing: antialiased; }
+
+/* end system */
+
+/* type */
+h1, h2, h3, h4, h5, h6 { font-weight: 500; letter-spacing: 0.08em; color: color(black); }
+h1 { font-size: 48px; }
+h2 { font-size: 24px; }
+h3 { font-size: 21px; }
+h4 { font-size: 18px; }
+h5 { font-size: 14px; }
+h6 { }
+
+a { color:color(link); text-decoration:none; }
+a:hover { color:color(link-hover); }
+@media only screen and (max-width:660px) { a { overflow-wrap: break-word; word-wrap: break-word; } }
+
+a, input[type="submit"], button, .data-table__cell, .tree li i, .tree li span,
+.pages__tab, .content-editor__field .fa-times, .media-uploader__dropzone,
+.media-uploader__header aside i, .media__toggle i { transition:all 200ms linear; }

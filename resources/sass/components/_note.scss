@@ -1,0 +1,19 @@
+.note {
+  color: #fff;
+  padding: 15px;
+  font-weight: 500;
+
+  background: color(blue);
+
+  &--success {
+    background: color(green);
+  }
+
+  &--warning {
+    background: color(yellow);
+  }
+
+  &--error {
+    background: color(red);
+  }
+}

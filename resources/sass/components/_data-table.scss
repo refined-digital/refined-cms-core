@@ -1,0 +1,116 @@
+.data-table {
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid color(table-border);
+  }
+
+  thead {
+    th, td {
+      background: color(grey);
+      color: #fff;
+      padding: 18px 8px;
+      a {
+        color: #fff;
+
+        i {
+          margin-left: 5px;
+        }
+
+        &:hover {
+          color: darken(#fff, $darkenAmount);
+        }
+      }
+    }
+  }
+
+  tbody tr {
+    &:nth-child(odd) .data-table__cell {
+      background: color(table-odd);
+    }
+    &:nth-child(even) .data-table__cell {
+      background: color(table-even);
+    }
+    &:hover .data-table__cell {
+      background: lighten(color(main-color-1), 32);
+    }
+
+    &.gu-transit {
+      th, td {
+        background: lighten(color(blue), 20) !important;
+        &, a {
+          color: #fff;
+        }
+      }
+    }
+  }
+
+
+  &__cell {
+    text-align: left;
+    padding: 10px 8px;
+    border-top:1px solid color(table-border);
+
+    &--active {
+      width: 80px;
+      text-align: right;
+    }
+
+    &--id {
+      width: 50px;
+    }
+
+    &--sort {
+      width: 10px;
+      cursor: n-resize;
+    }
+
+    &--date-time {
+      text-align: right;
+      width: 164px;
+    }
+
+    &--controls {
+      width: 100px;
+      text-align: right;
+
+      a {
+        color: color(green);
+        &:hover {
+          color: darken(color(green), $darkenAmount);
+        }
+
+      }
+
+      a + a {
+        margin-left: 5px;
+      }
+
+      form {
+        display: inline-block;
+        margin-left: 10px;
+
+        button {
+          border: 0;
+          background: none;
+          cursor: pointer;
+          color: color(red);
+          padding: 0;
+          &:hover {
+            color: darken(color(red), $darkenAmount);
+          }
+        }
+      }
+    }
+
+    &--left {
+      text-align: left;
+    }
+    &--center {
+      text-align: center;
+    }
+    &--right {
+      text-align: right;
+    }
+  }
+}

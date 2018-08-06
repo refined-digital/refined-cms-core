@@ -1,0 +1,155 @@
+.tree {
+  user-select: none;
+
+  &__trunk {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    margin: 0 0 2px;
+    padding: 0;
+  }
+
+  span:hover {
+    color: color(blue);
+  }
+
+  span, i {
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  i {
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  &__branch {
+    > div {
+      padding: 0 3px;
+    }
+
+    > div > i {
+      margin-right: 6px;
+    }
+
+    &--hide-from-menu > div > span {
+      font-style: italic;
+      &, &:hover {
+        color: color(yellow);
+      }
+    }
+    &--hide-page > div > span {
+      text-decoration: line-through;
+      &, &:hover {
+        color: color(red);
+      }
+    }
+
+    &--has-children {
+      & > div > i {
+        position: relative;
+        &:after {
+          content: '\f067';
+          display: inline-block;
+          width: 16px;
+          height: 16px;
+          padding-top: 8px;
+          text-align: center;
+
+          position: absolute;
+          left: -18px;
+          top: 0;
+
+          font-size: 10px;
+          line-height: 0;
+
+        }
+      }
+
+      &.tree__branch--active {
+        > div > i:after {
+          content: '\f068';
+        }
+      }
+    }
+
+    &--master {
+      > div > i {
+        width: 18px;
+        margin-right: 2px;
+
+        &:before {
+          content: '\f07b';
+        }
+      }
+
+      &.tree__branch--active {
+        > div > i:before {
+          content: '\f07c';
+        }
+      }
+    }
+
+    .tree__trunk {
+      margin-left: 20px;
+    }
+
+    &--on-drag-over > div {
+      background: color(main-color-2);
+      i, span {
+        color: #fff;
+      }
+
+      i:after {
+        color: color(text);
+      }
+    }
+
+  }
+
+  &__leaf {
+    &--active {
+      color: color(blue);
+    }
+  }
+
+  &__search {
+    border-bottom: 1px solid #e5e5e5;
+    padding: 0 10px 10px;
+    margin: 0 -10px 10px;
+    position: relative;
+
+    input {
+      width: 100%;
+      border: 1px solid color(input-border);
+      padding: 4px 34px 4px 4px;
+    }
+
+    &-clear {
+      position: absolute;
+      right: 18px;
+      top: 5px;
+      color: #fff;
+      background: color(red);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 24px;
+      line-height: 0;
+
+      span {
+        position: absolute;
+        left: 3px;
+        top: 10px;
+      }
+
+      &:hover {
+        background: lighten(color(red), 8);
+        color: #fff;
+      }
+    }
+  }
+}

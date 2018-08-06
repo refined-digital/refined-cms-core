@@ -1,0 +1,35 @@
+.loader {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 90000;
+  background: rgba(0,0,0,0.6);
+  width: 100%;
+  height: 100%;
+
+  .spinner {
+    position: fixed;
+    z-index: 90001;
+    right: 20px;
+    top: 20px;
+  }
+}
+
+.spinner {
+  &:before {
+    animation: spin 1s linear infinite, border-color-fade 1s linear infinite;
+    content: '';
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border-width: 2px;
+    border-radius: 50%;
+    border-style: solid;
+    border-color: #fff transparent;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

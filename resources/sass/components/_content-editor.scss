@@ -1,0 +1,51 @@
+.content-editor {
+  &__controls {
+    border-bottom: 1px solid color(input-border);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+
+    .form {
+      &__control {
+        padding-top: 5px;
+        padding-bottom: 10px;
+      }
+    }
+  }
+
+  &__field {
+    border-bottom: 1px solid color(input-border);
+    padding: 10px 0 20px;
+    margin: 0 0 10px;
+
+    &.gu-mirror {
+      visibility: hidden !important;
+    }
+
+    .form__label--with-controls {
+      position: relative;
+      padding-right: 40px;
+      cursor: default;
+
+      label {
+        cursor: pointer;
+      }
+
+      .fa-times {
+        position: absolute;
+        right: 20px;
+        top: 6px;
+        color: color(red);
+        cursor: pointer;
+
+        &:hover {
+          color: darken(color(red), $darkenAmount);
+        }
+      }
+
+      .fa-sort {
+        cursor: ns-resize;
+        margin-right: 3px;
+      }
+    }
+  }
+}

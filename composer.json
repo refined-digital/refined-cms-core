@@ -1,0 +1,40 @@
+{
+  "name": "refineddigital/cms",
+  "description": "Laravel based CMS",
+  "type": "project",
+  "require": {
+    "guzzlehttp/guzzle": "^6.3",
+    "intervention/image": "^2.4",
+    "spatie/eloquent-sortable": "^3.4",
+    "spatie/laravel-activitylog": "^2.7",
+    "spatie/laravel-html": "^2.19",
+    "spatie/laravel-sluggable": "^2.1"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Matthias Law",
+      "email": "matthias@refineddigital.co.nz"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "RefinedDigital\\CMS\\": "src/"
+    },
+    "files": [
+        "src/Modules/Core/Helpers/helpers.php"
+    ]
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "RefinedDigital\\CMS\\Modules\\Core\\Providers\\CMSServiceProvider"
+      ],
+      "aliases": {
+      }
+    }
+  }
+}

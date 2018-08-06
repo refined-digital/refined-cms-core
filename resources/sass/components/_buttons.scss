@@ -1,0 +1,54 @@
+.button {
+  display: inline-block;
+  border: 0;
+  background: color(main-color-2);
+  color: #fff;
+  padding: 12px 16px;
+  font-size: $systemFontSize;
+  line-height: 1.5;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+
+  &:hover {
+    outline: none;
+    background: lighten(color(main-color-2), 8);
+    color: #fff;
+  }
+
+  &--blue {
+    background: color(blue);
+    &:hover {
+      background: lighten(color(blue), 8);
+    }
+  }
+
+  &--red {
+    background: color(red);
+    &:hover {
+      background: lighten(color(red), 8);
+    }
+  }
+
+  &--green {
+    background: color(green);
+    &:hover {
+      background: lighten(color(green), 8);
+    }
+  }
+
+  &--grey {
+    background: color(grey);
+    &:hover {
+      background: lighten(color(grey), 8);
+    }
+  }
+
+
+  &--small {
+    font-size: 12px;
+    line-height: 1.5;
+    padding: 5px 15px;
+  }
+
+}

@@ -1,0 +1,16 @@
+.block {
+  background: #fff;
+  padding: 25px;
+
+  & + & {
+    margin-top: 30px;
+  }
+
+  &__header {
+    text-transform: uppercase;
+
+    h3 {
+      margin: 0;
+    }
+  }
+}

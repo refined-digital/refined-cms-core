@@ -1,0 +1,43 @@
+.tab {
+
+  &__nav {
+    background: #fff;
+    border-top: 2px solid #f7fafc;
+    padding: 0 15px;
+    box-shadow: 1px 0px 20px rgba(0, 0, 0, 0.08);
+    z-index: 2;
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    li {
+      margin: 0;
+      padding: 10px 15px;
+      display: inline-block;
+      cursor: pointer;
+      font-weight: bold;
+
+      &.tabs__nav-item--active {
+        background: color(main-color-1);
+        color: #fff;
+      }
+    }
+  }
+
+  &__groups {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__left {
+    flex: 0 0 70%;
+    margin-right: 25px;
+  }
+
+  &__right {
+    flex: 1;
+  }
+}
