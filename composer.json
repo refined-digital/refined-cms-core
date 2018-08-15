@@ -1,7 +1,6 @@
 {
   "name": "refineddigital/cms",
   "description": "Laravel based CMS",
-  "type": "project",
   "require": {
     "php": "^7.1.3",
     "guzzlehttp/guzzle": "^6.3",
