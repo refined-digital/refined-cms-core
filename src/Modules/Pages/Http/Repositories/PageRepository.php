@@ -273,15 +273,13 @@ class PageRepository extends CoreRepository
             if (!isset($uriReference->uriable_id)) {
                 abort(404);
             }
-            
+
             $pageId = $uriReference->uriable_id;
             $class = $uriReference->uriable_type;
         }
 
         // set the base href
-        // rtrim will remove the last / - i am doing this to force the / incase we set the config to have the /
         $baseHref = pages()->getBaseHref();
-
         $page = $class::with(['meta', 'meta.template'])->find($pageId);
         $base = class_basename($page);
         $page->type = $base;
@@ -290,6 +288,22 @@ class PageRepository extends CoreRepository
         if (isset($tag)) {
             $page->tag = $tag;
             $page->tag->base = $baseHref.$uriReference->uri;
+            $page->base = $baseHref.$uriReference->uri;
+        }
+
+        // if we are on a blog article, add in the base href for searching
+        if ($class == 'RefinedDigital\Blog\Module\Models\Blog') {
+            $slug = $uriReference->uri;
+            $key = array_search($slug, $uriBits);
+            $url = [];
+            foreach ($uriBits as $k => $b) {
+                if ($k < $key) {
+                    $url[] = $b;
+                }
+            }
+
+            // add it into page
+            $page->base = $baseHref.implode('/', $url);
         }
 
         // abort if no page found
