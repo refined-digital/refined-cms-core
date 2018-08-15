@@ -35,6 +35,11 @@ class CoreRepository {
         return $data;
     }
 
+    public function find($id)
+    {
+        return $this->model::find($id);
+    }
+
     public function destroy($id)
     {
         $model = $this->model;
@@ -174,6 +179,26 @@ class CoreRepository {
                     }
                     $data[$date] = Carbon::createFromFormat($key, $data[$date]);
                 }
+            }
+        }
+
+        if (isset($data['reply_to_type']) && $data['reply_to_type'] != 'text') {
+            $data['reply_to'] = $data['reply_to_type'];
+        }
+
+        // check for extra data fields
+        if (sizeof($data)) {
+            $extraData = [];
+            foreach ($data as $key => $value) {
+                if (is_numeric(strpos($key, 'data__'))) {
+                    $newKey = str_replace('data__', '', $key);
+                    $extraData[$newKey] = $value;
+                    unset($data[$key]);
+                }
+            }
+
+            if (sizeof($extraData)) {
+                $data['data'] = $extraData;
             }
         }
 

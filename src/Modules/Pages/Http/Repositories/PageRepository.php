@@ -92,7 +92,7 @@ class PageRepository extends CoreRepository
 
         $with = $this->with;
         $with['meta'] = function($q) {
-          $q->select('template_id', 'title', 'description', 'uri');
+            $q->select('template_id', 'title', 'description', 'uri');
         };
 
         $pages = Page::with($with)
@@ -280,7 +280,7 @@ class PageRepository extends CoreRepository
 
         // set the base href
         // rtrim will remove the last / - i am doing this to force the / incase we set the config to have the /
-        $baseHref = rtrim(config('app.url'), '/').'/';
+        $baseHref = pages()->getBaseHref();
 
         $page = $class::with(['meta', 'meta.template'])->find($pageId);
         $base = class_basename($page);
@@ -351,16 +351,15 @@ class PageRepository extends CoreRepository
         $classes[] = str_slug('page template '.$page->meta->template->name);
 
         // set some extra fun stuff to the page
-        $head = [];
-        $head[] = '<meta charset="utf-8">';
-        $head[] = '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">';
-        $head[] = '<base href="'.$baseHref.'"/>';
+        $head = pages()->getPageHeaders();
 
         if (isset($_GET) && sizeof($_GET)) {
             $head[] = '<link rel="canonical" href="'.request()->url().'" />';
         } elseif(request()->url() != $baseHref.$page->meta->uri) {
             $head[] = '<link rel="canonical" href="'.$baseHref.$page->meta->uri.'"/>';
         }
+
+        $page->title = (isset($page->meta->title) && $page->meta->title) ? $page->meta->title : $page->name;
 
         $page->head = implode("\n\t\t", $head);
 
@@ -442,6 +441,11 @@ class PageRepository extends CoreRepository
 
                 // check if we have an active state
                 if(in_array($url, $bits)) {
+                    $classes[] = 'nav__item--active';
+                }
+
+                // if we are on the home page, we should be active
+                if (request()->url() == rtrim(config('app.url'), '/') && $page->id == 1) {
                     $classes[] = 'nav__item--active';
                 }
 

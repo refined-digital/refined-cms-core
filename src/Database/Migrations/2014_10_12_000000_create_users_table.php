@@ -19,12 +19,17 @@ class CreateUsersTable extends Migration
             $table->softDeletes();
             $table->boolean('active');
             $table->integer('position');
+            $table->integer('user_level_id')->unsigned();
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email')->unique();
             $table->string('password');
             $table->rememberToken();
+
+            $table->foreign('user_level_id')->references('id')->on('user_levels')->onDelete('cascade');
         });
+
+
     }
 
     /**

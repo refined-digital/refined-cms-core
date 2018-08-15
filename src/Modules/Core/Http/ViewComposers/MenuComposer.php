@@ -15,19 +15,42 @@ class MenuComposer
      */
     public function compose(View $view)
     {
-        $routeAggregate = app(ModuleAggregate::class);
-        $menu = $routeAggregate->getMenuItems();
-        ksort($menu);
-        $view->with(compact('menu'));
+        if (request()->segment(1) == 'refined') {
 
-        $route = explode('.', \Route::currentRouteName());
-        $activeModule = $route[1];
+            $routeAggregate = app(ModuleAggregate::class);
+            $menu = $routeAggregate->getMenuItems();
+            $user = auth()->user();
 
-        if ($activeModule == 'settings') {
-            $activeModule = request()->segment(2);
-            $view->with('settings', true);
+            if (sizeof($menu)) {
+                foreach ($menu as $key => $item) {
+                    if (isset($item->children) && sizeof($item->children)) {
+                        foreach ($item->children as $childKey => $child) {
+                            if (isset($child->max_user_level_id) && $user->user_level_id > $child->max_user_level_id) {
+                                unset($menu[$key]->children[$childKey]);
+                            }
+                        }
+                    }
+
+
+                    if (isset($item->max_user_level_id) && $item->max_user_level_id && $user->user_level_id > $item->max_user_level_id) {
+                        unset($menu[$key]);
+                    }
+
+                }
+            }
+
+            $view->with(compact('menu'));
+
+            $route = explode('.', \Route::currentRouteName());
+            $activeModule = $route[1];
+
+            if ($activeModule == 'settings') {
+                $activeModule = request()->segment(2);
+                $view->with('settings', true);
+            }
+
+            $view->with(compact('activeModule'));
         }
 
-        $view->with(compact('activeModule'));
     }
 }

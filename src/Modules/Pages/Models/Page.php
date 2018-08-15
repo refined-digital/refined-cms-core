@@ -19,10 +19,14 @@ class Page extends CoreModel implements Sortable
      */
     protected $fillable = [
         'page_holder_id', 'parent_id', 'active', 'hide_from_menu', 'protected',
-        'page_type', 'form_id', 'position', 'name', 'banner'
+        'page_type', 'form_id', 'position', 'name', 'banner', 'data'
     ];
 
     protected $appends = [ 'banner_image' ];
+
+    protected $casts = [
+        'data' => 'object'
+    ];
 
 
     public function content()
@@ -48,8 +52,8 @@ class Page extends CoreModel implements Sortable
         if (is_numeric($this->attributes['banner'])) {
             $image = image()
                         ->load($this->attributes['banner'])
-                        ->width(config('page.banner.dimensions.internal.width'))
-                        ->height(config('page.banner.dimensions.internal.height'))
+                        ->width(config('pages.banner.internal.width'))
+                        ->height(config('pages.banner.internal.height'))
                         ->fill()
                         ->save();
             return $image;

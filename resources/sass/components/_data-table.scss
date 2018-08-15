@@ -5,7 +5,7 @@
     border: 1px solid color(table-border);
   }
 
-  thead {
+  thead, tfoot {
     th, td {
       background: color(grey);
       color: #fff;
@@ -24,7 +24,14 @@
     }
   }
 
+  tfoot {
+    th, td {
+      padding: 10px 8px;
+    }
+  }
+
   tbody tr {
+
     &:nth-child(odd) .data-table__cell {
       background: color(table-odd);
     }
@@ -35,7 +42,7 @@
       background: lighten(color(main-color-1), 32);
     }
 
-    &.gu-transit {
+    &.gu-transit, &.sortable-chosen {
       th, td {
         background: lighten(color(blue), 20) !important;
         &, a {
@@ -112,5 +119,46 @@
     &--right {
       text-align: right;
     }
+
+    &--options {
+      &-plus, &-delete {
+        width: 30px;
+        text-align: center;
+        i {
+          cursor: pointer;
+        }
+      }
+
+      &-plus i {
+        color: #fff;
+        &:hover {
+          color: darken(#fff, $darkenAmount);
+        }
+      }
+
+      &-delete i {
+        color: color(red);
+        &:hover {
+          color: darken(color(red), $darkenAmount);
+        }
+      }
+
+      &-label, &-value {
+        input {
+          width: 100%;
+        }
+      }
+
+      &-value {
+        width: 150px;
+      }
+    }
   }
+}
+
+.sortable-drag-ghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
 }

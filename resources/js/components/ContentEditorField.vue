@@ -21,7 +21,7 @@
         <rd-file v-model="item.content" :value="item.content"></rd-file>
       </template>
 
-      <div class="form__note" v-if="item.note">{{ item.note }}</div>
+      <div class="form__note" v-if="item.note" v-html="item.note"></div>
     </div>
 
 </template>

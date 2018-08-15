@@ -19,6 +19,7 @@ class CreateTemplatesTable extends Migration
             $table->softDeletes();
             $table->boolean('active')->default(1);
             $table->integer('position')->default(0);
+            $table->boolean('has_forms')->default(0);
             $table->string('name');
             $table->string('source');
         });

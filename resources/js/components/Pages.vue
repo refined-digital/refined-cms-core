@@ -40,9 +40,9 @@
       <div class="pages__tabs">
         <nav>
           <ul>
-            <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == 'details') }" @click="tab = 'details'">Details</li>
-            <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == 'content') }" @click="tab = 'content'">Content</li>
-            <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == 'meta') }" @click="tab = 'meta'">Meta</li>
+            <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == item.tab) }" v-for="item in defaultTabs" @click="switchTab(item.tab)">{{ item.name }}</li>
+            <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == item.tab) }" v-for="item in tabs" v-if="showTab(item)" @click="switchTab(item.tab)">{{ item.name }}</li>
+            <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == 'meta') }" @click="switchTab('meta')">Meta</li>
           </ul>
         </nav>
       </div>
@@ -107,14 +107,24 @@
 
             </template>
 
+            <div class="form__row form__row--inline-label" v-if="showForms()">
+              <label for="form--form" class="form__label">Form</label>
+              <div class="form__horz-group">
+                <select id="form--form" v-model="page.form_id" required="required" class="form__control">
+                  <option :value="item.id" v-for="item in forms">{{ item.name }}</option>
+                </select>
+                <div class="form__note">Which form do you want to display on this page?</div>
+              </div>
+            </div><!-- / form row -->
+
             <div class="form__row form__row--inline-label" v-if="showBanner()">
               <label for="form--menu-text" class="form__label">Banner Image</label>
               <div class="form__horz-group">
                 <rd-image v-model="page.banner"></rd-image>
                 <div class="form__note">
                   Banner will be resized to <strong>fit within
-                  {{ page.id == 1 ? config.banner.dimensions.home.width : config.banner.dimensions.internal.width }}px wide x
-                  {{ page.id == 1 ? config.banner.dimensions.home.height : config.banner.dimensions.internal.height }}px tall</strong>
+                  {{ page.id == 1 ? config.banner.home.width : config.banner.internal.width }}px wide x
+                  {{ page.id == 1 ? config.banner.home.height : config.banner.internal.height }}px tall</strong>
                   <br/>
                   If you are having trouble with images, <a href="http://www.picresize.com/" target="_blank">visit this page</a> to create your image.
                 </div>
@@ -124,11 +134,10 @@
 
           </div><!-- / form -->
         </div><!-- / details -->
-
         <div class="pages__tab-pane" v-show="tab == 'content'">
           <header class="pages__tab-pane-header">
             <h3>Page Content</h3>
-            <aside>
+            <aside v-if="$root.user.user_level_id < 2">
               <a href="#" @click.prevent.stop="toggleContentEditorForm()" class="button button--green button--small"><i class="fa fa-plus"></i></a>
             </aside>
           </header>
@@ -179,8 +188,8 @@
                 <div class="form__row form__row--inline-label">
 
                   <div class="form__label form__label--with-controls">
-                    <i class="fa fa-times" @click="removeContent(index)"></i>
-                    <i class="fa fa-sort"></i>
+                    <i class="fa fa-times" @click="removeContent(index)" v-if="$root.user.user_level_id < 2"></i>
+                    <i class="fa fa-sort" v-if="page.content && page.content.length > 1"></i>
                     <label :for="'form--content-'+item.id">{{ item.name }}</label>
                   </div>
 
@@ -235,6 +244,11 @@
 
         </div>
 
+        <div class="pages__tab-pane" v-show="tab == item.tab" v-if="!item.default" v-for="item in tabs">
+          <h3>{{ item.name }}</h3>
+          <rd-pages-repeatable :item="item" :page="page"></rd-pages-repeatable>
+        </div>
+
       </div><!-- / info -->
     </section>
   </div><!-- / pages -->
@@ -246,11 +260,13 @@
 
   export default {
 
-    props: [ 'siteUrl', 'config' ],
+    props: [ 'siteUrl', 'config', 'modules' ],
 
     created () {
       // get pages
       this.$root.loading = true;
+      this.setupModules();
+
       axios
         .get('/refined/pages/get-tree')
         .then(r => {
@@ -260,6 +276,7 @@
             this.templates = r.data.templates;
             this.contentTypes = r.data.types;
             this.leaf = r.data.leaf;
+            this.forms = r.data.forms;
 
             // setting the initial page
             if (this.pages.length) {
@@ -272,6 +289,10 @@
               });
 
               this.resetParents();
+            }
+
+            if (this.templates.length) {
+              this.setFormTemplates();
             }
           }
         })
@@ -289,8 +310,9 @@
         page: {
           id: 0,
           meta: {
-            template_id: 0
-          }
+            template_id: 0,
+          },
+          data: {}
         },
 
         leaf: {},
@@ -300,6 +322,7 @@
         flatPages: {},
         templates: [],
         forms: [],
+        formTemplates: [],
         contentTypes: [],
         parents: [],
         parent: {
@@ -320,7 +343,14 @@
 
         contentSort: null,
 
-        url: null
+        url: null,
+
+        defaultTabs: [
+          { tab: 'details', name: 'Details' },
+          { tab: 'content', name: 'Content' },
+        ],
+
+        tabs: []
       }
     },
 
@@ -334,6 +364,25 @@
       ////////////////////////////////
       //// page
       ///////////////////////////////
+
+      // switch tab
+      switchTab(tab) {
+        this.tab = tab;
+      },
+
+      showTab(tab) {
+        let show = false;
+
+        if (this.page.id == 1 && tab.active.home) {
+          show = true;
+        }
+
+        if (this.page.id != 1 && tab.active.internal) {
+          show = true;
+        }
+
+        return show;
+      },
 
       // show / hide the tree
       toggleSubMenu(item) {
@@ -352,6 +401,11 @@
         //item.on = true; // use this only if we decide not to use the main model
         this.page.on = true;
         this.tab = 'details';
+        if (this.page.data == null) {
+          this.page.data = {};
+        } else {
+          this.resetRepeatableData();
+        }
 
 
         // if the page has children, auto show the child menu
@@ -875,6 +929,26 @@
 
       },
 
+      // create an array of templates that have forms
+      setFormTemplates() {
+        if (this.templates.length) {
+          this.templates.forEach(template => {
+            if (template.has_forms) {
+              this.formTemplates.push(template.id);
+            }
+          })
+        }
+      },
+
+      // work out if the forms attribute needs to show or not
+      showForms() {
+        if (this.formTemplates.indexOf(this.page.meta.template_id) > -1) {
+          return true;
+        }
+
+        return false;
+      },
+
       ////////////////////////////////
       //// end page
       ///////////////////////////////
@@ -967,19 +1041,123 @@
       showBanner() {
         let show = false;
 
-        if (this.config.banner.active == true) {
-          if (this.page.id == 1) {
-            show = this.config.banner.show_on_home;
-          }
+        if (this.page.id == 1 && this.config.banner.home.active) {
+          show = true;
+        }
 
-          if (this.page.id > 1) {
-            show = true;
-          }
-
+        if (this.page.id != 1 && this.config.banner.internal.active) {
+          show = true;
         }
 
         return show;
       },
+
+      ////////////////////////////////
+      //// page modules
+      ///////////////////////////////
+      setupModules() {
+        for (let i in this.modules) {
+          let module = this.modules[i];
+          let tab = {
+            tab: module.tab,
+            name: i,
+            default: false,
+            type: module.type,
+            fields: module.fields,
+            active: {
+              home: module.config.home.active,
+              internal: module.config.internal.active
+            }
+          };
+          this.tabs.push(tab);
+        }
+      },
+
+      addRepeatable(tab) {
+        if (typeof this.page.data[tab.tab] == 'undefined') {
+          Vue.set(this.page.data, tab.tab, []); // updates the reactivity, allows for correct looping
+        }
+
+        let row = {};
+        if (tab.fields.length) {
+          tab.fields.forEach(field => {
+            let note = this.getRepeatableFieldNote(field);
+
+            row[field.field] = {
+              page_content_type_id: field.page_content_type_id,
+              content: '',
+              note: note
+            };
+          });
+        }
+
+        this.page.data[tab.tab].push(row)
+      },
+
+      removeRepeatable(tab, index) {
+        if (typeof this.page.data[tab.tab] != 'undefined') {
+          swal({
+            title: 'Are you sure?',
+            icon: 'warning',
+            buttons: true,
+            dangerMode: true,
+          })
+          .then((value) => {
+            if (value) {
+              this.page.data[tab.tab].splice(index, 1);
+            }
+          });
+        }
+      },
+
+      getRepeatableFieldNote(field) {
+        let note = '';
+        if (field.field == 'image' && field.config) {
+          note = 'Banner will be resized to <strong>fit within ';
+              note += (this.page.id == 1 ? field.config.home.width : field.config.internal.width) + 'px wide x ';
+              note += (this.page.id == 1 ? field.config.home.height : field.config.internal.height) + 'px tall</strong>';
+          note += '<br/>If you are having trouble with images, <a href="http://www.picresize.com/" target="_blank">visit this page</a> to create your image.';
+        }
+
+        return note;
+      },
+
+      getRepeatableConfigField(fields, index) {
+        let configField = null;
+
+        if (Array.isArray(fields)) {
+          fields.forEach(field => {
+            if (field.field == index) {
+              configField = field;
+            }
+          });
+        }
+
+        return configField;
+      },
+
+      resetRepeatableData() {
+        this.tabs.forEach(tab => {
+          if (tab.type == 'repeatable') {
+            if (typeof this.page.data[tab.tab] != 'undefined' && Array.isArray(this.page.data[tab.tab])) {
+              this.page.data[tab.tab].forEach(row => {
+                for (let i in row) {
+                  let configField = this.getRepeatableConfigField(tab.fields, i);
+                  if (configField) {
+                    row[i].note = this.getRepeatableFieldNote(configField);
+                  }
+                }
+              });
+            }
+          }
+        });
+
+
+      },
+
+      ////////////////////////////////
+      //// end page modules
+      ///////////////////////////////
 
 
       clone(data) {

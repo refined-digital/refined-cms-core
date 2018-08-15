@@ -1,11 +1,3 @@
-<?php
-    $attrs = [
-        'required' => 'required',
-    ];
-    if (isset($field->attrs) && is_object($field->attrs)) {
-        $attrs = array_merge($attrs, (array) $field->attrs);
-    }
-?>
 {!!
     html()
         ->input(isset($field->type) ? $field->type : 'text', $field->name)

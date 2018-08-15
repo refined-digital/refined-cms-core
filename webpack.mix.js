@@ -14,7 +14,14 @@ let mix = require('laravel-mix');
 mix.config.fileLoaderDirs.images = 'img';
 mix.setPublicPath('assets');
 mix
-  .js('resources/js/main.js', 'js/main.js')
-  .sass('resources/sass/main.scss', 'css/main.css')
+  .js('resources/js/main.js', 'js/')
+  .js('resources/js/front-end/modules/FormBuilder.js', 'assets/js')
+  .js('resources/js/front-end/plugins/FormValidate.js', 'assets/js')
+  .sass('resources/sass/main.scss', 'css')
   .copy('node_modules/trumbowyg/dist/ui/icons.svg', 'assets/img/vendor/trumbowyg/dist/ui/icons.svg')
 ;
+
+if (mix.inProduction()) {
+  mix.version();
+}
+

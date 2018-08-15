@@ -22,13 +22,14 @@ class UserController extends CoreController
             (object) [ 'name' => 'First Name', 'field' => 'first_name', 'sortable' => true],
             (object) [ 'name' => 'Last Name', 'field' => 'last_name', 'sortable' => true],
             (object) [ 'name' => 'Email', 'field' => 'email', 'sortable' => true],
+            (object) [ 'name' => 'User Level', 'field' => 'user_level_id', 'type' => 'userLevel', 'sortable' => true],
             (object) [ 'name' => 'Active', 'field' => 'active', 'sortable' => true, 'type'=> 'select', 'options' => [1 => 'Yes', 0 => 'No'], 'classes' => ['data-table__cell--active']],
         ];
         $table->routes = (object) [
             'edit'      => 'refined.users.edit',
             'destroy'   => 'refined.users.destroy'
         ];
-        $table->sortable = true;
+        $table->sortable = false;
 
         $this->table = $table;
     }
@@ -43,7 +44,6 @@ class UserController extends CoreController
     {
         // get the instance
         $data = User::findOrFail($item);
-
         return parent::edit($data);
     }
 

@@ -8,10 +8,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
+use RefinedDigital\CMS\Modules\Users\Traits\UserLevel;
 
 class User extends Authenticatable implements Sortable
 {
-    use Notifiable, SortableTrait, SoftDeletes;
+    use Notifiable, SortableTrait, SoftDeletes, UserLevel;
 
     /**
      * The attributes that are mass assignable.
@@ -19,7 +20,7 @@ class User extends Authenticatable implements Sortable
      * @var array
      */
     protected $fillable = [
-        'active', 'position', 'first_name', 'last_name', 'email', 'password',
+        'active', 'position', 'user_level_id', 'first_name', 'last_name', 'email', 'password',
     ];
 
     public $sortable = [
@@ -51,7 +52,9 @@ class User extends Authenticatable implements Sortable
             'name' => 'Profile',
             'fields' => [
                 [
+                    [ 'count' => 3 ],
                     [ 'label' => 'Active', 'name' => 'active', 'required' => true, 'type' => 'select', 'options' => [1 => 'Yes', 0 => 'No'] ],
+                    [ 'label' => 'User Level', 'name' => 'user_level_id', 'required' => true, 'type' => 'userLevels', 'note' => 'User <strong>Admin</strong> for all administrators to edit website information<br/>Use <strong>Member</strong> for all users who login to the website' ],
                 ],
                 [
                     [ 'label' => 'First Name', 'name' => 'first_name', 'required' => true ],

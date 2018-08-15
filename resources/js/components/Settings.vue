@@ -4,8 +4,10 @@
       <div class="pages__header">
         <h3>Settings</h3>
         <aside>
-          <a href="" class="button button--green button--small" @click.prevent.stop="toggleContentEditorForm">Add a Setting</a>
-          <span> | </span>
+          <template v-if="$root.user.user_level_id < 2">
+            <a href="" class="button button--green button--small" @click.prevent.stop="toggleContentEditorForm">Add a Setting</a>
+            <span> | </span>
+          </template>
           <a href="" class="button button--blue button--small" @click.prevent.stop="save">Save</a>
         </aside>
       </div><!-- / header -->
@@ -61,7 +63,7 @@
                 <div class="form__row form__row--inline-label" :class="{ 'form__row--required' : item.required }">
 
                   <div class="form__label form__label--with-controls">
-                    <i class="fa fa-times" @click="removeContent(index)"></i>
+                    <i class="fa fa-times" @click="removeContent(index)" v-if="$root.user.user_level_id < 2"></i>
                     <i class="fa fa-sort"></i>
                     <label :for="'form--content-'+item.id">{{ item.name }}</label>
                   </div>
@@ -103,10 +105,9 @@
       ;
 
       this.content = this.data;
-
     },
 
-    update() {
+    updated() {
       this.$nextTick(() => {
         this.initSort();
       });
@@ -229,7 +230,6 @@
           });
         }
       },
-
 
       save() {
         // do some quick validation

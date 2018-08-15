@@ -10,7 +10,6 @@ class RouteAggregate
     public function addRouteFile($name, $file)
     {
         $this->routeFiles[$name] = $file;
-        //help()->trace($this->routeFiles);
     }
 
     public function getRouteFiles()

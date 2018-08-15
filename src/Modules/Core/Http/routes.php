@@ -1,6 +1,7 @@
 <?php
 
 use RefinedDigital\CMS\Modules\Core\Models\RouteAggregate;
+use RefinedDigital\CMS\Modules\Core\Models\PublicRouteAggregate;
 
 // the login routes
 Route::middleware(['web'])
@@ -23,7 +24,7 @@ Route::middleware(['web'])
 ;
 
 
-Route::middleware(['web', 'auth'])
+Route::middleware(['web', 'auth', 'userLevel'])
     ->as('refined.')
     ->namespace('RefinedDigital\\')
     ->prefix('refined')
@@ -39,9 +40,24 @@ Route::middleware(['web', 'auth'])
     })
 ;
 
-Route::namespace('RefinedDigital\\CMS\\Modules\\Pages\\Http\\Controllers')
+Route::middleware(['web'])
+    ->namespace('RefinedDigital\\CMS\\Modules\\Pages\\Http\\Controllers')
     ->group(function() {
         Route::get('sitemap.xml',   ['uses' => 'PageController@xmlSitemap']);
         Route::get('{uri}',         ['uses'=>'PageController@render'])->where('uri', '(.*)');
+    })
+;
+
+// include the public routes
+Route::middleware(['web'])
+    ->as('refined.')
+    ->namespace('RefinedDigital\\')
+    ->group(function(){
+
+        $publicRouteAggregate = app(PublicRouteAggregate::class);
+        foreach ($publicRouteAggregate->getRouteFiles() as $routeFile)
+        {
+            include($routeFile);
+        }
     })
 ;

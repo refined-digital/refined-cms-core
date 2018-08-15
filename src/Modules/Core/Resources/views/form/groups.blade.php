@@ -1,7 +1,10 @@
-<div class="form__group form__group--{{ sizeof($groups) }}">
+<div class="form__group form__group--{{ forms()->getGroupCount($groups) }}">
     @foreach($groups as $field)
-        <div class="form__row{{ isset($field->required) && $field->required ? ' form__row--required' : '' }}{{ $errors->has($field->name) ? ' form__row--has-error' : '' }}">
-
+        @if (isset($field->count)) @continue @endif
+        <div
+            class="form__row{{ isset($field->required) && $field->required ? ' form__row--required' : '' }}{{ $errors->has($field->name) ? ' form__row--has-error' : '' }}"
+            {!! (isset($field->row->attrs) ? help()->arrToAttr($field->row->attrs) : '') !!}
+        >
             <?php
                 $show = true;
                 if (isset($field->type) && $field->type == 'datetime') {
@@ -12,10 +15,26 @@
                     $show = false;
                 }
 
+                $attrs = [
+                    'required' => 'required',
+                ];
+                if (isset($field->{'v-model'})) {
+                    $attrs['v-model'] = $field->{'v-model'};
+                }
+
+                if (isset($field->attrs) && is_object($field->attrs)) {
+                    $attrs = array_merge($attrs, (array) $field->attrs);
+                }
             ?>
 
             @if($show)
                 {!! html()->label($field->label)->class('form__label')->for('form--'.$field->name) !!}
+            @endif
+
+            @if( (isset($field->pre_note) && $field->pre_note))
+                <div class="form__note">
+                    @if (isset($field->pre_note) && $field->pre_note) {!! $field->pre_note !!} @endif
+                </div>
             @endif
 
             @if (isset($field->type) && view()->exists('core::form.elements.'.$field->type))

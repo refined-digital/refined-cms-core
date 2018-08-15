@@ -3,35 +3,42 @@
         $showHeader = true;
     }
 ?>
-@if($routeEnd == 'index')
+@if(isset($routeEnd) && ($routeEnd == 'index' || $routeEnd == 'fields'))
     @if($showHeader)
         <div class="app__content-header">
             <h2>
+                @if (isset($parent->name))
+                    <a href="{{ $parent->index or '#' }}">{{ $parent->name }}</a> /
+                @endif
                 <a href="{{ $routes->index or '#' }}">{{ $heading }}</a>
             </h2>
             <aside>
-                @if (isset($routes->create) && $routeEnd == 'index')
+                @if (isset($routes->create) && ($routeEnd == 'index' || $routeEnd == 'fields'))
                     <a href="{{ $routes->create }}" class="button button--blue">Add{{ $button ? ' '.$button : ''}}</a>
+                @endif
+
+                @if (isset($indexButtons) && sizeof($indexButtons))
+                    @foreach ($indexButtons as $button)
+                        <a href="{{ $button->href }}" class="{{ $button->class }}">{{ $button->name }}</a>
+                    @endforeach
                 @endif
             </aside>
         </div>
     @endif
 @else
-    @if($showHeader)
+    @if($showHeader && isset($data))
         <div class="app__content-header">
             <h2>
+                @if (isset($parent->name))
+                    <a href="{{ $parent->index or '#' }}">{{ $parent->name }}</a> /
+                @endif
                 <a href="{{ $routes->index or '#' }}">{{ $heading }}</a> / {{ $routeEnd == 'create' ? 'Create' : ''}}
                 <span>{{ $data->name }}</span>
             </h2>
-            <aside>
-                <a href="#" class="button button--blue" @click.prevent.stop="submitForm('save')">Save</a>
-                <a href="#" class="button button--blue" @click.prevent.stop="submitForm('save & return')">Save & Return</a>
-                <a href="#" class="button button--blue" @click.prevent.stop="submitForm('save & new')">Save & New</a>
-                <a href="{{ $routes->index }}" class="button button--red">Cancel</a>
-            </aside>
+            @include('core::includes.body-header-buttons')
         </div>
     @endif
-    @if (sizeof($data->getFormFields()) > 1)
+    @if (isset($data) && sizeof($data->getFormFields()) > 1)
         <nav class="tab__nav">
             <ul>
                 @foreach($data->getFormFields() as $tab)

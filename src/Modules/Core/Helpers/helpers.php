@@ -2,8 +2,10 @@
 
 use RefinedDigital\CMS\Modules\Core\Helpers\Help;
 use RefinedDigital\CMS\Modules\Core\Helpers\Menu;
+use RefinedDigital\CMS\Modules\Core\Helpers\Pages;
 use RefinedDigital\CMS\Modules\Core\Helpers\RefinedImage;
 use RefinedDigital\CMS\Modules\Settings\Http\Repositories\SettingRepository;
+use RefinedDigital\CMS\Modules\Users\Http\Repositories\Users;
 
 if (! function_exists('help')) {
     function help()
@@ -30,5 +32,20 @@ if (! function_exists('settings')) {
     function settings()
     {
         return app(SettingRepository::class);
+    }
+}
+
+
+if (! function_exists('pages')) {
+    function pages()
+    {
+        return app(Pages::class);
+    }
+}
+
+if (! function_exists('users')) {
+    function users()
+    {
+        return app(Users::class);
     }
 }

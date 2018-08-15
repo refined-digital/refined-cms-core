@@ -103,22 +103,73 @@ class CoreModel extends Model
         }
 
         // check if we have a module config
-        // todo: update this to be more dynamic
         $module = class_basename($this);
-        $config = config(strtolower($module).'.fields');
-        if (is_array($config) && sizeof($config)) {
-            foreach ($fields as $key => $fieldSet) {
-                if (isset($fieldSet['blocks']) && is_array($fieldSet['blocks'])) {
-                    foreach ($fieldSet['blocks'] as $bKey => $block) {
-                        if (is_array($block)) {
-                            foreach ($block as $fgKey => $fieldGroup) {
-                                if (isset($fieldGroup['fields']) && is_array($fieldGroup['fields'])) {
-                                    foreach ($fieldGroup['fields'] as $iKey => $inputFields) {
-                                        foreach ($inputFields as $fKey => $field) {
-                                            if (isset($config[$field['name']])) {
-                                                $fields[$key]['blocks'][$bKey][$fgKey]['fields'][$iKey][$fKey] = array_merge($field, $config[$field['name']]);
-                                            }
+        $config = config(strtolower($module));
+        $fields = $this->fieldsMergeConfig($fields, $config);
+
+        // check if there are any extra fields
+        $fields = $this->fieldsAddExtra($fields, $config);
+
+        return json_decode(json_encode($fields));
+    }
+
+    public function fieldsMergeConfig($fields, $config)
+    {
+        if (isset($config['fields'])) {
+            $configFields = $config['fields'];
+            if (is_array($configFields) && sizeof($configFields)) {
+                foreach ($configFields as $name => $data) {
+                    $key = $this->findFieldKey($fields, $name);
+                    $field =  array_get($fields, $key);
+                    if ($field) {
+                        $newField = array_merge($field, $data);
+                        array_set($fields, $key, $newField);
+                    }
+
+                }
+            }
+        }
+
+        return $fields;
+    }
+
+    public function findFieldKey($fields, $name)
+    {
+        $fieldKeys = $this->array_find_deep($fields, $name);
+        array_pop($fieldKeys);
+        $key = implode('.', $fieldKeys);
+
+        return $key;
+    }
+
+    public function fieldsAddExtra($fields, $config)
+    {
+        // todo: make this more dynamic and nicer
+        if (isset($config['extra_fields'])) {
+            $configFields = $config['extra_fields'];
+            if (is_array($configFields) && sizeof($configFields)) {
+                foreach ($configFields as $name => $data) {
+                    $data['name'] = 'data__'.$data['name'];
+                    if (isset($data['insertAfter'])) {
+                        $key = $this->findFieldKey($fields, $data['insertAfter']);
+                        if ($key) {
+                            $keyBits = explode('.', $key);
+                            if (sizeof($keyBits)) {
+                                array_pop($keyBits);
+                                $key = implode('.', $keyBits);
+
+                                $siblings = array_get($fields, $key);
+                                if (is_array($siblings)) {
+                                    $newData = [];
+                                    foreach ($siblings as $sib) {
+                                        $newData[] = $sib;
+                                        if ($sib['name'] == $name) {
+                                            $newData[] = $data;
                                         }
+                                    }
+
+                                    if (sizeof($newData)) {
+                                        array_set($fields, $key, $newData);
                                     }
                                 }
                             }
@@ -128,6 +179,22 @@ class CoreModel extends Model
             }
         }
 
-        return json_decode(json_encode($fields));
+        return $fields;
+    }
+
+    public function array_find_deep($array, $search, $keys = array())
+    {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $sub = $this->array_find_deep($value, $search, array_merge($keys, array($key)));
+                if (count($sub)) {
+                    return $sub;
+                }
+            } else if ($value === $search) {
+                return array_merge($keys, array($key));
+            }
+        }
+
+        return array();
     }
 }

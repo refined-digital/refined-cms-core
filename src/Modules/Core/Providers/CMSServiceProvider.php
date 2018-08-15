@@ -2,14 +2,19 @@
 
 namespace RefinedDigital\CMS\Modules\Core\Providers;
 
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Foundation\AliasLoader;
 use RefinedDigital\CMS\Commands\InstallCMS;
 use RefinedDigital\CMS\Commands\InstallDatabase;
 use RefinedDigital\CMS\Commands\InstallSymLink;
+use RefinedDigital\CMS\Modules\Core\Exceptions\Handler;
+use RefinedDigital\CMS\Modules\Core\Http\Middleware\UserLevel;
 use RefinedDigital\CMS\Modules\Core\Http\ResourceRegistrar;
 use RefinedDigital\CMS\Modules\Core\Models\PackageAggregate;
+use RefinedDigital\CMS\Modules\Core\Models\PublicRouteAggregate;
 use Validator;
 
 use RefinedDigital\CMS\Modules\Core\Models\RouteAggregate;
@@ -24,7 +29,7 @@ class CMSServiceProvider extends ServiceProvider
      * @return void
      */
 
-    public function boot()
+    public function boot(Router $router)
     {
         Schema::defaultStringLength(191);
 
@@ -69,6 +74,10 @@ class CMSServiceProvider extends ServiceProvider
                 ]);
             }
         }
+
+
+        // register the custom middleware
+        $router->aliasMiddleware('userLevel', UserLevel::class);
     }
 
     /**
@@ -87,8 +96,13 @@ class CMSServiceProvider extends ServiceProvider
 
         // load in the helpers
         $this->app->singleton(RouteAggregate::class);
+        $this->app->singleton(PublicRouteAggregate::class);
         $this->app->singleton(ModuleAggregate::class);
         $this->app->singleton(PackageAggregate::class);
+
+        // override the error handler
+        $this->app->singleton(ExceptionHandler::class, Handler::class);
+
 
         // load in the modules
         $this->mergeConfigFrom(__DIR__.'/../../../../config/modules.php', 'modules');

@@ -48,6 +48,8 @@
                     <div class="app__profile">
                         Welcome back {{ auth()->user()->first_name }}
                         <span> | </span>
+                        <a href="{{ config('app.url') }}" target="_blank">View Website</a>
+                        <span> | </span>
                         <a href="{{ route('logout') }}">Logout</a>
                     </div>
                 </header>
@@ -69,6 +71,7 @@
         <script src="{{ asset('vendor/refinedcms/js/main.js?v='.uniqid()) }}"></script>
         <script>
             window.app.siteUrl = "{{ rtrim(config('app.url'), '/') }}";
+            window.app.user = JSON.parse('{!! json_encode(users()->getLoggedInUser()) !!}');
         </script>
         @yield('scripts')
     </body>

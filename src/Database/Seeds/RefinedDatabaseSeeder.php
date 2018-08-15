@@ -19,5 +19,6 @@ class RefinedDatabaseSeeder extends Seeder
         $this->call(PageHoldersSeeder::class);
         $this->call(PagesSeeder::class);
         $this->call(MediaSeeder::class);
+        $this->call(UserLevelSeeder::class);
     }
 }

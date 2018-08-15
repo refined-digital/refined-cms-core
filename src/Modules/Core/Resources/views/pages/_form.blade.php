@@ -2,22 +2,28 @@
     <div class="tab__pane" v-show="tab == '{{ str_slug($tab->name) }}'">
 
         @if (isset($tab->blocks))
-            <div class="tab__groups">
-                <div class="tab__left">
-                    @if (isset($tab->blocks->left) && is_array($tab->blocks->left))
-                        @foreach($tab->blocks->left as $group)
-                            @include('core::form.blocks')
-                        @endforeach
-                    @endif
-                </div><!-- / tab left -->
-                <div class="tab__right">
-                    @if (isset($tab->blocks->right) && is_array($tab->blocks->right))
-                        @foreach($tab->blocks->right as $group)
-                            @include('core::form.blocks')
-                        @endforeach
-                    @endif
-                </div><!-- / tab right -->
-            </div>
+            @if (isset($tab->blocks->left))
+                <div class="tab__groups">
+                    <div class="tab__left">
+                        @if (isset($tab->blocks->left) && is_array($tab->blocks->left))
+                            @foreach($tab->blocks->left as $group)
+                                @include('core::form.blocks')
+                            @endforeach
+                        @endif
+                    </div><!-- / tab left -->
+                    <div class="tab__right">
+                        @if (isset($tab->blocks->right) && is_array($tab->blocks->right))
+                            @foreach($tab->blocks->right as $group)
+                                @include('core::form.blocks')
+                            @endforeach
+                        @endif
+                    </div><!-- / tab right -->
+                </div>
+            @else
+                @foreach($tab->blocks as $group)
+                    @include('core::form.blocks')
+                @endforeach
+            @endif
         @elseif (isset($tab->fields))
 
             <div class="block">

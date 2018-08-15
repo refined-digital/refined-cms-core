@@ -4,12 +4,12 @@ window.dragula = require('dragula');
 window.swal = require('sweetalert');
 require('./directives/_directives');
 
-
 Vue.component('rd-date-time-picker', require('./components/DateTimePicker.vue'));
 Vue.component('rd-rich-text', require('./components/RichText.vue'));
 Vue.component('rd-tags', require('./components/Tags.vue'));
 Vue.component('rd-pages', require('./components/Pages.vue'));
 Vue.component('rd-pages-branch', require('./components/PagesBranch.vue'));
+Vue.component('rd-pages-repeatable', require('./components/PagesRepeatable.vue'));
 Vue.component('rd-content-editor-field', require('./components/ContentEditorField.vue'));
 Vue.component('rd-settings', require('./components/Settings.vue'));
 Vue.component('rd-media', require('./components/Media.vue'));
@@ -17,6 +17,7 @@ Vue.component('rd-media-branch', require('./components/MediaBranch.vue'));
 Vue.component('rd-media-file', require('./components/MediaFile.vue'));
 Vue.component('rd-image', require('./components/Image.vue'));
 Vue.component('rd-file', require('./components/File.vue'));
+Vue.component('rd-form-options', require('./components/FormOptions.vue'));
 
 window.eventBus = new Vue({});
 
@@ -27,6 +28,7 @@ window.app = new Vue({
     	tab: 'content',
     	loading: false,
     	siteUrl: false,
+    	user: {},
     	content: {
     	  name: null,
     	  uri: null
@@ -37,6 +39,20 @@ window.app = new Vue({
     	  showModal: false,
     	  model: 0
     	},
+    	form: {
+        action: 1,
+        receipt: 0,
+        reply: 0,
+        field: {
+          type: 0,
+          showOptionsFor: [
+              '3','4','5'
+          ],
+          showDataFor: [
+              '13', '20'
+          ]
+        },
+    	}
     },
 
     methods: {

@@ -53,6 +53,10 @@ trait IsPage
                 if (config(strtolower($base).'.details_template_id')) {
                     $template = config(strtolower($base).'.details_template_id');
                 }
+            } else {
+                if ($request['meta']['template_id']) {
+                    $template = $request['meta']['template_id'];
+                }
             }
 
             $modelType = get_class($model);

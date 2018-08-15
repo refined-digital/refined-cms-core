@@ -7,9 +7,9 @@
             ->text($field->name)
             ->class('form__control')
             ->id('form--'.$field->name)
-            ->attribute('required', 'required')
             ->attribute('readonly', '')
             ->attribute('v-model', 'content.uri')
+            ->attributes($attrs)
     !!}
     <span class="copy-url" @click="copyUrl"><i class="fas fa-link"></i></span>
 </div>

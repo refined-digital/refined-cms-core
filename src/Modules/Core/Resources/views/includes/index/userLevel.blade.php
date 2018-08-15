@@ -1,0 +1,1 @@
+{{ $d->user_level->name or 'Not Set' }}

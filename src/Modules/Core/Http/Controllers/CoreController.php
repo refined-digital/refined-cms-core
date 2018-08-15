@@ -16,6 +16,18 @@ class CoreController extends Controller
     protected $routes;
     protected $route;
 
+    protected $parentRoute;
+    protected $parentModel;
+    protected $parentIndex;
+
+    protected $buttons = [
+        ['class' => 'button button--blue', 'name' => 'Save', 'href' => '#'],
+        ['class' => 'button button--blue', 'name' => 'Save & Return', 'href' => '#'],
+        ['class' => 'button button--blue', 'name' => 'Save & New', 'href' => '#'],
+    ];
+
+    protected $indexButtons = [];
+
     private $coreRepository;
 
     public function __construct(CoreRepository $coreRepository)
@@ -24,14 +36,30 @@ class CoreController extends Controller
         $this->coreRepository->setModel($this->model);
 
         $this->routes = new \stdClass();
-        if ($this->route) {
-            $this->routes->search = route('refined.'.$this->route.'.index');
-            $this->routes->create = route('refined.'.$this->route.'.create');
-            $this->routes->store = route('refined.'.$this->route.'.store');
-            $this->routes->update = 'refined.'.$this->route.'.update';
-            $this->routes->sort = route('refined.'.$this->route.'.position');
-            $this->routes->index = route('refined.'.$this->route.'.index');
+        if (!app()->runningInConsole()) {
+            if ($this->route) {
+                if ($this->parentRoute) {
+                    $route = request()->route($this->parentRoute);
+                    $this->routes->search = route('refined.'.$this->route.'.index', $route);
+                    $this->routes->create = route('refined.'.$this->route.'.create', $route);
+                    $this->routes->store = route('refined.'.$this->route.'.store', $route);
+                    $this->routes->update = 'refined.'.$this->route.'.update';
+                    $this->routes->sort = route('refined.'.$this->route.'.position', $route);
+                    $this->routes->index = route('refined.'.$this->route.'.index', $route);
+                } else {
+                    $this->routes->search = route('refined.'.$this->route.'.index');
+                    $this->routes->create = route('refined.'.$this->route.'.create');
+                    $this->routes->store = route('refined.'.$this->route.'.store');
+                    $this->routes->update = 'refined.'.$this->route.'.update';
+                    $this->routes->sort = route('refined.'.$this->route.'.position');
+                    $this->routes->index = route('refined.'.$this->route.'.index');
+                }
+            }
         }
+
+        $this->buttons = json_decode(json_encode($this->buttons));
+        $this->indexButtons = json_decode(json_encode($this->indexButtons));
+
     }
 
 
@@ -43,12 +71,17 @@ class CoreController extends Controller
     public function index()
     {
         // do the initial setting of vars on the child class
+        $data = $this->coreRepository->getAll();
+        return $this->indexSetup($data);
+    }
+
+
+    public function indexSetup($data) {
         $this->setup();
 
         $config = $this->getConfig();
 
         // get the data listing
-        $data = $this->coreRepository->getAll();
         $config['data'] = $data;
 
         // add the table settings, if there are any
@@ -70,6 +103,12 @@ class CoreController extends Controller
                 if (request()->has('perPage') && request()->get('perPage') == 'all') {
                     $config['sort'] = true;
                 }
+            }
+        }
+
+        if ($config['showEnableSorting']) {
+            if ($data instanceof \Illuminate\Pagination\LengthAwarePaginator && $data->total() <= $data->perPage()) {
+                $config['showEnableSorting'] = false;
             }
         }
 
@@ -182,20 +221,37 @@ class CoreController extends Controller
     protected function getConfig()
     {
         $route = explode('.', \Route::currentRouteName());
+        $routeEnd = end($route);
 
         // add in the variables
         $config = [];
         $config['routes'] = $this->routes;
-        $config['routeEnd'] = isset($route[2]) ? $route[2] : null;
+        $config['routeEnd'] = sizeof($route) > 1 ? $routeEnd : null;
         $config['heading'] = $this->heading;
         $config['button'] = $this->button;
         $config['sort'] = false;
         $config['sortable'] = false;
+        $config['showEnableSorting'] = true;
+        $config['prefix'] = $this->prefix;
+        if (sizeof($this->buttons)) {
+            $config['buttons'] = $this->buttons;
+        }
+        if (sizeof($this->indexButtons)) {
+            $config['indexButtons'] = $this->indexButtons;
+        }
+        if ($this->parentRoute) {
+            $repo = new CoreRepository();
+            $repo->setModel($this->parentModel);
+            $config['parent'] = $repo->find(request()->route($this->parentRoute));
+            if ($this->parentIndex) {
+                $config['parent']->index = route('refined.'.$this->parentIndex);
+            }
+        }
 
         return $config;
     }
 
-    protected function getReturnRoute($id, $type = false)
+    protected function getReturnRoute($id, $type = false, $parentId = false)
     {
         $route = route('refined.'.$this->route.'.edit', $id);
 
@@ -205,6 +261,10 @@ class CoreController extends Controller
 
         if ($type == 'save & new') {
             $route = route('refined.'.$this->route.'.create');
+        }
+
+        if ($type == 'save & edit fields') {
+            $route = route('refined.'.$this->route.'.fields.index', $id);
         }
 
         return $route;

@@ -69,6 +69,22 @@
         display: none;
       }
     }
+
+    &--options {
+      .data-table {
+        thead, tfoot {
+          th, td {
+            padding: 10px 8px;
+          }
+        }
+      }
+
+      &-row {
+        &.gu-mirror {
+          visibility: hidden !important;
+        }
+      }
+    }
   }
 
   select.form__control {
@@ -305,14 +321,14 @@
 
 
   &__image {
-    width: 300px;
+    width: 220px;
 
     figure {
       border: 1px solid #e5e5e5;
       background: #f7f7f7;
       padding: 5px;
-      width: 300px;
-      height: 300px;
+      width: 220px;
+      height: 220px;
 
       .form__image-thumb {
         display: block;

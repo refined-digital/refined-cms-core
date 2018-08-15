@@ -21,17 +21,20 @@ class ModuleAggregate
     public function addMenuItem($config)
     {
         $this->routeFiles[$config['order']] = json_decode(json_encode([
-            'name'      => $config['name'],
-            'icon'      => $config['icon'],
-            'route'     => $config['route'],
-            'activeFor' => $config['activeFor'],
-            'children'  => isset($config['children']) && is_array($config['children']) ? $config['children'] : [],
+            'name'              => $config['name'],
+            'icon'              => $config['icon'],
+            'route'             => $config['route'],
+            'activeFor'         => $config['activeFor'],
+            'max_user_level_id' => isset($config['max_user_level_id']) ? $config['max_user_level_id'] : null,
+            'children'          => isset($config['children']) && is_array($config['children']) ? $config['children'] : [],
         ]));
     }
 
     public function getMenuItems()
     {
-        return $this->routeFiles;
+        $routes = $this->routeFiles;
+        ksort($routes);
+        return $routes;
     }
 
 }

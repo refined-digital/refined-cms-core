@@ -27,7 +27,8 @@ class CreatePagesTable extends Migration
             $table->integer('form_id')->nullable();
             $table->integer('position');
             $table->string('name');
-            $table->integer('banner');
+            $table->integer('banner')->nullable();
+            $table->json('data')->nullable();
 
             $table->foreign('page_holder_id')->references('id')->on('page_holders')->onDelete('cascade');
         });

@@ -1,4 +1,4 @@
-<div class="block">
+<div class="block"{!! (isset($group->attrs) ? help()->arrToAttr($group->attrs) : '') !!}>
     @if(isset($group->name))
     <header>
         <h3>

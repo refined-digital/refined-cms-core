@@ -193,6 +193,18 @@ class RefinedImage {
         return $this->save();
     }
 
+    public function string()
+    {
+        $this->returnType = 'string';
+        return $this->save();
+    }
+
+    public function object()
+    {
+        $this->returnType = 'object';
+        return $this->save();
+    }
+
 
 
 

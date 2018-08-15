@@ -127,4 +127,48 @@ class Help {
     {
         return 'tel:'.$this->clean(preg_replace('/\D/', '', $phone));
     }
+
+    public function arrToAttr($attrs)
+    {
+        $data = '';
+
+        // if the type is an object, convert to array to loop over
+        if (gettype($attrs) == 'object') {
+            $attrs = (array) $attrs;
+        }
+
+        if (is_array($attrs) && sizeof($attrs)) {
+            foreach ($attrs as $key => $value) {
+                if (is_numeric($key)) {
+                    $data .= ' '.$value;
+                } else {
+                    $data .= ' '.$key.'="'.$value.'"';
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    public function getClientIP() {
+
+        if (array_key_exists('HTTP_X_REAL_IP', $_SERVER)) {
+            $ipaddress = $_SERVER['HTTP_X_REAL_IP'];
+        } else if(array_key_exists('HTTP_CLIENT_IP', $_SERVER)) {
+            $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+        } else if(array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else if(array_key_exists('HTTP_X_FORWARDED', $_SERVER)) {
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+        } else if(array_key_exists('HTTP_FORWARDED_FOR', $_SERVER)) {
+            $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+        } else if(array_key_exists('HTTP_FORWARDED', $_SERVER)) {
+            $ipaddress = $_SERVER['HTTP_FORWARDED'];
+        } else if(array_key_exists('REMOTE_ADDR', $_SERVER)) {
+            $ipaddress = $_SERVER['REMOTE_ADDR'];
+        } else {
+            $ipaddress = 'UNKNOWN';
+        }
+        return $ipaddress;
+    }
 }

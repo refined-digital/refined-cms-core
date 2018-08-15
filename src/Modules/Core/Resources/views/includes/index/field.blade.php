@@ -1,0 +1,1 @@
+{{ $d->type->name or '' }}

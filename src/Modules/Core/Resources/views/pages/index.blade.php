@@ -10,7 +10,7 @@
 
         @if ($data->count())
             @if (isset($tableSettings->fields))
-                @if ($sortable)
+                @if ($sortable && $showEnableSorting)
                     <p class="text--right">
                         @if (request()->has('perPage') && request()->get('perPage') == 'all')
                             <a href="{{ $routes->index }}" class="text--red">Cancel Sorting</a>
@@ -43,8 +43,12 @@
                                 @endif
                                 @foreach($tableSettings->fields as $field)
                                     <td class="data-table__cell{{ isset($field->classes) ? ' '.implode(' ', $field->classes) : '' }}">
-                                        @if (isset($tableSettings->routes->edit))
-                                            <a href="{{ route($tableSettings->routes->edit, $d->id) }}">
+                                        @if (isset($tableSettings->routes->edit) || isset($field->route))
+                                            @if (isset($field->route))
+                                                <a href="{{ route($field->route, $d->id) }}">
+                                            @else
+                                                <a href="{{ route($tableSettings->routes->edit, $d->id) }}">
+                                            @endif
                                         @endif
 
                                             @if (isset($field->type) && view()->exists('core::includes.index.'.$field->type))
@@ -66,7 +70,7 @@
 
                                     @if (isset($tableSettings->extraActions) && is_array($tableSettings->extraActions) && sizeof($tableSettings->extraActions))
                                         @foreach ($tableSettings->extraActions as $action)
-                                            <a href="{{ route($action->route, $d->id) }}" title="{{ $action->name }}"><i class="fa {{ $action->icon }}"></i></a>
+                                            <a href="{{ route($action->route, $d->id) }}" title="{{ $action->name }}"><i class="{{ $action->icon }}"></i></a>
                                         @endforeach
                                     @endif
 

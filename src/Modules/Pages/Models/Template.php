@@ -16,7 +16,7 @@ class Template extends CoreModel implements Sortable
      * @var array
      */
     protected $fillable = [
-        'active', 'position', 'name', 'source',
+        'active', 'position', 'has_forms', 'name', 'source',
     ];
 
     public $formFields = [

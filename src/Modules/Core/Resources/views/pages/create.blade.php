@@ -18,7 +18,11 @@
                 ->open()
         !!}
 
-        @include('core::pages._form')
+        @if(view()->exists($prefix.'_form'))
+            @include($prefix.'_form')
+        @else
+            @include('core::pages._form')
+        @endif
 
         {!! html()->closeModelForm() !!}
     </div>

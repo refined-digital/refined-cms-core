@@ -20,4 +20,5 @@ a:hover { color:color(link-hover); }
 
 a, input[type="submit"], button, .data-table__cell, .tree li i, .tree li span,
 .pages__tab, .content-editor__field .fa-times, .media-uploader__dropzone,
-.media-uploader__header aside i, .media__toggle i { transition:all 200ms linear; }
+.media-uploader__header aside i, .media__toggle i, .data-table__cell--options-plus i,
+.data-table__cell--options-delete i { transition:all 200ms linear; }

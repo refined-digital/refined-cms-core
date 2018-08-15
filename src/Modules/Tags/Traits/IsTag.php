@@ -36,7 +36,8 @@ trait IsTag
             ];
 
             if ($model->meta) {
-                $model->meta;
+                $model->meta->fill($uriData);
+                $model->meta->save();
             } else {
                 Uri::create($uriData);
             }

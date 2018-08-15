@@ -4,6 +4,7 @@ namespace RefinedDigital\CMS\Modules\Pages\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use RefinedDigital\CMS\Modules\Core\Models\ModuleAggregate;
+use RefinedDigital\CMS\Modules\Core\Models\PageAggregate;
 use RefinedDigital\CMS\Modules\Core\Models\RouteAggregate;
 
 class PageServiceProvider extends ServiceProvider
@@ -23,6 +24,10 @@ class PageServiceProvider extends ServiceProvider
         view()->addNamespace('templates', [
             base_path().'/resources/views/templates'
         ]);
+
+        $this->publishes([
+            __DIR__.'/../config/pages.php' => config_path('pages.php'),
+        ], 'pages');
     }
 
     /**
@@ -35,6 +40,8 @@ class PageServiceProvider extends ServiceProvider
         app(RouteAggregate::class)
             ->addRouteFile('page', __DIR__.'/../Http/routes.php');
 
+        $this->app->singleton(PageAggregate::class);
+
         $menuConfig = [
             'order' => 1,
             'name' => 'Pages',
@@ -43,7 +50,7 @@ class PageServiceProvider extends ServiceProvider
             'activeFor' => ['pages', 'templates'],
             'children' => [
                 (object) [ 'name' => 'Pages', 'route' => 'pages', 'activeFor' => ['pages']],
-                (object) [ 'name' => 'Templates', 'route' => 'templates', 'activeFor' => ['templates']],
+                (object) [ 'name' => 'Templates', 'route' => 'templates', 'activeFor' => ['templates'], 'max_user_level_id' => 1],
                 (object) [ 'name' => 'Settings', 'route' => ['settings.index', 'pages'], 'activeFor' => ['settings']],
             ]
         ];
@@ -51,6 +58,6 @@ class PageServiceProvider extends ServiceProvider
         app(ModuleAggregate::class)
             ->addMenuItem($menuConfig);
 
-        $this->mergeConfigFrom(__DIR__.'/../Config/page.php', 'page');
+        $this->mergeConfigFrom(__DIR__.'/../Config/pages.php', 'pages');
     }
 }

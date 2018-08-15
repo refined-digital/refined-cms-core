@@ -5,6 +5,7 @@ namespace RefinedDigital\CMS\Modules\Pages\Http\Controllers;
 use RefinedDigital\CMS\Modules\Core\Http\Controllers\CoreController;
 use RefinedDigital\CMS\Modules\Pages\Http\Repositories\PageRepository;
 use Illuminate\Http\Request;
+use RefinedDigital\FormBuilder\Module\Http\Repositories\FormBuilderRepository;
 
 class PageController extends CoreController
 {
@@ -161,7 +162,8 @@ class PageController extends CoreController
         $templates = $this->pageRepository->getPageTemplates();
         $types = $this->pageRepository->getContentTypes();
         $leaf = $this->pageRepository->getLeaf();
-        $forms = [];
+        $formRepo = new FormBuilderRepository();
+        $forms = $formRepo->getForTree();
 
         return response()->json([
             'tree'      => $data,
