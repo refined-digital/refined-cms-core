@@ -33,9 +33,11 @@ class EmailRepository extends CoreRepository {
 
         $item = EmailSubmission::create($submissionData);
 
+        $userId = auth()->check() ? auth()->user()->id : null;
+
         activity()
             ->performedOn($item)
-            ->causedBy(auth()->user()->id)
+            ->causedBy($userId)
             ->withProperties(['Email has been sent'])
             ->log('Email has been sent')
         ;
