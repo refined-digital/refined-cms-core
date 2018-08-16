@@ -3,6 +3,7 @@
 namespace RefinedDigital\CMS\Modules\Core\Http\Repositories;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use RefinedDigital\CMS\Modules\Tags\Models\Tag;
 
 class CoreRepository {
@@ -207,9 +208,21 @@ class CoreRepository {
 
 
 
-    protected function getTagCollection($type)
+    protected function getTagCollection($type, $model = false)
     {
-        $data = Tag::with('meta')->whereType($type)->orderBy('position')->get();
+        if ($model) {
+            $tags = DB::table('taggables')
+                        ->select('tag_id')
+                        ->whereTaggableType($model)
+                        ->groupBy('tag_id')
+                        ->get();
+        }
+
+        $tag = Tag::with('meta')->whereType($type);
+        if (isset($tags) && $tags) {
+            $tag->whereIn('id', $tags->pluck('tag_id'));
+        }
+        $data = $tag->orderBy('position')->get();
 
         if ($data && $data->count()) {
             foreach ($data as $tag) {

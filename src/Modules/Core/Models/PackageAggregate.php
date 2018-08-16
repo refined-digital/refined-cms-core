@@ -32,4 +32,9 @@ class PackageAggregate
         return isset($this->packages[$package]);
     }
 
+    public function getAllPackages()
+    {
+        return $this->packages;
+    }
+
 }

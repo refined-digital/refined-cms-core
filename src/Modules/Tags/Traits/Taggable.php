@@ -138,14 +138,11 @@ trait Taggable
 
     protected function getArrayableItems(array $values)
     {
-        if (!in_array('tags', $this->appends)){
-            $this->appends[] = 'tags';
-        }
-        if (!in_array('categories', $this->appends)){
-            $this->appends[] = 'categories';
-        }
-        if (!in_array('modelTags', $this->appends)){
-            $this->appends[] = 'modelTags';
+        $appends = ['tags', 'categories', 'modelTags'];
+        foreach ($appends as $field) {
+            if (!in_array($field, $this->appends)){
+                $this->appends[] = $field;
+            }
         }
 
         return parent::getArrayableItems($values);
