@@ -169,11 +169,14 @@
       }
     }
   }
+}
 
-  &--has-media {
-    .app__left {
-      position: relative;
-      z-index: 1;
-    }
+.app--has-media, .trumbowyg-body-fullscreen {
+  .app__left {
+    position: relative;
+    z-index: 1;
+  }
+  .app__right {
+    z-index: 2;
   }
 }

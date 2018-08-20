@@ -145,6 +145,7 @@ class CoreModel extends Model
     public function fieldsAddExtra($fields, $config)
     {
         // todo: make this more dynamic and nicer
+        // todo: have an insert before
         if (isset($config['extra_fields'])) {
             $configFields = $config['extra_fields'];
             if (is_array($configFields) && sizeof($configFields)) {
@@ -163,7 +164,7 @@ class CoreModel extends Model
                                     $newData = [];
                                     foreach ($siblings as $sib) {
                                         $newData[] = $sib;
-                                        if ($sib['name'] == $name) {
+                                        if ($sib['name'] == $data['insertAfter']) {
                                             $newData[] = $data;
                                         }
                                     }
@@ -174,6 +175,8 @@ class CoreModel extends Model
                                 }
                             }
                         }
+                    } else {
+                        // todo: add the normal way
                     }
                 }
             }

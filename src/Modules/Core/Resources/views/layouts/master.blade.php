@@ -1,5 +1,5 @@
 @include('core::includes.header')
-        <div id="app" class="app__holder" :class="{ 'app--has-media' : media.active }">
+        <div id="app" class="app__holder" :class="{ 'app--has-media' : media.active, 'app--has-sitemap' : sitemap.active }">
 
             <div class="loader" v-show="loading"><div class="spinner"></div></div>
 
@@ -64,6 +64,7 @@
 
             @if($activeModule != 'media')
                 <rd-media :modal="true"></rd-media>
+                <rd-sitemap></rd-sitemap>
             @endif
 
         </div><!-- / app holder -->

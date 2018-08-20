@@ -25,6 +25,10 @@ trait Taggable
         static::saved(function($model) {
 
             if (request()->has('modelTags') && is_array(request()->get('modelTags')) && sizeof(request()->get('modelTags'))) {
+                // first remove the tags
+                $model->syncTags([]);
+
+                // now add the tags
                 foreach (request()->get('modelTags') as $type => $tags) {
                     $tags = array_filter(explode(',', $tags));
                     if (sizeof($tags)) {

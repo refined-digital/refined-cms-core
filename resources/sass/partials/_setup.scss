@@ -18,7 +18,7 @@ a { color:color(link); text-decoration:none; }
 a:hover { color:color(link-hover); }
 @media only screen and (max-width:660px) { a { overflow-wrap: break-word; word-wrap: break-word; } }
 
-a, input[type="submit"], button, .data-table__cell, .tree li i, .tree li span,
+a, input[type="submit"], button, .button, .data-table__cell, .tree li i, .tree li span,
 .pages__tab, .content-editor__field .fa-times, .media-uploader__dropzone,
 .media-uploader__header aside i, .media__toggle i, .data-table__cell--options-plus i,
 .data-table__cell--options-delete i { transition:all 200ms linear; }

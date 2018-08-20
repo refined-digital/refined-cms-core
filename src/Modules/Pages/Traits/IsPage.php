@@ -73,8 +73,16 @@ trait IsPage
             if ($model->meta) {
                 $model->meta->fill($uriData);
                 $model->meta->save();
+                if ($base == 'Page' && $model->meta->uriable_id == 1) {
+                    $model->meta->uri = '/';
+                    $model->meta->save();
+                }
             } else {
-                Uri::create($uriData);
+                $meta = Uri::create($uriData);
+                if ($base == 'Page' && $meta->uriable_id == 1) {
+                    $meta->uri = '/';
+                    $meta->save();
+                }
             }
         });
 

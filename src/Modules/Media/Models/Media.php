@@ -39,6 +39,7 @@ class Media extends CoreModel implements Sortable
         $link = new \stdClass();
         $link->thumb = asset($publicDir.$thumb);
         $link->original = asset($publicDir.$this->file);
+        $link->basePath = pages()->getBaseHref();
 
         return $link;
     }

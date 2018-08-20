@@ -6,7 +6,7 @@
         <i class="fas fa-file" v-if="file.type == 'File'"></i>
       </span>
       <figcaption class="media__file-details">
-        <span class="media__file-title"><span>{{ file.name }}</span></span>
+        <span class="media__file-title"><span :title="file.name">{{ file.name }}</span></span>
         <span class="media__file-type"><span>{{ file.type }}</span></span>
         <span class="media__file-size"><span>{{ file.size }}</span></span>
       </figcaption>

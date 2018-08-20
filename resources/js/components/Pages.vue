@@ -3,8 +3,10 @@
     <aside class="pages__tree">
       <nav class="tree">
         <ul class="tree__trunk">
-          <li class="tree__branch tree__branch--master"
-            :class="{ 'tree__branch--has-children' : holder.children.length, 'tree__branch--active' : holder.show }"
+          <li class="tree__branch tree__branch--master tree__branch--has-children"
+            :class="{
+              'tree__branch--active' : holder.show,
+            }"
             v-for="holder of pages"
           >
             <div>
@@ -271,6 +273,7 @@
         .get('/refined/pages/get-tree')
         .then(r => {
           this.$root.loading = false;
+
           if (r.statusText == 'OK') {
             this.pages = r.data.tree;
             this.templates = r.data.templates;
@@ -386,7 +389,7 @@
 
       // show / hide the tree
       toggleSubMenu(item) {
-        if (item.children.length) {
+        if (item.children.length || item.type == 'holder') {
           item.show = !item.show;
         }
       },
@@ -854,7 +857,7 @@
       // boot up the sorting for tree branches
       initSort() {
         if (this.sortables == null) {
-          let elements = document.querySelectorAll('.tree__trunk--sortable');
+          let elements = document.querySelectorAll('.app__body .tree__trunk--sortable');
 
           let containers = [];
           if (elements.length) {

@@ -1,5 +1,5 @@
 <template>
-  <ul class="tree__trunk tree__trunk--sortable" v-if="data.children.length" v-show="data.show" :data-id="id">
+  <ul class="tree__trunk tree__trunk--sortable" v-show="data.show" :data-id="id">
     <li class="tree__branch"
       :class="{
         'tree__branch--has-children' : page.children.length,

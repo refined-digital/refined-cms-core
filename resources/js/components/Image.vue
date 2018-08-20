@@ -56,6 +56,7 @@
 
           loadModal() {
             eventBus.$emit('media-set-type', 'Image');
+            eventBus.$emit('media-reload');
             this.$root.media.showModal = true;
             this.$root.media.model = this._uid;
           },

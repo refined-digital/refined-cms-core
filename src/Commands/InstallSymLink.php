@@ -20,7 +20,7 @@ class InstallSymLink extends Install
      *
      * @var string
      */
-    protected $signature = 'refinedCMS:install-symlink';
+    protected $signature = 'refinedCMS:symlink';
 
     /**
      * The console command description.

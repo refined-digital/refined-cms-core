@@ -7,6 +7,11 @@ Route::namespace('CMS\Modules\Pages\Http\Controllers')
             'uses' => 'PageController@getTree',
         ]);
 
+        Route::get('pages/get-tree-basic', [
+            'as' => 'pages.get-tree-basic',
+            'uses' => 'PageController@getTreeBasic',
+        ]);
+
         Route::put('pages/{id}/update-parent', [
             'as' => 'pages.update-parent',
             'uses' => 'PageController@updateParent',

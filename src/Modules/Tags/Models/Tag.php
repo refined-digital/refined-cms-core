@@ -22,4 +22,17 @@ class Tag extends CoreModel implements Sortable
         'position', 'name', 'type'
     ];
 
+
+    public $formFields = [
+        [
+            'name' => 'Content',
+            'fields' => [
+                [
+                    [ 'label' => 'Name', 'name' => 'name', 'required' => true],
+                    [ 'label' => 'Type', 'name' => 'type', 'type' => 'tagType', 'required' => true],
+                ]
+            ]
+        ]
+    ];
+
 }

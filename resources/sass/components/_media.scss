@@ -5,7 +5,7 @@
     background: #f7f7f7;
     cursor: pointer;
     transition: background-color 200ms linear;
-    overflow: hidden;
+    //overflow: hidden;
 
     &:hover {
       background: lighten(color(main-color-1), 32);
@@ -75,9 +75,12 @@
       display: block;
       width: 100%;
       margin: 5px 0;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
+      span {
+        display: block;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
     }
 
     &-upload {
@@ -137,25 +140,22 @@
   }
 
   &__files {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
     position: relative;
     flex: 1;
 
     &--thumb {
+      font-size: 0;
+
       img {
         max-width: 200px;
       }
 
       .media {
         &__file {
-          display: flex;
-          flex-direction: column;
+          display: inline-block;
           margin: 0 2% 25px 0;
-          flex: 0 0 15%;
+          width: 15%;
           padding: 5px;
-          max-height: 260px;
 
           &:nth-child(6n+6) {
             margin-right: 0;

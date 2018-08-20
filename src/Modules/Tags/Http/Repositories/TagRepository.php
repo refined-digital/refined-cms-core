@@ -20,4 +20,22 @@ class TagRepository extends CoreRepository
             ->get()
         ;
     }
+
+	public function getAll()
+    {
+        $data = $this->model::
+            keywords()
+        ;
+
+        if (!request()->has('sort')) {
+            $data->orderBy('type');
+        }
+
+        $data = $data
+            ->order('name')
+            ->paging()
+        ;
+
+        return $data;
+    }
 }

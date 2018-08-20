@@ -5,6 +5,8 @@ Vue.directive('draggable-media', {
     this.dragStart = (e) => {
       e.target.classList.add('media__file--on-drag-start');
       e.dataTransfer.setData('media', e.target.dataset.id);
+      let ctr = el.cloneNode(true);
+      e.dataTransfer.setDragImage(ctr, 0, 0);
       document.getElementById('app').classList.add('media-file-dragging');
       return false;
     };

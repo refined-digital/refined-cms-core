@@ -261,31 +261,11 @@
       // get pages
       this.$root.loading = true;
 
-      axios
-        .get('/refined/media/get-tree')
-        .then(r => {
-          this.$root.loading = false;
-          if (r.statusText == 'OK') {
-            this.categories = r.data.tree;
-            this.leaf.category = r.data.categoryLeaf;
-            this.leaf.media = r.data.mediaLeaf;
-
-            // setting the initial page
-            if (this.categories.length) {
-              this.setTree();
-              this.setFiles();
-              this.loadCategory(this.tree[1].children[0]);
-            }
-
-          }
-        })
-        .catch(e => {
-          this.$root.loading = false;
-        })
-      ;
+      this.reload();
 
       eventBus.$on('media-close', this.close);
       eventBus.$on('media-set-type', this.setType);
+      eventBus.$on('media-reload', this.reload);
     },
 
     data() {
@@ -384,6 +364,32 @@
     },
 
     methods: {
+      // reload the media library
+      reload() {
+        axios
+          .get('/refined/media/get-tree')
+          .then(r => {
+            this.$root.loading = false;
+            if (r.statusText == 'OK') {
+              this.categories = r.data.tree;
+              this.leaf.category = r.data.categoryLeaf;
+              this.leaf.media = r.data.mediaLeaf;
+
+              // setting the initial page
+              if (this.categories.length) {
+                this.setTree();
+                this.setFiles();
+                this.loadCategory(this.tree[1].children[0]);
+              }
+
+            }
+          })
+          .catch(e => {
+            this.$root.loading = false;
+          })
+        ;
+      },
+
       // show / hide the tree
       toggleSubMenu(item) {
         if (item.children.length) {

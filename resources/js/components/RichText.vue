@@ -20,6 +20,10 @@
     import 'trumbowyg/plugins/fontsize/trumbowyg.fontsize.js';
     import 'trumbowyg/plugins/history/trumbowyg.history.js';
     import 'trumbowyg/plugins/pasteembed/trumbowyg.pasteembed.js';
+    import 'trumbowyg/plugins/preformatted/trumbowyg.preformatted.js';
+    import 'trumbowyg/plugins/insertaudio/trumbowyg.insertaudio.js';
+    import '../plugins/trumbowyg/refined-insert-image/trumbowyg.refined-insert-image.js';
+    import '../plugins/trumbowyg/refined-link/trumbowyg.refined-link.js';
 
     export default {
 
@@ -30,13 +34,6 @@
                 instance: null,
                 data: '',
                 config: {
-                  btnsDef: {
-                    // Create a new dropdown
-                    image: {
-                      dropdown: ['insertImage', 'noembed'],
-                      ico: 'insertImage'
-                    }
-                  },
                   btns: [
 
                     ['viewHTML'],
@@ -44,7 +41,7 @@
                     ['formatting', 'fontsize'],
                     ['strong', 'em', 'del'],
                     ['superscript', 'subscript'],
-                    ['link', 'image'],
+                    ['link', 'refinedLink', 'unlink', 'refinedInsertImage', 'noembed'],
                     ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
                     ['unorderedList', 'orderedList'],
                     ['horizontalRule'],
@@ -52,7 +49,60 @@
                     ['fullscreen']
                   ],
 
-                  removeformatPasted: true
+                  removeformatPasted: true,
+
+                  imgDblClickHandler: function () {
+                      var $img = $(this),
+                        src = $img.attr('src'),
+                        alt = $img.attr('alt'),
+                        id = $img.attr('id'),
+                        klass = $img.attr('class'),
+                        style = $img.attr('style'),
+                        base64 = '(Base64)';
+
+                      if (src.indexOf('data:image') === 0) {
+                        src = base64;
+                      }
+
+                      var options = JSON.parse(JSON.stringify(window.trumbowyg.methods.getOptions('refinedInsertImage')));
+                      if (src) {
+                        options.src.value = src;
+                      }
+                      if (alt) {
+                        options.alt.value = alt;
+                      }
+                      if (id) {
+                        options.id.value = id;
+                      }
+                      if (klass) {
+                        options.class.value = klass;
+                      }
+                      if (style) {
+                        options.style.value = style;
+                      }
+
+                      window.trumbowyg.methods.openModalInsert('Insert Image', options, function(v) {
+                        if (v.src) {
+                          $img.attr('src', v.src);
+                        }
+                        if (v.alt) {
+                          $img.attr('alt', v.alt);
+                        }
+                        if (v.id) {
+                          $img.attr('id', v.id);
+                        }
+                        if (v.style) {
+                          $img.attr('style', v.style);
+                        }
+                        if (v.class) {
+                          $img.attr('class', v.class);
+                        }
+
+                        return true;
+                      });
+
+                      return false;
+                  }
                 }
             }
         },

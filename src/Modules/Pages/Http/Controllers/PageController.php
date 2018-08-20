@@ -174,6 +174,13 @@ class PageController extends CoreController
         ]);
     }
 
+    public function getTreeBasic()
+    {
+        $data = $this->pageRepository->getTree();
+
+        return response()->json($data);
+    }
+
 
 
     /**

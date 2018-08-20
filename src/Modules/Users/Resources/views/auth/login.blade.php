@@ -24,8 +24,8 @@
 
                         <div class="form__row form__row--floating-labels form__row--remember">
                             <div class="form__checkbox">
-                                {!! html()->checkbox('remember')->id('checkbox-test') !!}
-                                {!! html()->label('Remember me')->for('checkbox-test') !!}
+                                {!! html()->checkbox('remember')->id('remember-me') !!}
+                                {!! html()->label('Remember me')->for('remember-me') !!}
                             </div>
                             <div class="form__forgotten">
                                 <a href="{{ route('password.request') }}">Forgot Password?</a>
