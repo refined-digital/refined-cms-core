@@ -401,6 +401,7 @@
         //this.page = this.clone(item);
 
         this.page = item;
+
         //item.on = true; // use this only if we decide not to use the main model
         this.page.on = true;
         this.tab = 'details';

@@ -1,6 +1,5 @@
 <template>
   <div class="form__control--rich-text">
-    <textarea v-model="data" :name="name" :id="id"></textarea>
     <trumbowyg v-model="data" :config="config" class="form-control" :name="name" :id="id" @input="updateInput()"></trumbowyg>
   </div>
 
@@ -111,13 +110,9 @@
         },
 
         mounted() {
-            var el = this.$el.firstChild,
-                self = this
-            ;
-
-            if(self.content) {
-                self.data = self.content;
-            }
+          if(typeof this.content != 'undefined') {
+            this.data = this.content || '';
+          }
         },
 
         methods:  {
@@ -128,7 +123,7 @@
 
         watch: {
           content(data) {
-            this.data = data;
+            this.data = data || '';
           }
         }
     }

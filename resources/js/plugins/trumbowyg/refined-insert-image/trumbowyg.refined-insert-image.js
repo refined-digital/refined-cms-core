@@ -34,7 +34,9 @@
         plugins: {
             refinedInsertImage: {
                 init: function (trumbowyg) {
-                  trumbowyg.saveRange();
+                  if (typeof trumbowyg.$ed != 'undefined') {
+                    trumbowyg.saveRange();
+                  }
                   window.trumbowyg.trumbowyg = trumbowyg;
                   var btnDef = {
                     fn: function () {
