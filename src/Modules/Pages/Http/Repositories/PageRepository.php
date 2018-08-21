@@ -240,7 +240,20 @@ class PageRepository extends CoreRepository
             if (!$uri || $uri == '/') {
                 $uri = 'placeholder';
             } else {
-                return redirect('/');
+                // don't skip if the page is a footer page
+                $checkUriReference = Uri::whereUri($uri)->first();
+                $redirect = true;
+                if (isset($checkUriReference->id)) {
+                    $checkPageId = $checkUriReference->uriable_id;
+                    $checkClass = $checkUriReference->uriable_type;
+                    $checkPage = $checkClass::with(['meta', 'meta.template'])->find($checkPageId);
+                    $redirect = !(isset($checkPage->page_holder_id) && $checkPage->page_holder_id == 2);
+                }
+
+                if ($redirect) {
+                    return redirect('/');
+                }
+
             }
         }
 
@@ -400,8 +413,6 @@ class PageRepository extends CoreRepository
 
         return $page;
     }
-
-
 
     public function getPagesForMenu($holder, $parent = 0, $maxDepth = 10, $level = 1, $parentUrl = '')
     {

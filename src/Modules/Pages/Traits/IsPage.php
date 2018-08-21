@@ -19,6 +19,14 @@ trait IsPage
     {
         static::addGlobalScope(new IsPageScope);
 
+        static::saving(function($model) {
+            if (class_basename($model) == 'Page' && isset($model->data)) {
+                if (is_array($model->data) && sizeof($model->data) < 1) {
+                    $model->data = null;
+                }
+            }
+        });
+
         static::saved(function($model) {
 
             // set the title

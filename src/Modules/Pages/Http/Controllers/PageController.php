@@ -193,6 +193,10 @@ class PageController extends CoreController
         // the rendering of the page stuff
         $page = $this->pageRepository->findByUri($uri);
 
+        if (class_basename($page) == 'RedirectResponse') {
+            return $page;
+        }
+
         // return the view
         return view('templates::'.$page->meta->template->source)
                     ->with(compact('page'));
