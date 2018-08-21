@@ -16,6 +16,7 @@ class CreateUriTable extends Migration
         Schema::create('uri', function (Blueprint $table) {
             $table->increments('id');
             $table->string('uri');
+            $table->string('name')->nullable();
             $table->string('title');
             $table->text('description')->nullable();
             $table->integer('template_id');

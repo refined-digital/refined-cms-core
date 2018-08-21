@@ -81,6 +81,7 @@ class PagesSeeder extends Seeder
                 'updated_at'    => Carbon::now(),
                 'template_id'   => $arg['template_id'],
                 'uri'           => $arg['uri'],
+                'name'          => $arg['name'],
                 'title'         => $arg['name'],
                 'uriable_id'    => $pos+1,
                 'uriable_type'  => 'RefinedDigital\CMS\Modules\Pages\Models\Page',

@@ -62,11 +62,13 @@
           this.initSort();
         },
 
-        methods:  {
+        watch: {
+          items() {
+            this.$emit('input', this.items);
+          }
+        },
 
-          updateFile(data) {
-            this.$emit('input', this.image);
-          },
+        methods:  {
 
           add() {
             this.items.push({

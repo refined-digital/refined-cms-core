@@ -21,6 +21,7 @@ class PageContentTypesSeeder extends Seeder
             'Plain Text',
             'Image',
             'File',
+            'Select',
         ];
 
         foreach ($levels as $pos => $level) {

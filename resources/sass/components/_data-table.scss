@@ -153,6 +153,12 @@
         width: 150px;
       }
     }
+
+    &--repeatable {
+      & + .data-table__cell--repeatable {
+        margin-top: 10px;
+      }
+    }
   }
 }
 

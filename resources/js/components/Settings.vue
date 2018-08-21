@@ -47,6 +47,13 @@
 
                 </div><!-- / form group -->
 
+                <div class="form__group form__group--1" v-if="editor.form.field_type == 6">
+                  <div class="form__row">
+                    <label for="form--editor-note" class="form__label">Options</label>
+                    <rd-form-options v-model="editor.form.options"></rd-form-options>
+                  </div>
+                </div>
+
                 <div class="form__group form__group--1">
                   <div class="form__row form__row--buttons form__row--buttons-inline">
                     <a href="#" @click.prevent.stop="addContentField()" class="button button--blue button--small">Add Field</a>
@@ -54,7 +61,6 @@
                 </div>
 
               </div><!-- / form -->
-
             </div><!-- / content editor controls -->
 
             <div class="content-editor__fields form form__horz">
@@ -126,7 +132,8 @@
             name: null,
             required: 0,
             field_type: 1,
-            note: null
+            note: null,
+            options: []
           }
         },
 
@@ -158,6 +165,12 @@
           child.innerText = 'Please select a Field Type';
           validationData.appendChild(child);
         }
+        if (this.editor.form.field_type == 6 && this.editor.form.options.length < 1) {
+          errors.push(1);
+          let child = document.createElement('li');
+          child.innerText = 'Please add some options';
+          validationData.appendChild(child);
+        }
 
         if (errors.length) {
           swal({
@@ -175,6 +188,7 @@
             required: this.editor.form.required,
             page_content_type_id: this.editor.form.field_type,
             note: this.editor.form.note,
+            options: this.editor.form.options,
             content: '',
             position: length
           });
@@ -190,6 +204,7 @@
         this.editor.form.required = 0;
         this.editor.form.field_type = 1;
         this.editor.form.note = null;
+        this.editor.form.options = [];
       },
 
       removeContent(index) {

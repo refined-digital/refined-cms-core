@@ -232,6 +232,17 @@ class PageRepository extends CoreRepository
 
     public function findByUri($uri)
     {
+        // check if we have a placeholder enabled
+        // todo: integrate this into the placeholder module
+        $settings = settings()->get('pages');
+        if (isset($settings->enable_placeholder) && $settings->enable_placeholder->value) {
+            // we want to redirect to home, so if home, load the correct page
+            if (!$uri || $uri == '/') {
+                $uri = 'placeholder';
+            } else {
+                return redirect('/');
+            }
+        }
 
         // we only want the final end point uri
         $uriBits = explode('/', $uri);
@@ -381,7 +392,7 @@ class PageRepository extends CoreRepository
         $page->classes = implode(' ', $classes);
 
         // add in the settings
-        $page->settings = settings()->get('pages');
+        $page->settings = $settings;
 
         if ($base == 'Page') {
             $page->content;

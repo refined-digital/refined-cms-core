@@ -32,6 +32,7 @@ class SettingRepository extends CoreRepository
                         'page_content_type_id'  => $item->value->page_content_type_id,
                         'note'      => $item->value->note,
                         'content'   => $item->value->content,
+                        'options'   => isset($item->value->options) ? $item->value->options : [],
                         'position'  => $item->position,
                     ]);
                 }
@@ -68,6 +69,7 @@ class SettingRepository extends CoreRepository
                 $d->position = $item->position;
                 $d->note = $item->value->note;
                 $d->value = $item->value->content;
+                $d->options = isset($item->value->options) ? $item->value->options : [];
                 $d->type = $type;
 
                 $data[str_slug($d->name, '_')] = $d;
@@ -101,6 +103,10 @@ class SettingRepository extends CoreRepository
                         'page_content_type_id'  => $d['page_content_type_id'],
                     ]
                 ];
+
+                if (isset($d['options'])) {
+                    $createData['value']['options'] = $d['options'];
+                }
 
                 $this->store($createData);
             }

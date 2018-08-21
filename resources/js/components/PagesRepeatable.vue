@@ -13,7 +13,8 @@
           <tr v-for="(row, index) of page.data[item.tab]" class="form__control--options-row" :data-test="row.image.content" :data-index="index">
             <td class="data-table__cell data-table__cell--sort"><i class="fa fa-sort" v-if="page.data[item.tab].length > 1"></i></td>
             <td class="data-table__cell">
-              <div v-for="cell of item.fields">
+              <div class="data-table__cell--repeatable" v-for="cell of item.fields">
+                <label class="form__label" v-if="!cell.hide_label">{{ cell.name }}</label>
                 <rd-content-editor-field :item="row[cell.field]"></rd-content-editor-field>
               </div>
             </td>

@@ -125,7 +125,7 @@ class Help {
 
     public function encodePhoneStr($phone)
     {
-        return 'tel:'.$this->clean(preg_replace('/\D/', '', $phone));
+        return 'tel:'.str_slug(preg_replace('/\D/', '', $phone), '');
     }
 
     public function arrToAttr($attrs)

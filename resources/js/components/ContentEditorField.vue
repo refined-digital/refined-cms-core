@@ -21,6 +21,12 @@
         <rd-file v-model="item.content" :value="item.content"></rd-file>
       </template>
 
+      <template v-if="item.page_content_type_id === 6 && item.options">
+        <select v-model="item.content" required="required" class="form__control">
+          <option :value="opt.value" v-for="opt in item.options">{{ opt.label }}</option>
+        </select>
+      </template>
+
       <div class="form__note" v-if="item.note" v-html="item.note"></div>
     </div>
 
@@ -31,12 +37,6 @@
   export default {
 
     props: [ 'item' ],
-
-    data() {
-      return {
-
-      }
-    },
 
   }
 </script>
