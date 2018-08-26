@@ -40,7 +40,7 @@
                     ['formatting', 'fontsize'],
                     ['strong', 'em', 'del'],
                     ['superscript', 'subscript'],
-                    ['link', 'refinedLink', 'unlink', 'refinedInsertImage', 'noembed'],
+                    ['refinedLink', 'unlink', 'refinedInsertImage', 'noembed'],
                     ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
                     ['unorderedList', 'orderedList'],
                     ['horizontalRule'],
