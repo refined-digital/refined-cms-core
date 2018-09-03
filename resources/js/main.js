@@ -20,6 +20,7 @@ Vue.component('rd-file', require('./components/File.vue'));
 Vue.component('rd-link', require('./components/Link.vue'));
 Vue.component('rd-sitemap', require('./components/SiteMap.vue'));
 Vue.component('rd-form-options', require('./components/FormOptions.vue'));
+Vue.component('rd-form-repeatable', require('./components/FormRepeatable.vue'));
 
 window.eventBus = new Vue({});
 

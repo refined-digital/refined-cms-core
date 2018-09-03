@@ -7,12 +7,14 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Foundation\AliasLoader;
+use RefinedDigital\CMS\Commands\CreateModule;
 use RefinedDigital\CMS\Commands\InstallCMS;
 use RefinedDigital\CMS\Commands\InstallDatabase;
 use RefinedDigital\CMS\Commands\InstallSymLink;
 use RefinedDigital\CMS\Modules\Core\Exceptions\Handler;
 use RefinedDigital\CMS\Modules\Core\Http\Middleware\UserLevel;
 use RefinedDigital\CMS\Modules\Core\Http\ResourceRegistrar;
+use RefinedDigital\CMS\Modules\Core\Models\CustomModuleRouteAggregate;
 use RefinedDigital\CMS\Modules\Core\Models\PackageAggregate;
 use RefinedDigital\CMS\Modules\Core\Models\PublicRouteAggregate;
 use Validator;
@@ -56,6 +58,10 @@ class CMSServiceProvider extends ServiceProvider
         ], 'public');
 
         if ($this->app->runningInConsole()) {
+            $this->commands([
+                CreateModule::class
+            ]);
+
             if (env('APP_NAME') == 'Laravel') {
                 $this->commands([
                     InstallCMS::class
@@ -96,6 +102,7 @@ class CMSServiceProvider extends ServiceProvider
 
         // load in the helpers
         $this->app->singleton(RouteAggregate::class);
+        $this->app->singleton(CustomModuleRouteAggregate::class);
         $this->app->singleton(PublicRouteAggregate::class);
         $this->app->singleton(ModuleAggregate::class);
         $this->app->singleton(PackageAggregate::class);

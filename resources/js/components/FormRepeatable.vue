@@ -1,5 +1,6 @@
 <template>
   <div class="form__control--options" v-if="item.type == 'repeatable'">
+    <input type="hidden" :name="name" v-model="values"/>
     <div class="data-table">
       <table>
         <thead>
@@ -9,19 +10,19 @@
             <th class="data-table__cell data-table__cell--options-plus"><i class="fa fa-plus" @click="addRepeatable(item)"></i></th>
           </tr>
         </thead>
-        <draggable v-model="page.data[item.tab]" :options="options" element="tbody" @end="dragEnd">
-          <tr v-for="(row, index) of page.data[item.tab]" class="form__control--options-row" :data-test="row.image.content" :data-index="index">
-            <td class="data-table__cell data-table__cell--sort"><i class="fa fa-sort" v-if="page.data[item.tab].length > 1"></i></td>
+        <draggable v-model="items" :options="options" element="tbody" @end="dragEnd">
+          <tr v-for="(item, index) in items" class="form__control--options-row" :data-index="index">
+            <td class="data-table__cell data-table__cell--sort"><i class="fa fa-sort" v-if="items.length > 1"></i></td>
             <td class="data-table__cell">
-              <div class="data-table__cell--repeatable" v-for="cell of item.fields">
+              <div class="data-table__cell--repeatable" v-for="cell of item">
                 <label class="form__label" v-if="!cell.hide_label">{{ cell.name }}</label>
-                <rd-content-editor-field :item="row[cell.field]"></rd-content-editor-field>
+                <rd-content-editor-field :item="cell"></rd-content-editor-field>
               </div>
             </td>
             <td class="data-table__cell data-table__cell--options-delete"><i class="fa fa-times" @click="removeRepeatable(item, index)"></i></td>
           </tr>
         </draggable>
-        <tfoot v-if="page.data[item.tab] && page.data[item.tab].length > 4">
+        <tfoot v-if="items && items.length > 4">
           <tr>
             <th class="data-table__cell data-table__cell--sort"></th>
             <th class="data-table__cell"></th>
@@ -42,11 +43,13 @@
       draggable,
     },
 
-    props: ['item', 'page'],
+    props: ['item', 'name', 'value'],
 
     data() {
         return {
           sortable: null,
+          items: [],
+          values: [],
           dragGhost: {},
           options: {
             //handle: '.fa-sort',
@@ -65,13 +68,49 @@
         }
     },
 
+    created() {
+      if (this.value && this.value.length > 0) {
+        this.items = [];
+        this.value.forEach(item => {
+          this.items.push(item);
+        });
+      }
+    },
+
+    watch: {
+      items: {
+        handler() {
+          this.$emit('input', this.items);
+          this.values = JSON.stringify(this.items);
+        },
+        deep: true
+      }
+    },
+
     methods:  {
       addRepeatable(item) {
-        this.$parent.addRepeatable(item);
+        let data = {};
+        item.fields.forEach(field => {
+          let f = JSON.parse(JSON.stringify(field));
+          f.content = '';
+          data[f.field] = f;
+        });
+
+        this.items.push(data);
+
       },
 
       removeRepeatable(item, index) {
-        this.$parent.removeRepeatable(item, index);
+        swal({
+          title: 'Are you sure?',
+          icon: 'warning',
+          buttons: true,
+          dangerMode: true,
+        }).then(value => {
+          if (value) {
+            this.items.splice(index, 1);
+          }
+        });
       },
 
       dragEnd() {

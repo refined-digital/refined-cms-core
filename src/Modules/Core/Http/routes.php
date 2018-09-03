@@ -1,6 +1,7 @@
 <?php
 
 use RefinedDigital\CMS\Modules\Core\Models\RouteAggregate;
+use RefinedDigital\CMS\Modules\Core\Models\CustomModuleRouteAggregate;
 use RefinedDigital\CMS\Modules\Core\Models\PublicRouteAggregate;
 
 // the login routes
@@ -26,17 +27,32 @@ Route::middleware(['web'])
 
 Route::middleware(['web', 'auth', 'userLevel'])
     ->as('refined.')
-    ->namespace('RefinedDigital\\')
     ->prefix('refined')
     ->group(function(){
         Route::redirect('/', 'refined/pages');
 
-        $routeAggregate = app(RouteAggregate::class);
+        Route::namespace('RefinedDigital\\')
+            ->group(function() {
+                $routeAggregate = app(RouteAggregate::class);
 
-        foreach ($routeAggregate->getRouteFiles() as $routeFile)
-        {
-            include($routeFile);
-        }
+                foreach ($routeAggregate->getRouteFiles() as $routeFile)
+                {
+                    include($routeFile);
+                }
+            })
+        ;
+
+        Route::namespace('App\RefinedCMS\\')
+            ->group(function() {
+                $routeAggregate = app(CustomModuleRouteAggregate::class);
+
+                foreach ($routeAggregate->getRouteFiles() as $routeFile)
+                {
+                    include($routeFile);
+                }
+            })
+        ;
+
     })
 ;
 

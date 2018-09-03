@@ -165,6 +165,9 @@ class CoreRepository {
                     if(strlen($data[$date]) == 19 || is_numeric(strpos($data[$date], '-'))) {
                         $key = 'Y-m-d H:i:s';
                     }
+                    if(strlen($data[$date]) == 11 || is_numeric(strpos($data[$date], '-'))) {
+                        $key = 'Y-m-d';
+                    }
                     $data[$date] = Carbon::createFromFormat($key, $data[$date]);
                 }
             }

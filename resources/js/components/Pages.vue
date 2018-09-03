@@ -1142,14 +1142,40 @@
 
       resetRepeatableData() {
         this.tabs.forEach(tab => {
+          let fields = tab.fields;
           if (tab.type == 'repeatable') {
             if (typeof this.page.data[tab.tab] != 'undefined' && Array.isArray(this.page.data[tab.tab])) {
-              this.page.data[tab.tab].forEach(row => {
+              this.page.data[tab.tab].forEach((row, index) => {
+                let fieldsInData = [];
                 for (let i in row) {
                   let configField = this.getRepeatableConfigField(tab.fields, i);
                   if (configField) {
                     row[i].note = this.getRepeatableFieldNote(configField);
                   }
+                  fieldsInData.push(i);
+                }
+
+                // if we have added a new field, add it to the existing data
+                if (fieldsInData.length != fields.length) {
+                  let newData = {};
+                  fields.forEach(field => {
+                    let set = false;
+                    for (let i in row) {
+                      if (i == field.field) {
+                        newData[i] = row[i];
+                        set = true;
+                      }
+                    }
+                    if (!set) {
+                      newData[field.field] = {
+                        content: '',
+                        page_content_type_id: field.page_content_type_id,
+                        note: field.note || '',
+                      }
+                    }
+                  });
+
+                  Vue.set(this.page.data[tab.tab], index, newData)
                 }
               });
             }
