@@ -116,18 +116,31 @@
 
     }
 
-    &-link {
+    &-link, &-delete {
       position: absolute;
       bottom: 0;
-      right: 0;
-      display: inline-block;
-      background: color(main-color-1);
       color: #fff;
       padding: 5px 15px;
       font-size: $systemFontSize - 2px;
+      display: inline-block;
+    }
+
+    &-link {
+      right: 0;
+      background: color(main-color-1);
 
       &:hover {
         background: darken(color(main-color-1), $darkenAmount);
+        color: #fff;
+      }
+    }
+
+    &-delete {
+      left: 0;
+      background: color(red);
+
+      &:hover {
+        background: darken(color(red), $darkenAmount);
         color: #fff;
       }
     }

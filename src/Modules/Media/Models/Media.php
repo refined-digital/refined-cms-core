@@ -5,11 +5,12 @@ namespace RefinedDigital\CMS\Modules\Media\Models;
 use RefinedDigital\CMS\Modules\Core\Models\CoreModel;
 use RefinedDigital\CMS\Modules\Media\Traits\SortableMediaTrait;
 use Spatie\EloquentSortable\Sortable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use File;
 
 class Media extends CoreModel implements Sortable
 {
-    use SortableMediaTrait;
+    use SortableMediaTrait, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

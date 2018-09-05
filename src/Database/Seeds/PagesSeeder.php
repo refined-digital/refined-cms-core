@@ -90,6 +90,8 @@ class PagesSeeder extends Seeder
 
             // add the initial content
             $content = [
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
                 'page_id' => $pos+1,
                 'page_content_type_id' => 1,
                 'position' => 0,

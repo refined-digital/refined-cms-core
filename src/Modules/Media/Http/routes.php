@@ -35,6 +35,11 @@ Route::namespace('CMS\Modules\Media\Http\Controllers')
                 'as' => 'show',
                 'uses' => 'MediaController@show',
             ]);
+
+            Route::delete('{id}', [
+                'as' => 'destroy',
+                'uses' => 'MediaController@destroy',
+            ]);
         });
 
 

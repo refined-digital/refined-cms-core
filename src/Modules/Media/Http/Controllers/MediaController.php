@@ -90,6 +90,27 @@ class MediaController extends CoreController
     }
 
     /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $this->mediaRepository->setModel($this->model);
+        if ($this->mediaRepository->destroy($id)) {
+            return response()->json([
+                'success' => 1,
+            ]);
+        }
+
+        return response()->json([
+            'success' => 0,
+            'msg'   => 'Failed to delete'
+        ]);
+    }
+
+    /**
      * Store the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request

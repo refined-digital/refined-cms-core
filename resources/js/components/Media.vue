@@ -94,6 +94,7 @@
                 <rd-media-file :file="file"></rd-media-file>
 
                 <a :href="file.link.original" target="_blank" class="media__file-link">View File</a>
+                <a href="#" @click.prevent.stop="mediaDelete(file)" target="_blank" class="media__file-delete">Delete File</a>
 
               </div>
               <div class="media__details-details">
@@ -1010,6 +1011,71 @@
           ;
 
         }
+      },
+
+      mediaDelete(item) {
+
+        swal({
+          title: 'Are you sure?',
+          icon: 'warning',
+          buttons: true,
+          dangerMode: true,
+        })
+        .then((value) => {
+          this.$root.loading = true;
+
+          if (value) {
+            axios
+              .delete('/refined/media/'+item.id)
+              .then(r => {
+                this.$root.loading = false;
+
+                if (r.data.success) {
+                  // find the page and splice from parent
+                  this.mediaFindAndRemove(this.categories, item);
+                  this.loadFiles();
+
+                } else {
+                  swal({
+                    title: 'Something went wrong',
+                    text: r.data.msg,
+                    icon: 'error'
+                  });
+                }
+              })
+              .catch(e => {
+                console.log(e);
+                this.$root.loading = false;
+                swal({
+                  title: 'Something went wrong',
+                  text: e.message,
+                  icon: 'error'
+                });
+              })
+            ;
+          }
+        })
+        ;
+      },
+
+      mediaFindAndRemove(items, item) {
+        if (items.length) {
+          items.forEach(category => {
+            if (typeof category.files !== 'undefined' && category.files.length) {
+              category.files.forEach((file, index) => {
+                if (file.id === item.id) {
+                  category.files.splice(index, 1);
+                  delete this.files[item.id];
+                }
+              });
+            }
+
+            if (category.children.length) {
+              this.mediaFindAndRemove(category.children, item);
+            }
+          });
+        }
+
       },
 
 
