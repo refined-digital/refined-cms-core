@@ -197,8 +197,13 @@ class PageController extends CoreController
             return $page;
         }
 
+        $view = view('templates::'.$page->meta->template->source)
+                    ->with(compact('page'))->render();
+
+
+        session()->forget('loaded_forms');
+
         // return the view
-        return view('templates::'.$page->meta->template->source)
-                    ->with(compact('page'));
+        return $view;
     }
 }
