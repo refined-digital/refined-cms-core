@@ -49,7 +49,7 @@
                     @if (isset($field->note) && $field->note) {!! $field->note !!} @endif
                     @if (isset($field->imageNote) && $field->imageNote)
                         {!! $field->imageNote !!} <br/>
-                        If you are having trouble with images, <a href="http://www.picresize.com/" target="_blank">visit this page</a> to create your image.
+                        If you are having trouble with images, <a href="https://www.iloveimg.com/photo-editor" target="_blank">visit this page</a> to create your image.
                     @endif
                 </div>
             @endif

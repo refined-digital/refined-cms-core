@@ -128,7 +128,7 @@
                   {{ page.id == 1 ? config.banner.home.width : config.banner.internal.width }}px wide x
                   {{ page.id == 1 ? config.banner.home.height : config.banner.internal.height }}px tall</strong>
                   <br/>
-                  If you are having trouble with images, <a href="http://www.picresize.com/" target="_blank">visit this page</a> to create your image.
+                  If you are having trouble with images, <a href="https://www.iloveimg.com/photo-editor" target="_blank">visit this page</a> to create your image.
                 </div>
               </div>
             </div><!-- / form row -->
@@ -1120,7 +1120,7 @@
           note = 'Banner will be resized to <strong>fit within ';
               note += (this.page.id == 1 ? field.config.home.width : field.config.internal.width) + 'px wide x ';
               note += (this.page.id == 1 ? field.config.home.height : field.config.internal.height) + 'px tall</strong>';
-          note += '<br/>If you are having trouble with images, <a href="http://www.picresize.com/" target="_blank">visit this page</a> to create your image.';
+          note += '<br/>If you are having trouble with images, <a href="https://www.iloveimg.com/photo-editor" target="_blank">visit this page</a> to create your image.';
         }
 
         return note;
