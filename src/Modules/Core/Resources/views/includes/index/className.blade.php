@@ -1,0 +1,1 @@
+{{ class_basename($d->{$field->field}) }}

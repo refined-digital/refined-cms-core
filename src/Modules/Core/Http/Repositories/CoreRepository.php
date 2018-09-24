@@ -123,7 +123,7 @@ class CoreRepository {
         $basename = class_basename($item);
         activity()
             ->performedOn($item)
-            ->causedBy(auth()->user()->id)
+            ->causedBy(auth()->check() ? auth()->user()->id : null)
             ->withProperties([$basename.' has been created' => $item->id])
             ->log($basename.' has been created')
         ;

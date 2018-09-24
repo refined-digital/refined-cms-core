@@ -14,7 +14,7 @@ class CreateModule extends Install
      *
      * @var string
      */
-    protected $signature = 'refinedCMS:create-module {name}
+    protected $signature = 'make:module {name}
         {--isPage= : Does the module need to be page enabled?}';
 
     /**
@@ -22,7 +22,7 @@ class CreateModule extends Install
      *
      * @var string
      */
-    protected $description = 'Creates a new Admin Module';
+    protected $description = 'Create a new Admin Module';
 
     protected $appPath = null;
     protected $readableName = null;
@@ -166,7 +166,7 @@ class CreateModule extends Install
     private function createMigration()
     {
         $this->info('Creating Migration File');
-        $newFile = database_path('migrations/'.date('Y_m_d_His').'_create_'.str_slug($this->Name, '_').'_table.php');
+        $newFile = database_path('migrations/'.date('Y_m_d_His').'_create_'.str_slug($this->name, '_').'_table.php');
         copy($this->appPath.'/Database/create_table.php', $newFile);
         $this->updateFile($newFile);
 

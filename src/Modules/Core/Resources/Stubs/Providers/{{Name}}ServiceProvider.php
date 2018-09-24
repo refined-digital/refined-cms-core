@@ -17,7 +17,7 @@ class {{Name}}ServiceProvider extends ServiceProvider
     {
         view()->addNamespace('{{names}}', [
             __DIR__.'/../Resources/views',
-            app_path().'/views'
+            base_path().'/resources/views'
         ]);
 
     }
@@ -30,10 +30,10 @@ class {{Name}}ServiceProvider extends ServiceProvider
     public function register()
     {
         app(CustomModuleRouteAggregate::class)
-            ->addRouteFile('blog', __DIR__.'/../Http/routes.php');
+            ->addRouteFile('{{name}}', __DIR__.'/../Http/routes.php');
 
         $menuConfig = [
-            'order' => 200,
+            'order' => 500,
             'name' => '{{FullName}}',
             'icon' => 'fas fa-cookie-bite',
             'route' => '{{name}}',

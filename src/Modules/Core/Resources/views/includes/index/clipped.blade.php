@@ -1,0 +1,1 @@
+{!! str_limit($d->{$field->field}, 200) !!}

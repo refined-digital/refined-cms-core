@@ -18,7 +18,7 @@ class Help {
 
     public function trace($data, $exit = false)
 	{
-		echo '<code style="display:block;background:#fff; color:#111; font-size:14px; line-height:1.3;padding:5px;border:1px solid #eee; margin:1em 0;">';
+		echo '<code style="display:block;background:#fff; color:#111; font-size:14px; line-height:1.3;padding:5px;border:1px solid #eee; margin:1em 0; text-align: left;">';
 		if (is_object($data) || is_array($data)) {
             echo '<pre>' . print_r($data, 1) . '</pre>';
 		} else {
@@ -170,5 +170,11 @@ class Help {
             $ipaddress = 'UNKNOWN';
         }
         return $ipaddress;
+    }
+
+    public function array_splice($array, $position, $data)
+    {
+        array_splice($array, $position + 1, 0, [$data]);
+        return $array;
     }
 }

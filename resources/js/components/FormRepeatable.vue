@@ -69,9 +69,14 @@
     },
 
     created() {
-      if (this.value && this.value.length > 0) {
+      let value = this.value;
+      // convert the value to an object, if it is a string
+      if (value && typeof value === 'string') {
+        value = JSON.parse(value);
+      }
+      if (value && value.length > 0) {
         this.items = [];
-        this.value.forEach(item => {
+        value.forEach(item => {
           this.items.push(item);
         });
       }

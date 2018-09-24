@@ -16,7 +16,7 @@ class SettingServiceProvider extends ServiceProvider
     {
         view()->addNamespace('settings', [
             __DIR__.'/../Resources/views',
-            app_path().'/views'
+            base_path().'/resources/views'
         ]);
     }
 

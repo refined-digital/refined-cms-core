@@ -1,0 +1,1 @@
+{!! nl2br(strip_tags($d->{$field->field})) !!}

@@ -29,6 +29,7 @@ class Template extends CoreModel implements Sortable
                 [
                     [ 'label' => 'Name', 'name' => 'name', 'required' => true ],
                     [ 'label' => 'Source', 'name' => 'source', 'required' => true, 'note' => 'Name of the blade files. Note, you do not need to add .blade.php' ],
+                    [ 'label' => 'Has Forms', 'name' => 'has_forms', 'type' => 'select', 'options' => [0 => 'No', 1 => 'Yes'] ],
                 ]
             ]
         ]

@@ -17,7 +17,7 @@ class UsersServiceProvider extends ServiceProvider
     {
         view()->addNamespace('users', [
             __DIR__.'/../Resources/views',
-            app_path().'/views'
+            base_path().'/resources/views'
         ]);
     }
 

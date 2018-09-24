@@ -5,8 +5,9 @@ namespace App\RefinedCMS\{{FullName}}\Models;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use RefinedDigital\CMS\Modules\Core\Models\CoreModel;
 use RefinedDigital\CMS\Modules\Pages\Traits\IsPage;
+use Spatie\EloquentSortable\Sortable;
 
-class {{Name}} extends CoreModel
+class {{Name}} extends CoreModel implements Sortable
 {
     use SoftDeletes{-page, IsPage-};
 

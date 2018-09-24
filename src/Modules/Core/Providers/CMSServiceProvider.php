@@ -37,7 +37,7 @@ class CMSServiceProvider extends ServiceProvider
 
         view()->addNamespace('core', [
             __DIR__.'/../Resources/views',
-            app_path().'/views'
+            base_path().'/resources/views'
         ]);
 
         view()->composer(

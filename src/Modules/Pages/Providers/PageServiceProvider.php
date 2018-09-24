@@ -18,7 +18,7 @@ class PageServiceProvider extends ServiceProvider
     {
         view()->addNamespace('pages', [
             __DIR__.'/../Resources/views',
-            app_path().'/views'
+            base_path().'/resources/views'
         ]);
 
         view()->addNamespace('templates', [

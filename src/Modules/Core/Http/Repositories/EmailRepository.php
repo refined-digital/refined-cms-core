@@ -15,7 +15,7 @@ class EmailRepository extends CoreRepository {
     protected $thOpen = '<th align="left" valign="top" style="border-bottom:1px solid #666; border-right:1px solid #666; background: #eee; padding:10px;font-family:arial;">';
     protected $thClose = '</th>';
 
-    protected $tdOpen = '<td valign="top" style="border-bottom:1px solid #666; padding:10px;font-family:arial;">';
+    protected $tdOpen = '<td valign="top" style="border-bottom:1px solid #666; padding:10px;font-family:arial;width: 300px">';
     protected $tdClose = '</td>';
 
     public function send($settings)
@@ -190,6 +190,11 @@ class EmailRepository extends CoreRepository {
                     $data = Carbon::createFromFormat('Y-m-d\TH:i', $data)->format(config('form-builder.datetime_format'));
                 }
                 break;
+        }
+
+        if ($field->form_field_type_id == 20) {
+            $class = forms()->getFieldClass($field);
+            $data = $class->formatData($field, $request);
         }
 
         // if we have an array, make it a string

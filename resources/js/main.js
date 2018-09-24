@@ -57,7 +57,7 @@ window.app = new Vue({
               '3','4','5'
           ],
           showDataFor: [
-              '13', '20'
+              '19'
           ]
         },
     	}

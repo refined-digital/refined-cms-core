@@ -269,4 +269,23 @@ class CoreController extends Controller
 
         return $route;
     }
+
+    public function formatGetForFront($data, $request)
+    {
+        if ($data && $data->count()) {
+            $formatted = [];
+
+            foreach($data as $d) {
+                $formatted[] = view()->make($request->get('template'))->with('article', $d)->render();
+            }
+
+            return response()->json([
+                'success' => 1,
+                'items' => $formatted,
+                'done' => $request->get('page') < $data->lastPage() ? false : true
+            ]);
+        }
+
+        return response()->json(['success' => 0]);
+    }
 }

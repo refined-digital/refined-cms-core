@@ -1,0 +1,1 @@
+{{ $d->commentable->name or '' }}

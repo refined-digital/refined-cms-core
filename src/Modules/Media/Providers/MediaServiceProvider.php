@@ -17,7 +17,7 @@ class MediaServiceProvider extends ServiceProvider
     {
         view()->addNamespace('media', [
             __DIR__.'/../Resources/views',
-            app_path().'/views'
+            base_path().'/resources/views'
         ]);
     }
 
@@ -32,7 +32,7 @@ class MediaServiceProvider extends ServiceProvider
             ->addRouteFile('media', __DIR__.'/../Http/routes.php');
 
         $menuConfig = [
-            'order' => 88,
+            'order' => 800,
             'name' => 'Media',
             'icon' => 'fas fa-images',
             'route' => 'media',
