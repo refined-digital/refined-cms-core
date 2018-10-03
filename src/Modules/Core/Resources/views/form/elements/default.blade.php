@@ -17,7 +17,7 @@
         }
     @endphp
     <script>
-        window.app.{{ $field->attrs->{'v-model'} }} = '{!! $value !!}';
+        window.app.{{ $field->attrs->{'v-model'} }} = '{!! addslashes($value) !!}';
     </script>
 @endif
 @append
