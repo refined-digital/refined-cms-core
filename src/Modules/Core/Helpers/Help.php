@@ -177,4 +177,11 @@ class Help {
         array_splice($array, $position + 1, 0, [$data]);
         return $array;
     }
+
+    public function getYoutubeEmbedLink($shareLink)
+    {
+        $videoBits = explode('/', $shareLink);
+        $videoKey = $videoBits[sizeof($videoBits)-1];
+        return 'http://www.youtube.com/embed/'.$videoKey.'?rel=0&showinfo=0&autoplay=1';
+    }
 }
