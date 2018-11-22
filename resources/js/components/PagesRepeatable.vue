@@ -10,7 +10,7 @@
           </tr>
         </thead>
         <draggable v-model="page.data[item.tab]" :options="options" element="tbody" @end="dragEnd">
-          <tr v-for="(row, index) of page.data[item.tab]" class="form__control--options-row" :data-test="row.image.content" :data-index="index">
+          <tr v-for="(row, index) of page.data[item.tab]" class="form__control--options-row" :data-index="index">
             <td class="data-table__cell data-table__cell--sort"><i class="fa fa-sort" v-if="page.data[item.tab].length > 1"></i></td>
             <td class="data-table__cell">
               <div class="data-table__cell--repeatable" v-for="cell of item.fields">

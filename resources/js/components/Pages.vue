@@ -248,7 +248,29 @@
 
         <div class="pages__tab-pane" v-show="tab == item.tab" v-if="!item.default" v-for="item in tabs">
           <h3>{{ item.name }}</h3>
-          <rd-pages-repeatable :item="item" :page="page"></rd-pages-repeatable>
+          <template v-if="item.type === 'repeatable'">
+            <rd-pages-repeatable :item="item" :page="page"></rd-pages-repeatable>
+          </template>
+
+          <template v-if="item.type === 'fields'">
+            <div class="pages__content-editor">
+
+              <div class="content-editor__fields form form__horz">
+                <div class="content-editor__field" v-for="(field, index) in item.fields">
+
+                  <div class="form__row form__row--inline-label" v-if="page.data[item.tab]">
+
+                    <div class="form__label form__label--with-controls">
+                      <label :for="'form--content-'+field.id" v-if="!field.hide_label">{{ field.name }}</label>
+                    </div>
+
+                    <rd-content-editor-field :item="page.data[item.tab][index]"></rd-content-editor-field>
+
+                  </div><!-- / form row -->
+                </div><!-- / field -->
+              </div><!-- / fields -->
+            </div><!-- content editor -->
+          </template>
         </div>
 
       </div><!-- / info -->
@@ -259,6 +281,7 @@
 <script>
   import swal from 'sweetalert';
   import naturalSort from 'javascript-natural-sort';
+  import _ from 'lodash';
 
   export default {
 
@@ -376,13 +399,18 @@
       showTab(tab) {
         let show = false;
 
-        if (this.page.id == 1 && tab.active.home) {
-          show = true;
+        if (typeof tab.active === 'object') {
+          if (this.page.id === 1 && tab.active.home) {
+            show = true;
+          }
+
+          if (this.page.id !== 1 && tab.active.internal) {
+            show = true;
+          }
+        } else if (typeof tab.active === 'boolean') {
+          show = tab.active;
         }
 
-        if (this.page.id != 1 && tab.active.internal) {
-          show = true;
-        }
 
         return show;
       },
@@ -407,8 +435,9 @@
         this.tab = 'details';
         if (this.page.data == null) {
           this.page.data = {};
+          this.addFieldData();
         } else {
-          this.resetRepeatableData();
+          this.resetPageData();
         }
 
 
@@ -1061,24 +1090,31 @@
       ///////////////////////////////
       setupModules() {
         for (let i in this.modules) {
-          let module = this.modules[i];
+          let mod = this.modules[i];
+          let name = i;
+          if (typeof mod.name !== 'undefined') {
+            name = mod.name;
+          }
           let tab = {
-            tab: module.tab,
-            name: i,
+            tab: _.snakeCase(mod.tab),
+            name: name,
             default: false,
-            type: module.type,
-            fields: module.fields,
-            active: {
-              home: module.config.home.active,
-              internal: module.config.internal.active
-            }
+            type: mod.type,
+            fields: mod.fields,
+            active: mod.config.active
           };
+          if (i === 'Banners') {
+            tab.active = {
+              home: mod.config.home.active,
+              internal: mod.config.internal.active
+            }
+          }
           this.tabs.push(tab);
         }
       },
 
       addRepeatable(tab) {
-        if (typeof this.page.data[tab.tab] == 'undefined') {
+        if (typeof this.page.data[tab.tab] === 'undefined') {
           Vue.set(this.page.data, tab.tab, []); // updates the reactivity, allows for correct looping
         }
 
@@ -1116,10 +1152,10 @@
 
       getRepeatableFieldNote(field) {
         let note = '';
-        if (field.field == 'image' && field.config) {
+        if (field.field === 'image' && field.config) {
           note = 'Banner will be resized to <strong>fit within ';
-              note += (this.page.id == 1 ? field.config.home.width : field.config.internal.width) + 'px wide x ';
-              note += (this.page.id == 1 ? field.config.home.height : field.config.internal.height) + 'px tall</strong>';
+              note += (this.page.id === 1 ? field.config.home.width : field.config.internal.width) + 'px wide x ';
+              note += (this.page.id === 1 ? field.config.home.height : field.config.internal.height) + 'px tall</strong>';
           note += '<br/>If you are having trouble with images, <a href="https://www.iloveimg.com/photo-editor" target="_blank">visit this page</a> to create your image.';
         }
 
@@ -1140,11 +1176,11 @@
         return configField;
       },
 
-      resetRepeatableData() {
+      resetPageData() {
         this.tabs.forEach(tab => {
           let fields = tab.fields;
-          if (tab.type == 'repeatable') {
-            if (typeof this.page.data[tab.tab] != 'undefined' && Array.isArray(this.page.data[tab.tab])) {
+          if (tab.type === 'repeatable') {
+            if (typeof this.page.data[tab.tab] !== 'undefined' && Array.isArray(this.page.data[tab.tab])) {
               this.page.data[tab.tab].forEach((row, index) => {
                 let fieldsInData = [];
                 for (let i in row) {
@@ -1156,12 +1192,12 @@
                 }
 
                 // if we have added a new field, add it to the existing data
-                if (fieldsInData.length != fields.length) {
+                if (fieldsInData.length !== fields.length) {
                   let newData = {};
                   fields.forEach(field => {
                     let set = false;
                     for (let i in row) {
-                      if (i == field.field) {
+                      if (i === field.field) {
                         newData[i] = row[i];
                         set = true;
                       }
@@ -1183,6 +1219,26 @@
         });
 
 
+      },
+
+      addFieldData() {
+        this.tabs.forEach(tab => {
+          // add the fields if they do not exist
+          if (tab.type === 'fields' && typeof this.page.data[tab.tab] === 'undefined' && tab.fields.length) {
+            // add the content section to the fields
+            let fields = [];
+            tab.fields.forEach(field => {
+              fields.push({
+                id: field.id,
+                page_content_type_id: field.page_content_type_id,
+                content: typeof field.content !== 'undefined' ? field.content : '',
+              })
+            });
+
+            // add the fields to the page data
+            Vue.set(this.page.data, tab.tab, fields);
+          }
+        });
       },
 
       ////////////////////////////////
