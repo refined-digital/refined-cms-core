@@ -407,6 +407,19 @@
           if (this.page.id !== 1 && tab.active.internal) {
             show = true;
           }
+
+          if (typeof tab.active.show_on_pages !== 'undefined') {
+            show = false;
+
+            if (tab.active.show_on_pages.indexOf(this.page.id) > -1) {
+              show = true;
+            }
+          }
+
+          if (typeof tab.active.hide_on_pages !== 'undefined' && tab.active.hide_on_pages.indexOf(this.page.id) > -1) {
+            show = false;
+          }
+
         } else if (typeof tab.active === 'boolean') {
           show = tab.active;
         }
@@ -1100,14 +1113,15 @@
             name: name,
             default: false,
             type: mod.type,
-            fields: mod.fields,
-            active: mod.config.active
+            fields: mod.fields
           };
-          if (i === 'Banners') {
+          if (typeof mod.config === 'object') {
             tab.active = {
               home: mod.config.home.active,
               internal: mod.config.internal.active
             }
+          } else {
+            tab.active = mod.config.active;
           }
           this.tabs.push(tab);
         }
@@ -1135,7 +1149,7 @@
       },
 
       removeRepeatable(tab, index) {
-        if (typeof this.page.data[tab.tab] != 'undefined') {
+        if (typeof this.page.data[tab.tab] !== 'undefined') {
           swal({
             title: 'Are you sure?',
             icon: 'warning',
