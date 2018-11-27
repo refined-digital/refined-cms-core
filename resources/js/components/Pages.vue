@@ -400,11 +400,11 @@
         let show = false;
 
         if (typeof tab.active === 'object') {
-          if (this.page.id === 1 && tab.active.home) {
+          if (this.page.id === 1 && typeof tab.active.home !== 'undefined' && tab.active.home) {
             show = true;
           }
 
-          if (this.page.id !== 1 && tab.active.internal) {
+          if (this.page.id !== 1 && typeof tab.active.internal !== 'undefined' && tab.active.internal) {
             show = true;
           }
 
@@ -1105,6 +1105,7 @@
         for (let i in this.modules) {
           let mod = this.modules[i];
           let name = i;
+          
           if (typeof mod.name !== 'undefined') {
             name = mod.name;
           }
@@ -1115,13 +1116,23 @@
             type: mod.type,
             fields: mod.fields
           };
-          if (typeof mod.config === 'object') {
-            tab.active = {
-              home: mod.config.home.active,
-              internal: mod.config.internal.active
-            }
-          } else {
+
+          if (typeof mod.config.active !== 'undefined') {
             tab.active = mod.config.active;
+          } else {
+            tab.active = {};
+            if (typeof mod.config.home.active !== 'undefined') {
+              tab.active.home = mod.config.home.active;
+            }
+            if (typeof mod.config.internal.active !== 'undefined') {
+              tab.active.internal = mod.config.internal.active;
+            }
+            if (typeof mod.config.hide_on_pages !== 'undefined') {
+              tab.active.hide_on_pages = mod.config.hide_on_pages;
+            }
+            if (typeof mod.config.show_on_pages !== 'undefined') {
+              tab.active.show_on_pages = mod.config.show_on_pages;
+            }
           }
           this.tabs.push(tab);
         }
