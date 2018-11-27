@@ -15,6 +15,20 @@ class PageAggregate
      */
     public function addModule($name, $module)
     {
+        if (isset($module['fields']) && is_array($module['fields']) && sizeof($module['fields'])) {
+            $fields = [];
+
+            foreach ($module['fields'] as $field) {
+                if (!isset($field['index'])) {
+                    $field['index'] = str_slug($field['name'],'_');
+                }
+                $fields[] = $field;
+            }
+
+            if (sizeof($fields)) {
+                $module['fields'] = $fields;
+            }
+        }
         $this->modules[$name] = $module;
     }
 

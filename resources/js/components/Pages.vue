@@ -264,7 +264,7 @@
                       <label :for="'form--content-'+field.id" v-if="!field.hide_label">{{ field.name }}</label>
                     </div>
 
-                    <rd-content-editor-field :item="page.data[item.tab][index]"></rd-content-editor-field>
+                    <rd-content-editor-field :item="page.data[item.tab][field.index]"></rd-content-editor-field>
 
                   </div><!-- / form row -->
                 </div><!-- / field -->
@@ -1105,7 +1105,7 @@
         for (let i in this.modules) {
           let mod = this.modules[i];
           let name = i;
-          
+
           if (typeof mod.name !== 'undefined') {
             name = mod.name;
           }
@@ -1251,13 +1251,13 @@
           // add the fields if they do not exist
           if (tab.type === 'fields' && typeof this.page.data[tab.tab] === 'undefined' && tab.fields.length) {
             // add the content section to the fields
-            let fields = [];
+            let fields = {};
             tab.fields.forEach(field => {
-              fields.push({
+              fields[_.snakeCase(field.name)] = {
                 id: field.id,
                 page_content_type_id: field.page_content_type_id,
-                content: typeof field.content !== 'undefined' ? field.content : '',
-              })
+                content: typeof field.content !== 'undefined' ? field.content : ''
+              }
             });
 
             // add the fields to the page data
