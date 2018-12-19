@@ -51,90 +51,90 @@
 
       <div class="pages__info">
         <div class="pages__tab-pane" v-show="tab == 'details'">
-          <h3>Page Details</h3>
+        <h3>Page Details</h3>
 
-          <div class="form form__horz">
+        <div class="form form__horz">
+          <div class="form__row form__row--inline-label">
+            <label for="form--menu-text" class="form__label">Menu Text</label>
+            <div class="form__horz-group">
+              <input type="text" id="form--menu-text" v-model="page.name" required="required" class="form__control" @keyup="updateSlug()">
+              <div class="form__note">This is used for the text in the menu.</div>
+            </div>
+          </div><!-- / form row -->
+
+          <template v-if="page.id > 1 || page.newPage">
+
             <div class="form__row form__row--inline-label">
-              <label for="form--menu-text" class="form__label">Menu Text</label>
+              <label for="form--active" class="form__label">Show Page</label>
               <div class="form__horz-group">
-                <input type="text" id="form--menu-text" v-model="page.name" required="required" class="form__control" @keyup="updateSlug()">
-                <div class="form__note">This is used for the text in the menu.</div>
-              </div>
-            </div><!-- / form row -->
-
-            <template v-if="page.id > 1 || page.newPage">
-
-              <div class="form__row form__row--inline-label">
-                <label for="form--active" class="form__label">Show Page</label>
-                <div class="form__horz-group">
-                  <select id="form--active" v-model="page.active" required="required" class="form__control">
-                    <option :value="1">Yes</option>
-                    <option :value="0">No</option>
-                  </select>
-                  <div class="form__note">Do you want the page to be viewed by the public? Set to No for draft mode.</div>
-                </div>
-              </div><!-- / form row -->
-
-              <div class="form__row form__row--inline-label">
-                <label for="form--hide-from-menu" class="form__label">Show in Menus</label>
-                <div class="form__horz-group">
-                  <select id="form--hide-from-menu" v-model="page.hide_from_menu" required="required" class="form__control">
-                    <option :value="1">No</option>
-                    <option :value="0">Yes</option>
-                  </select>
-                  <div class="form__note">Do you want the page to be shown in menus?</div>
-                </div>
-              </div><!-- / form row -->
-
-              <div class="form__row form__row--inline-label">
-                <label for="form--page-type" class="form__label">Page Type</label>
-                <div class="form__horz-group">
-                  <select id="form--page-type" v-model="page.page_type" required="required" class="form__control">
-                    <option :value="1">Page</option>
-                    <option :value="0">Holder</option>
-                  </select>
-                  <div class="form__note">Is this a page, or just a menu item?</div>
-                </div>
-              </div><!-- / form row -->
-
-              <div class="form__row form__row--inline-label">
-                <label for="form--template" class="form__label">Template</label>
-                <div class="form__horz-group">
-                  <select id="form--template" v-model="page.meta.template_id" required="required" class="form__control">
-                    <option :value="item.id" v-for="item in templates">{{ item.name }}</option>
-                  </select>
-                  <div class="form__note">Which layout do you need for this page?</div>
-                </div>
-              </div><!-- / form row -->
-
-            </template>
-
-            <div class="form__row form__row--inline-label" v-if="showForms()">
-              <label for="form--form" class="form__label">Form</label>
-              <div class="form__horz-group">
-                <select id="form--form" v-model="page.form_id" required="required" class="form__control">
-                  <option :value="item.id" v-for="item in forms">{{ item.name }}</option>
+                <select id="form--active" v-model="page.active" required="required" class="form__control">
+                  <option :value="1">Yes</option>
+                  <option :value="0">No</option>
                 </select>
-                <div class="form__note">Which form do you want to display on this page?</div>
+                <div class="form__note">Do you want the page to be viewed by the public? Set to No for draft mode.</div>
               </div>
             </div><!-- / form row -->
 
-            <div class="form__row form__row--inline-label" v-if="showBanner()">
-              <label for="form--menu-text" class="form__label">Banner Image</label>
+            <div class="form__row form__row--inline-label">
+              <label for="form--hide-from-menu" class="form__label">Show in Menus</label>
               <div class="form__horz-group">
-                <rd-image v-model="page.banner"></rd-image>
-                <div class="form__note">
-                  Banner will be resized to <strong>fit within
-                  {{ page.id == 1 ? config.banner.home.width : config.banner.internal.width }}px wide x
-                  {{ page.id == 1 ? config.banner.home.height : config.banner.internal.height }}px tall</strong>
-                  <br/>
-                  If you are having trouble with images, <a href="https://www.iloveimg.com/photo-editor" target="_blank">visit this page</a> to create your image.
-                </div>
+                <select id="form--hide-from-menu" v-model="page.hide_from_menu" required="required" class="form__control">
+                  <option :value="1">No</option>
+                  <option :value="0">Yes</option>
+                </select>
+                <div class="form__note">Do you want the page to be shown in menus?</div>
               </div>
             </div><!-- / form row -->
 
+            <div class="form__row form__row--inline-label">
+              <label for="form--page-type" class="form__label">Page Type</label>
+              <div class="form__horz-group">
+                <select id="form--page-type" v-model="page.page_type" required="required" class="form__control">
+                  <option :value="1">Page</option>
+                  <option :value="0">Holder</option>
+                </select>
+                <div class="form__note">Is this a page, or just a menu item?</div>
+              </div>
+            </div><!-- / form row -->
 
-          </div><!-- / form -->
+            <div class="form__row form__row--inline-label">
+              <label for="form--template" class="form__label">Template</label>
+              <div class="form__horz-group">
+                <select id="form--template" v-model="page.meta.template_id" required="required" class="form__control">
+                  <option :value="item.id" v-for="item in templates">{{ item.name }}</option>
+                </select>
+                <div class="form__note">Which layout do you need for this page?</div>
+              </div>
+            </div><!-- / form row -->
+
+          </template>
+
+          <div class="form__row form__row--inline-label" v-if="showForms()">
+            <label for="form--form" class="form__label">Form</label>
+            <div class="form__horz-group">
+              <select id="form--form" v-model="page.form_id" required="required" class="form__control">
+                <option :value="item.id" v-for="item in forms">{{ item.name }}</option>
+              </select>
+              <div class="form__note">Which form do you want to display on this page?</div>
+            </div>
+          </div><!-- / form row -->
+
+          <div class="form__row form__row--inline-label" v-if="showBanner()">
+            <label for="form--menu-text" class="form__label">Banner Image</label>
+            <div class="form__horz-group">
+              <rd-image v-model="page.banner"></rd-image>
+              <div class="form__note">
+                Banner will be resized to <strong>fit within
+                {{ page.id == 1 ? config.banner.home.width : config.banner.internal.width }}px wide x
+                {{ page.id == 1 ? config.banner.home.height : config.banner.internal.height }}px tall</strong>
+                <br/>
+                If you are having trouble with images, <a href="https://www.iloveimg.com/photo-editor" target="_blank">visit this page</a> to create your image.
+              </div>
+            </div>
+          </div><!-- / form row -->
+
+
+        </div><!-- / form -->
         </div><!-- / details -->
         <div class="pages__tab-pane" v-show="tab == 'content'">
           <header class="pages__tab-pane-header">
@@ -247,32 +247,31 @@
         </div>
 
         <div class="pages__tab-pane" v-show="tab == item.tab" v-if="!item.default" v-for="item in tabs">
-          <h3>{{ item.name }}</h3>
-          <template v-if="item.type === 'repeatable'">
-            <rd-pages-repeatable :item="item" :page="page"></rd-pages-repeatable>
-          </template>
+            <h3>{{ item.name }}</h3>
+            <template v-if="item.type === 'repeatable'">
+              <rd-pages-repeatable :item="item" :page="page"></rd-pages-repeatable>
+            </template>
 
-          <template v-if="item.type === 'fields'">
-            <div class="pages__content-editor">
+            <template v-if="item.type === 'fields'">
+              <div class="pages__content-editor">
 
-              <div class="content-editor__fields form form__horz">
-                <div class="content-editor__field" v-for="(field, index) in item.fields">
+                <div class="content-editor__fields form form__horz">
+                  <div class="content-editor__field" v-for="(field, index) in item.fields">
 
-                  <div class="form__row form__row--inline-label" v-if="page.data[item.tab]">
+                    <div class="form__row form__row--inline-label" v-if="page.data[item.tab]">
 
-                    <div class="form__label form__label--with-controls">
-                      <label :for="'form--content-'+field.id" v-if="!field.hide_label">{{ field.name }}</label>
-                    </div>
+                      <div class="form__label form__label--with-controls">
+                        <label :for="'form--content-'+field.id" v-if="!field.hide_label">{{ field.name }}</label>
+                      </div>
 
-                    <rd-content-editor-field :item="page.data[item.tab][field.index]"></rd-content-editor-field>
+                      <rd-content-editor-field :item="page.data[item.tab][field.index]"></rd-content-editor-field>
 
-                  </div><!-- / form row -->
-                </div><!-- / field -->
-              </div><!-- / fields -->
-            </div><!-- content editor -->
-          </template>
-        </div>
-
+                    </div><!-- / form row -->
+                  </div><!-- / field -->
+                </div><!-- / fields -->
+              </div><!-- content editor -->
+            </template>
+          </div>
       </div><!-- / info -->
     </section>
   </div><!-- / pages -->
