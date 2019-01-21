@@ -55,7 +55,7 @@
           .then(r => {
             this.$root.loading = false;
 
-            if (r.statusText == 'OK') {
+            if (r.status == 200) {
               this.pages = r.data;
               this.setupParents();
             }

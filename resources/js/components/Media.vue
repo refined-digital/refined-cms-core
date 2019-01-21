@@ -371,7 +371,7 @@
           .get('/refined/media/get-tree')
           .then(r => {
             this.$root.loading = false;
-            if (r.statusText == 'OK') {
+            if (r.status == 200) {
               this.categories = r.data.tree;
               this.leaf.category = r.data.categoryLeaf;
               this.leaf.media = r.data.mediaLeaf;

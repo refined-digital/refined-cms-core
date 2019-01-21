@@ -77,7 +77,7 @@
                 .get('/refined/media/'+this.value)
                 .then(r => {
                   this.$root.loading = false;
-                  if (r.statusText == 'OK') {
+                  if (r.status == 200) {
                     this.file = r.data.file;
                   }
                 })

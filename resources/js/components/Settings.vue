@@ -101,7 +101,7 @@
         .get('/refined/pages/get-tree')
         .then(r => {
           this.$root.loading = false;
-          if (r.statusText == 'OK') {
+          if (r.status == 200) {
             this.contentTypes = r.data.types;
           }
         })

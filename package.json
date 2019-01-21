@@ -27,6 +27,7 @@
     "jquery": "^3.3.1",
     "laravel-mix": "^2.1.11",
     "moment": "^2.22.2",
+    "node-sass": "^4.11.0",
     "sweetalert": "^2.1.0",
     "vue": "^2.5.16",
     "vue-multiselect": "^2.1.0",
