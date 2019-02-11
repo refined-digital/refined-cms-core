@@ -182,6 +182,6 @@ class Help {
     {
         $videoBits = explode('/', $shareLink);
         $videoKey = $videoBits[sizeof($videoBits)-1];
-        return 'http://www.youtube.com/embed/'.$videoKey.'?rel=0&showinfo=0&autoplay=1';
+        return '//www.youtube.com/embed/'.$videoKey.'?rel=0&showinfo=0&autoplay=1';
     }
 }
