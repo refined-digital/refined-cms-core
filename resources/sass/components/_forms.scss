@@ -100,29 +100,6 @@
     }
   }
 
-  select.form__control {
-    width: auto;
-    padding: 6px;
-    border: 1px solid color(input-border);
-    background-image: none;
-    border-radius: 4px;
-
-    &:focus {
-      border-bottom-color: color(main-color-1);
-    }
-
-    &--full-width {
-      width: 100%;
-    }
-  }
-
-  textarea.form__control {
-    height: 160px;
-    resize: none;
-    background-color: #fbfbfb;
-    padding: 2px 2px 4px;
-  }
-
   &__row {
     margin: 0 0 20px;
 
@@ -396,4 +373,27 @@
       font-size: $systemFontSize;
     }
   }
+}
+
+select.form__control {
+  width: auto;
+  padding: 6px;
+  border: 1px solid color(input-border);
+  background-image: none;
+  border-radius: 4px;
+
+  &:focus {
+    border-bottom-color: color(main-color-1);
+  }
+
+  &--full-width {
+    width: 100%;
+  }
+}
+
+textarea.form__control {
+  height: 160px;
+  resize: none;
+  background-color: #fbfbfb;
+  padding: 2px 2px 4px;
 }

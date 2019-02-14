@@ -3,6 +3,7 @@
 namespace RefinedDigital\CMS\Modules\Settings\Http\Repositories;
 
 use RefinedDigital\CMS\Modules\Core\Http\Repositories\CoreRepository;
+use RefinedDigital\CMS\Modules\Media\Http\Repositories\MediaRepository;
 use RefinedDigital\CMS\Modules\Pages\Models\PageContentType;
 
 class SettingRepository extends CoreRepository
@@ -60,9 +61,18 @@ class SettingRepository extends CoreRepository
 
         $data = [];
 
+        $media = [];
+        $mediaKeys = [];
+
         if ($items && $items->count()) {
             foreach ($items as $item) {
                 $type = isset($types[$item->value->page_content_type_id]) ? $types[$item->value->page_content_type_id] : null;
+                $key = str_slug($item->name, '_');
+
+                if (($item->value->page_content_type_id == 4 || $item->value->page_content_type_id == 5) && !in_array($item->value->content, $media)){
+                    $media[] = $item->value->content;
+                    $mediaKeys[] = $key;
+                }
 
                 $d = new \stdClass();
                 $d->name = $item->name;
@@ -72,7 +82,23 @@ class SettingRepository extends CoreRepository
                 $d->options = isset($item->value->options) ? $item->value->options : [];
                 $d->type = $type;
 
-                $data[str_slug($d->name, '_')] = $d;
+                $data[$key] = $d;
+            }
+        }
+
+        if (sizeof($media)) {
+            // grab all the media by the ids, this is to add back into the data
+            $mediaRepo = new MediaRepository();
+            $mediaFiles = $mediaRepo->getByIds($media);
+            if ($mediaFiles && $mediaFiles->count()) {
+                foreach ($mediaFiles as $file) {
+                    $settingKeyIndex = array_search($file->id, $media);
+                    if (isset($mediaKeys[$settingKeyIndex]) && $data[$mediaKeys[$settingKeyIndex]]) {
+                        $settingIndex = $mediaKeys[$settingKeyIndex];
+                        $data[$settingIndex]->true_value = $data[$settingIndex]->value;
+                        $data[$settingIndex]->value = (object) $file->toArray();
+                    }
+                }
             }
         }
 

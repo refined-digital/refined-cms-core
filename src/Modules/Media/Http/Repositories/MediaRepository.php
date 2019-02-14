@@ -237,4 +237,10 @@ class MediaRepository extends CoreRepository
 
         }
     }
+
+
+    public function getByIds($ids = [])
+    {
+        return Media::whereIn('id', $ids)->get();
+    }
 }

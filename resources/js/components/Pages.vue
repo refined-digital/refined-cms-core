@@ -1240,6 +1240,9 @@
               });
             }
           }
+          if (tab.type === 'fields') {
+            this.addFieldData();
+          }
         });
 
 
