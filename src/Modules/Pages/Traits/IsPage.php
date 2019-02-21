@@ -47,6 +47,9 @@ trait IsPage
             if (!$title && isset($model->meta->title)) {
                 $title = $model->meta->title;
             }
+            if (!$title && isset($model->name)) {
+                $title = $model->name;
+            }
 
 
             // set the description
@@ -67,11 +70,20 @@ trait IsPage
                 }
             }
 
+            $name = '';
+            if (isset($request['name'])) {
+                $name = $request['name'];
+            }
+
+            if (!$name) {
+                $name = $model->name;
+            }
+
             $modelType = get_class($model);
 
             $uriData = [
                 'title'         => $title,
-                'name'          => $request['name'],
+                'name'          => $name,
                 'description'   => $description,
                 'template_id'   => $template,
                 'uriable_id'    => $model->id,

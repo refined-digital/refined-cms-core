@@ -51,7 +51,7 @@ class CoreRepository {
             // log
             activity()
                 ->performedOn($item)
-                ->causedBy(auth()->user()->id)
+                ->causedBy(auth()->check() ? auth()->user()->id : null)
                 ->withProperties(['Deleted item' => $id])
                 ->log('An item was deleted')
             ;
@@ -91,7 +91,7 @@ class CoreRepository {
         $basename = class_basename($item);
         activity()
             ->performedOn($item)
-            ->causedBy(auth()->user()->id)
+            ->causedBy(auth()->check() ? auth()->user()->id : null)
             ->withProperties([$basename.' has been updated' => $id])
             ->log($basename.' has been updated')
         ;
