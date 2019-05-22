@@ -22,7 +22,7 @@
             <td class="data-table__cell data-table__cell--options-delete"><i class="fa fa-times" @click="removeRepeatable(item, index)"></i></td>
           </tr>
         </draggable>
-        <tfoot v-if="items && items.length > 4">
+        <tfoot v-if="items && items.length > 1">
           <tr>
             <th class="data-table__cell data-table__cell--sort"></th>
             <th class="data-table__cell"></th>
