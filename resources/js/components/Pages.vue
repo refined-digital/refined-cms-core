@@ -1145,13 +1145,18 @@
         let row = {};
         if (tab.fields.length) {
           tab.fields.forEach(field => {
-            let note = this.getRepeatableFieldNote(field);
 
-            row[field.field] = {
+            let note = this.getRepeatableFieldNote(field);
+            let d = {
               page_content_type_id: field.page_content_type_id,
               content: '',
               note: note
             };
+            if (typeof field.options !== 'undefined') {
+              d.options = field.options;
+            }
+
+            row[field.field] = d;
           });
         }
 
@@ -1181,6 +1186,8 @@
               note += (this.page.id === 1 ? field.config.home.width : field.config.internal.width) + 'px wide x ';
               note += (this.page.id === 1 ? field.config.home.height : field.config.internal.height) + 'px tall</strong>';
           note += '<br/>If you are having trouble with images, <a href="https://www.iloveimg.com/photo-editor" target="_blank">visit this page</a> to create your image.';
+        } else if (field.note) {
+          note = field.note;
         }
 
         return note;
@@ -1227,11 +1234,15 @@
                       }
                     }
                     if (!set) {
-                      newData[field.field] = {
+                      let d = {
                         content: '',
                         page_content_type_id: field.page_content_type_id,
                         note: field.note || '',
+                      };
+                      if (typeof field.options !== 'undefined') {
+                        d.options = field.options;
                       }
+                      newData[field.field] = d;
                     }
                   });
 
