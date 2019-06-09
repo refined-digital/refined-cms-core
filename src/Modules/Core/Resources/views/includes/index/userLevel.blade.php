@@ -1,1 +1,1 @@
-{{ $d->user_level->name or 'Not Set' }}
+{{ $d->userLevel->name ?? 'Not Set' }}

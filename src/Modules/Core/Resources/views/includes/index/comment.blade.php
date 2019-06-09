@@ -1,1 +1,1 @@
-{{ $d->commentable->name or '' }}
+{{ $d->commentable->name ?? '' }}

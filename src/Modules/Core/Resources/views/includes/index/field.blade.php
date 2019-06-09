@@ -1,1 +1,1 @@
-{{ $d->type->name or '' }}
+{{ $d->type->name ?? '' }}

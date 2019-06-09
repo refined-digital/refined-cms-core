@@ -4,6 +4,7 @@ namespace RefinedDigital\CMS\Commands;
 
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Process\Process;
@@ -32,6 +33,7 @@ class Install extends Command
     protected $dbName = null;
     protected $dbUser = null;
     protected $dbPass = null;
+    protected $userAdded = false;
 
     /**
      * Create a new command instance.
@@ -151,6 +153,8 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
 
         // database password
         $question = new Question('Database Password?: ', false);
+        $question->setHidden(true);
+        $question->setHiddenFallback(false);
         $question->setValidator(function ($answer) {
             if(strlen($answer) < 1) {
                 throw new RuntimeException('Database password is required');
@@ -159,7 +163,7 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
         });
         $dbPassword = $helper->ask($this->input, $this->output, $question);
 
-        $this->output->writeln('<info>Writing config</info>');
+        $this->output->writeln('<info>Writing db config</info>');
         // now do the search and replace on file strings
         $file = file_get_contents(app()->environmentFilePath());
         $search = [
@@ -170,14 +174,14 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
         $replace = [
             "DB_DATABASE=".$dbName."\n",
             "DB_USERNAME=".$dbUser."\n",
-            "DB_PASSWORD=".$dbPassword."\n",
+            "DB_PASSWORD=\"".$dbPassword."\"\n",
         ];
         file_put_contents(app()->environmentFilePath(), preg_replace($search, $replace, $file));
 
         $this->dbName = $dbName;
         $this->dbUser = $dbUser;
         $this->dbPass = $dbPassword;
-        $this->output->writeln('<info>Finished writing config</info>');
+        $this->output->writeln('<info>Finished writing db config</info>');
     }
 
 
@@ -199,6 +203,7 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
             '--database' => 'temp'
         ]);
 
+        $this->output->writeln('<info>Migrating the database</info>');
         Artisan::call('migrate', [
             '--path' => 'vendor/refineddigital/cms/src/Database/Migrations',
             '--database' => 'temp',
@@ -213,16 +218,15 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
         ]);
     }
 
-    protected function addSuperUser()
+    protected function addUser()
     {
         $helper = $this->getHelper('question');
 
-        $question = new ConfirmationQuestion('Do you want to add a Super User? ', false);
+        $question = new ConfirmationQuestion('Do you want to add '.($this->userAdded ? 'another' : 'a').' User? ', false);
 
         if(!$helper->ask($this->input, $this->output, $question)) {
             return;
         }
-
 
         // first name
         $question = new Question('First Name: ', false);
@@ -261,6 +265,8 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
 
         // password
         $question = new Question('Password: ', false);
+        $question->setHidden(true);
+        $question->setHiddenFallback(false);
         $question->setValidator(function ($answer) {
             $validator = Validator::make(['password' => $answer], [
                 'password' => 'required|string|min:6',
@@ -273,6 +279,16 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
         });
         $password = $helper->ask($this->input, $this->output, $question);
 
+        // user level
+        $question = new ChoiceQuestion('User Level: ', [1 => 'Super Admin', 2 => 'Admin', 3 => 'Member'], null);
+        $question->setErrorMessage('User Level %s is invalid.');
+        $userLevel = $helper->ask($this->input, $this->output, $question);
+        $userLevelId = 3;
+        switch($userLevel) {
+            case 'Super Admin': $userLevelId = 1; break;
+            case 'Admin': $userLevelId = 2; break;
+        }
+
 
         // create the user
         DB::table('users')->insert([
@@ -284,14 +300,17 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
             'last_name'     => $last,
             'email'         => $email,
             'password'      => bcrypt($password),
+            'user_level_id' => $userLevelId
         ]);
 
+        $this->userAdded = true;
+        $this->addUser();
     }
 
     protected function createSymLink()
     {
         $link = getcwd().'/public/vendor/';
-        $target = getcwd().'/vendor/refineddigital/cms/assets/';
+        $target = '../../vendor/refineddigital/cms/assets/';
 
         // create the directories
         if (!is_dir($link)) {
@@ -310,14 +329,17 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
 
     protected function linkStorage()
     {
-        Artisan::call('storage:link', [
-            '--force' => 1
-        ]);
+        Artisan::call('storage:link');
     }
 
     protected function regenerateKey()
     {
         $process = new Process('php artisan key:generate');
         $process->run();
+    }
+
+    protected function setupComplete()
+    {
+        $this->output->writeln('<comment>Setup Complete!</comment>');
     }
 }

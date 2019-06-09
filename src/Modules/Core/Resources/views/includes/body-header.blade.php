@@ -8,9 +8,9 @@
         <div class="app__content-header">
             <h2>
                 @if (isset($parent->name))
-                    <a href="{{ $parent->index or '#' }}">{{ $parent->name }}</a> /
+                    <a href="{{ $parent->index ?? '#' }}">{{ $parent->name }}</a> /
                 @endif
-                <a href="{{ $routes->index or '#' }}">{{ $heading }}</a>
+                <a href="{{ $routes->index ?? '#' }}">{{ $heading }}</a>
             </h2>
             <aside>
                 @if (isset($routes->create) && ($routeEnd == 'index' || $routeEnd == 'fields'))
@@ -30,9 +30,9 @@
         <div class="app__content-header">
             <h2>
                 @if (isset($parent->name))
-                    <a href="{{ $parent->index or '#' }}">{{ $parent->name }}</a> /
+                    <a href="{{ $parent->index ?? '#' }}">{{ $parent->name }}</a> /
                 @endif
-                <a href="{{ $routes->index or '#' }}">{{ $heading }}</a> / {{ $routeEnd == 'create' ? 'Create' : ''}}
+                <a href="{{ $routes->index ?? '#' }}">{{ $heading }}</a> / {{ $routeEnd == 'create' ? 'Create' : ''}}
                 <span>{{ $data->name }}</span>
             </h2>
             @include('core::includes.body-header-buttons')

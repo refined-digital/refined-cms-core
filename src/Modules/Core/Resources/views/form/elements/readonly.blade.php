@@ -1,3 +1,3 @@
 <div class="form__control--text">
-    {{ $data->{$field->name} or '' }}
+    {{ $data->{$field->name} ?? '' }}
 </div>

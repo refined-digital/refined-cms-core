@@ -1,3 +1,3 @@
 <div class="form__control--text">
-    {{ $data->commentable->name or '' }}
+    {{ $data->commentable->name ?? '' }}
 </div>

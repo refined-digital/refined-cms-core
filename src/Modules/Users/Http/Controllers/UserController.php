@@ -3,6 +3,7 @@
 namespace RefinedDigital\CMS\Modules\Users\Http\Controllers;
 
 use RefinedDigital\CMS\Modules\Core\Http\Controllers\CoreController;
+use RefinedDigital\CMS\Modules\Users\Http\Repositories\UserRepository;
 use RefinedDigital\CMS\Modules\Users\Http\Requests\UserRequest;
 use RefinedDigital\CMS\Modules\Users\Models\User;
 
@@ -32,6 +33,20 @@ class UserController extends CoreController
         $table->sortable = false;
 
         $this->table = $table;
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        // do the initial setting of vars on the child class
+        $repo = new UserRepository();
+        $repo->setModel($this->model);
+        $data = $repo->getAll();
+        return $this->indexSetup($data);
     }
 
     /**
