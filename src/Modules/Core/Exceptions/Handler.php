@@ -62,9 +62,10 @@ class Handler extends ExceptionHandler
 
         // replace the errors with the custom cms ones
         view()->replaceNamespace('errors', [
+            base_path('resources/views/errors'),
             $dir,
-            app_path().'/views/errors',
-            base_path().'/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/views'
+            app_path('views/errors'),
+            base_path('vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/views')
         ]);
 
         if (view()->exists($view = "errors::{$e->getStatusCode()}")) {
