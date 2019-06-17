@@ -70,14 +70,14 @@ class Pages {
         return rtrim(config('app.url'), '/').'/';
     }
 
-    public function getErrorPageVariables($title = 'Error')
+    public function getErrorPageVariables($title = 'Error', $statusCode = 404)
     {
         $page = new \stdClass();
         $head = pages()->getPageHeaders();
 
         $page->title = $title;
         $page->head = implode("\n\t\t", $head);
-        $page->classes = '';
+        $page->classes = 'page__error--'.$statusCode;
         $page->settings = settings()->get('pages');
 
 
