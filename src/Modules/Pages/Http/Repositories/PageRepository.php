@@ -136,6 +136,18 @@ class PageRepository extends CoreRepository
         unset($page->meta);
         $page->meta = $meta;
 
+        if ($page->content && $page->content->count()) {
+            foreach ($page->content as $content) {
+                $content->page_content_type_id = (int) $content->page_content_type_id;
+                $content->page_id = (int) $content->id;
+                $content->position = (int) $content->position;
+
+                if ($content->type->id === 4 || $content->type->id === 5) {
+                    $content->content = (int) $content->content;
+                }
+            }
+        }
+
         // check for children
         $children = $this->getBranch($holderId, $page->id);
         if ($children->count()) {
