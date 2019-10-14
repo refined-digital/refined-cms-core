@@ -115,10 +115,11 @@ class PageRepository extends CoreRepository
 
     public function formatBranch($page, $holderId)
     {
-        $page->type     = 'page';
-        $page->children = [];
-        $page->show     = false; // if we are to show the sub pages
-        $page->on       = false; // if we are on the active item
+        $page->type             = 'page';
+        $page->children         = [];
+        $page->show             = false; // if we are to show the sub pages
+        $page->on               = false; // if we are on the active item
+        $page->hide_from_menu   = (int) $page->hide_from_menu;
 
         // if we have a parent id of 0 we need to update the holder id to be negative
         if ($page->parent_id === 0) {
