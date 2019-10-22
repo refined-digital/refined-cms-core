@@ -71,6 +71,8 @@ class PageRepository extends CoreRepository
                 $holder->children   = [];
                 $holder->show       = $pos == 0 ? true : false; // if we are to show the sub pages
                 $holder->on         = $pos == 0 ? true : false; // if we are on the active item
+                $holder->active     = (int) $holder->active;
+                $holder->position   = (int) $holder->position;
 
                 // check for children
                 $children = $this->getBranch($holder->id, 0);
@@ -120,6 +122,12 @@ class PageRepository extends CoreRepository
         $page->show             = false; // if we are to show the sub pages
         $page->on               = false; // if we are on the active item
         $page->hide_from_menu   = (int) $page->hide_from_menu;
+        $page->active           = (int) $page->active;
+        $page->parent_holder_id = (int) $page->parent_holder_id;
+        $page->page_type        = (int) $page->page_type;
+        $page->parent_id        = (int) $page->parent_id;
+        $page->position         = (int) $page->position;
+        $page->protected        = (int) $page->protected;
 
         // if we have a parent id of 0 we need to update the holder id to be negative
         if ($page->parent_id === 0) {
@@ -129,7 +137,7 @@ class PageRepository extends CoreRepository
 
         // format the meta to streamline for only what we need
         $meta = new \stdClass();
-        $meta->template_id = $page->meta->template_id;
+        $meta->template_id = (int) $page->meta->template_id;
         $meta->uri = $page->meta->uri;
         $meta->title = $page->meta->title;
         $meta->description = $page->meta->description;
