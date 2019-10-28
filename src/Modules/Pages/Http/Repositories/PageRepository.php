@@ -316,7 +316,7 @@ class PageRepository extends CoreRepository
         $page = $class::with(['meta', 'meta.template'])->find($pageId);
 
         // if the site is a single pager, only render the home page if its on the sitemap holder
-        if (isset($settings->is_single_page) && $settings->is_single_page->value && $page->page_holder_id === 1) {
+        if (isset($settings->is_single_page) && $settings->is_single_page->value && (int) $page->page_holder_id === 1) {
             // force the home page
             $uriReference = $this->setUriReference('/');
             $pageId = $uriReference->uriable_id;
