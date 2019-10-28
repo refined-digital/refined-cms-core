@@ -1,6 +1,6 @@
 <template>
     <div class="form__control--tags">
-      <input type="text" class="form__control" :value="tags" :name="'modelTags[' + field.name + ']'" required :id="'form--'+field.name" autocomplete="off">
+      <input type="text" class="form__control" :value="tags" :name="'modelTags[' + field.name.replace('data__', '') + ']'" required :id="'form--'+field.name" autocomplete="off">
     </div>
 </template>
 
@@ -9,7 +9,7 @@
 
   export default {
 
-    props: [ 'field', 'type', 'values' ],
+    props: [ 'field', 'type', 'values', 'choices', 'dontAllowCreate', 'valueField' ],
 
     data() {
       return {
@@ -22,7 +22,13 @@
     },
 
     created () {
-      this.placeholder = 'Select ' + this.setType;
+      this.placeholder = 'Select ' + this.setType.replace(/-/gi,' ');
+
+      if (this.choices) {
+        this.choices.forEach(choice => {
+          this.options.push({ ...choice });
+        });
+      }
 
       // add the initial tags
       if (typeof this.values != 'undefined') {
@@ -44,10 +50,14 @@
             if (data.length) {
               data.forEach(d => {
                 if (d.type == this.setType) {
-                  this.options.push({
+                  const type = {
                     id: d.id,
                     name: d.name
-                  })
+                  };
+
+                  if (this.options.indexOf(type) < 0 && !this.choices) {
+                    this.options.push(type);
+                  }
                 }
               });
             }
@@ -81,16 +91,29 @@
           labelField: 'name',
           searchField: 'name',
           options: this.options,
-          create: function(input) {
-            return {
-              id: 't-'+new Date().getTime(),
-              name: input
+          create:
+            !this.dontAllowCreate ?
+            function(input) {
+              return {
+                id: 't-'+new Date().getTime(),
+                name: input
+              }
             }
-          },
+            :
+            false
+          ,
           onChange: function(value) {
+            console.log(value);
             self.tags = value;
           }
         };
+
+        if (this.valueField) {
+          selectizeOptions.valueField = this.valueField;
+        }
+
+        console.log(selectizeOptions);
+
 
         $(element)
           .selectize(selectizeOptions)
