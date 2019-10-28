@@ -285,20 +285,7 @@ class PageRepository extends CoreRepository
             $uri = end($uriBits);
         }
 
-        // the home page
-        if (!$uri || $uri == '/') {
-            $uriReference = Uri::whereUriableId(1)
-                                ->whereUriableType('RefinedDigital\CMS\Modules\Pages\Models\Page')
-                                ->first();
-        } else {
-            $uriReference = Uri::whereUri($uri)->first();
-        }
-
-
-        if (!isset($uriReference->uriable_id)) {
-            abort(404);
-        }
-
+        $uriReference = $this->setUriReference($uri);
         $pageId = $uriReference->uriable_id;
         $class = $uriReference->uriable_type;
 
@@ -325,7 +312,19 @@ class PageRepository extends CoreRepository
 
         // set the base href
         $baseHref = pages()->getBaseHref();
+
         $page = $class::with(['meta', 'meta.template'])->find($pageId);
+
+        // if the site is a single pager, only render the home page if its on the sitemap holder
+        if (isset($settings->is_single_page) && $settings->is_single_page->value && $page->page_holder_id === 1) {
+            // force the home page
+            $uriReference = $this->setUriReference('/');
+            $pageId = $uriReference->uriable_id;
+            $class = $uriReference->uriable_type;
+            $page = $class::with(['meta', 'meta.template'])->find($pageId);
+            $page->isSinglePage = true;
+        }
+
         $base = class_basename($page);
         $page->type = $base;
         $page->url = $baseHref.$uri;
@@ -415,7 +414,9 @@ class PageRepository extends CoreRepository
         if (isset($_GET) && sizeof($_GET)) {
             $head[] = '<link rel="canonical" href="'.request()->url().'" />';
         } elseif(request()->url() != $baseHref.$page->meta->uri) {
-            $head[] = '<link rel="canonical" href="'.$baseHref.$page->meta->uri.'"/>';
+            $head[] = '<link rel="canonical" href="'.rtrim($baseHref.$page->meta->uri, '/').'/"/>';
+        } elseif(isset($page->isSinglePage)) {
+            $head[] = '<link rel="canonical" href="'.rtrim($baseHref, '/').'/"/>';
         }
 
         $page->title = (isset($page->meta->title) && $page->meta->title) ? $page->meta->title : $page->name;
@@ -433,6 +434,25 @@ class PageRepository extends CoreRepository
         }
 
         return $page;
+    }
+
+    private function setUriReference($uri)
+    {
+        // the home page
+        if (!$uri || $uri == '/') {
+            $uriReference = Uri::whereUriableId(1)
+                                ->whereUriableType('RefinedDigital\CMS\Modules\Pages\Models\Page')
+                                ->first();
+        } else {
+            $uriReference = Uri::whereUri($uri)->first();
+        }
+
+
+        if (!isset($uriReference->uriable_id)) {
+            abort(404);
+        }
+
+        return $uriReference;
     }
 
     public function getPagesForMenu($holder, $parent = 0, $maxDepth = 10, $level = 1, $parentUrl = '')
