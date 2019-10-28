@@ -321,8 +321,10 @@ class PageRepository extends CoreRepository
             $uriReference = $this->setUriReference('/');
             $pageId = $uriReference->uriable_id;
             $class = $uriReference->uriable_type;
+            $original = $page;
             $page = $class::with(['meta', 'meta.template'])->find($pageId);
-            $page->isSinglePage = true;
+            $page->is_single_page = true;
+            $page->original = $original;
         }
 
         $base = class_basename($page);
@@ -415,7 +417,7 @@ class PageRepository extends CoreRepository
             $head[] = '<link rel="canonical" href="'.request()->url().'" />';
         } elseif(request()->url() != $baseHref.$page->meta->uri) {
             $head[] = '<link rel="canonical" href="'.rtrim($baseHref.$page->meta->uri, '/').'/"/>';
-        } elseif(isset($page->isSinglePage)) {
+        } elseif(isset($page->is_single_page)) {
             $head[] = '<link rel="canonical" href="'.rtrim($baseHref, '/').'/"/>';
         }
 

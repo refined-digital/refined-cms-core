@@ -34,12 +34,12 @@ class Menu {
         return $this;
     }
 
-    public function get()
+    public function get($activePage = false)
     {
         $holder = isset($this->holder->id) ? $this->holder->id : 1;
 
         $data = $this->pageRepository->getPagesForMenu($holder, $this->parent, $this->maxDepth, $this->level, '');
-        return view('templates::'.$this->view)->with(compact('data'));
+        return view('templates::'.$this->view)->with(compact('data'))->with(compact('activePage'));
     }
 
 }
