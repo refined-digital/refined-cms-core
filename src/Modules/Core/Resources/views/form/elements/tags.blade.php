@@ -14,14 +14,17 @@
 
     $choices = [];
     if (isset($field->options->options) && $field->options->options) {
-      $posts = blog()->getForSelect();
-      if (sizeof($posts)) {
-        foreach ($posts as $post) {
-          if (!isset($data->id) || (isset($data->id) && $data->id !== $post['id'])) {
-            $post['value'] = $post['id'];
-            $choices[] = $post;
+      $dataSet = $field->options->type::active()->orderBy('name','asc')->get();
+      $choices = [];
+      if ($dataSet->count()) {
+          foreach ($dataSet as $post) {
+            if (!isset($data->id) || (isset($data->id) && $data->id !== $post['id'])) {
+              $choices[] = [
+                  'id' => $post->id,
+                  'name' => $post->name,
+              ];
+            }
           }
-        }
       }
     }
 
