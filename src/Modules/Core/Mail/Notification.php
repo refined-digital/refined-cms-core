@@ -49,10 +49,17 @@ class Notification extends Mailable
 
         if (isset($this->settings->files) && is_array($this->settings->files)) {
             foreach ($this->settings->files as $file) {
-                $data->attach($file->getRealPath(), [
-                    'as'    => $file->getClientOriginalName(),
-                    'mime'  => $file->getMimeType(),
-                ]);
+                if (is_object($file)) {
+                    $data->attach($file->getRealPath(), [
+                        'as'    => $file->getClientOriginalName(),
+                        'mime'  => $file->getMimeType(),
+                    ]);
+                }
+                if (is_array($file)) {
+                    $data->attach($file['path'], [
+                        'as' => $file['name']
+                    ]);
+                }
             }
         }
 
