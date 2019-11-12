@@ -19,20 +19,20 @@
   "homepage": "https://gitlab.com/refineddigital/cms#README",
   "devDependencies": {},
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "dragula": "^3.7.2",
     "dropzone": "^5.5.1",
-    "flatpickr": "^4.5.1",
+    "flatpickr": "^4.6.3",
     "javascript-natural-sort": "^0.7.1",
-    "jquery": "^3.3.1",
-    "laravel-mix": "^2.1.11",
-    "moment": "^2.22.2",
-    "node-sass": "^4.11.0",
-    "sweetalert": "^2.1.0",
-    "vue": "^2.5.16",
-    "vue-multiselect": "^2.1.0",
-    "vue-trumbowyg": "^3.3.0",
-    "vue2-selectize": "^1.1.4",
-    "vuedraggable": "^2.16.0"
+    "jquery": "^3.4.1",
+    "laravel-mix": "^2.1.14",
+    "moment": "^2.24.0",
+    "node-sass": "^4.13.0",
+    "sweetalert": "^2.1.2",
+    "vue": "^2.6.10",
+    "vue-multiselect": "^2.1.6",
+    "vue-trumbowyg": "^3.4.2",
+    "vue2-selectize": "^1.1.7",
+    "vuedraggable": "^2.23.2"
   }
 }
