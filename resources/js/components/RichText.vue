@@ -118,7 +118,7 @@
         methods:  {
           updateInput() {
             this.$emit('input', this.data);
-          }
+          },
         },
 
         watch: {

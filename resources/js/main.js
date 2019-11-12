@@ -170,7 +170,6 @@ window.changeEditorLinkType = function(fieldId, value) {
 
   if (type && type.length) {
     type.forEach(t => {
-      console.log(t);
       t.style.display = 'block';
     });
   }
