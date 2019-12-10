@@ -1,0 +1,174 @@
+.rich-editor {
+  position: relative;
+
+  .ProseMirror {
+    height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 1px solid color(input-border);
+    padding: 10px;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &__menu {
+    background: #ecf0f1;
+    border: 1px solid color(input-border);
+    border-bottom: 0;
+    display: flex;
+
+    &-divider {
+      background: color(input-border);
+      height: 35px;
+      display: block;
+      width: 1px;
+      margin: 0 5px;
+    }
+  }
+
+  &__icon {
+    display: block;
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    color: #222;
+
+    &.todo {
+      background: hotpink;
+    }
+
+    &--active, &:hover {
+      background: #fff;
+    }
+
+    > div {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    svg {
+      display: inline-block;
+      height: 14px;
+    }
+
+    &--with-menu {
+      position: relative;
+
+      &:hover {
+        .rich-editor__list {
+          display: block;
+        }
+      }
+    }
+  }
+
+  &__list {
+    position: absolute;
+    left: 0;
+    top: 34px;
+    background: #fff;
+    box-shadow: 0 2px 3px rgba(0,0,0,.1);
+    width: 200px;
+    max-height: 250px;
+    overflow: auto;
+    z-index: 80;
+    margin: 0;
+    padding: 0;
+    display: none;
+
+    &-item {
+      width: 100%;
+      margin: 0;
+      padding: 5px 10px;
+
+      > div, > span {
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      > div {
+        width: 30px;
+        height: auto;
+        margin-right: 4px;
+      }
+
+      &:hover {
+        background: color(input-border);
+      }
+    }
+
+    .rich-editor__icon--active {
+      color: color(blue);
+    }
+  }
+
+  &__modal {
+    width: 100%;
+    max-width: 400px;
+    position: absolute;
+    left: 50%;
+    top: 30px;
+    transform: translateX(-50%);
+    background: #fff;
+    z-index: 60;
+    padding: 20px;
+
+    &-background {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      background: rgba(0,0,0,0.2);
+      z-index: 50;
+    }
+
+    &-header {
+      text-align: center;
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    &-heading {
+      margin: 0;
+    }
+
+    &-close {
+      position: absolute;
+      right: 0;
+      top: 0;
+      cursor: pointer;
+    }
+
+    &-row {
+      margin: 0 0 8px;
+      display: flex;
+      justify-content: space-between;
+
+      &--buttons {
+        margin-bottom: 0;
+      }
+
+      > label {
+        flex: 0 0 80px;
+      }
+
+      .button {
+        margin-left: 80px;
+      }
+    }
+
+    &-control {
+      flex: 1;
+      border: 1px solid color(input);
+      padding: 3px 2px;
+    }
+  }
+}

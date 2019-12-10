@@ -1,7 +1,7 @@
 <template>
     <div>
       <label :for="'form--'+field.name" class="form__label">{{ field.label }}</label>
-      <input type="datetime-local" class="form__control" :name="field.name" required :id="'form--'+field.name" autocomplete="off">
+      <input type="date" class="form__control" :name="field.name" required :id="'form--'+field.name" autocomplete="off">
     </div>
 </template>
 
@@ -17,12 +17,12 @@
     data() {
       return {
         datePicker: null,
-        dateFormat: 'YYYY-MM-DD HH:mm:ss',
+        dateFormat: 'YYYY-MM-DD',
         config: {
           altInput: true,
-          altFormat: 'F j, Y h:iK',
-          dateFormat: 'Y-m-d H:i:S',
-          enableTime: true,
+          altFormat: 'F j, Y',
+          dateFormat: 'Y-m-d',
+          enableTime: false,
           defaultDate: ''
         }
       }

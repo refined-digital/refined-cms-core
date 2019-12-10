@@ -103,7 +103,6 @@
             false
           ,
           onChange: function(value) {
-            console.log(value);
             self.tags = value;
           }
         };
@@ -111,9 +110,6 @@
         if (this.valueField) {
           selectizeOptions.valueField = this.valueField;
         }
-
-        console.log(selectizeOptions);
-
 
         $(element)
           .selectize(selectizeOptions)

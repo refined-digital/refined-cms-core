@@ -1,4 +1,4 @@
-let mix = require('laravel-mix');
+const mix = require('laravel-mix');
 
 /*
  |--------------------------------------------------------------------------
@@ -18,7 +18,6 @@ mix
   .js('resources/js/front-end/modules/FormBuilder.js', 'assets/js')
   .js('resources/js/front-end/plugins/FormValidate.js', 'assets/js')
   .sass('resources/sass/main.scss', 'css')
-  .copy('node_modules/trumbowyg/dist/ui/icons.svg', 'assets/img/vendor/trumbowyg/dist/ui/icons.svg')
 ;
 
 if (mix.inProduction()) {
