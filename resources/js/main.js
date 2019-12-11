@@ -5,6 +5,7 @@ window.swal = require('sweetalert');
 require('./directives/_directives');
 
 Vue.component('rd-date-time-picker', require('./components/DateTimePicker.vue'));
+Vue.component('rd-date-picker', require('./components/DatePicker.vue'));
 Vue.component('rd-rich-text', require('./components/RichText.vue'));
 Vue.component('rd-tags', require('./components/Tags.vue'));
 Vue.component('rd-pages', require('./components/Pages.vue'));
@@ -107,20 +108,20 @@ window.slugify = function (text) {
     .replace(/^-+/, '')             // Trim - from start of text
     .replace(/-+$/, '');            // Trim - from end of text
 }
-
+/*
 window.loadMediaModal = function (fieldId, type) {
   eventBus.$emit('media-set-type', type);
   eventBus.$emit('media-reload');
   window.app.media.showModal = true;
   window.app.media.model = fieldId;
   eventBus.$on('selecting-file', function(data) {
-    if (window.app.media.model == fieldId) {
+    if (window.app.media.model === fieldId) {
       let block = $('#'+fieldId),
           field = block.find('input')
       ;
       field.val(data.link.original.replace(data.link.basePath, '/'));
 
-      if (type == 'Image') {
+      if (type === 'Image') {
         let image = block.find('div').children('div')
 
         let img = new Image;
@@ -142,7 +143,7 @@ window.loadSitemapModal = function (fieldId) {
   window.app.sitemap.showModal = true;
   window.app.sitemap.model = fieldId;
   eventBus.$on('selecting-link', function(data) {
-    if (window.app.sitemap.model == fieldId) {
+    if (window.app.sitemap.model === fieldId) {
       let block = $('#'+fieldId),
           field = block.find('input')
       ;
@@ -154,28 +155,4 @@ window.loadSitemapModal = function (fieldId) {
     return false;
   });
 }
-
-window.changeEditorLinkType = function(fieldId, value) {
-  let field = document.getElementById(fieldId),
-    types = field.querySelectorAll('*[data-type]'),
-    type = field.querySelectorAll('*[data-type="' + value + '"]'),
-    label = field.querySelector('.link-field-label')
-  ;
-
-  // hide all field types
-  if (types.length) {
-    types.forEach(t => {
-      t.style.display = 'none';
-    });
-  }
-
-  if (type && type.length) {
-    type.forEach(t => {
-      t.style.display = 'block';
-    });
-  }
-
-  if (label) {
-    label.textContent = value == 'email' ? 'Email Address' : 'URL';
-  }
-}
+*/

@@ -1,6 +1,5 @@
-import { Mark, Plugin } from 'tiptap'
+import { Mark } from 'tiptap'
 import { updateMark, removeMark, pasteRule } from 'tiptap-commands'
-import { getMarkAttrs } from 'tiptap-utils'
 
 export default class Link extends Mark {
 
@@ -26,6 +25,9 @@ export default class Link extends Mark {
         title: {
           default: null,
         },
+        target: {
+          default: null,
+        },
       },
       inclusive: false,
       parseDOM: [
@@ -37,6 +39,7 @@ export default class Link extends Mark {
             id: dom.getAttribute('id'),
             style: dom.getAttribute('style'),
             title: dom.getAttribute('title'),
+            target: dom.getAttribute('target'),
           }),
         },
       ],
@@ -65,10 +68,6 @@ export default class Link extends Mark {
         url => ({ href: url }),
       ),
     ]
-  }
-
-  get plugins() {
-    return []
   }
 
 }
