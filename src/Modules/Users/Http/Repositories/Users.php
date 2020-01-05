@@ -8,11 +8,11 @@ class Users {
 
     public function getUserLevelsForSelect()
     {
-        $levels = UserLevel::whereActive(1)->get();
-        $data = [0 => 'Please Select'];
-
         $loggedInUserLevel = auth()->user()->user_level_id;
 
+        $levels = UserLevel::whereActive(1)->where('id', '>=', $loggedInUserLevel)->get();
+        $data = [0 => 'Please Select'];
+        
         if ($levels && $levels->count()) {
             foreach ($levels as $level) {
                 if ($level->id >= $loggedInUserLevel) {
