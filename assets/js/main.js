@@ -82283,6 +82283,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         show = true;
       }
 
+      if (show && typeof this.config.hide_on_pages !== 'undefined' && this.config.hide_on_pages.includes(this.page.id)) {
+        show = false;
+      }
+
+      if (!show && typeof this.config.show_on_pages !== 'undefined' && this.config.show_on_pages.includes(this.page.id)) {
+        show = true;
+      }
+
       return show;
     },
 
@@ -112593,6 +112601,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     clearFile: function clearFile() {
       this.image = null;
       this.file = this.$root.clone(this.default);
+      this.$emit('input', this.image);
     },
     loadModal: function loadModal() {
       eventBus.$emit('media-set-type', 'Image');

@@ -1094,6 +1094,14 @@
           show = true;
         }
 
+        if (show && typeof this.config.hide_on_pages !== 'undefined' && this.config.hide_on_pages.includes(this.page.id)) {
+          show = false;
+        }
+
+        if (!show && typeof this.config.show_on_pages !== 'undefined' && this.config.show_on_pages.includes(this.page.id)) {
+          show = true;
+        }
+
         return show;
       },
 

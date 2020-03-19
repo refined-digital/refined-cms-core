@@ -52,6 +52,7 @@
           clearFile() {
             this.image = null;
             this.file = this.$root.clone(this.default);
+            this.$emit('input', this.image);
           },
 
           loadModal() {
