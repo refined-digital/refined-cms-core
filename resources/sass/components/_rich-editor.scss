@@ -71,6 +71,7 @@
 
     &.todo {
       background: hotpink;
+      display: none;
     }
 
     &--active, &:hover {

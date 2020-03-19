@@ -943,7 +943,9 @@
           this.show.buttons.controls = true;
         } else {
           // fire an event for the chosen file
-          eventBus.$emit('selecting-file', item);
+          const newItem = {...item};
+          newItem.model = this.$root.media.model;
+          eventBus.$emit('selecting-file', newItem);
         }
       },
 

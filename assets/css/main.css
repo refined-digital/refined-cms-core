@@ -2704,6 +2704,7 @@ textarea.form__control {
 
 .rich-editor__icon.todo {
   background: hotpink;
+  display: none;
 }
 
 .rich-editor__icon--active,

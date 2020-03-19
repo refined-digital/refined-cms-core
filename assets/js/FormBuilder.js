@@ -60,12 +60,12 @@
 /******/ 	__webpack_require__.p = "/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 359);
+/******/ 	return __webpack_require__(__webpack_require__.s = 322);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 32:
+/***/ 20:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -227,18 +227,18 @@ var FormValidate = function () {
 
 /***/ }),
 
-/***/ 359:
+/***/ 322:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(360);
+module.exports = __webpack_require__(323);
 
 
 /***/ }),
 
-/***/ 360:
+/***/ 323:
 /***/ (function(module, exports, __webpack_require__) {
 
-window.FormValidate = __webpack_require__(32);
+window.FormValidate = __webpack_require__(20);
 window.FormValidate = FormValidate.FormValidate;
 
 /***/ })

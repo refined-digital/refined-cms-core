@@ -62,7 +62,7 @@
           },
 
           updateFile(data) {
-            if (this.$root.media.model == this._uid) {
+            if (data.model === this._uid) {
               this.file = data;
               this.image = this.file.id;
               this.$emit('input', this.image);
@@ -77,11 +77,11 @@
                 .get('/refined/media/'+this.value)
                 .then(r => {
                   this.$root.loading = false;
-                  if (r.status == 200) {
+                  if (r.status === 200) {
                     this.file = r.data.file;
                   }
                 })
-                .catch(e => {
+                .catch(() => {
                   this.$root.loading = false;
                 })
               ;

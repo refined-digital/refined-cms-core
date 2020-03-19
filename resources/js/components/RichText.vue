@@ -309,7 +309,7 @@
 
     </editor-menu-bar>
     <editor-content :editor="editor" v-if="!sourceCodeView"></editor-content>
-    <textarea class="rich-editor__content" v-if="sourceCodeView" v-model="data" :name="name" :id="id"></textarea>
+    <textarea class="rich-editor__content" v-show="sourceCodeView" v-model="data" :name="name" :id="id"></textarea>
 
   </div>
 
