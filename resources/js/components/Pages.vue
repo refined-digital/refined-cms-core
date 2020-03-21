@@ -1152,13 +1152,14 @@
 
         let row = {};
         if (tab.fields.length) {
-          tab.fields.forEach(field => {
+          tab.fields.forEach((field, index) => {
 
             let note = this.getRepeatableFieldNote(field);
             let d = {
               page_content_type_id: field.page_content_type_id,
               content: '',
-              note: note
+              key: this.getRepeatableFieldIndex(field, index),
+              note
             };
             if (typeof field.options !== 'undefined') {
               d.options = field.options;
@@ -1185,6 +1186,10 @@
             }
           });
         }
+      },
+
+      getRepeatableFieldIndex(field, index) {
+        return `${this.page.id ? this.page.id : 'new'}-${field.field}-${field.page_content_type_id}-${field.id ? `${field.id}-` : ''}${index}`;
       },
 
       getRepeatableFieldNote(field) {
@@ -1228,12 +1233,17 @@
                     row[i].note = this.getRepeatableFieldNote(configField);
                   }
                   fieldsInData.push(i);
+                  if (typeof row[i].key === 'undefined') {
+                    row[i].key = this.getRepeatableFieldIndex({...row[i], field: i}, index);
+                  }
+
+                  Vue.set(this.page.data[tab.tab], index, row)
                 }
 
                 // if we have added a new field, add it to the existing data
                 if (fieldsInData.length !== fields.length) {
                   let newData = {};
-                  fields.forEach(field => {
+                  fields.forEach((field, index) => {
                     let set = false;
                     for (let i in row) {
                       if (i === field.field) {
@@ -1246,6 +1256,7 @@
                         content: '',
                         page_content_type_id: field.page_content_type_id,
                         note: field.note || '',
+                        key: this.getRepeatableFieldIndex(field, index),
                       };
                       if (typeof field.options !== 'undefined') {
                         d.options = field.options;
@@ -1273,11 +1284,12 @@
           if (tab.type === 'fields' && typeof this.page.data[tab.tab] === 'undefined' && tab.fields.length) {
             // add the content section to the fields
             let fields = {};
-            tab.fields.forEach(field => {
+            tab.fields.forEach((field, index) => {
               fields[_.snakeCase(field.name)] = {
                 id: field.id,
+                key: this.getRepeatableFieldIndex(field, index),
                 page_content_type_id: field.page_content_type_id,
-                content: typeof field.content !== 'undefined' ? field.content : ''
+                content: typeof field.content !== 'undefined' ? field.content : '',
               }
             });
 
