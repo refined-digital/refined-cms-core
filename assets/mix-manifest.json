@@ -1,6 +1,6 @@
 {
-    "/js/main.js": "/js/main.js?id=0d09ef2fbfcdbe1a4e8b",
-    "/css/main.css": "/css/main.css?id=f240ef303178ce8313d2",
-    "/js/FormBuilder.js": "/js/FormBuilder.js?id=d807425a55939aaafbf1",
-    "/js/FormValidate.js": "/js/FormValidate.js?id=eee44ff03b88ee48f698"
+    "/js/main.js": "/js/main.js",
+    "/css/main.css": "/css/main.css",
+    "/js/FormBuilder.js": "/js/FormBuilder.js",
+    "/js/FormValidate.js": "/js/FormValidate.js"
 }

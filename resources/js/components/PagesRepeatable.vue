@@ -4,12 +4,12 @@
       <table>
         <thead>
           <tr>
-            <th class="data-table__cell data-table__cell--sort"></th>
+            <th class="data-table__cell data-table__cell--sort">&nbsp;</th>
             <th class="data-table__cell">Content</th>
             <th class="data-table__cell data-table__cell--options-plus"><i class="fa fa-plus" @click="addRepeatable(item)"></i></th>
           </tr>
         </thead>
-        <draggable v-model="page.data[item.tab]" :options="options" element="tbody" @end="dragEnd">
+        <tbody v-sortable-repeatable-table>
           <tr v-for="(row, index) of page.data[item.tab]" class="form__control--options-row" :data-index="index">
             <td class="data-table__cell data-table__cell--sort"><i class="fa fa-sort" v-if="page.data[item.tab].length > 1"></i></td>
             <td class="data-table__cell">
@@ -20,7 +20,7 @@
             </td>
             <td class="data-table__cell data-table__cell--options-delete"><i class="fa fa-times" @click="removeRepeatable(item, index)"></i></td>
           </tr>
-        </draggable>
+        </tbody>
         <tfoot v-if="page.data[item.tab] && page.data[item.tab].length > 2">
           <tr>
             <th class="data-table__cell data-table__cell--sort"></th>
@@ -34,36 +34,9 @@
 </template>
 
 <script>
-  import naturalSort from 'javascript-natural-sort';
-  import draggable from 'vuedraggable'
 
   export default {
-    components: {
-      draggable,
-    },
-
     props: ['item', 'page'],
-
-    data() {
-        return {
-          sortable: null,
-          dragGhost: {},
-          options: {
-            //handle: '.fa-sort',
-            draggable: '.form__control--options-row',
-            setData: (dataTransfer, dragEl) => {
-              // Create the clone (with content)
-              this.dragGhost = dragEl.cloneNode(true);
-              // Stylize it
-              this.dragGhost.classList.add('sortable-drag-ghost');
-              // Place it into the DOM tree
-              document.body.appendChild(this.dragGhost);
-              // Set the new stylized "drag image" of the dragged element
-              dataTransfer.setDragImage(this.dragGhost, 0, 0);
-            },
-          }
-        }
-    },
 
     methods:  {
       addRepeatable(item) {
@@ -73,16 +46,6 @@
       removeRepeatable(item, index) {
         this.$parent.removeRepeatable(item, index);
       },
-
-      dragEnd() {
-        this.dragGhost = {};
-        let elements = document.body.querySelectorAll('.sortable-drag-ghost');
-        if (elements.length) {
-          elements.forEach(field => {
-            field.remove();
-          });
-        }
-      }
     }
   }
 </script>
