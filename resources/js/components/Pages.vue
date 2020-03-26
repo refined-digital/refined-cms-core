@@ -469,7 +469,10 @@
         this.resetParents();
 
         this.contentSort = dragula([document.querySelector('.content-editor__fields')], {
-          direction: 'vertical'
+          direction: 'vertical',
+          moves: (el, container, handle) => {
+            return handle.classList.contains('fa-sort');
+          }
         })
         .on('drop', () => {
           let fields = document.querySelectorAll('.content-editor__field');
@@ -1044,6 +1047,7 @@
           let length = this.page.content.length;
           this.page.content.push({
             id: 'field_'+length,
+            key: `field_${length}_${length}_${this.editor.form.field_type}`,
             name: this.editor.form.name,
             source: this.editor.form.source,
             page_content_type_id: this.editor.form.field_type,

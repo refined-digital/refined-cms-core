@@ -149,6 +149,7 @@ class PageRepository extends CoreRepository
                 $content->page_content_type_id = (int) $content->page_content_type_id;
                 $content->page_id = (int) $content->id;
                 $content->position = (int) $content->position;
+                $content->key = 'field_'.$content->id.'_'.$content->page_id.'_'.$content->page_content_type_id;
 
                 if ($content->type->id === 4 || $content->type->id === 5) {
                     $content->content = (int) $content->content;
@@ -219,6 +220,7 @@ class PageRepository extends CoreRepository
         $leaf->content = [
             [
                 'id' => 0,
+                'key' => 'field_0_0_1',
                 'content' => '',
                 'name' => 'Content',
                 'note' => '',
