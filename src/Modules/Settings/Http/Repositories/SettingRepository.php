@@ -27,14 +27,14 @@ class SettingRepository extends CoreRepository
             if ($items && $items->count()) {
                 foreach ($items as $item) {
                     $data->push([
-                        'id'        => $item->id,
-                        'name'      => $item->name,
-                        'required'  => $item->required,
-                        'page_content_type_id'  => $item->value->page_content_type_id,
-                        'note'      => $item->value->note,
-                        'content'   => $item->value->content,
-                        'options'   => isset($item->value->options) ? $item->value->options : [],
-                        'position'  => $item->position,
+                        'id'                    => (int) $item->id,
+                        'name'                  => $item->name,
+                        'required'              => (int) $item->required,
+                        'page_content_type_id'  => (int) $item->value->page_content_type_id,
+                        'note'                  => $item->value->note,
+                        'content'               => $item->value->content,
+                        'options'               => isset($item->value->options) ? $item->value->options : [],
+                        'position'              => (int) $item->position,
                     ]);
                 }
             }
@@ -76,7 +76,7 @@ class SettingRepository extends CoreRepository
 
                 $d = new \stdClass();
                 $d->name = $item->name;
-                $d->position = $item->position;
+                $d->position = (int) $item->position;
                 $d->note = $item->value->note;
                 $d->value = $item->value->content;
                 $d->options = isset($item->value->options) ? $item->value->options : [];

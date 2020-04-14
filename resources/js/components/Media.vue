@@ -157,7 +157,7 @@
                   v-draggable-media
                   :data-id="file.id"
                   @click="mediaLoad(file)"
-                  v-if="type == file.type || type == '*'"
+                  v-if="type == file.type || type == '*' || (type === 'Image' && file.type === 'Video')"
                 >
                   <rd-media-file :file="file"></rd-media-file>
                 </div>
@@ -789,7 +789,7 @@
           let self = this;
           let args = {
             url: '/refined/media/upload-file',
-            acceptedFiles: 'image/*,.pdf,.docx,.doc,.xls,.xlsx,.zip',
+            acceptedFiles: 'image/*,.pdf,.docx,.doc,.xls,.xlsx,.zip,.mp4',
             maxFilesize: 10,
             timeout: 300000,
             createImageThumbnails: true,

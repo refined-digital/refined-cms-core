@@ -88,7 +88,7 @@ class PageRepository extends CoreRepository
     }
 
 
-    public function getBranch($holderId = 0, $parentId = 0)
+    public function getBranch($holderId = 0, $parentId = 0, $depth = 1)
     {
         $data = collect([]);
 
@@ -106,7 +106,7 @@ class PageRepository extends CoreRepository
 
         if ($pages && $pages->count()) {
             foreach ($pages as $pos => $page) {
-                $page = $this->formatBranch($page, $holderId);
+                $page = $this->formatBranch($page, $holderId, $depth);
 
                 $data->push($page);
             }
@@ -115,7 +115,7 @@ class PageRepository extends CoreRepository
         return $data;
     }
 
-    public function formatBranch($page, $holderId)
+    public function formatBranch($page, $holderId, $depth = 1)
     {
         $page->type             = 'page';
         $page->children         = [];
@@ -128,6 +128,7 @@ class PageRepository extends CoreRepository
         $page->parent_id        = (int) $page->parent_id;
         $page->position         = (int) $page->position;
         $page->protected        = (int) $page->protected;
+        $page->depth            = (int) $depth;
 
         // if we have a parent id of 0 we need to update the holder id to be negative
         if ($page->parent_id === 0) {
@@ -158,7 +159,7 @@ class PageRepository extends CoreRepository
         }
 
         // check for children
-        $children = $this->getBranch($holderId, $page->id);
+        $children = $this->getBranch($holderId, $page->id, $depth + 1);
         if ($children->count()) {
             $page->children = $children;
         }
@@ -217,23 +218,7 @@ class PageRepository extends CoreRepository
         $leaf->page_type = 1;
         $leaf->protected = 0;
         $leaf->children = [];
-        $leaf->content = [
-            [
-                'id' => 0,
-                'key' => 'field_0_0_1',
-                'content' => '',
-                'name' => 'Content',
-                'note' => '',
-                'page_content_type_id' => 1,
-                'page_id' => 0,
-                'position' => 0,
-                'source' => 'content',
-                'type' => [
-                    'id' => 1,
-                    'name' => 'Rich Text',
-                ]
-            ]
-        ];
+        $leaf->content = config('pages.fields');
         $leaf->meta = new \stdClass();
         $leaf->meta->template_id = 1;
         $leaf->meta->uri = '';
@@ -317,6 +302,11 @@ class PageRepository extends CoreRepository
 
         $page = $class::with(['meta', 'meta.template'])->find($pageId);
 
+        // abort if no page found
+        if (!isset($page->id)) {
+            abort(404);
+        }
+
         // if the site is a single pager, only render the home page if its on the sitemap holder
         if (isset($settings->is_single_page) && $settings->is_single_page->value && (int) $page->page_holder_id === 1) {
             // force the home page
@@ -352,11 +342,6 @@ class PageRepository extends CoreRepository
 
             // add it into page
             $page->base = $baseHref.implode('/', $url);
-        }
-
-        // abort if no page found
-        if (!isset($page->id)) {
-            abort(404);
         }
 
         // abort if the page happens to be a holder
@@ -432,6 +417,9 @@ class PageRepository extends CoreRepository
 
         // add in the settings
         $page->settings = $settings;
+
+        // add the depth, based on the url slugs
+        $page->depth = sizeof($uriBits);
 
         if ($base == 'Page') {
             $page->content;

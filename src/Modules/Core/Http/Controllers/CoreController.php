@@ -272,11 +272,23 @@ class CoreController extends Controller
 
     public function formatGetForFront($data, $request)
     {
+        $template = $request->has('template') ? $request->get('template') : 'templates.elements.article';
         if ($data && $data->count()) {
             $formatted = [];
+            $templateVariables = [];
+            if ($request->has('templateVariables')) {
+                foreach ($request->get('templateVariables') as $var) {
+                    $bits = explode(':', $var);
+                    $templateVariables[$bits[0]] = $bits[1];
+                }
+            }
 
             foreach($data as $d) {
-                $formatted[] = view()->make($request->get('template'))->with('article', $d)->render();
+                $formatted[] =view()
+                    ->make($template)
+                    ->with('article', $d)
+                    ->with($templateVariables)
+                    ->render();
             }
 
             return response()->json([

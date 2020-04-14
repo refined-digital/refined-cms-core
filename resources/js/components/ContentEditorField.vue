@@ -27,6 +27,10 @@
         </select>
       </template>
 
+      <template v-if="item.page_content_type_id === 7">
+        <rd-link v-model="item.content" :value="item.content"></rd-link>
+      </template>
+
       <div class="form__note" v-if="item.note" v-html="item.note"></div>
     </div>
 

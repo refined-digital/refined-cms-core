@@ -123,13 +123,7 @@
             <label for="form--menu-text" class="form__label">Banner Image</label>
             <div class="form__horz-group">
               <rd-image v-model="page.banner"></rd-image>
-              <div class="form__note">
-                Banner will be resized to <strong>fit within
-                {{ page.id == 1 ? config.banner.home.width : config.banner.internal.width }}px wide x
-                {{ page.id == 1 ? config.banner.home.height : config.banner.internal.height }}px tall</strong>
-                <br/>
-                If you are having trouble with images, <a href="https://www.iloveimg.com/photo-editor" target="_blank">visit this page</a> to create your image.
-              </div>
+              <div class="form__note" v-html="getImageNote(config.banner)"></div>
             </div>
           </div><!-- / form row -->
 
@@ -718,6 +712,27 @@
         this.loadParent(this.page);
       },
 
+
+      // gets the banner dimensions
+      getImageNote(fieldConfig) {
+        const config = fieldConfig;
+        let width = config.internal.width;
+        let height = config.internal.height;
+
+        if (this.page.id === 1) {
+          width = config.home.width;
+          height = config.home.height;
+        }
+
+        if (typeof config.depths !== 'undefined' && config.depths[this.page.depth]) {
+          width = config.depths[this.page.depth].width;
+          height = config.depths[this.page.depth].height;
+        }
+
+        return `Image will be resized to <strong>fit within ${width}px wide x ${height}px tall</strong>
+        <br/>If you are having trouble with images, <a href="https://www.iloveimg.com/photo-editor" target="_blank">visit this page</a> to create your image.`;
+      },
+
       // find the page in the parent and remove
       findAndRemove(pages, item) {
         if (pages.length) {
@@ -1199,10 +1214,7 @@
       getRepeatableFieldNote(field) {
         let note = '';
         if (field.field === 'image' && field.config) {
-          note = 'Banner will be resized to <strong>fit within ';
-              note += (this.page.id === 1 ? field.config.home.width : field.config.internal.width) + 'px wide x ';
-              note += (this.page.id === 1 ? field.config.home.height : field.config.internal.height) + 'px tall</strong>';
-          note += '<br/>If you are having trouble with images, <a href="https://www.iloveimg.com/photo-editor" target="_blank">visit this page</a> to create your image.';
+          note = this.getImageNote(field.config);
         } else if (field.note) {
           note = field.note;
         }

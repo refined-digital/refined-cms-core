@@ -2,8 +2,12 @@
     <figure>
       <span class="media__file-thumb">
         <img src="/vendor/refinedcms/img/ui/media-thumb.png">
-        <span class="media__file-thumb-image" v-if="file.type == 'Image'" :style="{ backgroundImage: 'url('+ file.link.thumb +')' }"></span>
+        <span
+          class="media__file-thumb-image"
+          v-if="file.type == 'Image'" :style="{ backgroundImage: 'url('+ file.link.thumb +')' }"
+        ></span>
         <i class="fas fa-file" v-if="file.type == 'File'"></i>
+        <i class="fas fa-video" v-if="file.type == 'Video'"></i>
       </span>
       <figcaption class="media__file-details">
         <span class="media__file-title"><span :title="file.name">{{ file.name }}</span></span>

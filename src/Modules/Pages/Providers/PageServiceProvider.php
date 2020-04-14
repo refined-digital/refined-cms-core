@@ -26,7 +26,7 @@ class PageServiceProvider extends ServiceProvider
         ]);
 
         $this->publishes([
-            __DIR__.'/../config/pages.php' => config_path('pages.php'),
+            __DIR__.'/../Config/pages.php' => config_path('pages.php'),
         ], 'pages');
     }
 

@@ -19,7 +19,12 @@ trait EditFormFieldsTrait
 
     public function getFormFields()
     {
-        $fields = $this->formFields;
+        if (method_exists($this, 'setFormFields')) {
+            $fields = $this->setFormFields();
+        } else {
+            $fields = $this->formFields;
+        }
+
         if (isset($this->isPage) && $this->isPage) {
             $fields[] = [
                 'name' => 'Meta Data',

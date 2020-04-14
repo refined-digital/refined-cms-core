@@ -4,6 +4,7 @@ namespace RefinedDigital\CMS\Modules\Core\Helpers;
 
 use Illuminate\Http\Response;
 use RefinedDigital\CMS\Modules\Core\Models\PageAggregate;
+use RefinedDigital\CMS\Modules\Pages\Models\Page;
 
 class Pages {
 
@@ -82,5 +83,44 @@ class Pages {
 
 
         return $page;
+    }
+
+    public function getSubPages($parentId = 0, $hideFromMenu = false)
+    {
+        return Page::with(['meta','content', 'content.type'])
+            ->whereActive(1)
+            ->whereParentId($parentId)
+            ->whereHideFromMenu($hideFromMenu)
+            ->orderBy('position')
+            ->get();
+
+    }
+
+    public function getTopLevelPage($page, $hideFromMenu = false)
+    {
+        $i = 0;
+        $parentId = $page->parent_id;
+        $newPage = $page;
+        while ($parentId > 0) {
+            $newPage = Page::whereId($parentId)
+                ->whereHideFromMenu($hideFromMenu)
+                ->first();
+
+            if (isset($newPage->id)) {
+                $parentId = $newPage->parent_id;
+            }
+
+            $i++;
+            if ($i === 10) {
+                break;
+            }
+        }
+
+        return $newPage;
+    }
+
+    public function find($pageId)
+    {
+        return Page::find($pageId);
     }
 }

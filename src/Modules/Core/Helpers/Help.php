@@ -10,6 +10,7 @@ class Help {
     use Macroable;
 
     protected $request;
+    protected $mailtoHex = '&#109;&#97;&#105;&#108;&#116;&#111;&#58;';
 
     public function __construct(Request $request)
     {
@@ -106,26 +107,43 @@ class Help {
      *
      * returns a hexed encoded email for anti spam
      */
-    public function encodeEmail($email)
+    public function encodeEmail($email, $text = '', $classes = '')
+    {
+        $emailHex = $this->encodeEmailStr($email);
+
+        if (!$text) {
+            $text = str_replace($this->mailtoHex, '', $emailHex);
+        }
+
+        return '<a href="'.$emailHex.'"' . ( $classes ? ' class="'.$classes.'"' : '') . '>'.$text.'</a>';
+    }
+
+    public function encodeEmailStr($email)
     {
         $emailHex = '';
-        $mailto = '&#109;&#97;&#105;&#108;&#116;&#111;&#58;';
-
         for($i=0; $i<strlen($email); $i++){
             $emailHex .= '&#'.hexdec(bin2hex($email[$i])).';';
         }
 
-        return '<a href="'.$mailto.$emailHex.'">'.$emailHex.'</a>';
+        return $this->mailtoHex.$emailHex;
     }
 
-    public function encodePhone($phone)
+    public function encodePhone($phone, $text = '', $classes = '')
     {
-        return '<a href="'.$this->encodePhoneStr($phone).'">'.$phone.'</a>';
+        if (!$text) {
+            $text = $phone;
+        }
+
+        return '<a href="'.$this->encodePhoneStr($phone).'"' . ( $classes ? ' class="'.$classes.'"' : '') . '>'.$text.'</a>';
     }
 
     public function encodePhoneStr($phone)
     {
-        return 'tel:'.str_slug(preg_replace('/\D/', '', $phone), '');
+        $plus = '';
+        if (is_numeric(strpos($phone, '+'))) {
+            $plus = '+';
+        }
+        return 'tel:'.$plus.str_slug(preg_replace('/\D/', '', $phone));
     }
 
     public function arrToAttr($attrs)

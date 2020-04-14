@@ -72,12 +72,12 @@ trait IsArticle
             $next = $data->get($current + 1);
             $previous = $data->get($current - 1);
 
-            if ($next) {
+            if (isset($next->id, $next->meta->uri)) {
                 $paging->next->id = $next->id;
                 $paging->next->name = $next->name;
                 $paging->next->link = $base.'/'.$next->meta->uri;
             }
-            if ($previous) {
+            if (isset($previous->id, $previous->meta->uri)) {
                 $paging->previous->id = $previous->id;
                 $paging->previous->name = $previous->name;
                 $paging->previous->link = $base.'/'.$previous->meta->uri;

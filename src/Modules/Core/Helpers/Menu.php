@@ -39,7 +39,10 @@ class Menu {
         $holder = isset($this->holder->id) ? $this->holder->id : 1;
 
         $data = $this->pageRepository->getPagesForMenu($holder, $this->parent, $this->maxDepth, $this->level, '');
-        return view('templates::'.$this->view)->with(compact('data'))->with(compact('activePage'));
+        return view('templates::'.$this->view)
+            ->with(compact('data'))
+            ->with(compact('activePage'))
+            ->with('parent', $this->parent);
     }
 
 }

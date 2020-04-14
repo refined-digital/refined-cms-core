@@ -8,8 +8,7 @@ use Spatie\EloquentSortable\Sortable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use File;
 
-class Media extends CoreModel implements Sortable
-{
+class Media extends CoreModel implements Sortable {
     use SortableMediaTrait, SoftDeletes;
 
     /**
@@ -18,41 +17,77 @@ class Media extends CoreModel implements Sortable
      * @var array
      */
     protected $fillable = [
-        'active', 'position', 'media_category_id', 'name', 'file', 'alt', 'description', 'mime'
+        'active',
+        'position',
+        'media_category_id',
+        'name',
+        'file',
+        'alt',
+        'description',
+        'mime'
     ];
 
     protected $appends = [
-        'link', 'type', 'size'
+        'link',
+        'extension',
+        'type',
+        'size',
+    ];
+
+    protected $videoTypes = [
+        'mp4'
     ];
 
     protected $table = 'media';
 
-    public function getLinkAttribute()
-    {
-        $publicDir = '/storage/uploads/'.$this->id.'/';
-        $thumb = $this->file;
+    public function getLinkAttribute() {
+        $publicDir = $this->getPublicDir( $this->id );
+        $thumb     = $this->file;
 
-        if ($this->type == 'Image') {
+        if ( $this->type == 'Image' ) {
             // generate the thumbnail
-            image()->load($this)->width(500)->save();
+            image()->load( $this )->width( 500 )->save();
         }
 
-        $link = new \stdClass();
-        $link->thumb = asset($publicDir.$thumb);
-        $link->original = asset($publicDir.$this->file);
+        $link           = new \stdClass();
+        $link->thumb    = asset( $publicDir . $thumb );
+        $link->original = asset( $publicDir . $this->file );
         $link->basePath = pages()->getBaseHref();
 
         return $link;
     }
 
-    public function getTypeAttribute()
-    {
-        return is_numeric(strpos($this->mime, 'image/')) ? 'Image' : 'File';
+    public function getTypeAttribute() {
+        $extension = $this->extension;
+        $type      = is_numeric( strpos( $this->mime, 'image/' ) ) ? 'Image' : 'File';
+        if ( in_array( $extension, $this->videoTypes ) ) {
+            $type = 'Video';
+        }
+
+        return $type;
     }
 
-    public function getSizeAttribute()
-    {
-        $file = storage_path('app/public/uploads/'.$this->id.'/'.$this->file);
-        return help()->formatBytes(File::size($file));
+    public function getSizeAttribute() {
+        $path = $this->getBasePath();
+
+        return help()->formatBytes( File::size( $path ) );
+    }
+
+    public function getExtensionAttribute() {
+        return $this->getFileExtension();
+    }
+
+    private function getFileExtension() {
+        $path = $this->getBasePath();
+
+        return pathinfo( $path, PATHINFO_EXTENSION );
+    }
+
+    private function getPublicDir() {
+        return 'storage/uploads/' . $this->id . '/';
+    }
+
+    private function getBasePath() {
+        return storage_path( 'app/public/uploads/' . $this->id . '/' . $this->file );
     }
 }

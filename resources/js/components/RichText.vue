@@ -1,346 +1,142 @@
 <template>
   <div class="form__control--rich-text rich-editor" :id="editorId">
 
-    <editor-menu-bar :editor="editor" v-slot="{ commands, isActive, getMarkAttrs }">
-      <div>
-        <div class="rich-editor__menu" :class="{ 'rich-editor__menu--source-code': sourceCodeView }">
-
-          <span class="rich-editor__icon" :class="{ 'rich-editor__icon--active': sourceCodeView }" @click="toggleSourceCodeView()" title="View Source">
-            <icon src="editor/view-source.svg"></icon>
-          </span>
-
-          <span class="rich-editor__menu-divider"></span>
-
-          <span class="rich-editor__icon" @click="commands.undo" title="Undo">
-            <icon src="editor/undo.svg"></icon>
-          </span>
-
-          <span class="rich-editor__icon" @click="commands.redo" title="redo">
-            <icon src="editor/redo.svg"></icon>
-          </span>
-
-          <span class="rich-editor__menu-divider"></span>
-
-          <span class="rich-editor__icon rich-editor__icon--with-menu">
-            <icon src="editor/formatting.svg"></icon>
-            <ul class="rich-editor__list">
-              <li class="rich-editor__list-item rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.paragraph() }" @click="commands.paragraph" title="Paragraph">
-                <icon src="editor/paragraph.svg"></icon>
-                <span class="rich-editor__icon-title">Paragraph</span>
-              </li>
-              <li class="rich-editor__list-item rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.heading({ level: 1 }) }" @click="commands.heading({ level: 1 })" title="H1">
-                <icon src="editor/h1.svg"></icon>
-                <span class="rich-editor__icon-title">Heading 1</span>
-              </li>
-              <li class="rich-editor__list-item rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.heading({ level: 2 }) }" @click="commands.heading({ level: 2 })" title="H2">
-                <icon src="editor/h2.svg"></icon>
-                <span class="rich-editor__icon-title">Heading 2</span>
-              </li>
-              <li class="rich-editor__list-item rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.heading({ level: 3 }) }" @click="commands.heading({ level: 3 })" title="H3">
-                <icon src="editor/h3.svg"></icon>
-                <span class="rich-editor__icon-title">Heading 3</span>
-              </li>
-              <li class="rich-editor__list-item rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.blockquote() }" @click="commands.blockquote" title="Block Quote">
-                <icon src="editor/quote-left.svg"></icon>
-                <span class="rich-editor__icon-title">Quote</span>
-              </li>
-              <li class="rich-editor__list-item rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.code() }" @click="commands.code" title="Code">
-                <icon src="editor/code.svg"></icon>
-                <span class="rich-editor__icon-title">Code</span>
-              </li>
-            </ul>
-          </span>
-
-          <span class="rich-editor__menu-divider"></span>
-
-          <span class="rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.bold() }" @click="commands.bold" title="Bold">
-            <icon src="editor/bold.svg"></icon>
-          </span>
-
-          <span class="rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.italic() }" @click="commands.italic" title="Italic">
-            <icon src="editor/italic.svg"></icon>
-          </span>
-
-          <span class="rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.underline() }" @click="commands.underline" title="Underline">
-            <icon src="editor/underline.svg"></icon>
-          </span>
-
-          <span class="rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.strike() }" @click="commands.strike" title="Strike Through">
-            <icon src="editor/strike-through.svg"></icon>
-          </span>
-
-          <span class="rich-editor__menu-divider"></span>
-
-          <span class="rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.sup() }" @click="commands.sup" title="Superscript">
-            <icon src="editor/superscript.svg"></icon>
-          </span>
-
-          <span class="rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.sub() }" @click="commands.sub" title="Subscript">
-            <icon src="editor/subscript.svg"></icon>
-          </span>
-
-          <span class="rich-editor__menu-divider"></span>
-
-          <span class="rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.link() }" @click="showLinkModal(getMarkAttrs('link'))" title="Insert Link">
-            <icon src="editor/link.svg"></icon>
-          </span>
-
-          <span class="rich-editor__icon" @click="setLink(commands.link, null)" title="Remove Link">
-            <icon src="editor/unlink.svg"></icon>
-          </span>
-
-          <span class="rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.image() }" @click="showImageModal(null)" title="Insert Image">
-            <icon src="editor/image.svg"></icon>
-          </span>
-
-          <span class="rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.iframe() }" @click="showEmbedModal(getMarkAttrs('iframe'))" title="Embed Video">
-            <icon src="editor/video.svg"></icon>
-          </span>
-
-          <span class="rich-editor__menu-divider"></span>
-
-          <span class="rich-editor__icon todo" :class="{ 'rich-editor__icon--active': isActive.align({ textAlign: 'left' }) }" @click="commands.align({ textAlign: 'left' })" title="Align Left">
-            <icon src="editor/align-left.svg"></icon>
-          </span>
-
-          <span class="rich-editor__icon todo" :class="{ 'rich-editor__icon--active': isActive.align({ textAlign: 'center' }) }" @click="commands.align({ textAlign: 'center' })" title="Align Center">
-            <icon src="editor/align-center.svg"></icon>
-          </span>
-
-          <span class="rich-editor__icon todo" :class="{ 'rich-editor__icon--active': isActive.align({ textAlign: 'right' }) }" @click="commands.align({ textAlign: 'right' })" title="Align Right">
-            <icon src="editor/align-right.svg"></icon>
-          </span>
-
-          <span class="rich-editor__icon todo" :class="{ 'rich-editor__icon--active': isActive.align({ textAlign: 'justify' }) }" @click="commands.align({ textAlign: 'justify' })" title="Align Justify">
-            <icon src="editor/align-justify.svg"></icon>
-          </span>
-
-          <span class="rich-editor__menu-divider"></span>
-
-          <span class="rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.bullet_list() }" @click="commands.bullet_list" title="Unordered List">
-            <icon src="editor/list-ul.svg"></icon>
-          </span>
-
-          <span class="rich-editor__icon" :class="{ 'rich-editor__icon--active': isActive.ordered_list() }" @click="commands.ordered_list" title="Ordered List">
-            <icon src="editor/list-ol.svg"></icon>
-          </span>
-
-          <span class="rich-editor__menu-divider"></span>
-
-          <span class="rich-editor__icon" @click="commands.horizontal_rule" title="Horizontal Rule">
-            <icon src="editor/horizontal-rule.svg"></icon>
-          </span>
-
-          <span class="rich-editor__menu-divider"></span>
-
-          <span class="rich-editor__icon todo" :class="{ 'rich-editor__icon--active': isActive.underline() }" @click="commands.underline" title="Remove Formatting">
-            <icon src="editor/remove-formatting.svg"></icon>
-          </span>
-
-        </div>
-
-        <div
-          v-if="showModal"
-          class="rich-editor__modal-background"
-        ></div>
-
-        <div
-          v-if="link.active"
-          class="rich-editor__modal rich-editor__modal--link"
-        >
-          <header class="rich-editor__modal-header">
-            <h3 class="rich-editor__modal-heading">Link</h3>
-            <a @click.prevent="hideLinkModal()" class="rich-editor__modal-close"><i class="fa fa-times"></i></a>
-          </header>
-          <div class="rich-editor__modal-form">
-
-
-            <div class="rich-editor__modal-row">
-              <label>Link Type</label>
-              <select class="rich-editor__modal-control" v-model="link.type">
-                <option v-for="type in linkTypes" :value="type.id">{{ type.value }}</option>
-              </select>
-            </div>
-
-            <div class="rich-editor__modal-row" v-if="link.type === 'internal'">
-              <button class="button button--green button--small" @click.prevent="loadSitemapModal()">Browse Server</button>
-            </div>
-
-            <div class="rich-editor__modal-row" v-if="link.type === 'external'">
-              <div class="rich-editor__modal-note">Must include <code>http://</code> or <code>https://</code></div>
-            </div>
-
-            <div class="rich-editor__modal-row" v-if="link.type === 'file'">
-              <button class="button button--green button--small" @click.prevent="loadMediaModal()">Browse Media</button>
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>{{ link.type === 'email' ? 'Email Address' : 'Url'}}</label>
-              <input class="rich-editor__modal-control" type="text" ref="linkInput" v-model="link.url">
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>title</label>
-              <input class="rich-editor__modal-control" type="text" v-model="link.attrs.title">
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>id</label>
-              <input class="rich-editor__modal-control" type="text" v-model="link.attrs.id">
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>class</label>
-              <input class="rich-editor__modal-control" type="text" v-model="link.attrs.class">
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>styles</label>
-              <input class="rich-editor__modal-control" type="text" v-model="link.attrs.style">
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>target</label>
-              <select class="rich-editor__modal-control" v-model="link.attrs.target">
-                <option v-for="target in linkTargets" :value="target.id">{{ target.value }}</option>
-              </select>
-            </div>
-
-            <div class="rich-editor__modal-row rich-editor__modal-row--buttons">
-              <button class="button button--small" @click.prevent="saveLink(commands.link)">Save</button>
-            </div>
-          </div>
-        </div>
-
-        <div
-          v-if="embed.active"
-          class="rich-editor__modal rich-editor__modal--embed"
-        >
-          <header class="rich-editor__modal-header">
-            <h3 class="rich-editor__modal-heading">Embed Video</h3>
-            <a @click.prevent="hideEmbedModal()" class="rich-editor__modal-close"><i class="fa fa-times"></i></a>
-          </header>
-          <div class="rich-editor__modal-form">
-
-            <div class="rich-editor__modal-row">
-              <label>Url</label>
-              <input class="rich-editor__modal-control" type="text" ref="embedInput" v-model="embed.url">
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>id</label>
-              <input class="rich-editor__modal-control" type="text" v-model="embed.attrs.id">
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>class</label>
-              <input class="rich-editor__modal-control" type="text" v-model="embed.attrs.class">
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>styles</label>
-              <input class="rich-editor__modal-control" type="text" v-model="embed.attrs.style">
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>width</label>
-              <input class="rich-editor__modal-control" type="text" v-model="embed.attrs.width">
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>height</label>
-              <input class="rich-editor__modal-control" type="text" v-model="embed.attrs.height">
-            </div>
-
-            <div class="rich-editor__modal-row rich-editor__modal-row--buttons">
-              <button class="button button--small" @click.prevent="saveEmbed(commands.iframe)">Save</button>
-            </div>
-          </div>
-        </div>
-
-        <div
-          v-if="image.active"
-          class="rich-editor__modal rich-editor__modal--image"
-        >
-          <header class="rich-editor__modal-header">
-            <h3 class="rich-editor__modal-heading">Insert Image</h3>
-            <a @click.prevent="hideImageModal()" class="rich-editor__modal-close"><i class="fa fa-times"></i></a>
-          </header>
-          <div class="rich-editor__modal-form">
-
-            <div class="rich-editor__modal-row">
-              <div class="rich-editor__modal-note">
-                <input class="rich-editor__modal-control" type="hidden" ref="imageInput" v-model="image.url">
-                <div class="rich-editor__modal-image">
-                  <div class="rich-editor__modal-thumb" ref="imageThumb"></div>
-                </div>
-                <button class="button button--green button--small" @click.prevent="loadMediaModal('Image')">Browse Server</button>
-              </div>
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>alt text</label>
-              <input class="rich-editor__modal-control" type="text" v-model="image.attrs.alt">
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>id</label>
-              <input class="rich-editor__modal-control" type="text" v-model="image.attrs.id">
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>class</label>
-              <input class="rich-editor__modal-control" type="text" v-model="image.attrs.class">
-            </div>
-
-            <div class="rich-editor__modal-row">
-              <label>styles</label>
-              <input class="rich-editor__modal-control" type="text" v-model="image.attrs.style">
-            </div>
-
-            <div class="rich-editor__modal-row rich-editor__modal-row--buttons">
-              <button class="button button--small" @click.prevent="saveImage(commands.image)">Save</button>
-            </div>
-          </div>
-        </div>
-
-
-      </div>
-
-    </editor-menu-bar>
-    <editor-content :editor="editor" v-if="!sourceCodeView"></editor-content>
+    <div class="rich-editor__ckeditor" :class="{'rich-editor__ckeditor--source' : sourceCodeView }"><ckeditor :editor="editor" v-model="data" :config="config" @ready="editorReady"></ckeditor></div>
+    <div class="rich-editor__toolbar-cover" v-show="sourceCodeView"></div>
     <textarea class="rich-editor__content" v-show="sourceCodeView" v-model="data" :name="name" :id="id"></textarea>
+
+    <div
+      v-if="showModal"
+      class="rich-editor__modal-background"
+    ></div>
+
+    <div
+      v-if="link.active"
+      class="rich-editor__modal rich-editor__modal--link"
+    >
+      <header class="rich-editor__modal-header">
+        <h3 class="rich-editor__modal-heading">Link</h3>
+        <a @click.prevent="hideLinkModal()" class="rich-editor__modal-close"><i class="fa fa-times"></i></a>
+      </header>
+      <div class="rich-editor__modal-form">
+
+
+        <div class="rich-editor__modal-row">
+          <label>Link Type</label>
+          <select class="rich-editor__modal-control" v-model="link.type">
+            <option v-for="type in linkTypes" :value="type.id">{{ type.value }}</option>
+          </select>
+        </div>
+
+        <div class="rich-editor__modal-row" v-if="link.type === 'internal'">
+          <button class="button button--green button--small" @click.prevent="loadSitemapModal()">Browse Server</button>
+        </div>
+
+        <div class="rich-editor__modal-row" v-if="link.type === 'external'">
+          <div class="rich-editor__modal-note">Must include <code>http://</code> or <code>https://</code></div>
+        </div>
+
+        <div class="rich-editor__modal-row" v-if="link.type === 'file'">
+          <button class="button button--green button--small" @click.prevent="loadMediaModal()">Browse Media</button>
+        </div>
+
+        <div class="rich-editor__modal-row">
+          <label>{{ link.type === 'email' ? 'Email Address' : 'Url'}}</label>
+          <input class="rich-editor__modal-control" type="text" ref="linkInput" v-model="link.url">
+        </div>
+
+        <div class="rich-editor__modal-row">
+          <label>title</label>
+          <input class="rich-editor__modal-control" type="text" v-model="link.attrs.title">
+        </div>
+
+        <div class="rich-editor__modal-row">
+          <label>id</label>
+          <input class="rich-editor__modal-control" type="text" v-model="link.attrs.id">
+        </div>
+
+        <div class="rich-editor__modal-row">
+          <label>class</label>
+          <input class="rich-editor__modal-control" type="text" v-model="link.attrs.class">
+        </div>
+
+        <div class="rich-editor__modal-row rich-editor__modal-row--buttons">
+          <button class="button button--small" @click.prevent="saveLink()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="image.active"
+      class="rich-editor__modal rich-editor__modal--image"
+    >
+      <header class="rich-editor__modal-header">
+        <h3 class="rich-editor__modal-heading">Insert Image</h3>
+        <a @click.prevent="hideImageModal()" class="rich-editor__modal-close"><i class="fa fa-times"></i></a>
+      </header>
+      <div class="rich-editor__modal-form">
+
+        <div class="rich-editor__modal-row">
+          <div class="rich-editor__modal-note">
+            <input class="rich-editor__modal-control" type="hidden" ref="imageInput" v-model="image.url">
+            <div class="rich-editor__modal-image">
+              <div class="rich-editor__modal-thumb" ref="imageThumb"></div>
+            </div>
+            <button class="button button--green button--small" @click.prevent="loadMediaModal('Image')">Browse Server</button>
+          </div>
+        </div>
+
+        <div class="rich-editor__modal-row">
+          <label>alt text</label>
+          <input class="rich-editor__modal-control" type="text" v-model="image.attrs.alt">
+        </div>
+
+        <div class="rich-editor__modal-row">
+          <label>id</label>
+          <input class="rich-editor__modal-control" type="text" v-model="image.attrs.id">
+        </div>
+
+        <div class="rich-editor__modal-row">
+          <label>class</label>
+          <input class="rich-editor__modal-control" type="text" v-model="image.attrs.class">
+        </div>
+
+        <div class="rich-editor__modal-row rich-editor__modal-row--buttons">
+          <button class="button button--small" @click.prevent="saveImage()">Save</button>
+        </div>
+      </div>
+    </div>
 
   </div>
 
 </template>
 
 <script>
-  // todo: finish other buttons
+  import CKEditor from '@ckeditor/ckeditor5-vue';
+  import ClassicEditor from '@ckeditor/ckeditor5-editor-classic/src/classiceditor';
 
-  // Import the basic building blocks
-  import { Editor, EditorContent, EditorMenuBar } from 'tiptap';
-  import {
-    Blockquote,
-    HorizontalRule,
-    OrderedList,
-    BulletList,
-    ListItem,
-    Heading,
-    Bold,
-    Italic,
-    Strike,
-    Underline,
-    History,
-    HardBreak,
-    Code,
-  } from 'tiptap-extensions';
-  import Sub from '../plugins/prose-mirror/Sub';
-  import Sup from '../plugins/prose-mirror/Sup';
-  import Align from '../plugins/prose-mirror/Align';
-  import Link from '../plugins/prose-mirror/Link';
-  import Iframe from '../plugins/prose-mirror/Iframe';
-  import Image from '../plugins/prose-mirror/Image';
+  import EssentialsPlugin from '@ckeditor/ckeditor5-essentials/src/essentials';
+  import BoldPlugin from '@ckeditor/ckeditor5-basic-styles/src/bold';
+  import ItalicPlugin from '@ckeditor/ckeditor5-basic-styles/src/italic';
+  import StrikethroughPlugin from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
+  import SubscriptPlugin from '@ckeditor/ckeditor5-basic-styles/src/subscript';
+  import SuperscriptPlugin from '@ckeditor/ckeditor5-basic-styles/src/superscript';
+  import CodePlugin from '@ckeditor/ckeditor5-basic-styles/src/code';
+  import LinkPlugin from '@ckeditor/ckeditor5-link/src/link';
+  import ParagraphPlugin from '@ckeditor/ckeditor5-paragraph/src/paragraph';
+  import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
+  import Image from '@ckeditor/ckeditor5-image/src/image';
+  import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
+  import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
+  import HorizontalLine from '@ckeditor/ckeditor5-horizontal-line/src/horizontalline';
+  import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
+  import Alignment from '@ckeditor/ckeditor5-alignment/src/alignment';
+  import Heading from '@ckeditor/ckeditor5-heading/src/heading';
+  import List from '@ckeditor/ckeditor5-list/src/list';
+
+  import RefinedImage from '../plugins/ckeditor/Image';
+  import RefinedLink from '../plugins/ckeditor/link/Link';
+  import RefinedButtons from '../plugins/ckeditor/buttons/List';
 
   export default {
 
@@ -349,33 +145,60 @@
     data() {
       return {
 
-        editor: new Editor({
-          content: this.data,
-          extensions: [
-            new Blockquote(),
-            new BulletList(),
-            new Code(),
-            new Heading({ levels: [1, 2, 3] }),
-            new HorizontalRule(),
-            new ListItem(),
-            new OrderedList(),
-            new Bold(),
-            new Italic(),
-            new Strike(),
-            new Underline(),
-            new History(),
-            new HardBreak(),
-            new Sub(),
-            new Sup(),
-            new Align(),
-            new Link(),
-            new Iframe(),
-            new Image(),
+        editor: ClassicEditor,
+
+        config: {
+          plugins: [
+            EssentialsPlugin,
+            PasteFromOffice,
+            BoldPlugin,
+            ItalicPlugin,
+            StrikethroughPlugin,
+            SubscriptPlugin,
+            SuperscriptPlugin,
+            CodePlugin,
+            ParagraphPlugin,
+            Image,
+            ImageResize,
+            ImageToolbar,
+            MediaEmbed,
+            HorizontalLine,
+            Alignment,
+            Heading,
+            List,
+            RefinedImage,
+            RefinedLink,
+            // LinkPlugin,
           ],
-          onUpdate: ({ getHTML }) => {
-            this.data = getHTML();
+          toolbar: [
+            'undo', 'redo', '|',
+            'heading', '|',
+            'bold', 'italic', 'strikethrough', '|',
+            'subscript', 'superscript', '|',
+            'alignment:left', 'alignment:right', 'alignment:center', 'alignment:justify', '|',
+            'link', 'refined:image', 'mediaEmbed', '|',
+            'refined:buttons','bulletedList', 'numberedList', '|',
+            'horizontalLine'
+          ],
+          heading: {
+            options: [
+                { model: 'paragraph', title: 'Paragraph', },
+                { model: 'heading1', view: 'h1', title: 'Heading 1', },
+                { model: 'heading2', view: 'h2', title: 'Heading 2', },
+                { model: 'heading3', view: 'h3', title: 'Heading 3', },
+                { model: 'code', view: 'code', title: 'Code', },
+                { model: 'pre', view: 'pre', title: 'Pre', },
+                { model: 'blockquote', view: 'blockquote', title: 'Block Quote', },
+            ]
+          },
+          image: {
+            toolbar: [ 'refined:imageEdit' ]
+          },
+
+          link: {
+            addTargetToExternalLinks: true,
           }
-        }),
+        },
 
         showModal: false,
 
@@ -394,10 +217,8 @@
 
           attrs: {
             id: null,
-            style: null,
             class: null,
-            title: null,
-            target: null,
+            title: null
           }
         },
 
@@ -416,19 +237,6 @@
           { id: '_parent', value: 'Parent Window (_parent)' },
         ],
 
-        embed: {
-          active: false,
-          url: '',
-
-          attrs: {
-            id: null,
-            style: null,
-            class: null,
-            width: null,
-            height: null,
-          }
-        },
-
         image: {
           active: false,
           url: '',
@@ -436,7 +244,6 @@
 
           attrs: {
             id: null,
-            style: null,
             class: null,
             alt: null,
           }
@@ -445,12 +252,10 @@
     },
 
     components: {
-      EditorMenuBar,
-      EditorContent,
+      ckeditor: CKEditor.component
     },
 
     created() {
-      this.editorId = `rich-editor--${Date.now()}`;
 
       eventBus.$on('selecting-link', link => {
         if (window.app.sitemap.model === this.editorId) {
@@ -475,21 +280,38 @@
         eventBus.$emit('media-close');
       });
 
-      eventBus.$on('rich-editor.open-image', data => {
+      eventBus.$on('rich-editor.image.open', data => {
         if (data.id === this.editorId) {
           this.showImageModal(data.attrs, true);
         }
       });
 
+      eventBus.$on('rich-editor.link.open', data => {
+        if (data.id === this.editorId) {
+          this.showLinkModal(data.attrs, data.attrs ? data.attrs : false);
+        }
+      });
+
+      eventBus.$on('rich-editor.image.insert', data => {
+        if (data.id === this.editorId) {
+          this.showImageModal();
+        }
+      });
+
+      eventBus.$on('rich-editor.view-source.toggle', data => {
+        if (data.id === this.editorId) {
+          this.sourceCodeView = !this.sourceCodeView;
+        }
+      });
+
       if (this.content) {
         this.data = this.content;
-        this.editor.setContent(this.data);
       }
     },
 
     beforeDestroy() {
       // Always destroy your editor instance when it's no longer needed
-      this.editor.destroy()
+      // this.editor.destroy()
     },
 
     watch: {
@@ -499,28 +321,29 @@
     },
 
     methods: {
-      clearContent() {
-        this.editor.clearContent(true);
-        this.editor.focus();
+
+      editorReady(editor) {
+        this.editorInstance = editor;
+        this.editorId = this.editorInstance.id;
+
       },
 
       showLinkModal(attrs) {
-        let href = attrs.href;
-        const type = this.getLinkType(href);
-        if (type === 'email') {
-          href = href.replace('mailto:', '');
-        }
+        if (attrs) {
+          let href = attrs.href;
+          const type = this.getLinkType(href);
+          if (type === 'email') {
+            href = href.replace('mailto:', '');
+          }
 
-        this.link.url = href;
-        this.link.active = true;
-        this.link.type = type;
+          this.link.url = href;
+          this.link.type = type;
+        }
 
         this.setAttrs('link', attrs);
 
         this.showModal = true;
-        this.$nextTick(() => {
-          this.$refs.linkInput.focus()
-        })
+        this.link.active = true;
       },
 
       hideLinkModal() {
@@ -534,20 +357,7 @@
         this.modalType = null;
       },
 
-      setLink(command, href) {
-        const attrs = {
-          href,
-          ...this.link.attrs
-        };
-
-        if (!href) {
-          command({ href })
-        } else {
-          command(attrs);
-        }
-      },
-
-      saveLink(command) {
+      saveLink() {
         let url = this.link.url;
         let pass = true;
 
@@ -565,49 +375,15 @@
         }
 
         if (pass) {
-          this.setLink(command, url);
+          const attrs = {
+            ...this.link.attrs
+          };
+          attrs.href = url;
+          eventBus.$emit('rich-editor.link.save', attrs);
           this.hideLinkModal();
         }
       },
 
-
-      showEmbedModal() {
-        this.embed.active = true;
-        this.showModal = true;
-        this.$nextTick(() => {
-          this.$refs.embedInput.focus()
-        })
-      },
-
-      hideEmbedModal() {
-        this.embed.active = false;
-        this.showModal = false;
-        this.embed.url = null;
-
-        this.resetAttrs('embed');
-
-      },
-
-      saveEmbed(command) {
-        let pass = true;
-        if (!this.embed.url) {
-          pass = false;
-          window.swal({
-            title: 'Something went wrong',
-            text: 'You must enter a Url',
-            icon: 'error'
-          });
-        }
-
-        if (pass) {
-          const attrs = {
-            src: this.embed.url,
-            ...this.embed.attrs
-          };
-          command(attrs);
-          this.hideEmbedModal();
-        }
-      },
 
       showImageModal(attrs, update = false) {
         this.image.active = true;
@@ -639,7 +415,7 @@
         this.modalType = null;
       },
 
-      saveImage(command) {
+      saveImage() {
         let pass = true;
         if (!this.image.url) {
           pass = false;
@@ -655,7 +431,8 @@
             ...this.image.attrs
           };
           attrs.src = this.image.url;
-          command({ update: this.image.update, attrs });
+          eventBus.$emit('rich-editor.image.save', attrs);
+
           this.hideImageModal();
         }
       },
@@ -697,23 +474,6 @@
         window.app.media.model = this.editorId;
 
         this.modalType = type;
-      },
-
-      toggleSourceCodeView() {
-        if (this.sourceCodeView) {
-          this.hideSourceView();
-        } else {
-          this.showSourceView();
-        }
-      },
-
-      showSourceView() {
-        this.sourceCodeView = true;
-      },
-
-      hideSourceView() {
-        this.sourceCodeView = false;
-        this.editor.setContent(this.data);
       },
 
 
