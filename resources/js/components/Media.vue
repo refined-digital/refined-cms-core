@@ -1103,6 +1103,7 @@
 
       close() {
         this.$root.media.showModal = false;
+        this.$root.media.active = false;
         this.$root.media.model = 0;
         this.reset();
         this.scroll();

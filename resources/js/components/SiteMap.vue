@@ -124,6 +124,7 @@
 
         closeModal() {
           this.$root.sitemap.showModal = false;
+          this.$root.sitemap.active = false;
         },
 
         resetSitemap() {

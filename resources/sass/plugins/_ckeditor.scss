@@ -1,3 +1,76 @@
 .ck-editor__editable_inline {
   height: 400px;
 }
+
+.ck-balloon-rotator .ck.ck-link-form_layout-vertical {
+  white-space: normal;
+
+  .ck-label {
+    display: block;
+  }
+
+  .ck-labeled-input:nth-child(5) {
+    border-top: 1px solid var(--ck-color-base-border);
+    padding: var(--ck-spacing-standard) var(--ck-spacing-standard) 0;
+    margin: 0;
+  }
+
+  .ck-button-browse {
+    width: 100%;
+    border-top: 0;
+    border-right: 0 !important;
+    text-align: center;
+
+    .ck-button__label {
+      text-align: center;
+      display: inline-block;
+      background: color(green);
+      color: #fff;
+      font-size: 12px;
+      line-height: 1.5;
+      padding: 5px 15px;
+      border-radius: 4%;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      font-weight: 500;
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  }
+
+  .ck-button-save {
+    border-right: 1px solid var(--ck-color-base-border);
+  }
+
+  .ck-text__item {
+    padding: var(--ck-spacing-standard);
+    margin: 0 !important;
+
+    code {
+      display: inline-block;
+      padding: 2px;
+      background: #f4f4f4;
+    }
+  }
+
+  .ck.ck-dropdown {
+    margin-left: 0;
+    width: 100%;
+    border-bottom: 1px solid var(--ck-color-base-border);
+
+    .ck-button.ck-dropdown__button {
+      border-right: 0;
+
+      .ck-button__label {
+        width: 100%;
+      }
+    }
+
+    .ck-list__item {
+      .ck-button {
+        width: 100%;
+      }
+    }
+  }
+}

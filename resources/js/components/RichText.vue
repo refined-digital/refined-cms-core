@@ -122,7 +122,6 @@
   import SubscriptPlugin from '@ckeditor/ckeditor5-basic-styles/src/subscript';
   import SuperscriptPlugin from '@ckeditor/ckeditor5-basic-styles/src/superscript';
   import CodePlugin from '@ckeditor/ckeditor5-basic-styles/src/code';
-  import LinkPlugin from '@ckeditor/ckeditor5-link/src/link';
   import ParagraphPlugin from '@ckeditor/ckeditor5-paragraph/src/paragraph';
   import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
   import Image from '@ckeditor/ckeditor5-image/src/image';
@@ -135,8 +134,8 @@
   import List from '@ckeditor/ckeditor5-list/src/list';
 
   import RefinedImage from '../plugins/ckeditor/Image';
-  import RefinedLink from '../plugins/ckeditor/link/Link';
-  import RefinedButtons from '../plugins/ckeditor/buttons/List';
+  import RefinedLink from '../plugins/ckeditor/link/src/link';
+  import RefinedButtons from '../plugins/ckeditor/list/src/todolist';
 
   export default {
 
@@ -168,7 +167,7 @@
             List,
             RefinedImage,
             RefinedLink,
-            // LinkPlugin,
+            RefinedButtons,
           ],
           toolbar: [
             'undo', 'redo', '|',
@@ -177,7 +176,7 @@
             'subscript', 'superscript', '|',
             'alignment:left', 'alignment:right', 'alignment:center', 'alignment:justify', '|',
             'link', 'refined:image', 'mediaEmbed', '|',
-            'refined:buttons','bulletedList', 'numberedList', '|',
+            'todoList','bulletedList', 'numberedList', '|',
             'horizontalLine'
           ],
           heading: {
@@ -222,20 +221,13 @@
           }
         },
 
-        linkTypes: [
-          { id: 'internal', value: 'Internal Page' },
-          { id: 'external', value: 'External Page' },
-          { id: 'file', value: 'File / Image' },
-          { id: 'email', value: 'Email' },
-        ],
+        sitemap: {
+          element: null
+        },
 
-        linkTargets: [
-          { id: null, value: 'None' },
-          { id: '_blank', value: 'New Window (_blank)' },
-          { id: '_top', value: 'Topmost Window (_top)' },
-          { id: '_self', value: 'Same Window (_self)' },
-          { id: '_parent', value: 'Parent Window (_parent)' },
-        ],
+        media: {
+          element: null
+        },
 
         image: {
           active: false,
@@ -257,9 +249,10 @@
 
     created() {
 
+
       eventBus.$on('selecting-link', link => {
         if (window.app.sitemap.model === this.editorId) {
-          this.link.url = link;
+          this.sitemap.element.value = link;
         }
 
         eventBus.$emit('sitemap-close');
@@ -268,10 +261,14 @@
       eventBus.$on('selecting-file', data => {
         if (window.app.media.model === this.editorId) {
           const type = this.modalType === 'Image' ? 'image' : 'link';
-          this[type].url = data.link.original.replace(data.link.basePath, '/');
 
           if (type === 'image') {
+            this.image.url = data.link.original.replace(data.link.basePath, '/');
             this.loadImageThumb(data.link.thumb);
+          }
+
+          if (type === 'link') {
+            this.media.element.value = data.link.original.replace(data.link.basePath, '/');
           }
         }
 
@@ -303,6 +300,20 @@
           this.sourceCodeView = !this.sourceCodeView;
         }
       });
+
+
+      eventBus.$on('rich-editor.sitemap.open', data => {
+        if (data.id === this.editorId) {
+          this.loadSitemapModal(data.element);
+        }
+      });
+
+      eventBus.$on('rich-editor.media.open', data => {
+        if (data.id === this.editorId) {
+          this.loadMediaModal(data.element);
+        }
+      });
+
 
       if (this.content) {
         this.data = this.content;
@@ -461,17 +472,20 @@
         return type;
       },
 
-      loadSitemapModal() {
+      loadSitemapModal(element) {
         eventBus.$emit('sitemap-reload');
         window.app.sitemap.showModal = true;
+        window.app.sitemap.active = true;
         window.app.sitemap.model = this.editorId;
+        this.sitemap.element = element;
       },
 
-      loadMediaModal(type = '*') {
+      loadMediaModal(element, type = '*') {
         eventBus.$emit('media-set-type', type);
         eventBus.$emit('media-reload');
         window.app.media.showModal = true;
         window.app.media.model = this.editorId;
+        this.media.element = element;
 
         this.modalType = type;
       },
