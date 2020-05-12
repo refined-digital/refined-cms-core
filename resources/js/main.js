@@ -23,11 +23,14 @@ import SiteMap from './components/SiteMap';
 import FormOptions from './components/FormOptions';
 import FormRepeatable from './components/FormRepeatable';
 import Icon from './components/Icon';
+import SelectAsTags from './components/SelectAsTags';
+import ProductVariations from './components/ProductVariations';
 
 Vue.component('rd-date-time-picker', DateTimePicker);
 Vue.component('rd-date-picker', DatePicker);
 Vue.component('rd-rich-text', RichText);
 Vue.component('rd-tags', Tags);
+Vue.component('rd-select-as-tags', SelectAsTags);
 Vue.component('rd-pages', Pages);
 Vue.component('rd-pages-branch', PagesBranch);
 Vue.component('rd-pages-repeatable', PagesRepeatable);
@@ -42,6 +45,7 @@ Vue.component('rd-link', Link);
 Vue.component('rd-sitemap', SiteMap);
 Vue.component('rd-form-options', FormOptions);
 Vue.component('rd-form-repeatable', FormRepeatable);
+Vue.component('rd-product-variations', ProductVariations);
 Vue.component('Icon', Icon);
 
 window.eventBus = new Vue({});

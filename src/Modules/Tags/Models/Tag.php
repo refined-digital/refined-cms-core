@@ -19,20 +19,45 @@ class Tag extends CoreModel implements Sortable
      * @var array
      */
     protected $fillable = [
-        'position', 'name', 'type'
+        'position', 'name', 'type', 'image', 'content'
     ];
 
 
     public $formFields = [
+
         [
             'name' => 'Content',
-            'fields' => [
-                [
-                    [ 'label' => 'Name', 'name' => 'name', 'required' => true],
-                    [ 'label' => 'Type', 'name' => 'type', 'type' => 'tagType', 'required' => true],
+            'sections' => [
+                'left' => [
+                    'blocks' => [
+                        [
+                            'name' => 'Content',
+                            'fields' => [
+                                [
+                                    [ 'label' => 'Name', 'name' => 'name', 'required' => true],
+                                    [ 'label' => 'Type', 'name' => 'type', 'type' => 'tagType', 'required' => true],
+                                ],
+                                [
+                                    [ 'label' => 'Content', 'name' => 'content', 'type' => 'richtext'],
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                'right' => [
+                    'blocks' => [
+                        [
+                            'name' => 'Image',
+                            'fields' => [
+                                [
+                                    [ 'label' => 'Image', 'name' => 'image', 'type' => 'image', 'hideLabel' => true],
+                                ],
+                            ]
+                        ],
+                    ]
                 ]
             ]
-        ]
-    ];
+        ],
+   ];
 
 }

@@ -4,7 +4,7 @@
     <div class="form__image">
       <figure>
         <span class="form__image-thumb">
-          <img src="/vendor/refinedcms/img/ui/media-thumb.png">
+          <img src="/vendor/refined/core/img/ui/media-thumb.png">
           <span class="form__image-thumb-img" v-if="file.type === 'Image'" :style="{ backgroundImage: 'url('+ file.link.thumb +')' }"></span>
           <span class="form__image-thumb-img form__image-thumb-video" v-if="file.type == 'Video'">
             <i class="fas fa-video"></i>

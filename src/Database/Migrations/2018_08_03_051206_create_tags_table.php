@@ -19,6 +19,8 @@ class CreateTagsTable extends Migration
             $table->integer('position');
             $table->string('name');
             $table->string('type');
+            $table->string('image')->nullable();
+            $table->longText('content')->nullable();
         });
 
         Schema::create('taggables', function (Blueprint $table) {

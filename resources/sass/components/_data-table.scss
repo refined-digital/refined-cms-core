@@ -160,4 +160,33 @@
       }
     }
   }
+
+  &__repeatable {
+    &--variations {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+
+      .data-table__cell--repeatable {
+        flex: 0 0 49%;
+        margin-bottom: 10px;
+
+        /*&-0 {
+          flex: 0 0 100%;
+        }*/
+
+        & + .data-table__cell--repeatable {
+          margin-top: 0;
+        }
+
+        &-break {
+          flex: 0 0 100%;
+        }
+
+        &-has-error .form__control {
+          border-color: color(red);
+        }
+      }
+    }
+  }
 }

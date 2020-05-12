@@ -23,6 +23,7 @@ class PageContentTypesSeeder extends Seeder
             'File',
             'Select',
             'Link',
+            'Number',
         ];
 
         foreach ($levels as $pos => $level) {

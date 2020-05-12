@@ -22,7 +22,7 @@
     },
 
     created () {
-      this.placeholder = 'Select ' + this.setType.replace(/-/gi,' ');
+      this.placeholder = `Select ${this.field.label ? this.field.label : this.setType.replace(/-/gi,' ')}`;
 
       if (this.choices) {
         this.choices.forEach(choice => {

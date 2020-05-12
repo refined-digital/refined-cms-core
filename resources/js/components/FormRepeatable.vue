@@ -14,9 +14,22 @@
           <tr v-for="(item, index) in items" class="form__control--options-row" :data-index="index">
             <td class="data-table__cell data-table__cell--sort"><i class="fa fa-sort" v-if="items.length > 1"></i></td>
             <td class="data-table__cell">
-              <div class="data-table__cell--repeatable" v-for="cell of item">
-                <label class="form__label" v-if="!cell.hide_label">{{ cell.name }}</label>
-                <rd-content-editor-field :item="cell"></rd-content-editor-field>
+              <template
+                v-for="(cell, cellKey, index) of item"
+                v-if="cell.hide_field"
+              >
+                <input type="hidden" v-model="cell.content"/>
+              </template>
+              <div class="data-table__repeatable" :class="`data-table__repeatable--${name}`">
+                <div
+                  class="data-table__cell--repeatable"
+                  :class="`data-table__cell--repeatable-${index}`"
+                  v-for="(cell, cellKey, index) of item"
+                  v-if="!cell.hide_field"
+                >
+                  <label class="form__label" v-if="!cell.hide_label">{{ cell.name }}</label>
+                  <rd-content-editor-field :item="cell"></rd-content-editor-field>
+                </div>
               </div>
             </td>
             <td class="data-table__cell data-table__cell--options-delete"><i class="fa fa-times" @click="removeRepeatable(item, index)"></i></td>

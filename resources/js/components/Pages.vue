@@ -221,7 +221,7 @@
                 <div class="form__note">
                   This area appears in the title of the browser<br/>
                   A maximum of 70 characters is allowed<br/>
-                  <img src="/vendor/refinedcms/img/ui/meta-title.png"/>
+                  <img src="/vendor/refined/core/img/ui/meta-title.png"/>
                 </div>
               </div>
             </div><!-- / form row -->

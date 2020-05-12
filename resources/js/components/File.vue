@@ -61,7 +61,7 @@
           },
 
           updateFile(data) {
-            if (this.$root.media.model == this._uid) {
+            if (data.model === this._uid) {
               this.file = data;
               this.item = this.file.id;
               this.$emit('input', this.item);

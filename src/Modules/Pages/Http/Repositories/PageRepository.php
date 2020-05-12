@@ -394,8 +394,8 @@ class PageRepository extends CoreRepository
 
         // add in some classes
         $classes = [];
-        $classes[] = 'page-id-'.$page->id;
-        $classes[] = str_slug('page template '.$page->meta->template->name);
+        $classes[] = 'page__id--'.$page->id;
+        $classes[] = 'page__template--'.str_slug($page->meta->template->name);
 
         // set some extra fun stuff to the page
         $head = pages()->getPageHeaders();

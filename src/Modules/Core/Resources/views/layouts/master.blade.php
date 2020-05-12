@@ -5,7 +5,7 @@
 
             <div class="app__left">
                 <figure class="app__logo">
-                    <a href="{{ config('app.url') }}/refined"><img src="{{ asset('vendor/refinedcms/img/logos/admin-small-logo.png') }}"/></a>
+                    <a href="{{ config('app.url') }}/refined"><img src="{{ asset('vendor/refined/core/img/logos/admin-small-logo.png') }}"/></a>
                 </figure>
                 <nav class="app__nav">
                     @if(is_array($menu) && sizeof($menu))
@@ -69,7 +69,7 @@
 
         </div><!-- / app holder -->
 
-        <script src="{{ asset('vendor/refinedcms/js/main.js?v='.uniqid()) }}"></script>
+        <script src="{{ asset('vendor/refined/core/js/main.js?v='.uniqid()) }}"></script>
         <script>
             window.app.siteUrl = "{{ rtrim(config('app.url'), '/') }}";
             window.app.user = JSON.parse('{!! json_encode(users()->getLoggedInUser()) !!}');

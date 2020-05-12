@@ -171,7 +171,7 @@
                 <i class="spinner"></i>
                 <figure>
                     <span class="media__file-thumb dz-image">
-                      <img src="/vendor/refinedcms/img/ui/media-thumb.png">
+                      <img src="/vendor/refined/core/img/ui/media-thumb.png">
                       <span class="media__file-thumb-holder"><img data-dz-thumbnail></span>
                     </span>
                   <figcaption>

@@ -3,7 +3,7 @@
     if (isset($data->{ $field->name })) {
         $value = $data->{ $field->name };
     }
-    if(old($field->name)) {
+    if(old($field->name) && is_array(old($field->name))) {
         $value = array_values(old($field->name));
     }
 ?>

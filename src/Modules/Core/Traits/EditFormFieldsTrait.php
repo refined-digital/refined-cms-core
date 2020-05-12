@@ -33,7 +33,7 @@ trait EditFormFieldsTrait
                         [ 'label' => 'URL', 'name' => 'meta[uri]', 'type' => 'url'],
                     ],
                     [
-                        [ 'label' => 'Page Title', 'name' => 'meta[title]', 'type' => 'Title', 'note' => 'This area appears in the title of the browser<br/>A maximum of 70 characters is allowed<br/><img src="'.asset('vendor/refinedcms/img/ui/meta-title.png').'"/>'],
+                        [ 'label' => 'Page Title', 'name' => 'meta[title]', 'type' => 'Title', 'note' => 'This area appears in the title of the browser<br/>A maximum of 70 characters is allowed<br/><img src="'.asset('vendor/refined/core/img/ui/meta-title.png').'"/>'],
                         [ 'label' => 'Meta Description', 'name' => 'meta[description]', 'type' => 'textarea', 'note' => 'This area is used to describe the business to search engines<br>A maximum of <code>160</code> characters is allowed' ],
                     ]
                 ]

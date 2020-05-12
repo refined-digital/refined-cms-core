@@ -36,8 +36,8 @@ class CMSServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         view()->addNamespace('core', [
+            base_path().'/resources/views',
             __DIR__.'/../Resources/views',
-            base_path().'/resources/views'
         ]);
 
         view()->composer(
@@ -54,7 +54,7 @@ class CMSServiceProvider extends ServiceProvider
 
         // load in the option for assets
         $this->publishes([
-            __DIR__.'/../../../../assets' => public_path('vendor/refinedcms')
+            __DIR__.'/../../../../assets' => public_path('vendor/refined/core')
         ], 'public');
 
         if ($this->app->runningInConsole()) {
@@ -74,7 +74,7 @@ class CMSServiceProvider extends ServiceProvider
                 ]);
             }
 
-            if (!is_dir(public_path().'/vendor/refinedcms')) {
+            if (!is_dir(public_path().'/vendor/refined/core')) {
                 $this->commands([
                     InstallSymLink::class
                 ]);

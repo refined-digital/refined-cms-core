@@ -18,17 +18,21 @@
       </template>
 
       <template v-if="item.page_content_type_id === 5">
-        <rd-file v-model="item.content" :value="item.content"></rd-file>
+        <rd-file v-model="item.content" :value="item.content" :id="item.id" :name="item.name"></rd-file>
       </template>
 
       <template v-if="item.page_content_type_id === 6 && item.options">
-        <select v-model="item.content" required="required" class="form__control">
+        <select v-model="item.content" required="required" class="form__control" :change="selectChanged(item)">
           <option :value="opt.value" v-for="opt in item.options">{{ opt.label }}</option>
         </select>
       </template>
 
       <template v-if="item.page_content_type_id === 7">
         <rd-link v-model="item.content" :value="item.content"></rd-link>
+      </template>
+
+      <template v-if="item.page_content_type_id === 8">
+        <input type="number" v-model="item.content" inputmode="decimal" required="required" class="form__control">
       </template>
 
       <div class="form__note" v-if="item.note" v-html="item.note"></div>
@@ -40,7 +44,13 @@
 
   export default {
 
-    props: [ 'item' ]
+    props: [ 'item' ],
+
+    methods: {
+      selectChanged(item) {
+        eventBus.$emit('content-editor.select.changed', item);
+      }
+    }
 
   }
 </script>
