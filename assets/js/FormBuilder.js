@@ -94,26 +94,29 @@
 /***/ (function(module, exports, __webpack_require__) {
 
 window.FormValidate = __webpack_require__(/*! ../plugins/FormValidate */ "./resources/js/front-end/plugins/FormValidate.js");
-window.FormValidate = FormValidate.FormValidate; // todo: update to use addEventListen instead
+window.FormValidate = FormValidate.FormValidate;
+var gateways = document.querySelectorAll('.payment-gateway input[type="radio"]');
 
-window.FormBuilder = {
-  paymentGatewayChanged: function paymentGatewayChanged(event) {
-    var gateways = document.querySelectorAll('.payment-gateway--active');
+if (gateways.length) {
+  gateways.forEach(function (gateway) {
+    gateway.addEventListener('change', function (e) {
+      var activeGateways = document.querySelectorAll('.payment-gateway--active');
 
-    if (gateways.length) {
-      gateways.forEach(function (gateway) {
-        gateway.classList.remove('payment-gateway--active');
-      });
-    }
+      if (activeGateways.length) {
+        activeGateways.forEach(function (active) {
+          active.classList.remove('payment-gateway--active');
+        });
+      }
 
-    var target = event.target;
-    var parent = target.closest('.payment-gateway');
+      var target = event.target;
+      var parent = target.closest('.payment-gateway');
 
-    if (target.checked) {
-      parent.classList.add('payment-gateway--active');
-    }
-  }
-};
+      if (target.checked) {
+        parent.classList.add('payment-gateway--active');
+      }
+    });
+  });
+}
 
 /***/ }),
 
@@ -305,7 +308,7 @@ var FormValidate = /*#__PURE__*/function () {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /srv/dev.com/refineddigital/cms/resources/js/front-end/modules/FormBuilder.js */"./resources/js/front-end/modules/FormBuilder.js");
+module.exports = __webpack_require__(/*! /Users/matthias/Web/dev/core/resources/js/front-end/modules/FormBuilder.js */"./resources/js/front-end/modules/FormBuilder.js");
 
 
 /***/ })

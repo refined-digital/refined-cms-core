@@ -12,10 +12,10 @@ class EmailRepository extends CoreRepository {
     protected $tableOpen = '<table rules="all" style="border-color: #111;border:1px solid;" cellpadding="10">';
     protected $tableClose = '</table>';
 
-    protected $thOpen = '<th align="left" valign="top" style="border-bottom:1px solid #666; border-right:1px solid #666; background: #eee; padding:10px;font-family:arial;">';
+    protected $thOpen = '<th align="left" valign="top" style="border-bottom:1px solid #666; border-right:1px solid #666; background: #eee; padding:10px;font-family:arial;width: 300px">';
     protected $thClose = '</th>';
 
-    protected $tdOpen = '<td valign="top" style="border-bottom:1px solid #666; padding:10px;font-family:arial;width: 300px">';
+    protected $tdOpen = '<td valign="top" style="border-bottom:1px solid #666; padding:10px;font-family:arial;">';
     protected $tdClose = '</td>';
 
     public function send($settings)
@@ -43,21 +43,17 @@ class EmailRepository extends CoreRepository {
         ;
     }
 
-
-    public function makeHtml($request, $form, $type = 'message')
+    public function generateHtml($request, $form, $fullWidth = false)
     {
-        $html = '';
         $fields = '';
         $data = $this->formatFields($request, $form);
-
-        // the form builder message
-        if (isset($form->{$type}) && $form->{$type}) {
-            $html = $form->{$type};
-        }
 
         // add the field data, if any
         if (sizeof($data)) {
             $fields = $this->tableOpen;
+            if ($fullWidth) {
+                $fields = str_replace('style="', 'style="width:100%;', $fields);
+            }
             foreach ($data as $field) {
                 $fields .= '<tr>';
                     $fields .= $this->thOpen.$field->name.$this->thClose;
@@ -65,6 +61,20 @@ class EmailRepository extends CoreRepository {
                 $fields .= '</tr>';
             }
             $fields .= $this->tableClose;
+        }
+
+        return $fields;
+
+    }
+
+    public function makeHtml($request, $form, $type = 'message')
+    {
+        $html = '';
+        $fields = $this->generateHtml($request, $form);
+
+        // the form builder message
+        if (isset($form->{$type}) && $form->{$type}) {
+            $html = $form->{$type};
         }
 
         // replace the keys with the field data

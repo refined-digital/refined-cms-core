@@ -9,4 +9,5 @@ class PaymentGateway {
     {
         return $this->view;
     }
+
 }

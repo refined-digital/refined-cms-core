@@ -274,7 +274,7 @@ var FormValidate = /*#__PURE__*/function () {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /srv/dev.com/refineddigital/cms/resources/js/front-end/plugins/FormValidate.js */"./resources/js/front-end/plugins/FormValidate.js");
+module.exports = __webpack_require__(/*! /Users/matthias/Web/dev/core/resources/js/front-end/plugins/FormValidate.js */"./resources/js/front-end/plugins/FormValidate.js");
 
 
 /***/ })

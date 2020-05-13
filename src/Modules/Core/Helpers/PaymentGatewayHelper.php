@@ -32,6 +32,12 @@ class PaymentGatewayHelper {
             return $gateways[$type];
         }
 
+        foreach($gateways as $name => $gateway) {
+            if (str_slug($name) === $type) {
+                return $gateway;
+            }
+        }
+
         return false;
     }
 }
