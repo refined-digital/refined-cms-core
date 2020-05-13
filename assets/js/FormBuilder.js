@@ -94,7 +94,26 @@
 /***/ (function(module, exports, __webpack_require__) {
 
 window.FormValidate = __webpack_require__(/*! ../plugins/FormValidate */ "./resources/js/front-end/plugins/FormValidate.js");
-window.FormValidate = FormValidate.FormValidate;
+window.FormValidate = FormValidate.FormValidate; // todo: update to use addEventListen instead
+
+window.FormBuilder = {
+  paymentGatewayChanged: function paymentGatewayChanged(event) {
+    var gateways = document.querySelectorAll('.payment-gateway--active');
+
+    if (gateways.length) {
+      gateways.forEach(function (gateway) {
+        gateway.classList.remove('payment-gateway--active');
+      });
+    }
+
+    var target = event.target;
+    var parent = target.closest('.payment-gateway');
+
+    if (target.checked) {
+      parent.classList.add('payment-gateway--active');
+    }
+  }
+};
 
 /***/ }),
 

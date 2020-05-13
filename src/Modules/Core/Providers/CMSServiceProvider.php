@@ -16,6 +16,7 @@ use RefinedDigital\CMS\Modules\Core\Http\Middleware\UserLevel;
 use RefinedDigital\CMS\Modules\Core\Http\ResourceRegistrar;
 use RefinedDigital\CMS\Modules\Core\Models\CustomModuleRouteAggregate;
 use RefinedDigital\CMS\Modules\Core\Models\PackageAggregate;
+use RefinedDigital\CMS\Modules\Core\Models\PaymentGatewayAggregate;
 use RefinedDigital\CMS\Modules\Core\Models\PublicRouteAggregate;
 use Validator;
 
@@ -106,6 +107,7 @@ class CMSServiceProvider extends ServiceProvider
         $this->app->singleton(PublicRouteAggregate::class);
         $this->app->singleton(ModuleAggregate::class);
         $this->app->singleton(PackageAggregate::class);
+        $this->app->singleton(PaymentGatewayAggregate::class);
 
         // override the error handler
         $this->app->singleton(ExceptionHandler::class, Handler::class);
