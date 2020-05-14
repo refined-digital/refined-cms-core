@@ -42,12 +42,16 @@ class PaymentGateway {
         return $address;
     }
 
-    public function logTransaction($form, $emailData, $response)
+    public function logTransaction($form, $emailData, $response = false)
     {
 
-        $transactionId = $response->getTransactionReference() ?: $response->getTransactionId();
-        $responseMessage = [$response->getMessage()];
-
+        if ($response) {
+            $transactionId = $response->getTransactionReference() ?: $response->getTransactionId();
+            $responseMessage = [$response->getMessage()];
+        } else {
+            $transactionId = null;
+            $responseMessage = null;
+        }
 
         return FormPaymentTransaction::create([
             'form_id' => isset($form->id) ? $form->id : null,

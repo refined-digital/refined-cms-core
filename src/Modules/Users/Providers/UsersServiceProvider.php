@@ -16,8 +16,8 @@ class UsersServiceProvider extends ServiceProvider
     public function boot()
     {
         view()->addNamespace('users', [
+            base_path().'/resources/views',
             __DIR__.'/../Resources/views',
-            base_path().'/resources/views'
         ]);
     }
 

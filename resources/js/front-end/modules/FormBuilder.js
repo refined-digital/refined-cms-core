@@ -20,3 +20,19 @@ if (gateways.length) {
     })
   })
 }
+
+
+const ccField = document.querySelectorAll('.form__control--cc');
+if (ccField.length) {
+  ccField.forEach(field => {
+    field.addEventListener('keypress', e => {
+      const key = e.which || e.keyCode,
+        accepted = Array(0,8,9,27,46,48,49,50,51,52,53,54,55,56,57)
+      ;
+
+      if(!accepted.includes(key)) {
+        e.preventDefault();
+      }
+    });
+  })
+}

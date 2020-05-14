@@ -37,6 +37,12 @@ class ForgotPasswordController extends Controller
      */
     public function showLinkRequestForm()
     {
-        return view('users::auth.passwords.email');
+        // todo: update this to have all the correct stuff for pages
+        $page = new \stdClass();
+        $page->title = 'Login';
+        $page->head = '';
+        $page->classes = '';
+        return view('users::auth.passwords.email')
+            ->with(compact('page'));
     }
 }

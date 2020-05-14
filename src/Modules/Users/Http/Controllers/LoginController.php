@@ -45,7 +45,13 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
-        return view('users::auth.login');
+        // todo: update this to have all the correct stuff for pages
+        $page = new \stdClass();
+        $page->title = 'Login';
+        $page->head = '';
+        $page->classes = '';
+        return view('users::auth.login')
+            ->with(compact('page'));
     }
 
     /**

@@ -16,8 +16,8 @@ class TagServiceProvider extends ServiceProvider
     public function boot()
     {
         view()->addNamespace('tags', [
+            base_path().'/resources/views',
             __DIR__.'/../Resources/views',
-            base_path().'/resources/views'
         ]);
     }
 

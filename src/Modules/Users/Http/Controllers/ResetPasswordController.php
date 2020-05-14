@@ -49,8 +49,14 @@ class ResetPasswordController extends Controller
      */
     public function showResetForm(Request $request, $token = null)
     {
+
+        // todo: update this to have all the correct stuff for pages
+        $page = new \stdClass();
+        $page->title = 'Login';
+        $page->head = '';
+        $page->classes = '';
         return view('users::auth.passwords.reset')->with(
             ['token' => $token, 'email' => $request->email]
-        );
+        )->with(compact('page'));
     }
 }
