@@ -9,13 +9,13 @@ use Mail;
 
 class EmailRepository extends CoreRepository {
 
-    protected $tableOpen = '<table rules="all" style="border-color: #111;border:1px solid;" cellpadding="10">';
+    protected $tableOpen = '<table rules="all" style="border:1px solid #bbbbbb;" cellpadding="10">';
     protected $tableClose = '</table>';
 
-    protected $thOpen = '<th align="left" valign="top" style="border-bottom:1px solid #666; border-right:1px solid #666; background: #eee; padding:10px;font-family:arial;width: 300px">';
+    protected $thOpen = '<th align="left" valign="top" style="border-bottom:1px solid #bbbbbb; border-right:1px solid #bbbbbb; background: #dedede; padding:10px;font-family:arial;width: 300px;color: #111;">';
     protected $thClose = '</th>';
 
-    protected $tdOpen = '<td valign="top" style="border-bottom:1px solid #666; padding:10px;font-family:arial;">';
+    protected $tdOpen = '<td valign="top" style="border-bottom:1px solid #bbbbbb; padding:10px;font-family:arial;">';
     protected $tdClose = '</td>';
 
     public function send($settings)

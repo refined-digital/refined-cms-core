@@ -202,4 +202,17 @@ class Help {
         $videoKey = $videoBits[sizeof($videoBits)-1];
         return '//www.youtube.com/embed/'.$videoKey.'?rel=0&showinfo=0&autoplay=1';
     }
+
+    public function getDaysOfWeek()
+    {
+        return [
+            '1' => 'Monday',
+            '2' => 'Tuesday',
+            '3' => 'Wednesday',
+            '4' => 'Thursday',
+            '5' => 'Friday',
+            '6' => 'Saturday',
+            '7' => 'Sunday',
+        ];
+    }
 }
