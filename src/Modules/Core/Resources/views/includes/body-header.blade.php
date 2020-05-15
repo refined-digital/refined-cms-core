@@ -13,7 +13,7 @@
                 <a href="{{ $routes->index ?? '#' }}">{{ $heading }}</a>
             </h2>
             <aside>
-                @if (isset($routes->create) && ($routeEnd == 'index' || $routeEnd == 'fields'))
+                @if ($canCreate && isset($routes->create) && ($routeEnd == 'index' || $routeEnd == 'fields'))
                     <a href="{{ $routes->create }}" class="button button--blue">Add{{ $button ? ' '.$button : ''}}</a>
                 @endif
 

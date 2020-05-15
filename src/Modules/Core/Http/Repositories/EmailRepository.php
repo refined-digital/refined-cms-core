@@ -103,7 +103,7 @@ class EmailRepository extends CoreRepository {
             $settings->bcc = $form->bcc;
         }
 
-        if ($request && $request->allFiles()) {
+        if ($request && !is_array($request) && $request->allFiles()) {
             $allFiles = $request->allFiles();
             $formFiles = [];
             $data = $request->all();
@@ -264,13 +264,17 @@ class EmailRepository extends CoreRepository {
     {
         $replyTo = false;
 
+        if (!is_array($request)) {
+            $request = $request->all();
+        }
+
         if ($form->reply_to) {
             $field = 'field'.$form->reply_to;
-            if (is_numeric($form->reply_to) && $request && $request->has($field)) {
+            if (is_numeric($form->reply_to) && $request && isset($request[$field])) {
                 // we have a field, now validate it to be an email
-                $validator = \Validator::make(['email' => $request->get($field)], ['email' => 'required|email']);
+                $validator = \Validator::make(['email' => $request[$field]], ['email' => 'required|email']);
                 if($validator->passes()) {
-                    $replyTo = $request->get($field);
+                    $replyTo = $request[$field];
                 }
             } else {
                 $replyTo = $form->reply_to;

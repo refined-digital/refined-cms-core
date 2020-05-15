@@ -74,7 +74,7 @@
                                         @endforeach
                                     @endif
 
-                                    @if (isset($tableSettings->routes->destroy) && !in_array($d->id, $tableSettings->noDelete))
+                                    @if ($canDelete && isset($tableSettings->routes->destroy) && !in_array($d->id, $tableSettings->noDelete))
                                         <form method="post" action="{{ route($tableSettings->routes->destroy, $d->id) }}" v-confirm-delete>
                                             {{ csrf_field() }}
                                             {{ method_field('DELETE') }}

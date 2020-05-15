@@ -316,7 +316,11 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
         if (!is_dir($link)) {
             mkdir($link);
         }
-        $link .= 'refined/core';
+        $link .= 'refined/';
+        if (!is_dir($link)) {
+            mkdir($link);
+        }
+        $link .= 'core';
 
         if (! windows_os()) {
             return symlink($target, $link);

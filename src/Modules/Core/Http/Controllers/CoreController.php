@@ -20,6 +20,10 @@ class CoreController extends Controller
     protected $parentModel;
     protected $parentIndex;
 
+    protected $canCreate = true;
+    protected $canDelete = true;
+    protected $canUpdate = true;
+
     protected $buttons = [
         ['class' => 'button button--blue', 'name' => 'Save', 'href' => '#'],
         ['class' => 'button button--blue', 'name' => 'Save & Return', 'href' => '#'],
@@ -233,6 +237,9 @@ class CoreController extends Controller
         $config['sortable'] = false;
         $config['showEnableSorting'] = true;
         $config['prefix'] = $this->prefix;
+        $config['canUpdate'] = $this->canUpdate;
+        $config['canCreate'] = $this->canCreate;
+        $config['canDelete'] = $this->canDelete;
         if (sizeof($this->buttons)) {
             $config['buttons'] = $this->buttons;
         }
@@ -299,5 +306,31 @@ class CoreController extends Controller
         }
 
         return response()->json(['success' => 0]);
+    }
+
+
+    public function setCanCreate($option)
+    {
+        $this->canCreate = $option;
+    }
+
+    public function setCanDelete($option)
+    {
+        $this->canDelete = $option;
+    }
+
+    public function setCanUpdate($option)
+    {
+        $this->canUpdate = $option;
+    }
+
+    public function getButtons()
+    {
+        return $this->buttons;
+    }
+
+    public function setButtons($buttons)
+    {
+        $this->buttons = $buttons;
     }
 }

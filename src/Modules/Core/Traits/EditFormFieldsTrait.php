@@ -48,7 +48,12 @@ trait EditFormFieldsTrait
         // check if there are any extra fields
         $fields = $this->fieldsAddExtra($fields, $config);
 
-        return json_decode(json_encode($fields));
+        $newFields = [];
+        foreach ($fields as $field) {
+            $newFields[] = $field;
+        }
+
+        return json_decode(json_encode($newFields));
     }
 
     public function fieldsMergeConfig($fields, $config)

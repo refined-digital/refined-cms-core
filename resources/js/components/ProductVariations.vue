@@ -73,7 +73,7 @@
 
   export default {
 
-    props: ['item', 'name', 'value', 'variations', 'types', 'field'],
+    props: ['item', 'name', 'value', 'variations', 'types', 'field', 'statuses'],
 
     data() {
         return {
@@ -187,6 +187,14 @@
           field: 'sale_price',
           name: 'Sale Price',
           page_content_type_id: 8
+        };
+
+        item.product_status_id = {
+          content: '',
+          field: 'product_status_id',
+          name: 'Product Status Id',
+          page_content_type_id: 6,
+          options: [...this.statuses]
         };
 
         return item;
