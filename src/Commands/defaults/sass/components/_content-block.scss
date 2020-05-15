@@ -1,0 +1,8 @@
+.content-block {
+  padding: pad(block) 0;
+  background: color(block-light);
+  position: relative;
+  @include respond($respondSmall) {
+    padding: pad(mobile) 0;
+  }
+}

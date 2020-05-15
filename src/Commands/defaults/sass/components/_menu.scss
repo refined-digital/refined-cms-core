@@ -1,0 +1,57 @@
+.page__nav {
+  padding: 20px 0;
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .holder > ul {
+    display: flex;
+    justify-content: space-between;
+    overflow: hidden;
+
+    > li {
+      > a {
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  ul ul {
+    position: absolute;
+    width: 100%;
+  }
+
+  li {
+    position: relative;
+
+    &.nav__item--id-1 {
+      display: none;
+    }
+
+    &.nav__item--active > a {
+      color: color(main-color-2);
+    }
+  }
+
+  a {
+    display: block;
+    font-size: 14px;
+    line-height: 1.1;
+    padding: 3px 0;
+  }
+}
+
+
+.nav {
+  &__trigger {
+    display: none;
+  }
+}
+
+
+.mobile-menu {
+  display: none;
+}

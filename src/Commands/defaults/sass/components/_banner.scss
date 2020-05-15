@@ -1,0 +1,34 @@
+.banner {
+  position: relative;
+  overflow: hidden;
+
+  &__images {
+  }
+
+  &__image {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .image__placeholder {
+    min-height: 350px;
+  }
+
+  video {
+    object-fit: cover;
+    background: #000;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}
+
+.IIV::-webkit-media-controls-play-button,
+.IIV::-webkit-media-controls-start-playback-button {
+    opacity: 0;
+    pointer-events: none;
+    width: 5px;
+}

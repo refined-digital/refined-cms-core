@@ -56,7 +56,8 @@ class Install extends Command
         $this->regenerateKey();
         $this->createSymLink();
         $this->setupDb();
-        $this->addSuperUser();
+        $this->copyTemplates();
+        $this->addUser();
     }
 
     protected function askQuestions()
@@ -188,7 +189,7 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
     protected function setupDb()
     {
         $this->output->writeln('<info>Installing the Database</info>');
-        $db = new PDO('mysql:host=127.0.0.1;', $this->dbUser, $this->dbPass);
+        $db = new PDO('mysql:host='.env('DB_HOST').';', $this->dbUser, $this->dbPass);
         $db->exec('CREATE DATABASE `'.$this->dbName.'`;');
 
         // run migrations
@@ -310,7 +311,7 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
     protected function createSymLink()
     {
         $link = getcwd().'/public/vendor/';
-        $target = '../../vendor/refineddigital/cms/assets/';
+        $target = '../../../vendor/refineddigital/cms/assets/';
 
         // create the directories
         if (!is_dir($link)) {
@@ -345,5 +346,56 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
     protected function setupComplete()
     {
         $this->output->writeln('<comment>Setup Complete!</comment>');
+    }
+
+    protected function copyTemplates()
+    {
+        $this->output->writeln('<info>Copying Templates</info>');
+        $base = base_path('vendor/refineddigital/cms/src/Commands/defaults');
+
+        $dir = $base.'/views';
+        exec('rm -R '.resource_path('views'));
+        exec('cp -R '.$dir.' '.resource_path('views'));
+
+        $dir = $base.'/sass';
+        exec('rm -R '.resource_path('sass'));
+        exec('cp -R '.$dir.' '.resource_path('sass'));
+
+        $dir = $base.'/js';
+        exec('rm -R '.resource_path('js'));
+        exec('cp -R '.$dir.' '.resource_path('js'));
+
+        unlink(base_path('webpack.mix.js'));
+        file_put_contents(base_path('webpack.mix.js'), file_get_contents($base.'/webpack.mix.js'));
+
+        /*
+        $files = scandir($dir);
+        array_shift($files);array_shift($files);
+        $this->copy($files, $dir, 'views/layouts');
+
+        $dir = __DIR__.'/defaults/views/templates';
+        $files = scandir($dir);
+        array_shift($files);array_shift($files);
+        $this->copy($files, $dir, 'views/templates');
+*/
+    }
+
+    private function copy($files, $dir, $public)
+    {
+        if (!is_dir(resource_path($public))) {
+            mkdir(resource_path($public));
+        }
+
+        if (sizeof($files)) {
+            try {
+                foreach ($files as $file) {
+                    $contents = file_get_contents($dir.$file);
+                    file_put_contents(resource_path($public.'/'.$file), $contents);
+                }
+            } catch(\Exception $e) {
+                $this->output->writeln('<error>Failed to copy all templates</error>');
+            }
+        }
+
     }
 }

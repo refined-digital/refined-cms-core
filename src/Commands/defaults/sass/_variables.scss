@@ -1,0 +1,45 @@
+$colours: (
+  main-color-1            : #6f6259,
+  main-color-2            : #c2512f,
+  main-color-3            : #939597,
+
+  body                    : #ffffff,
+  html                    : #ffffff,
+
+  text                    : #6f6259,
+
+  border                  : #d6d6d6,
+
+) !default;
+
+$padding: (
+  gap                     : 10px,
+  block                   : 60px,
+  mobile                  : 20px,
+  print                   : 20px,
+  page                    : 40px,
+) !default;
+
+
+$systemFontSize: 18px;
+$headingFontSize: 35px;
+$systemLineHeight: 1.5;
+$printFontSize: 16px;
+
+$systemFont: 'Source Sans Pro', Arial, Helvetica, Verdana, sans-serif;
+$holderWidth: 850px;
+$holderLargeWidth: 1200px;
+$headerShadow: 0 -6px 10px 10px rgba(0, 0, 0, 0.5);
+
+$respondMedium: 1030px;
+$respondSmall: 850px;
+$respondTiny: 660px;
+$respondSuperSmall: 560px;
+$mobileMenuAt: 900px;
+
+$darkenAmount: 10;
+$lightenAmount: 10;
+$opacity: 0.8;
+
+$headerHeight: 177px;
+$mobileHeaderHeight: 100px;

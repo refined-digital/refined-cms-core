@@ -1,0 +1,68 @@
+/* system */
+html {
+  background: color(html);
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  @media print {
+    background: #fff;
+  }
+}
+body {
+  padding: $headerHeight 0 0;
+  @include respond($mobileMenuAt) {
+    padding-top: $mobileHeaderHeight;
+  }
+}
+body, button, input, select, textarea {
+  font: #{$systemFontSize}/#{$systemLineHeight} $systemFont;
+  color: color(text);
+  -webkit-font-smoothing: antialiased;
+}
+/* end system */
+
+/* type */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: normal;
+}
+h1 {
+  font-size: 48px;
+}
+h2 {
+  font-size: 24px;
+}
+h3 {
+  font-size: 21px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 14px;
+}
+h6 { }
+
+a {
+  color: color(text);
+  text-decoration: none;
+  &:hover {
+    color: color(main-color-2);
+  }
+  @include respond($respondSmall) {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+}
+
+a, .button, .nav__trigger svg, .mobile-menu__close svg, .block:before, .text-over-image__link:before, .testimonials__footer span,
+.arrow:before, .arrow:after {
+  transition: all 200ms linear;
+}
+
+@include respond($respondTiny) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+  .mobile-no-top-padding {
+    padding-top: 0 !important;
+  }
+}

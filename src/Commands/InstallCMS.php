@@ -41,6 +41,7 @@ class InstallCMS extends Install
         $this->createSymLink();
         $this->linkStorage();
         $this->setupDb();
+        $this->copyTemplates();
         $this->addUser();
         $this->setupComplete();
     }

@@ -1,0 +1,27 @@
+.error__page {
+  &--message {
+    background: #fff;
+    padding: pad(block) pad(mobile);
+    text-align: center;
+
+    &:before {
+      content: '404 Page Not Found';
+      display: block;
+      text-transform: uppercase;
+      font-size: 26px;
+      line-height: 1;
+      color: color(black);
+      margin: 0 0 30px;
+    }
+
+    &:after {
+      content: '';
+      display: block;
+      height: 5px;
+      width: 75px;
+      background: color(blue);
+      margin: 15px auto;
+      transform: translateY(-65px)
+    }
+  }
+}

@@ -50,5 +50,6 @@ class InstallDatabase extends Install
         }
 
         $this->setupDb();
+        $this->addUser();
     }
 }
