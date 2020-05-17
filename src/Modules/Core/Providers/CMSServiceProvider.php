@@ -64,11 +64,11 @@ class CMSServiceProvider extends ServiceProvider
                 CreateModule::class
             ]);
 
-            //if (env('APP_NAME') == 'Laravel') {
+            if (env('APP_NAME') == 'Laravel') {
                 $this->commands([
                     InstallCMS::class
                 ]);
-            //}
+            }
 
             if (
                 env('DB_DATABASE') == 'homestead' ||
