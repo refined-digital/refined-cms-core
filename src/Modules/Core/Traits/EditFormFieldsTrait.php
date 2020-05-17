@@ -41,8 +41,11 @@ trait EditFormFieldsTrait
         }
 
         // check if we have a module config
-        $module = class_basename($this);
-        $config = config(strtolower($module));
+        $module = strtolower(class_basename($this));
+        $config = config($module);
+        if (!$config) {
+            $config = config(str_plural($module));
+        }
         $fields = $this->fieldsMergeConfig($fields, $config);
 
         // check if there are any extra fields

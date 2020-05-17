@@ -61,12 +61,13 @@ trait IsPage
             $template = $model->templateId ?: 1;
             $base = class_basename($model);
             if ($base != 'Page') {
-                // todo: maybe don't do this...
-                if ($base === 'Product') {
-                    $base = 'products';
+                $config = config(strtolower($base));
+                if (!$config) {
+                    $config = config(str_plural(strtolower($base)));
                 }
-                if (config(strtolower($base).'.details_template_id')) {
-                    $template = config(strtolower($base).'.details_template_id');
+
+                if (isset($config['details_template_id'])) {
+                    $template = $config['details_template_id'];
                 }
             } else {
                 if ($request['meta']['template_id']) {
