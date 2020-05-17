@@ -537,4 +537,38 @@ class PageRepository extends CoreRepository
 
         return $data;
     }
+
+    public function setAsPage($type)
+    {
+
+        $settings = settings()->get('pages');
+        $baseHref = pages()->getBaseHref();
+
+        $page = new \stdClass();
+        $page->type = $type;
+        $page->url = $baseHref.request()->path();
+
+        $classes = [];
+        $classes[] = 'page__id--'.str_slug($type);
+        $classes[] = 'page__template--'.str_slug($type);
+
+        // set some extra fun stuff to the page
+        $head = pages()->getPageHeaders();
+
+        $page->title = $type;
+
+        $page->head = implode("\n\t\t", $head);
+
+        // implode the classes into a string
+        $page->classes = implode(' ', $classes);
+
+        // add in the settings
+        $page->settings = $settings;
+
+        // add the depth, based on the url slugs
+        $page->depth = 1;
+
+        return $page;
+
+    }
 }

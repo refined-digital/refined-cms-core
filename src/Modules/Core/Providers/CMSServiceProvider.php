@@ -12,6 +12,7 @@ use RefinedDigital\CMS\Commands\InstallCMS;
 use RefinedDigital\CMS\Commands\InstallDatabase;
 use RefinedDigital\CMS\Commands\InstallSymLink;
 use RefinedDigital\CMS\Modules\Core\Exceptions\Handler;
+use RefinedDigital\CMS\Modules\Core\Http\Middleware\Admin;
 use RefinedDigital\CMS\Modules\Core\Http\Middleware\UserLevel;
 use RefinedDigital\CMS\Modules\Core\Http\ResourceRegistrar;
 use RefinedDigital\CMS\Modules\Core\Models\CustomModuleRouteAggregate;
@@ -88,6 +89,7 @@ class CMSServiceProvider extends ServiceProvider
 
         // register the custom middleware
         $router->aliasMiddleware('userLevel', UserLevel::class);
+        $router->aliasMiddleware('admin', Admin::class);
     }
 
     /**

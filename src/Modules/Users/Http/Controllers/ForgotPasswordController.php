@@ -4,6 +4,7 @@ namespace RefinedDigital\CMS\Modules\Users\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use RefinedDigital\CMS\Modules\Pages\Http\Repositories\PageRepository;
 
 class ForgotPasswordController extends Controller
 {
@@ -37,11 +38,9 @@ class ForgotPasswordController extends Controller
      */
     public function showLinkRequestForm()
     {
-        // todo: update this to have all the correct stuff for pages
-        $page = new \stdClass();
-        $page->title = 'Login';
-        $page->head = '';
-        $page->classes = '';
+
+        $repo = new PageRepository();
+        $page = $repo->setAsPage('Forgotten Password');
         return view('users::auth.passwords.email')
             ->with(compact('page'));
     }

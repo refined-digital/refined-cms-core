@@ -5,6 +5,7 @@ namespace RefinedDigital\CMS\Modules\Users\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
+use RefinedDigital\CMS\Modules\Pages\Http\Repositories\PageRepository;
 
 class ResetPasswordController extends Controller
 {
@@ -49,12 +50,8 @@ class ResetPasswordController extends Controller
      */
     public function showResetForm(Request $request, $token = null)
     {
-
-        // todo: update this to have all the correct stuff for pages
-        $page = new \stdClass();
-        $page->title = 'Login';
-        $page->head = '';
-        $page->classes = '';
+        $repo = new PageRepository();
+        $page = $repo->setAsPage('Reset Password');
         return view('users::auth.passwords.reset')->with(
             ['token' => $token, 'email' => $request->email]
         )->with(compact('page'));

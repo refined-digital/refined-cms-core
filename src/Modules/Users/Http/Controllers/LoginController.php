@@ -5,6 +5,7 @@ namespace RefinedDigital\CMS\Modules\Users\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use RefinedDigital\CMS\Modules\Pages\Http\Repositories\PageRepository;
 
 class LoginController extends Controller
 {
@@ -45,11 +46,8 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
-        // todo: update this to have all the correct stuff for pages
-        $page = new \stdClass();
-        $page->title = 'Login';
-        $page->head = '';
-        $page->classes = '';
+        $repo = new PageRepository();
+        $page = $repo->setAsPage('Login');
         return view('users::auth.login')
             ->with(compact('page'));
     }

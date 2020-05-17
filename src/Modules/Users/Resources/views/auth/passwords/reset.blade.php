@@ -9,7 +9,7 @@
       @include('core::auth.logo')
       @include('core::includes.errors')
 
-      @include('users::includes.reset')
+      @include('users::auth.includes.reset')
     </div><!-- / login -->
   </div><!-- / auth right -->
 </div><!-- / auth -->

@@ -25,7 +25,7 @@ Route::middleware(['web'])
 ;
 
 
-Route::middleware(['web', 'auth', 'userLevel'])
+Route::middleware(['web', 'auth', 'userLevel', 'admin'])
     ->as('refined.')
     ->prefix('refined')
     ->group(function(){
