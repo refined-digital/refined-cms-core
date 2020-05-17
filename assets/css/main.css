@@ -1428,6 +1428,10 @@ textarea.form__control {
   border-top: 1px solid #e4e7ea;
 }
 
+.data-table__cell svg {
+  height: 30px;
+}
+
 .data-table__cell--active {
   width: 80px;
   text-align: right;
