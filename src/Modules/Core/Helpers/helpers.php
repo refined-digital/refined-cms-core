@@ -4,6 +4,7 @@ use RefinedDigital\CMS\Modules\Core\Helpers\Help;
 use RefinedDigital\CMS\Modules\Core\Helpers\Menu;
 use RefinedDigital\CMS\Modules\Core\Helpers\Pages;
 use RefinedDigital\CMS\Modules\Core\Helpers\PaymentGatewayHelper;
+use RefinedDigital\CMS\Modules\Core\Helpers\RefinedFile;
 use RefinedDigital\CMS\Modules\Core\Helpers\RefinedImage;
 use RefinedDigital\CMS\Modules\Core\Helpers\Tags;
 use RefinedDigital\CMS\Modules\Settings\Http\Repositories\SettingRepository;
@@ -20,6 +21,13 @@ if (! function_exists('image')) {
     function image()
     {
         return app(RefinedImage::class);
+    }
+}
+
+if (! function_exists('Files')) {
+    function files()
+    {
+        return app(RefinedFile::class);
     }
 }
 

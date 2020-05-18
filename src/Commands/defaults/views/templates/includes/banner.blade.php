@@ -11,6 +11,7 @@
   }
 
   $images = [];
+  $banners = isset($page->data->banners) ? $page->data->banners : [];
   if (sizeof($banners)) {
     foreach ($banners as $banner) {
       if ($banner->image->content) {
@@ -31,7 +32,7 @@
     @endif
   >
     @foreach ($images as $image)
-      <figure class="banner__image image" style="background-image:url({{ asset($image->source) }})">
+      <figure class="banner__image image" style="background-image:url({{ asset($image) }})">
         <img src="{{ asset('img/ui/banner-'.$height.'-holder.png') }}" class="image__placeholder"/>
       </figure>
     @endforeach
