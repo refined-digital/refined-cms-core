@@ -61,6 +61,7 @@ class Pages {
         $head = [];
         $head[] = '<meta charset="utf-8">';
         $head[] = '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">';
+        $head[] = '<meta name="csrf-token" content="'.csrf_token().'">';
         $head[] = '<base href="'.$this->getBaseHref().'"/>';
 
         return $head;

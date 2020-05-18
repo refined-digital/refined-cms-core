@@ -1563,6 +1563,16 @@ textarea.form__control {
   border-color: #f44336;
 }
 
+.data-table__repeatable--conditions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.data-table__repeatable--conditions .data-table__cell--repeatable + .data-table__cell--repeatable {
+  margin-top: 0;
+}
+
 .paging {
   margin-top: 40px;
   text-align: right;

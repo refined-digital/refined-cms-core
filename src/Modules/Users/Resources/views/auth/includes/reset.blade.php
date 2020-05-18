@@ -1,5 +1,3 @@
-<h3 class="login__header">Reset your password</h3>
-
 <div class="form">
   {!! html()->form('POST', route('password.request'))->open() !!}
     {!! html()->hidden('token', $token) !!}

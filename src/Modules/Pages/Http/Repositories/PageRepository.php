@@ -547,6 +547,7 @@ class PageRepository extends CoreRepository
         $page = new \stdClass();
         $page->type = $type;
         $page->url = $baseHref.request()->path();
+        $page->name = $type;
 
         $classes = [];
         $classes[] = 'page__id--'.str_slug($type);

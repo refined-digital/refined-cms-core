@@ -192,5 +192,21 @@
         }
       }
     }
+
+    &--conditions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+
+
+      .data-table__cell--repeatable {
+
+        & + .data-table__cell--repeatable {
+          margin-top: 0;
+        }
+
+      }
+
+    }
   }
 }

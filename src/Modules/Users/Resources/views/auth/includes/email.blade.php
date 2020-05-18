@@ -1,5 +1,3 @@
-<h3 class="login__header">Forgotten Password</h3>
-
 <div class="form">
   {!! html()->form('POST', route('password.email'))->open() !!}
     <div class="form__row form__row--floating-labels{{ $errors->has('email') ? ' form__row--has-error' : '' }}">
