@@ -196,11 +196,11 @@ class Help {
         return $array;
     }
 
-    public function getYoutubeEmbedLink($shareLink)
+    public function getYoutubeEmbedLink($shareLink, $autoplay = true)
     {
         $videoBits = explode('/', $shareLink);
         $videoKey = $videoBits[sizeof($videoBits)-1];
-        return '//www.youtube.com/embed/'.$videoKey.'?rel=0&showinfo=0&autoplay=1';
+        return '//www.youtube.com/embed/'.$videoKey.'?rel=0&showinfo=0&autoplay='.$autoplay;
     }
 
     public function getDaysOfWeek()
@@ -215,4 +215,70 @@ class Help {
             '7' => 'Sunday',
         ];
     }
+
+    public function formatOEmbed($content)
+    {
+        preg_match_all('#<figure class="media">(.*?)</figure>#', $content, $matches);
+        if (sizeof($matches) && sizeof($matches[0])) {
+            foreach ($matches[0] as $key => $figure) {
+                $attrs = [
+                    'src' => '',
+                    'allowfullscreen' => true,
+                    'frameborder' => 0,
+                ];
+
+                $src = new \SimpleXMLElement($matches[1][$key]);
+                $link = $src['url'];
+
+                if (is_numeric(strpos($link, 'youtub'))) {
+                    $link = $this->getYoutubeEmbedLink($link, false);
+                }
+                $attrs['src'] = $link;
+                $dimensions = $this->getDimensionsFromURL($link);
+                $attrs['width'] = $dimensions->width;
+                $attrs['height'] = $dimensions->height;
+
+
+                $newFigure = '<figure class="embed">';
+                    $newFigure .= '<iframe'.$this->attrsToString($attrs).'></iframe>';
+                $newFigure .= '</figure>';
+
+                $content = str_replace($figure, $newFigure, $content);
+            }
+        }
+
+        return $content;
+    }
+
+    public function attrsToString($attrs)
+    {
+        $string = '';
+        foreach ($attrs as $key => $value) {
+            $string .= ' '.$key.'="'.$value.'"';
+        }
+
+        return $string;
+    }
+
+    public function getDimensionsFromURL($url)
+    {
+        $dimensions = new \stdClass();
+        $dimensions->width = 560;
+        $dimensions->height = 315;
+        $bits = explode('&', $url);
+        if (sizeof($bits)) {
+            foreach ($bits as $b) {
+                $d = explode('=', $b);
+                if ($d[0] === 'width') {
+                    $dimensions->width = $d[1];
+                }
+                if ($d[0] === 'height') {
+                    $dimensions->height = $d[1];
+                }
+            }
+        }
+
+        return $dimensions;
+    }
+
 }

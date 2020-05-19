@@ -41,7 +41,7 @@ class Page extends CoreModel implements Sortable
         if(isset($this->content) && sizeof($this->content)) {
             foreach($this->content as $content) {
                 if($content->source == $source) {
-                    return $content->content;
+                    return help()->formatOEmbed($content->content);
                 }
             }
         }
