@@ -100,33 +100,33 @@ trait EditFormFieldsTrait
                 $field['name'] = 'data__'.$field['name'];
                 if (isset($field['section'])) {
 
-                    $f = [
-                        'name' => $field['section']['name'] ?: 'Not Set',
-                        'fields' => $field,
-                    ];
-                    unset($f['fields']['section']);
-
-                    if (isset($field['insertBefore'])) {
-                        $f['insertBefore'] = $field['insertBefore'];
-                        unset($f['fields']['insertBefore']);
-                    }
-                    if (isset($field['insertAfter'])) {
-                        $f['insertAfter'] = $f['fields']['insertAfter'];
-                        unset($f['fields']['insertAfter']);
-                    }
-
                     if ($field['section']['type'] == 'tab') {
-                        $f['blocks'] = [[
-                            'name' => $f['name'],
-                            'fields' => [ [ $f['fields'] ] ] // first level is the block, second level is the row
-                        ]];
-                        unset($f['fields']);
-                        $tabs[] = $f;
-                    }
+                        $tabs[] = [
+                            'name' => $field['section']['name'],
+                            'fields' => $field['section']['fields']
+                        ];
+                    } else {
 
-                    if ($field['section']['type'] == 'section') {
-                        $f['fields'] = [[ $f['fields'] ]];
-                        $sections[] = $f;
+                        $f = [
+                            'name' => $field['section']['name'] ?: 'Not Set',
+                            'fields' => $field,
+                        ];
+                        unset($f['fields']['section']);
+
+                        if (isset($field['insertBefore'])) {
+                            $f['insertBefore'] = $field['insertBefore'];
+                            unset($f['fields']['insertBefore']);
+                        }
+                        if (isset($field['insertAfter'])) {
+                            $f['insertAfter'] = $f['fields']['insertAfter'];
+                            unset($f['fields']['insertAfter']);
+                        }
+
+                        if ($field['section']['type'] == 'section') {
+                            $f['fields'] = [[ $f['fields'] ]];
+                            $sections[] = $f;
+                        }
+
                     }
                 } else {
                     $extraFields[] = $field;
@@ -203,7 +203,7 @@ trait EditFormFieldsTrait
 
                     if (isset($type)) {
                         foreach ($dots as $path => $value) {
-                            if (preg_match($regex, $path) && strtolower($replace['insert'.$type]) == strtolower($value)) {
+                            if (isset($replace['insert'.$type]) && preg_match($regex, $path) && strtolower($replace['insert'.$type]) == strtolower($value)) {
                                 $bit = $path;
                                 break;
                             }

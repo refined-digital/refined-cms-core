@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+use RefinedDigital\CMS\Modules\Core\Traits\EditFormFieldsTrait;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
 use RefinedDigital\CMS\Modules\Users\Traits\UserLevel;
 
 class User extends Authenticatable implements Sortable
 {
-    use Notifiable, SortableTrait, SoftDeletes, UserLevel;
+    use Notifiable, SortableTrait, SoftDeletes, UserLevel, EditFormFieldsTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -75,10 +76,27 @@ class User extends Authenticatable implements Sortable
         ]
     ];
 
-
-    public function getFormFields()
+    public function __construct()
     {
-        return json_decode(json_encode($this->formFields));
+        $this->setFillable();
+    }
+
+    public function setFillable()
+    {
+        $fields = $this->fillable;
+        $config = config('users.extra_fields');
+        // todo: update this to dynamiclly pull in all fields
+        if ($config && isset($config[0]['section']['fields'])) {
+            foreach ($config[0]['section']['fields'] as $fieldGroup) {
+                foreach ($fieldGroup as $field) {
+                    if (!isset($field['count'])) {
+                        $fields[] = $field['name'];
+                    }
+                }
+            }
+        }
+
+        $this->fillable = $fields;
     }
 
     public function getNameAttribute()

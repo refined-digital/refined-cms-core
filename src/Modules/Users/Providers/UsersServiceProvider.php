@@ -19,6 +19,10 @@ class UsersServiceProvider extends ServiceProvider
             base_path().'/resources/views',
             __DIR__.'/../Resources/views',
         ]);
+
+        $this->publishes([
+            __DIR__.'/../../../../config/users.php' => config_path('users.php'),
+        ], 'users');
     }
 
     /**
