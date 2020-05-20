@@ -35,12 +35,18 @@ class UsersServiceProvider extends ServiceProvider
         app(RouteAggregate::class)
             ->addRouteFile('users', __DIR__.'/../Http/routes.php');
 
+        $children = [
+            (object) [ 'name' => 'Users', 'route' => 'users', 'activeFor' => ['users']],
+            (object) [ 'name' => 'Groups', 'route' => 'user-groups', 'activeFor' => ['user-groups']],
+        ];
+
         $menuConfig = [
             'order' => 999,
             'name' => 'Users',
             'icon' => 'fa fa-user',
             'route' => 'users',
-            'activeFor' => ['users']
+            'activeFor' => ['users', 'user-groups'],
+            'children' => $children
         ];
 
         app(ModuleAggregate::class)

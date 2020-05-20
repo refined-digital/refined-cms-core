@@ -21,7 +21,7 @@ class User extends Authenticatable implements Sortable
      * @var array
      */
     protected $fillable = [
-        'active', 'position', 'user_level_id', 'first_name', 'last_name', 'email', 'password',
+        'active', 'position', 'user_level_id', 'first_name', 'last_name', 'email', 'password', 'user_group_id'
     ];
 
     public $sortable = [
@@ -42,6 +42,10 @@ class User extends Authenticatable implements Sortable
         'name',
     ];
 
+    protected $with = [
+        'user_groups',
+    ];
+
 
     /**
      * The fields to be displayed for creating / editing
@@ -53,9 +57,9 @@ class User extends Authenticatable implements Sortable
             'name' => 'Profile',
             'fields' => [
                 [
-                    [ 'count' => 3 ],
                     [ 'label' => 'Active', 'name' => 'active', 'required' => true, 'type' => 'select', 'options' => [1 => 'Yes', 0 => 'No'] ],
                     [ 'label' => 'User Level', 'name' => 'user_level_id', 'required' => true, 'type' => 'userLevels', 'note' => 'User <strong>Admin</strong> for all administrators to edit website information<br/>Use <strong>Member</strong> for all users who login to the website' ],
+                    [ 'label' => 'User Group', 'name' => 'user_groups', 'required' => true, 'type' => 'userGroups'],
                 ],
                 [
                     [ 'label' => 'First Name', 'name' => 'first_name', 'required' => true ],
@@ -97,6 +101,11 @@ class User extends Authenticatable implements Sortable
         }
 
         $this->fillable = $fields;
+    }
+
+    public function user_groups()
+    {
+        return $this->belongsToMany(UserGroup::class);
     }
 
     public function getNameAttribute()

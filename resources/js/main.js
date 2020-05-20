@@ -76,6 +76,7 @@ window.app = new Vue({
       linkAttributes: {},
     	form: {
         action: 1,
+        typeId: 1,
         receipt: 0,
         reply: 0,
         field: {

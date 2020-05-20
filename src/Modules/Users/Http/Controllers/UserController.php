@@ -3,6 +3,7 @@
 namespace RefinedDigital\CMS\Modules\Users\Http\Controllers;
 
 use RefinedDigital\CMS\Modules\Core\Http\Controllers\CoreController;
+use RefinedDigital\CMS\Modules\Core\Http\Repositories\CoreRepository;
 use RefinedDigital\CMS\Modules\Users\Http\Repositories\UserRepository;
 use RefinedDigital\CMS\Modules\Users\Http\Requests\UserRequest;
 use RefinedDigital\CMS\Modules\Users\Models\User;
@@ -15,11 +16,20 @@ class UserController extends CoreController
     protected $heading = 'Users';
     protected $button = 'User';
 
+    protected $userRepository;
+
+    public function __construct(CoreRepository $coreRepository)
+    {
+        $this->userRepository = new UserRepository();
+        $this->userRepository->setModel($this->model);
+
+        parent::__construct($coreRepository);
+    }
+
     public function setup() {
 
         $table = new \stdClass();
         $table->fields = [
-            (object) [ 'name' => '#', 'field' => 'id', 'sortable' => true, 'classes' => ['data-table__cell--id']],
             (object) [ 'name' => 'First Name', 'field' => 'first_name', 'sortable' => true],
             (object) [ 'name' => 'Last Name', 'field' => 'last_name', 'sortable' => true],
             (object) [ 'name' => 'Email', 'field' => 'email', 'sortable' => true],
@@ -71,7 +81,12 @@ class UserController extends CoreController
      */
     public function store(UserRequest $request)
     {
-        return parent::storeRecord($request);
+        $item = $this->userRepository->store($request);
+
+        $this->userRepository->syncUserGroups($item->id, $request->get('user_groups'));
+        $route = $this->getReturnRoute($item->id, $request->get('action'));
+
+        return redirect($route)->with('status', 'Successfully created');
     }
 
     /**
@@ -83,7 +98,13 @@ class UserController extends CoreController
      */
     public function update(UserRequest $request, $id)
     {
-        return parent::updateRecord($request, $id);
+        $this->userRepository->update($id, $request);
+
+        $this->userRepository->syncUserGroups($id, $request->get('user_groups'));
+
+        $route = $this->getReturnRoute($id, $request->get('action'));
+
+        return redirect($route)->with('status', 'Successfully updated');
     }
 
 }

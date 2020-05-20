@@ -65,4 +65,19 @@ class LoginController extends Controller
 
         return $credentials;
     }
+
+    protected function sendLoginResponse(Request $request)
+    {
+        $request->session()->regenerate();
+
+        $this->clearLoginAttempts($request);
+
+        $redirect = $this->redirectPath();
+        if ($this->guard()->user()->user_level_id > 2 && config('auth.login_redirect')) {
+            $redirect = config('auth.login_redirect');
+        }
+
+        return $this->authenticated($request, $this->guard()->user())
+                ?: redirect()->intended($redirect);
+    }
 }

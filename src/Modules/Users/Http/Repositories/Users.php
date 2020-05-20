@@ -2,6 +2,7 @@
 
 namespace RefinedDigital\CMS\Modules\Users\Http\Repositories;
 
+use RefinedDigital\CMS\Modules\Users\Models\UserGroup;
 use RefinedDigital\CMS\Modules\Users\Models\UserLevel;
 
 class Users {
@@ -12,7 +13,7 @@ class Users {
 
         $levels = UserLevel::whereActive(1)->where('id', '>=', $loggedInUserLevel)->get();
         $data = [0 => 'Please Select'];
-        
+
         if ($levels && $levels->count()) {
             foreach ($levels as $level) {
                 if ($level->id >= $loggedInUserLevel) {
@@ -22,6 +23,26 @@ class Users {
         }
 
         return $data;
+    }
+
+    public function getUserGroupsForSelect()
+    {
+
+        $levels = UserGroup::whereActive(1)->orderBy('position')->get();
+        $data = [0 => 'Please Select'];
+
+        if ($levels && $levels->count()) {
+            foreach ($levels as $level) {
+                $data[$level->id] = $level->name;
+            }
+        }
+
+        return $data;
+    }
+
+    public function getUserGroups()
+    {
+        return UserGroup::whereActive(1)->orderBy('position')->get();
     }
 
     public function getLoggedInUser()

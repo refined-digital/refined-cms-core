@@ -47,6 +47,18 @@
 
 @section('scripts')
 <script>
-    window.app.tab = '{{ str_slug($data->getFormFields()[0]->name) }}'
+    window.app.tab = '{{ str_slug($data->getFormFields()[0]->name) }}';
+  @if (isset($data->type_id) || old('type_id'))
+    @php
+      $typeId = 1;
+      if (isset($data->type_id)) {
+          $typeId = $data->type_id;
+      }
+      if (old('type_id')) {
+          $typeId = old('type_id');
+      }
+    @endphp
+    window.app.form.typeId = {{ $typeId }};
+  @endif
 </script>
 @append
