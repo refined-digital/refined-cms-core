@@ -21,7 +21,7 @@ class User extends Authenticatable implements Sortable
      * @var array
      */
     protected $fillable = [
-        'active', 'position', 'user_level_id', 'first_name', 'last_name', 'email', 'password', 'user_group_id'
+        'active', 'position', 'user_level_id', 'first_name', 'last_name', 'email', 'password',
     ];
 
     public $sortable = [
@@ -43,7 +43,7 @@ class User extends Authenticatable implements Sortable
     ];
 
     protected $with = [
-        'user_groups',
+        'groups',
     ];
 
 
@@ -59,7 +59,7 @@ class User extends Authenticatable implements Sortable
                 [
                     [ 'label' => 'Active', 'name' => 'active', 'required' => true, 'type' => 'select', 'options' => [1 => 'Yes', 0 => 'No'] ],
                     [ 'label' => 'User Level', 'name' => 'user_level_id', 'required' => true, 'type' => 'userLevels', 'note' => 'User <strong>Admin</strong> for all administrators to edit website information<br/>Use <strong>Member</strong> for all users who login to the website' ],
-                    [ 'label' => 'User Group', 'name' => 'user_groups', 'required' => true, 'type' => 'userGroups'],
+                    [ 'label' => 'User Group', 'name' => 'groups', 'required' => true, 'type' => 'userGroups'],
                 ],
                 [
                     [ 'label' => 'First Name', 'name' => 'first_name', 'required' => true ],
@@ -103,7 +103,7 @@ class User extends Authenticatable implements Sortable
         $this->fillable = $fields;
     }
 
-    public function user_groups()
+    public function groups()
     {
         return $this->belongsToMany(UserGroup::class);
     }

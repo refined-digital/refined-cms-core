@@ -1,16 +1,16 @@
 <?php
   $value = '';
 
-  if (isset($data->user_groups) && $data->user_groups->count()) {
+  if (isset($data->groups) && $data->groups->count()) {
       $v = [];
-      foreach ($data->user_groups as $group) {
+      foreach ($data->groups as $group) {
           $v[] = $group->id;
       }
       $value = join(',', $v);
   }
 
-  if(old('user_groups')) {
-      $value = old('user_groups');
+  if(old('groups')) {
+      $value = old('groups');
   }
 
   $dataSet = users()->getUserGroups();

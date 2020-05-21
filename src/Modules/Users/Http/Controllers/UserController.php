@@ -83,7 +83,7 @@ class UserController extends CoreController
     {
         $item = $this->userRepository->store($request);
 
-        $this->userRepository->syncUserGroups($item->id, $request->get('user_groups'));
+        $this->userRepository->syncUserGroups($item->id, $request->get('groups'));
         $route = $this->getReturnRoute($item->id, $request->get('action'));
 
         return redirect($route)->with('status', 'Successfully created');
@@ -100,7 +100,7 @@ class UserController extends CoreController
     {
         $this->userRepository->update($id, $request);
 
-        $this->userRepository->syncUserGroups($id, $request->get('user_groups'));
+        $this->userRepository->syncUserGroups($id, $request->get('groups'));
 
         $route = $this->getReturnRoute($id, $request->get('action'));
 
