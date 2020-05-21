@@ -43,11 +43,9 @@ class EmailRepository extends CoreRepository {
         ;
     }
 
-    public function generateHtml($request, $form, $fullWidth = false)
+    private function generateFieldHtml($data, $fullWidth = false)
     {
         $fields = '';
-        $data = $this->formatFields($request, $form);
-
         // add the field data, if any
         if (sizeof($data)) {
             $fields = $this->tableOpen;
@@ -64,6 +62,30 @@ class EmailRepository extends CoreRepository {
         }
 
         return $fields;
+    }
+
+    public function generateHtml($request, $form, $fullWidth = false)
+    {
+        $data = $this->formatFields($request, $form);
+        return $this->generateFieldHtml($data, $fullWidth);
+    }
+
+    public function generateHtmlViaRequest($request, $form, $fullWidth = false)
+    {
+        $data = [];
+        if ($form->fields->count()) {
+            foreach ($form->fields as $field) {
+                if (isset($request[$field->field_name])) {
+                    $val = $this->formatField($request, $field);
+                    $value = new \stdClass();
+                    $value->name = $field->name;
+                    $value->value = $val;
+                    $data[] = $value;
+                }
+            }
+        }
+
+        return $this->generateFieldHtml($data, $fullWidth);
 
     }
 

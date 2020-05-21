@@ -260,6 +260,8 @@
 
       eventBus.$on('selecting-file', data => {
         if (window.app.media.model === this.editorId) {
+          console.log(this);
+          console.log(data);
           const type = this.modalType === 'Image' ? 'image' : 'link';
 
           if (type === 'image') {
@@ -480,12 +482,11 @@
         this.sitemap.element = element;
       },
 
-      loadMediaModal(element, type = '*') {
+      loadMediaModal(type = '*') {
         eventBus.$emit('media-set-type', type);
         eventBus.$emit('media-reload');
         window.app.media.showModal = true;
         window.app.media.model = this.editorId;
-        this.media.element = element;
 
         this.modalType = type;
       },

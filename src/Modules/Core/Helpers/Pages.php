@@ -124,4 +124,9 @@ class Pages {
     {
         return Page::find($pageId);
     }
+
+    public function getPageLink($pageId)
+    {
+        return Page::find($pageId)->meta->uri;
+    }
 }
