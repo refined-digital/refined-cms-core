@@ -23,20 +23,20 @@ class PaymentGateway {
     public function formatAddress($fields)
     {
         $address = [];
-        if ($fields->Address) {
-            $address[] = $fields->Address;
+        if ($fields['Address']) {
+            $address[] = $fields['Address'];
         }
-        if ($fields->{'Address 2'}) {
-            $address[] = $fields->{'Address 2'};
+        if ($fields['Address 2']) {
+            $address[] = $fields['Address 2'];
         }
-        if ($fields->Suburb) {
-            $address[] = $fields->Suburb;
+        if ($fields['Suburb']) {
+            $address[] = $fields['Suburb'];
         }
-        if ($fields->State) {
-            $address[] = $fields->State;
+        if ($fields['State']) {
+            $address[] = $fields['State'];
         }
-        if ($fields->Postcode) {
-            $address[] = $fields->Postcode;
+        if ($fields['Postcode']) {
+            $address[] = $fields['Postcode'];
         }
 
         return $address;
