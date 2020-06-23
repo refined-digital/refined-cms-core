@@ -36,30 +36,4 @@ class Page extends CoreModel implements Sortable
                 ->select('id', 'name', 'page_id', 'page_content_type_id', 'note', 'source', 'content', 'position');
     }
 
-    public function getContentBySource($source)
-    {
-        if(isset($this->content) && sizeof($this->content)) {
-            foreach($this->content as $content) {
-                if($content->source == $source) {
-                    return help()->formatOEmbed($content->content);
-                }
-            }
-        }
-    }
-
-    public function getBannerImageAttribute()
-    {
-        if (is_numeric($this->attributes['banner'])) {
-            $image = image()
-                        ->load($this->attributes['banner'])
-                        ->width(config('pages.banner.internal.width'))
-                        ->height(config('pages.banner.internal.height'))
-                        ->fill()
-                        ->save();
-            return $image;
-        }
-
-        return null;
-    }
-
 }
