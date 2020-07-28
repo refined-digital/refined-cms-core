@@ -1,13 +1,12 @@
 <template>
   <div class="form__control--link">
-    <input type="text" class="form__control" v-model="link" :name="name" :id="id">
+    <input type="text" class="form__control" v-model="link" :name="name" :id="id" @input="updateLinkModel()">
     <a href="" @click.prevent.stop="loadModal" class="button button--green button--small">Browse</a>
   </div>
 
 </template>
 
 <script>
-
     export default {
 
         props: ['name', 'id', 'value'],
@@ -38,9 +37,13 @@
           updateLink(data) {
             if (this.$root.sitemap.model == this._uid) {
               this.link = data;
-              this.$emit('input', this.link);
+              this.updateLinkModel();
               eventBus.$emit('sitemap-close');
             }
+          },
+
+          updateLinkModel() {
+            this.$emit('input', this.link);
           },
 
           loadLink() {
