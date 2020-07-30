@@ -1,5 +1,9 @@
 @include('core::includes.header')
-        <div id="app" class="app__holder" :class="{ 'app--has-media' : media.active, 'app--has-media' : media.showModal, 'app--has-sitemap' : sitemap.active }">
+@php
+  $bits = explode('.', Route::currentRouteName());
+  $module = $bits[1];
+@endphp
+        <div id="app" class="app__holder app__module--{{ $module }}" :class="{ 'app--has-media' : media.active, 'app--has-media' : media.showModal, 'app--has-sitemap' : sitemap.active }">
 
             <div class="loader" v-show="loading"><div class="spinner"></div></div>
 

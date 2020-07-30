@@ -3,9 +3,7 @@
 @section('title', $heading)
 
 @section('template')
-
 <div class="app__content">
-
 
     <div class="form">
         {!!
