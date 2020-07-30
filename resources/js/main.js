@@ -4,6 +4,8 @@ window.dragula = require('dragula');
 window.swal = require('sweetalert');
 require('./directives/_directives');
 
+import kebabCase from 'lodash.kebabcase';
+
 import DateTimePicker from './components/DateTimePicker';
 import DatePicker from './components/DatePicker';
 import RichText from './components/RichText';
@@ -127,10 +129,5 @@ window.app = new Vue({
 });
 
 window.slugify = function (text) {
-  return text.toString().toLowerCase()
-    .replace(/\s+/g, '-')           // Replace spaces with -
-    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
-    .replace(/\-\-+/g, '-')         // Replace multiple - with single -
-    .replace(/^-+/, '')             // Trim - from start of text
-    .replace(/-+$/, '');            // Trim - from end of text
+  return kebabCase(text);
 };

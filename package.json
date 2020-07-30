@@ -1,13 +1,17 @@
 {
   "name": "refinedcms",
-  "version": "1.0.0",
+  "version": "1.5.4",
   "scripts": {
     "dev": "npm run development",
     "development": "NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
     "watch": "npm run development -- --watch",
     "hot": "NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
     "prod": "npm run production",
-    "production": "NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+    "production": "NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "publish-and-tag": "git push --tags && git push origin master",
+    "publish-patch": "npm version patch && npm run publish-and-tag",
+    "publish-minor": "npm version minor && npm run publish-and-tag",
+    "publish-marjor": "npm version major && npm run publish-and-tag"
   },
   "repository": {
     "type": "git",
@@ -50,6 +54,7 @@
     "javascript-natural-sort": "^0.7.1",
     "jquery": "^3.4.1",
     "jquery-ui": "^1.12.1",
+    "lodash.kebabcase": "^4.1.1",
     "moment": "^2.24.0",
     "node-sass": "^4.13.0",
     "postcss-loader": "^3.0.0",
