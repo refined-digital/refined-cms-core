@@ -69,7 +69,7 @@ class SettingRepository extends CoreRepository
                 $type = isset($types[$item->value->page_content_type_id]) ? $types[$item->value->page_content_type_id] : null;
                 $key = str_slug($item->name, '_');
 
-                if (($item->value->page_content_type_id == 4 || $item->value->page_content_type_id == 5) && !in_array($item->value->content, $media)){
+                if (($item->value->page_content_type_id == 4 || $item->value->page_content_type_id == 5)){
                     $media[] = $item->value->content;
                     $mediaKeys[] = $key;
                 }
@@ -91,13 +91,17 @@ class SettingRepository extends CoreRepository
             $mediaRepo = new MediaRepository();
             $mediaFiles = $mediaRepo->getByIds($media);
             if ($mediaFiles && $mediaFiles->count()) {
+                $mediaFileLookup = [];
+
                 foreach ($mediaFiles as $file) {
-                    $settingKeyIndex = array_search($file->id, $media);
-                    if (isset($mediaKeys[$settingKeyIndex]) && $data[$mediaKeys[$settingKeyIndex]]) {
-                        $settingIndex = $mediaKeys[$settingKeyIndex];
-                        $data[$settingIndex]->true_value = $data[$settingIndex]->value;
-                        $data[$settingIndex]->value = (object) $file->toArray();
-                    }
+                    $mediaFileLookup[$file->id] = (object) $file->toArray();
+                }
+
+                foreach ($mediaKeys as $index => $mediaKey) {
+                  if (isset($media[$index]) && $data[$mediaKey]) {
+                      $data[$mediaKey]->true_value = $data[$mediaKey]->value;
+                      $data[$mediaKey]->value = $mediaFileLookup[$media[$index]];
+                  }
                 }
             }
         }
