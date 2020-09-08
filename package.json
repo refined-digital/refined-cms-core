@@ -9,9 +9,9 @@
     "prod": "npm run production",
     "production": "NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
     "publish-and-tag": "git push --tags && git push origin master",
-    "publish-patch": "npm version patch && npm run publish-and-tag",
-    "publish-minor": "npm version minor && npm run publish-and-tag",
-    "publish-marjor": "npm version major && npm run publish-and-tag"
+    "version:patch": "npm version patch && npm run publish-and-tag",
+    "version:minor": "npm version minor && npm run publish-and-tag",
+    "version:marjor": "npm version major && npm run publish-and-tag"
   },
   "repository": {
     "type": "git",
