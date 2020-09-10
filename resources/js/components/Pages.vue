@@ -42,7 +42,7 @@
       <div class="pages__tabs">
         <nav>
           <ul>
-            <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == item.tab) }" v-for="item in defaultTabs" @click="switchTab(item.tab)">{{ item.name }}</li>
+            <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == item.tab) }" v-for="item in defaultTabs" v-if="showDefaultTab(item)" @click="switchTab(item.tab)">{{ item.name }}</li>
             <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == item.tab) }" v-for="item in tabs" v-if="showTab(item)" @click="switchTab(item.tab)">{{ item.name }}</li>
             <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == 'meta') }" @click="switchTab('meta')">Meta</li>
           </ul>
@@ -387,6 +387,21 @@
       // switch tab
       switchTab(tab) {
         this.tab = tab;
+      },
+
+      showDefaultTab(tab) {
+        if (this.$root.user.user_level_id < 2) {
+          return true;
+        }
+
+        
+        let show = true;
+
+        if (tab.name === 'Content' && this.page.content && this.page.content.length < 1) {
+          show = false;
+        }
+
+        return show;
       },
 
       showTab(tab) {
