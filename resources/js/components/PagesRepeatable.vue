@@ -21,9 +21,6 @@
                 >
                   <label class="form__label" v-if="!cell.hide_label">{{ cell.name }}</label>
                   <rd-content-editor-field :item="row[cell.field]"></rd-content-editor-field>
-                  <template v-if="cell.type === 'repeatable'">
-                    <rd-pages-repeatable :item="cell" :page="page"></rd-pages-repeatable>
-                  </template>
                 </div>
               </div>
             </td>

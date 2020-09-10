@@ -1,5 +1,4 @@
 <template>
-
     <div class="form__horz-group">
       <template v-if="item.page_content_type_id === 1">
         <rd-rich-text :name="item.name" :id="'form--content-'+item.id" v-model="item.content" :content="item.content" :key="item.key"></rd-rich-text>
@@ -35,7 +34,11 @@
         <input type="number" v-model="item.content" inputmode="decimal" required="required" class="form__control">
       </template>
 
-      <div class="form__note" v-if="item.note" v-html="item.note"></div>
+      <template v-if="item.page_content_type_id === 9">
+        <rd-images v-model="item.content" :name="item.name" :content="item.content" :note="item.note"></rd-images>
+      </template>
+
+      <div class="form__note" v-if="item.note && item.page_content_type_id !== 9" v-html="item.note"></div>
     </div>
 
 </template>

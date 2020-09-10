@@ -394,7 +394,7 @@
           return true;
         }
 
-        
+
         let show = true;
 
         if (tab.name === 'Content' && this.page.content && this.page.content.length < 1) {
@@ -1191,7 +1191,7 @@
             let note = this.getRepeatableFieldNote(field);
             let d = {
               page_content_type_id: field.page_content_type_id,
-              content: '',
+              content: field.page_content_type_id === 9 ? [] : '',
               key: this.getRepeatableFieldIndex(field, index),
               note
             };
@@ -1284,7 +1284,7 @@
                     }
                     if (!set) {
                       let d = {
-                        content: '',
+                        content: field.page_content_type_id === 9 ? [] : '',
                         page_content_type_id: field.page_content_type_id,
                         note: field.note || '',
                         key: this.getRepeatableFieldIndex(field, index),
