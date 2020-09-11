@@ -3,8 +3,8 @@
 namespace RefinedDigital\CMS\Modules\Tags\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use RefinedDigital\CMS\Modules\Aggregates\Models\ModuleAggregate;
-use RefinedDigital\CMS\Modules\Aggregates\Models\RouteAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\ModuleAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\RouteAggregate;
 
 class TagServiceProvider extends ServiceProvider
 {

@@ -243,7 +243,11 @@
         <div class="pages__tab-pane" v-show="tab == item.tab" v-if="!item.default" v-for="item in tabs">
             <h3>{{ item.name }}</h3>
             <template v-if="item.type === 'repeatable'">
-              <rd-pages-repeatable :item="item" :page="page"></rd-pages-repeatable>
+              <rd-pages-repeatable
+                :item="item"
+                :data="page.data[item.tab]"
+                :fields="item.fields"
+              ></rd-pages-repeatable>
             </template>
 
             <template v-if="item.type === 'fields'">
@@ -277,6 +281,8 @@
   import _ from 'lodash';
 
   export default {
+
+    name: 'Pages',
 
     props: [ 'siteUrl', 'config', 'modules' ],
 
@@ -369,7 +375,11 @@
           { tab: 'content', name: 'Content' },
         ],
 
-        tabs: []
+        tabs: [],
+
+        pageContentAsArray: [
+          9
+        ]
       }
     },
 
@@ -460,7 +470,6 @@
         } else {
           this.resetPageData();
         }
-
 
         // if the page has children, auto show the child menu
         if (item.children.length) {
@@ -1179,19 +1188,16 @@
         }
       },
 
-      addRepeatable(tab) {
-        if (typeof this.page.data[tab.tab] === 'undefined') {
-          Vue.set(this.page.data, tab.tab, []); // updates the reactivity, allows for correct looping
-        }
+      addRepeatable(data, fields) {
 
         let row = {};
-        if (tab.fields.length) {
-          tab.fields.forEach((field, index) => {
+        if (fields.length) {
+          fields.forEach((field, index) => {
 
             let note = this.getRepeatableFieldNote(field);
             let d = {
               page_content_type_id: field.page_content_type_id,
-              content: field.page_content_type_id === 9 ? [] : '',
+              content: this.pageContentAsArray.includes(field.page_content_type_id) ? [] : '',
               key: this.getRepeatableFieldIndex(field, index),
               note
             };
@@ -1203,11 +1209,11 @@
           });
         }
 
-        this.page.data[tab.tab].push(row)
+        data.push(row)
       },
 
-      removeRepeatable(tab, index) {
-        if (typeof this.page.data[tab.tab] !== 'undefined') {
+      removeRepeatable(data, index) {
+        if (typeof data !== 'undefined') {
           swal({
             title: 'Are you sure?',
             icon: 'warning',
@@ -1216,7 +1222,7 @@
           })
           .then((value) => {
             if (value) {
-              this.page.data[tab.tab].splice(index, 1);
+              data.splice(index, 1);
             }
           });
         }
@@ -1284,7 +1290,7 @@
                     }
                     if (!set) {
                       let d = {
-                        content: field.page_content_type_id === 9 ? [] : '',
+                        content: this.pageContentAsArray.includes(field.page_content_type_id) ? [] : '',
                         page_content_type_id: field.page_content_type_id,
                         note: field.note || '',
                         key: this.getRepeatableFieldIndex(field, index),
@@ -1299,6 +1305,8 @@
                   Vue.set(this.page.data[tab.tab], index, newData)
                 }
               });
+            } else {
+              Vue.set(this.page.data, tab.tab, [])
             }
           }
           if (tab.type === 'fields') {
@@ -1326,6 +1334,8 @@
 
             // add the fields to the page data
             Vue.set(this.page.data, tab.tab, fields);
+          } else {
+            Vue.set(this.page.data, tab.tab, []);
           }
         });
       },

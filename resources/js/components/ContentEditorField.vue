@@ -35,7 +35,11 @@
       </template>
 
       <template v-if="item.page_content_type_id === 9">
-        <rd-images v-model="item.content" :name="item.name" :content="item.content" :note="item.note"></rd-images>
+        <rd-pages-repeatable
+          :item="item"
+          :data="item.content"
+          :fields="options.fields"
+        ></rd-pages-repeatable>
       </template>
 
       <div class="form__note" v-if="item.note && item.page_content_type_id !== 9" v-html="item.note"></div>
@@ -47,7 +51,7 @@
 
   export default {
 
-    props: [ 'item' ],
+    props: [ 'item', 'options' ],
 
     methods: {
       selectChanged(item) {

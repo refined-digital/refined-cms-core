@@ -24,7 +24,7 @@ class PageContentTypesSeeder extends Seeder
             'Select',
             'Link',
             'Number',
-            'Images',
+            'Repeatable',
         ];
 
         foreach ($levels as $pos => $level) {
