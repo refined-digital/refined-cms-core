@@ -39,6 +39,7 @@
           :item="item"
           :data="item.content"
           :fields="options.fields"
+          :key="item.key"
         ></rd-pages-repeatable>
       </template>
 
