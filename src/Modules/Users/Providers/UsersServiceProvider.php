@@ -3,8 +3,8 @@
 namespace RefinedDigital\CMS\Modules\Users\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use RefinedDigital\CMS\Modules\Core\Models\ModuleAggregate;
-use RefinedDigital\CMS\Modules\Core\Models\RouteAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\ModuleAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\RouteAggregate;
 
 class UsersServiceProvider extends ServiceProvider
 {

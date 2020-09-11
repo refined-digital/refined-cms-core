@@ -3,7 +3,7 @@
 namespace RefinedDigital\CMS\Modules\Core\Helpers;
 
 use Illuminate\Http\Response;
-use RefinedDigital\CMS\Modules\Core\Models\PageAggregate;
+use RefinedDigital\CMS\Modules\Pages\Aggregates\PageAggregate;
 use RefinedDigital\CMS\Modules\Pages\Models\Page;
 
 class Pages {

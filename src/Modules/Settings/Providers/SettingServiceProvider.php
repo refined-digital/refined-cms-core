@@ -3,7 +3,7 @@
 namespace RefinedDigital\CMS\Modules\Settings\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use RefinedDigital\CMS\Modules\Core\Models\RouteAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\RouteAggregate;
 
 class SettingServiceProvider extends ServiceProvider
 {

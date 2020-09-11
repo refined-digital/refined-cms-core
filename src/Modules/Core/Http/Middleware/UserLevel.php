@@ -4,7 +4,7 @@ namespace RefinedDigital\CMS\Modules\Core\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Auth;
-use RefinedDigital\CMS\Modules\Core\Models\ModuleAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\ModuleAggregate;
 
 class UserLevel
 {

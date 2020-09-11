@@ -3,8 +3,8 @@
 namespace RefinedDigital\CMS\Modules\Media\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use RefinedDigital\CMS\Modules\Core\Models\ModuleAggregate;
-use RefinedDigital\CMS\Modules\Core\Models\RouteAggregate;
+use RefinedDigital\CMS\Modules\Aggregates\Models\ModuleAggregate;
+use RefinedDigital\CMS\Modules\Aggregates\Models\RouteAggregate;
 
 class MediaServiceProvider extends ServiceProvider
 {

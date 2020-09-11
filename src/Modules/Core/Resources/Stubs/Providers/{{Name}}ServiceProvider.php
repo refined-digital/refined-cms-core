@@ -3,8 +3,8 @@
 namespace App\RefinedCMS\{{FullName}}\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use RefinedDigital\CMS\Modules\Core\Models\ModuleAggregate;
-use RefinedDigital\CMS\Modules\Core\Models\CustomModuleRouteAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\ModuleAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\CustomModuleRouteAggregate;
 
 class {{Name}}ServiceProvider extends ServiceProvider
 {

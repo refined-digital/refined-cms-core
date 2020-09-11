@@ -3,7 +3,7 @@
 namespace RefinedDigital\CMS\Modules\Core\Http\ViewComposers;
 
 use Illuminate\View\View;
-use RefinedDigital\CMS\Modules\Core\Models\ModuleAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\ModuleAggregate;
 
 class MenuComposer
 {

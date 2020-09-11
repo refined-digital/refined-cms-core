@@ -1,8 +1,8 @@
 <?php
 
-use RefinedDigital\CMS\Modules\Core\Models\RouteAggregate;
-use RefinedDigital\CMS\Modules\Core\Models\CustomModuleRouteAggregate;
-use RefinedDigital\CMS\Modules\Core\Models\PublicRouteAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\RouteAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\CustomModuleRouteAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\PublicRouteAggregate;
 
 // the login routes
 Route::middleware(['web'])

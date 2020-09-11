@@ -2,7 +2,7 @@
 
 namespace RefinedDigital\CMS\Modules\Core\Helpers;
 
-use RefinedDigital\CMS\Modules\Core\Models\PaymentGatewayAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\PaymentGatewayAggregate;
 
 class PaymentGatewayHelper {
 

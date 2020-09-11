@@ -1,8 +1,8 @@
 <?php
 
-namespace RefinedDigital\CMS\Modules\Core\Models;
+namespace RefinedDigital\CMS\Modules\Core\Aggregates;
 
-class CustomModuleRouteAggregate
+class RouteAggregate
 {
 
     protected $routeFiles = [];

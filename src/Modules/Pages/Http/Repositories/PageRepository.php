@@ -2,7 +2,7 @@
 
 namespace RefinedDigital\CMS\Modules\Pages\Http\Repositories;
 
-use RefinedDigital\CMS\Modules\Core\Models\PackageAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\PackageAggregate;
 use RefinedDigital\CMS\Modules\Core\Models\Uri;
 use RefinedDigital\CMS\Modules\Core\Http\Repositories\CoreRepository;
 use RefinedDigital\CMS\Modules\Pages\Models\Page;

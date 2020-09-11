@@ -1,6 +1,6 @@
 <?php
 
-namespace RefinedDigital\CMS\Modules\Core\Models;
+namespace RefinedDigital\CMS\Modules\Pages\Aggregates;
 
 class PageAggregate
 {

@@ -3,9 +3,9 @@
 namespace RefinedDigital\CMS\Modules\Pages\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use RefinedDigital\CMS\Modules\Core\Models\ModuleAggregate;
-use RefinedDigital\CMS\Modules\Core\Models\PageAggregate;
-use RefinedDigital\CMS\Modules\Core\Models\RouteAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\ModuleAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\RouteAggregate;
+use RefinedDigital\CMS\Modules\Pages\Aggregates\PageAggregate;
 
 class PageServiceProvider extends ServiceProvider
 {
