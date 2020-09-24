@@ -70,8 +70,8 @@ class SettingRepository extends CoreRepository
                 $key = str_slug($item->name, '_');
 
                 if (($item->value->page_content_type_id == 4 || $item->value->page_content_type_id == 5)){
-                    $media[] = $item->value->content;
-                    $mediaKeys[] = $key;
+                  $media[] = $item->value->content;
+                  $mediaKeys[] = $key;
                 }
 
                 $d = new \stdClass();
@@ -98,7 +98,7 @@ class SettingRepository extends CoreRepository
                 }
 
                 foreach ($mediaKeys as $index => $mediaKey) {
-                  if (isset($media[$index]) && $data[$mediaKey]) {
+                  if (isset($media[$index], $mediaFileLookup[$media[$index]]) && $data[$mediaKey]) {
                       $data[$mediaKey]->true_value = $data[$mediaKey]->value;
                       $data[$mediaKey]->value = $mediaFileLookup[$media[$index]];
                   }

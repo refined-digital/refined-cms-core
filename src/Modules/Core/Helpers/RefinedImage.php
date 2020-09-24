@@ -109,6 +109,7 @@ class RefinedImage {
 
     public function save($fileName = false)
     {
+      try {
         // only process if we do have a file
         if (isset($this->file->id) && $this->file->type == 'Image') {
             $fileName = $this->buildFileName($fileName);
@@ -151,7 +152,6 @@ class RefinedImage {
                 $image->save($this->directory.$fileName);
             }
 
-
             // return the image
             $dimensions = getimagesize($this->directory.$fileName);
 
@@ -185,6 +185,10 @@ class RefinedImage {
             return $img;
 
         }
+
+      } catch (\Exception $error) {
+        return $error->getMessage();
+      }
     }
 
     public function get()

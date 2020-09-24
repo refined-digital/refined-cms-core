@@ -41,17 +41,17 @@ class Media extends CoreModel implements Sortable {
     protected $table = 'media';
 
     public function getLinkAttribute() {
-        $publicDir = $this->getPublicDir( $this->id );
+        $publicDir = $this->getPublicDir($this->id);
         $thumb     = $this->file;
 
-        if ( $this->type == 'Image' ) {
+        if ($this->type == 'Image') {
             // generate the thumbnail
-            image()->load( $this )->width( 500 )->save();
+            image()->load($this)->width(500)->save();
         }
 
         $link           = new \stdClass();
-        $link->thumb    = asset( $publicDir . $thumb );
-        $link->original = asset( $publicDir . $this->file );
+        $link->thumb    = asset($publicDir . $thumb);
+        $link->original = asset($publicDir . $this->file);
         $link->basePath = pages()->getBaseHref();
 
         return $link;
@@ -59,8 +59,8 @@ class Media extends CoreModel implements Sortable {
 
     public function getTypeAttribute() {
         $extension = $this->extension;
-        $type      = is_numeric( strpos( $this->mime, 'image/' ) ) ? 'Image' : 'File';
-        if ( in_array( $extension, $this->videoTypes ) ) {
+        $type      = is_numeric(strpos($this->mime, 'image/')) ? 'Image' : 'File';
+        if (in_array($extension, $this->videoTypes)) {
             $type = 'Video';
         }
 
@@ -69,8 +69,11 @@ class Media extends CoreModel implements Sortable {
 
     public function getSizeAttribute() {
         $path = $this->getBasePath();
+        if (!file_exists($path)) {
+          return null;
+        }
 
-        return help()->formatBytes( File::size( $path ) );
+        return help()->formatBytes(File::size($path));
     }
 
     public function getExtensionAttribute() {
@@ -80,7 +83,7 @@ class Media extends CoreModel implements Sortable {
     private function getFileExtension() {
         $path = $this->getBasePath();
 
-        return pathinfo( $path, PATHINFO_EXTENSION );
+        return pathinfo($path, PATHINFO_EXTENSION);
     }
 
     private function getPublicDir() {
@@ -88,6 +91,6 @@ class Media extends CoreModel implements Sortable {
     }
 
     private function getBasePath() {
-        return storage_path( 'app/public/uploads/' . $this->id . '/' . $this->file );
+        return storage_path('app/public/uploads/' . $this->id . '/' . $this->file);
     }
 }
