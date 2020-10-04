@@ -64,11 +64,31 @@ class EmailRepository extends CoreRepository {
         return $fields;
     }
 
+    private function generateFieldText($data)
+    {
+        $fields = '';
+        // add the field data, if any
+        if (sizeof($data)) {
+            foreach ($data as $field) {
+                $fields .= $field->name.': '.$field->value.PHP_EOL;
+            }
+        }
+
+        return $fields;
+    }
+
     public function generateHtml($request, $form, $fullWidth = false)
     {
         $data = $this->formatFields($request, $form);
         return $this->generateFieldHtml($data, $fullWidth);
     }
+
+    public function generateText($request, $form)
+    {
+        $data = $this->formatFields($request, $form);
+        return $this->generateFieldText($data);
+    }
+
 
     public function generateHtmlViaRequest($request, $form, $fullWidth = false)
     {
@@ -106,6 +126,28 @@ class EmailRepository extends CoreRepository {
         $html = str_replace($search, $replace, $html);
 
         return $html;
+    }
+
+    public function makeText($request, $form, $type = 'message')
+    {
+        $text = '';
+        $fields = $this->generateText($request, $form);
+
+        // the form builder message
+        if (isset($form->{$type}) && $form->{$type}) {
+            $text = $form->{$type};
+        }
+
+        $text = strip_tags($text, '<p><br><br/><br />');
+
+        // replace the keys with the field data
+        $search = ['[[fields]]', '{{fields}}', '<p>', '</p>', '<br/>', '<br />', '<br>'];
+        $replace = [$fields, $fields, '', PHP_EOL.PHP_EOL, PHP_EOL, PHP_EOL, PHP_EOL];
+
+        $text = str_replace($search, $replace, $text);
+
+        return $text;
+
     }
 
 

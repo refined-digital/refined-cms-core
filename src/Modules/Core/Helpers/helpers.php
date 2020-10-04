@@ -1,5 +1,6 @@
 <?php
 
+use RefinedDigital\CMS\Modules\Core\Helpers\CoreHelper;
 use RefinedDigital\CMS\Modules\Core\Helpers\Help;
 use RefinedDigital\CMS\Modules\Core\Helpers\Menu;
 use RefinedDigital\CMS\Modules\Core\Helpers\Pages;
@@ -71,5 +72,12 @@ if (! function_exists('paymentGateways')) {
     function paymentGateways()
     {
         return app(PaymentGatewayHelper::class);
+    }
+}
+
+if (! function_exists('core')) {
+    function core()
+    {
+        return app(CoreHelper::class);
     }
 }
