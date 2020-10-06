@@ -39,12 +39,5 @@
 
   &__right {
     flex: 1;
-
-    .block .form__group--2 {
-      flex-wrap: wrap;
-      .form__row {
-        flex: 0 0 100%;
-      }
-    }
   }
 }
