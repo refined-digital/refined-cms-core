@@ -32,7 +32,7 @@ class Notification extends Mailable
      */
     public function build()
     {
-        if (isset($this->settings) && $this->settings->send_as_plain_text) {
+        if (isset($this->settings, $this->settings->send_as_plain_text) && $this->settings->send_as_plain_text) {
           $data = $this->text('core::emails.notification-plain-text');
         } else {
           $data = $this->markdown('core::emails.notification');
