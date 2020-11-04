@@ -7,6 +7,7 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Foundation\AliasLoader;
+use RefinedDigital\CMS\Commands\ConvertCpanel;
 use RefinedDigital\CMS\Commands\CreateModule;
 use RefinedDigital\CMS\Commands\InstallCMS;
 use RefinedDigital\CMS\Commands\InstallDatabase;
@@ -61,7 +62,8 @@ class CMSServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
-                CreateModule::class
+                CreateModule::class,
+                ConvertCpanel::class
             ]);
 
             if (env('APP_NAME') == 'Laravel') {
@@ -79,7 +81,7 @@ class CMSServiceProvider extends ServiceProvider
                 ]);
             }
 
-            if (!is_dir(public_path().'/vendor/refined/core')) {
+            if (!is_dir(public_path('vendor/refined/core'))) {
                 $this->commands([
                     InstallSymLink::class
                 ]);

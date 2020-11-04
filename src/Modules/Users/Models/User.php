@@ -7,13 +7,14 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 use RefinedDigital\CMS\Modules\Core\Traits\EditFormFieldsTrait;
+use RefinedDigital\CMS\Modules\Core\Traits\ExtraFillableFieldsTrait;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
 use RefinedDigital\CMS\Modules\Users\Traits\UserLevel;
 
 class User extends Authenticatable implements Sortable
 {
-    use Notifiable, SortableTrait, SoftDeletes, UserLevel, EditFormFieldsTrait;
+    use Notifiable, SortableTrait, SoftDeletes, UserLevel, EditFormFieldsTrait, ExtraFillableFieldsTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -23,6 +24,8 @@ class User extends Authenticatable implements Sortable
     protected $fillable = [
         'active', 'position', 'user_level_id', 'first_name', 'last_name', 'email', 'password',
     ];
+
+    protected $config = 'users';
 
     public $sortable = [
         'order_column_name' => 'position',
@@ -53,55 +56,36 @@ class User extends Authenticatable implements Sortable
      * @var array
      */
     private $formFields = [
-        [
+      [
+        'name' => 'User Details',
+        'blocks' => [
+          [
             'name' => 'Profile',
             'fields' => [
-                [
-                    [ 'label' => 'Active', 'name' => 'active', 'required' => true, 'type' => 'select', 'options' => [1 => 'Yes', 0 => 'No'] ],
-                    [ 'label' => 'User Level', 'name' => 'user_level_id', 'required' => true, 'type' => 'userLevels', 'note' => 'User <strong>Admin</strong> for all administrators to edit website information<br/>Use <strong>Member</strong> for all users who login to the website' ],
-                    [ 'label' => 'User Group', 'name' => 'groups', 'required' => true, 'type' => 'userGroups'],
-                ],
-                [
-                    [ 'label' => 'First Name', 'name' => 'first_name', 'required' => true ],
-                    [ 'label' => 'Last Name', 'name' => 'last_name', 'required' => true ],
-                    [ 'label' => 'Email', 'name' => 'email', 'type' => 'email', 'required' => true, 'note' => 'Used for login' ],
-                ]
-            ]
-        ],
-
-        [
+              [
+                [ 'label' => 'Active', 'name' => 'active', 'required' => true, 'type' => 'select', 'options' => [1 => 'Yes', 0 => 'No'] ],
+                [ 'label' => 'User Level', 'name' => 'user_level_id', 'required' => true, 'type' => 'userLevels', 'note' => 'User <strong>Admin</strong> for all administrators to edit website information<br/>Use <strong>Member</strong> for all users who login to the website' ],
+                [ 'label' => 'User Group', 'name' => 'groups', 'type' => 'userGroups'],
+              ],
+              [
+                [ 'label' => 'First Name', 'name' => 'first_name', 'required' => true ],
+                [ 'label' => 'Last Name', 'name' => 'last_name', 'required' => true ],
+                [ 'label' => 'Email', 'name' => 'email', 'type' => 'email', 'required' => true, 'note' => 'Used for login' ],
+              ]
+            ],
+          ],
+          [
             'name' => 'Password',
             'fields' => [
-                [
-                    [ 'label' => 'Password', 'name' => 'password', 'type' => 'password', 'required' => true ],
-                    [ 'label' => 'Confirm Password', 'name' => 'password_confirmation', 'type' => 'password', 'required' => true ],
-                ]
+              [
+                [ 'label' => 'Password', 'name' => 'password', 'type' => 'password', 'required' => true ],
+                [ 'label' => 'Confirm Password', 'name' => 'password_confirmation', 'type' => 'password', 'required' => true ],
+              ]
             ]
+          ]
         ]
+      ]
     ];
-
-    public function __construct()
-    {
-        $this->setFillable();
-    }
-
-    public function setFillable()
-    {
-        $fields = $this->fillable;
-        $config = config('users.extra_fields');
-        // todo: update this to dynamiclly pull in all fields
-        if ($config && isset($config[0]['section']['fields'])) {
-            foreach ($config[0]['section']['fields'] as $fieldGroup) {
-                foreach ($fieldGroup as $field) {
-                    if (!isset($field['count'])) {
-                        $fields[] = $field['name'];
-                    }
-                }
-            }
-        }
-
-        $this->fillable = $fields;
-    }
 
     public function groups()
     {

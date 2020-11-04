@@ -100,8 +100,8 @@ class CoreRepository {
     }
 
     public function store($request, $extra = [])
-	{
-		$model = $this->model;
+	  {
+		    $model = $this->model;
 
         if(is_array($request)) {
             $data = $request;
@@ -239,5 +239,11 @@ class CoreRepository {
         }
 
         return $data;
+    }
+
+
+    public function count()
+    {
+        return $this->model::count();
     }
 }

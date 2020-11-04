@@ -27,14 +27,15 @@ class UserRequest extends FormRequest
         $args = [
             'first_name'                => ['required' => 'required'],
             'last_name'                 => ['required' => 'required'],
+            'user_level_id'             => ['required' => 'required', 'not0' => 'not0'],
             'email'                     => ['required' => 'required', 'email'       => 'email',     'unique'    => 'unique:users,email'],
             'password'                  => ['required' => 'required', 'confirmed'   => 'confirmed', 'min'       => 'min:5'],
             'password_confirmation'     => ['required' => 'required', 'min'         => 'min:5'],
         ];
 
-        // add the id signinfier to stop the record from over riding the current record
+        // add the id signifier to stop the record from over riding the current record
         if ($this->method() == 'PUT' || $this->method() == 'PATCH') {
-			$args['email']['unique'] .= ','.$this->route('user');
+			    $args['email']['unique'] .= ','.$this->route('user');
 
             // if the password field is empty, then we don't need to validate
             if (!$this->get('password')) {
@@ -45,5 +46,17 @@ class UserRequest extends FormRequest
 
         // return the results to set for validation
         return $args;
+    }
+
+    /**
+     * Get the validation messages that apply to the request.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'user_level_id.not0'           => 'The user level field is required.',
+        ];
     }
 }

@@ -33,6 +33,7 @@ class UserRepository extends CoreRepository
 
         // now add the new groups
         $groupIds = explode(',', $userGroups);
+        $groupIds = array_filter($groupIds);
         if (sizeof($groupIds)) {
             foreach ($groupIds as $groupId) {
                 \DB::table('user_user_group')

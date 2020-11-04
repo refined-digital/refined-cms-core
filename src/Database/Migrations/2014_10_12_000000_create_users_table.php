@@ -17,7 +17,7 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->timestamps();
             $table->softDeletes();
-            $table->boolean('active');
+            $table->boolean('active')->default(1);
             $table->integer('position');
             $table->integer('user_level_id')->unsigned();
             $table->integer('user_group_id')->unsigned()->nullable();

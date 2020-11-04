@@ -310,7 +310,7 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
 
     protected function createSymLink()
     {
-        $link = getcwd().'/public/vendor/';
+        $link = public_path('vendor/');
         $target = '../../../vendor/refineddigital/cms/assets/';
 
         // create the directories
@@ -334,7 +334,16 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
 
     protected function linkStorage()
     {
-        Artisan::call('storage:link');
+        $link = public_path('storage');
+        $target = '../storage/app/public/';
+
+        if (! windows_os()) {
+            return symlink($target, $link);
+        }
+
+        $mode = is_dir($target) ? 'J' : 'H';
+
+        exec("mklink /{$mode} \"{$link}\" \"{$target}\"");
     }
 
     protected function regenerateKey()
