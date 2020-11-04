@@ -61,10 +61,18 @@ class CMSServiceProvider extends ServiceProvider
         ], 'public');
 
         if ($this->app->runningInConsole()) {
+
             $this->commands([
                 CreateModule::class,
-                ConvertCpanel::class
             ]);
+
+            $publicPathDir = explode('/', public_path());
+            $publicPath = $publicPathDir[sizeof($publicPathDir)-1];
+            if ($publicPath === 'public') {
+              $this->commands([
+                ConvertCpanel::class
+              ]);
+            }
 
             if (env('APP_NAME') == 'Laravel') {
                 $this->commands([
