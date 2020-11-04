@@ -82,6 +82,16 @@ www
   private function updateFiles()
   {
     $this->output->writeln('<info>Updating files</info>');
+
+    // webpack.mix
+    $contents = file_get_contents(base_path('webpack.mix.js'));
+    $search = ['public/', 'mix'];
+    $replace = ['public_html/', 'mix
+  .setPublicPath(\'public_html/\')'];
+    $contents = str_replace($search, $replace, $contents);
+    file_put_contents(base_path('webpack.mix.js'), $contents);
+
+
     // server
     $contents = file_get_contents(base_path('server.php'));
     $contents = str_replace('/public', '/public_html', $contents);

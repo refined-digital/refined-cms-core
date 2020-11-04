@@ -12,6 +12,7 @@ const mix = require('laravel-mix');
  */
 
 mix
+  .disableNotifications()
   .sass('resources/sass/main.scss', 'public/css/main.css')
     .options({
       processCssUrls: false
