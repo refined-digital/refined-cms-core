@@ -66,8 +66,8 @@ class CoreRepository {
     }
 
     public function update($id, $request, $extra = [])
-	{
-		$model = $this->model;
+	  {
+		    $model = $this->model;
         $item = $model::findOrFail($id);
 
         if(is_array($request)) {
