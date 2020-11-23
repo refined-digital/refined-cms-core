@@ -18,4 +18,10 @@ class PageHolder extends CoreModel
         'active', 'position', 'name',
     ];
 
+    protected $casts = [
+      'id' => 'integer',
+      'active' => 'integer',
+      'position' => 'integer',
+    ];
+
 }

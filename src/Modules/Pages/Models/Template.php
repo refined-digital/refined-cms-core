@@ -19,6 +19,13 @@ class Template extends CoreModel implements Sortable
         'active', 'position', 'has_forms', 'name', 'source',
     ];
 
+    protected $casts = [
+      'id' => 'integer',
+      'active' => 'integer',
+      'position' => 'integer',
+      'has_forms' => 'integer',
+    ];
+
     public $formFields = [
         [
             'name' => 'Content',

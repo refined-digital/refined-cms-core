@@ -25,6 +25,16 @@ class Page extends CoreModel implements Sortable
     protected $appends = [ 'banner_image' ];
 
     protected $casts = [
+        'id' => 'integer',
+        'active' => 'integer',
+        'position' => 'integer',
+        'page_holder_id' => 'integer',
+        'parent_id' => 'integer',
+        'hide_from_menu' => 'integer',
+        'protected' => 'integer',
+        'page_type' => 'integer',
+        'form_id' => 'integer',
+        'banner' => 'integer',
         'data' => 'object'
     ];
 

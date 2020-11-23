@@ -20,6 +20,13 @@ class MediaCategory extends CoreModel implements Sortable
         'active', 'position', 'parent_id', 'name'
     ];
 
+    protected $casts = [
+      'id' => 'integer',
+      'active' => 'integer',
+      'position' => 'integer',
+      'parent_id' => 'integer',
+    ];
+
 	/*public function files()
     {
         //return $this->hasMany('RefinedDigital\CMS\Modules\Medias\Model\Media')->orderby('position','asc');

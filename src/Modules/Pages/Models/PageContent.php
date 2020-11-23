@@ -18,6 +18,13 @@ class PageContent extends CoreModel
         'page_id', 'page_content_type_id', 'position', 'name', 'source', 'note', 'content',
     ];
 
+    protected $casts = [
+      'id' => 'integer',
+      'page_id' => 'integer',
+      'page_content_type_id' => 'integer',
+      'position' => 'integer',
+    ];
+
 
     public function type()
     {

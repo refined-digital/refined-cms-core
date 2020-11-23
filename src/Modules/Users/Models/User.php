@@ -25,6 +25,14 @@ class User extends Authenticatable implements Sortable
         'active', 'position', 'user_level_id', 'first_name', 'last_name', 'email', 'password',
     ];
 
+    protected $casts = [
+      'id' => 'integer',
+      'active' => 'integer',
+      'position' => 'integer',
+      'user_level_id' => 'integer',
+      'user_group_id' => 'integer',
+    ];
+
     protected $config = 'users';
 
     public $sortable = [

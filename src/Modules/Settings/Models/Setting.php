@@ -19,7 +19,10 @@ class Setting extends CoreModel
     ];
 
     protected $casts = [
-        'value' => 'object'
+        'id' => 'integer',
+        'position' => 'integer',
+        'required' => 'integer',
+        'value' => 'object',
     ];
 
 }

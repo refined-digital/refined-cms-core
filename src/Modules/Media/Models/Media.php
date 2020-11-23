@@ -34,6 +34,13 @@ class Media extends CoreModel implements Sortable {
         'size',
     ];
 
+    protected $casts = [
+      'id' => 'integer',
+      'active' => 'integer',
+      'position' => 'integer',
+      'media_category_id' => 'integer',
+    ];
+
     protected $videoTypes = [
         'mp4'
     ];

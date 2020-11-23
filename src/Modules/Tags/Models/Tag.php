@@ -22,6 +22,11 @@ class Tag extends CoreModel implements Sortable
         'position', 'name', 'type', 'image', 'content'
     ];
 
+    protected $casts = [
+      'id' => 'integer',
+      'position' => 'integer',
+    ];
+
 
     public $formFields = [
 

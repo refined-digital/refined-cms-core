@@ -22,6 +22,12 @@ class Uri extends Model
 
     protected $table = 'uri';
 
+    protected $casts = [
+      'id' => 'integer',
+      'template_id' => 'integer',
+      'uriable_id' => 'integer',
+    ];
+
     public function getSlugOptions() : SlugOptions
     {
         $slug = $this->name ? 'name' : 'title';
