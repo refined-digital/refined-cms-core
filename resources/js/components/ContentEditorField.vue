@@ -9,7 +9,14 @@
       </template>
 
       <template v-if="item.page_content_type_id === 3">
-        <input :type="item.fieldType || 'text'" :id="'form--content-'+item.id" v-model="item.content" required="required" class="form__control">
+        <input
+            :type="item.fieldType || 'text'"
+            :id="'form--content-'+item.id"
+            v-model="item.content"
+            required="required"
+            class="form__control"
+            :step="item.step || 'none'"
+        >
       </template>
 
       <template v-if="item.page_content_type_id === 4">
