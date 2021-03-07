@@ -6,7 +6,7 @@
         <thead>
           <tr>
             <th class="data-table__cell data-table__cell--sort">&nbsp;</th>
-            <th class="data-table__cell">Content</th>
+            <th class="data-table__cell">{{ item.repeatableName || 'Content' }}</th>
             <th class="data-table__cell data-table__cell--options-plus"><i class="fa fa-plus" @click="addRepeatable(item)"></i></th>
           </tr>
         </thead>
