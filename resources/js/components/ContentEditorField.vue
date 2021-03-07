@@ -15,7 +15,9 @@
             v-model="item.content"
             required="required"
             class="form__control"
-            :step="item.step || 'none'"
+            :step="item.step || 'any'"
+            :min="item.min || null"
+            :max="item.max || null"
         >
       </template>
 
