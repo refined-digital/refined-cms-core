@@ -5,6 +5,7 @@ namespace RefinedDigital\CMS\Modules\Core\Helpers;
 use Illuminate\Support\Traits\Macroable;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Http\Request;
+use Str;
 
 class Help {
     use Macroable;
@@ -143,7 +144,7 @@ class Help {
         if (is_numeric(strpos($phone, '+'))) {
             $plus = '+';
         }
-        return 'tel:'.$plus.str_slug(preg_replace('/\D/', '', $phone));
+        return 'tel:'.$plus.Str::slug(preg_replace('/\D/', '', $phone));
     }
 
     public function arrToAttr($attrs)

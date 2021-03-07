@@ -35,7 +35,7 @@ trait SortablePageTrait
      * @param array|\ArrayAccess $ids
      * @param int $startOrder
      */
-    public static function setNewOrder($ids, int $startOrder = 1)
+    public static function setNewOrder($ids, int $startOrder = 1, string $primaryKeyColumn = null)
     {
         $parentId = request()->get('parent');
 

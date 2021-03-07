@@ -5,6 +5,7 @@ namespace RefinedDigital\CMS\Modules\Settings\Http\Repositories;
 use RefinedDigital\CMS\Modules\Core\Http\Repositories\CoreRepository;
 use RefinedDigital\CMS\Modules\Media\Http\Repositories\MediaRepository;
 use RefinedDigital\CMS\Modules\Pages\Models\PageContentType;
+use Str;
 
 class SettingRepository extends CoreRepository
 {
@@ -67,7 +68,7 @@ class SettingRepository extends CoreRepository
         if ($items && $items->count()) {
             foreach ($items as $item) {
                 $type = isset($types[$item->value->page_content_type_id]) ? $types[$item->value->page_content_type_id] : null;
-                $key = str_slug($item->name, '_');
+                $key = Str::slug($item->name, '_');
 
                 if (($item->value->page_content_type_id == 4 || $item->value->page_content_type_id == 5)){
                   $media[] = $item->value->content;

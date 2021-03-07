@@ -1,5 +1,5 @@
 @foreach($data->getFormFields() as $tab)
-    <div class="tab__pane" v-show="tab == '{{ str_slug($tab->name) }}'">
+    <div class="tab__pane" v-show="tab == '{{ Str::slug($tab->name) }}'">
 
         @if (isset($tab->sections))
             @if (isset($tab->sections->left))
@@ -47,7 +47,7 @@
 
 @section('scripts')
 <script>
-    window.app.tab = '{{ str_slug($data->getFormFields()[0]->name) }}';
+    window.app.tab = '{{ Str::slug($data->getFormFields()[0]->name) }}';
   @if (isset($data->type_id) || old('type_id'))
     @php
       $typeId = 1;

@@ -1,6 +1,8 @@
 <?php
 
 namespace RefinedDigital\CMS\Modules\Core\Helpers;
+
+use Str;
 use Intervention\Image\ImageManagerStatic as Image;
 use RefinedDigital\CMS\Modules\Media\Models\Media;
 
@@ -249,7 +251,7 @@ class RefinedImage {
         }
 
         // create the file name
-        $name = str_slug(implode(' ', $name));
+        $name = Str::slug(implode(' ', $name));
 
         // add the extension
         $name .= '.'.$this->extension;

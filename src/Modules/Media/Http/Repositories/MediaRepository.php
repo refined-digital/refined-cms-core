@@ -5,6 +5,7 @@ namespace RefinedDigital\CMS\Modules\Media\Http\Repositories;
 use RefinedDigital\CMS\Modules\Core\Http\Repositories\CoreRepository;
 use RefinedDigital\CMS\Modules\Media\Models\MediaCategory;
 use RefinedDigital\CMS\Modules\Media\Models\Media;
+use Str;
 
 class MediaRepository extends CoreRepository
 {
@@ -162,7 +163,7 @@ class MediaRepository extends CoreRepository
         $file = $request->file('file');
         $extension = $file->getClientOriginalExtension();
         $title = str_replace('.'.$file->getClientOriginalExtension(), '', $file->getClientOriginalName());
-        $fileName = str_slug($title).'.'.$extension;
+        $fileName = Str::slug($title).'.'.$extension;
 
         $fileDetails = [
             'media_category_id' => $request->get('media_category_id'),

@@ -43,8 +43,8 @@
             <ul>
                 @foreach($data->getFormFields() as $tab)
                     <li
-                      @click="tab = '{{ str_slug($tab->name) }}'"
-                      :class="{ 'tabs__nav-item--active' : tab == '{{ str_slug($tab->name) }}'}"
+                      @click="tab = '{{ Str::slug($tab->name) }}'"
+                      :class="{ 'tabs__nav-item--active' : tab == '{{ Str::slug($tab->name) }}'}"
                       {!! isset($tab->attrs) ? ' '.core()->objToAttr($tab->attrs) : '' !!}
                     >{{ $tab->name }}</li>
                 @endforeach

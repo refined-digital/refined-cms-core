@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use RefinedDigital\CMS\Modules\Tags\Models\Tag;
+use Str;
 
 trait Taggable
 {
@@ -190,7 +191,7 @@ trait Taggable
                 if ($tag->type == $type) {
                     if (!isset($tag->meta->original_uri)) {
                         $tag->meta->original_uri = $tag->meta->uri;
-                        $tag->meta->uri = str_slug($type).'/'.$tag->meta->uri;
+                        $tag->meta->uri = Str::slug($type).'/'.$tag->meta->uri;
                     }
                     $newTags->push($tag);
                 }

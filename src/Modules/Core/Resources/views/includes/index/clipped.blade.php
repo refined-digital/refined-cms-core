@@ -1,1 +1,1 @@
-{!! str_limit($d->{$field->field}, 200) !!}
+{!! Str::limit($d->{$field->field}, 200) !!}

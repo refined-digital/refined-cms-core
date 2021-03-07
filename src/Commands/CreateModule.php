@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use DB;
 use File;
+use Str;
 
 class CreateModule extends Install
 {
@@ -63,12 +64,12 @@ class CreateModule extends Install
         $this->isPage = $this->option('isPage');
         $this->readableName = $this->argument('name');
 
-        $this->name = str_singular( str_slug($this->readableName, ' ') );
-        $this->names = str_plural( str_slug($this->readableName, ' ') );
+        $this->name = Str::singular( Str::slug($this->readableName, ' ') );
+        $this->names = Str::plural( Str::slug($this->readableName, ' ') );
 
-        $this->fullName = studly_case($this->readableName);
+        $this->fullName = Str::studly($this->readableName);
 
-        $this->snakeNames = snake_case(str_plural($this->readableName));
+        $this->snakeNames = Str::snake(Str::plural($this->readableName));
 
         // check if there is the refind directory
         if (!is_dir($this->appPath)) {
@@ -92,7 +93,7 @@ class CreateModule extends Install
         $this->replace = [
             $this->name,
             $this->names,
-            studly_case($this->name),
+            Str::studly($this->name),
             $this->fullName,
             $this->readableName,
             $this->snakeNames,
@@ -166,7 +167,7 @@ class CreateModule extends Install
     private function createMigration()
     {
         $this->info('Creating Migration File');
-        $newFile = database_path('migrations/'.date('Y_m_d_His').'_create_'.str_slug($this->name, '_').'_table.php');
+        $newFile = database_path('migrations/'.date('Y_m_d_His').'_create_'.Str::slug($this->name, '_').'_table.php');
         copy($this->appPath.'/Database/create_table.php', $newFile);
         $this->updateFile($newFile);
 
@@ -184,7 +185,7 @@ class CreateModule extends Install
                 ['created_at' => Carbon::now(), 'updated_at' => Carbon::now(), 'name' => $this->readableName, 'source' => $this->name, 'position' => $position]
             );
             $this->templateId = DB::table('templates')->insertGetId(
-                ['created_at' => Carbon::now(), 'updated_at' => Carbon::now(), 'name' => $this->readableName.' Details', 'source' => str_slug($this->name.' details'), 'position' => $position+1, 'active' => 0]
+                ['created_at' => Carbon::now(), 'updated_at' => Carbon::now(), 'name' => $this->readableName.' Details', 'source' => Str::slug($this->name.' details'), 'position' => $position+1, 'active' => 0]
             );
             $this->replace[] = $this->templateId;
             // create the templates
@@ -195,8 +196,8 @@ class CreateModule extends Install
     @include('templates.includes.content')
 		
 @stop";
-            File::put(resource_path().'/views/templates/'.str_slug($this->name).'.blade.php', $html);
-            File::put(resource_path().'/views/templates/'.str_slug($this->name.' details').'.blade.php', $html);
+            File::put(resource_path().'/views/templates/'.Str::slug($this->name).'.blade.php', $html);
+            File::put(resource_path().'/views/templates/'.Str::slug($this->name.' details').'.blade.php', $html);
     }
 
     private function writeToApp()
@@ -220,7 +221,7 @@ class CreateModule extends Install
 
             if ($position) {
                 $search = $matches[0][$position];
-                $replace = $search.PHP_EOL."\t\t".'App\RefinedCMS\\'.$this->fullName.'\Providers\\'.studly_case($this->name).'ServiceProvider::class,';
+                $replace = $search.PHP_EOL."\t\t".'App\RefinedCMS\\'.$this->fullName.'\Providers\\'.Str::studly($this->name).'ServiceProvider::class,';
 
                 // add the service provider
                 $appData = str_replace($search, $replace, $appData);

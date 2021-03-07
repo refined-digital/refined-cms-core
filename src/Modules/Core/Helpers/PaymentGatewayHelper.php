@@ -3,6 +3,7 @@
 namespace RefinedDigital\CMS\Modules\Core\Helpers;
 
 use RefinedDigital\CMS\Modules\Core\Aggregates\PaymentGatewayAggregate;
+use Str;
 
 class PaymentGatewayHelper {
 
@@ -33,7 +34,7 @@ class PaymentGatewayHelper {
         }
 
         foreach($gateways as $name => $gateway) {
-            if (str_slug($name) === $type) {
+            if (Str::slug($name) === $type) {
                 return $gateway;
             }
         }

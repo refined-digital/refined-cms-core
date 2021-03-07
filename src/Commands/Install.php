@@ -13,6 +13,7 @@ use RuntimeException;
 use PDO;
 use Artisan;
 use DB;
+use Str;
 
 class Install extends Command
 {
@@ -140,7 +141,7 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
             return $answer;
         });
         $dbName = $helper->ask($this->input, $this->output, $question);
-        $dbName = str_slug($dbName, '_');
+        $dbName = Str::slug($dbName, '_');
 
         // database user
         $question = new Question('Database User?: ', false);
@@ -348,7 +349,7 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
 
     protected function regenerateKey()
     {
-        $process = new Process('php artisan key:generate');
+        $process = new Process(['php artisan key:generate']);
         $process->run();
     }
 
