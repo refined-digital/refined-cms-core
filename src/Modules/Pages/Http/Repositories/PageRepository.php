@@ -572,4 +572,80 @@ class PageRepository extends CoreRepository
         return $page;
 
     }
+
+    public function getForXmlSitemap()
+    {
+        $data = [];
+        $holders = PageHolder::whereActive(1)->orderby('position','asc')->get();
+        if(sizeof($holders)) {
+            foreach($holders as $h) {
+                $pages = $this->getPagesForXmlSitemap($h->id, 0);
+                foreach ($pages as $p) {
+                    $data[] = $p;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    public function getPagesForXmlSitemap($holderId, $parentId, $parentUrl = '/')
+    {
+        $data = Page::with('meta')
+                     ->wherePageHolderId($holderId)
+                     ->whereParentId($parentId)
+                     ->get();
+
+        $pages = [];
+        $baseUrl = rtrim(config('app.url'), '/');
+        foreach ($data as $d) {
+            $url = $d->meta->uri;
+            $urls = [$baseUrl, str_replace('/', '', $parentUrl), str_replace('/', '', $url)];
+            $urls = array_filter($urls);
+            $page = new \stdClass();
+            $page->url = implode('/', $urls);
+            $page->date = $d->updated_at->toAtomString();
+            $s = sizeof($urls);
+            $page->priority = $d->meta->uri === '/' ? '1.0' : $this->getXmlSitemapPriority($s);
+
+            $templateAddress = 'templates::'.$d->meta->template->source;
+            $children = $this->getPagesForXmlSitemap($holderId, $d->id, $url);
+            if (view()->exists($templateAddress)) {
+                $view = view()
+                    ->make($templateAddress)
+                    ->with('page', $d)
+                    ->with('xmlUrl', $page->url)
+                    ->renderSections();
+                if (isset($view['xml-sitemap'])) {
+                    $xmlChildren = json_decode($view['xml-sitemap']);
+                    if (sizeof($xmlChildren)) {
+                        $children = array_merge($children, $xmlChildren);
+                    }
+                }
+            }
+
+            $page->children = $children;
+            $pages[] = $page;
+        }
+
+        return $pages;
+    }
+
+    public function getXmlSitemapPriority($depth)
+    {
+        $depth -= 1;
+        $depths = [
+            1 => '0.8',
+            2 => '0.7',
+            3 => '0.6',
+            4 => '0.5',
+            5 => '0.4',
+            6 => '0.3',
+            7 => '0.2',
+            8 => '0.1',
+        ];
+
+        return $depths[ $depth ] ?? '0.01';
+
+    }
 }

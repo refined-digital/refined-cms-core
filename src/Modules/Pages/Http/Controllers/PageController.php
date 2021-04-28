@@ -206,4 +206,24 @@ class PageController extends CoreController
         // return the view
         return $view;
     }
+
+    /**
+     * Attempts to generate the xml sitemap
+     *
+     * @return array
+     */
+    public function xmlSitemap()
+    {
+        $data = $this->pageRepository->getForXmlSitemap();
+
+        $content = view()
+                ->make('pages::xml-sitemap.index')
+                ->with(compact('data'))
+        ;
+
+        return response($content)
+                ->header('Content-type','text/xml')
+        ;
+
+    }
 }
