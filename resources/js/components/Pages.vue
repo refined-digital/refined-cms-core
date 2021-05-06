@@ -122,7 +122,7 @@
           <div class="form__row form__row--inline-label" v-if="showBanner()">
             <label for="form--menu-text" class="form__label">Banner Image</label>
             <div class="form__horz-group">
-              <rd-image v-model="page.banner"></rd-image>
+              <rd-image v-model="page.banner" fieldName="banner" :model="{ name: 'RefinedDigital\\CMS\\Modules\\Pages\\Models\\Page', alts: [], id: page.id }" :key="page.id"></rd-image>
               <div class="form__note" v-html="getImageNote(config.banner)"></div>
             </div>
           </div><!-- / form row -->
@@ -247,6 +247,7 @@
                 :item="item"
                 :data="page.data[item.tab]"
                 :fields="item.fields"
+                :model-id="page.id"
               ></rd-pages-repeatable>
             </template>
 
@@ -1273,6 +1274,8 @@
                   if (typeof row[i].key === 'undefined') {
                     row[i].key = this.getRepeatableFieldIndex({...row[i], field: i}, index);
                   }
+
+                  row[i].fieldName = `${tab.tab}.${index}.${i}.content`
 
                   Vue.set(this.page.data[tab.tab], index, row)
                 }

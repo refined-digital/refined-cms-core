@@ -159,6 +159,9 @@ class RefinedImage {
                 case 'image':
                 case 'img':
                     $img = '<img src="'.asset($this->path.$fileName).'"';
+                        if (!in_array('alt', $this->attributes)) {
+                            $this->attributes['alt'] = $this->file->alt;
+                        }
                         if (sizeof($this->attributes)) {
                             $attrs = '';
                             foreach ($this->attributes as $key => $value) {
@@ -171,6 +174,7 @@ class RefinedImage {
                 case 'object':
                     $img = new \stdClass();
                     $img->alt = $this->file->alt;
+                    $img->alts = json_decode(json_encode($this->file->altTexts->toArray()));
                     $img->width = isset($dimensions[0]) ? $dimensions[0] : null;
                     $img->height = isset($dimensions[1]) ? $dimensions[1] : null;
                     $img->attributes = $this->attributes;
@@ -207,6 +211,24 @@ class RefinedImage {
     {
         $this->returnType = 'object';
         return $this->save();
+    }
+
+    public function findAlt($model, $field)
+    {
+        $alt = null;
+        if ($model->{$field}) {
+            $file = Media::find($model->{$field});
+
+            if ($file->altTexts->count()) {
+                foreach ($file->altTexts as $at) {
+                    if ($at->field_name === $field && $at->type_details === get_class($model) && $at->alt) {
+                        $alt = $at->alt;
+                    }
+                }
+            }
+        }
+
+        return $alt;
     }
 
 

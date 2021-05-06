@@ -3,6 +3,7 @@
 namespace RefinedDigital\CMS\Modules\Media\Http\Repositories;
 
 use RefinedDigital\CMS\Modules\Core\Http\Repositories\CoreRepository;
+use RefinedDigital\CMS\Modules\Media\Models\MediaAltText;
 use RefinedDigital\CMS\Modules\Media\Models\MediaCategory;
 use RefinedDigital\CMS\Modules\Media\Models\Media;
 
@@ -242,5 +243,31 @@ class MediaRepository extends CoreRepository
     public function getByIds($ids = [])
     {
         return Media::whereIn('id', $ids)->get();
+    }
+
+    public function setAltText($mediaId, $typeId, $typeDetails, $altText = '', $fieldName = '')
+    {
+        /*
+        help()->trace('mediaId: '. $mediaId);
+        help()->trace('typeId: '. $typeId);
+        help()->trace('typeDetails: '. $typeDetails);
+        help()->trace('altText: '. $altText);
+        help()->trace('fieldName: '. $fieldName);
+        */
+
+        // first delete all
+        MediaAltText::whereTypeId($typeId)
+                    ->whereTypeDetails($typeDetails)
+                    ->whereFieldName($fieldName)
+                    ->delete();
+
+        // now add the new data
+        MediaAltText::insert([
+            'media_id' => $mediaId,
+            'type_id' => $typeId,
+            'type_details' => $typeDetails,
+            'field_name' => $fieldName,
+            'alt' => $altText,
+        ]);
     }
 }

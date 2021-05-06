@@ -398,6 +398,16 @@
       justify-content: space-between;
       margin-top: 10px;
     }
+
+
+
+    &-alt-text {
+      margin-top: 8px;
+
+      label:after {
+        display: none !important;
+      }
+    }
   }
 
   &__file {

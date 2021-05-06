@@ -4,6 +4,7 @@ namespace RefinedDigital\CMS\Modules\Core\Http\Repositories;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use RefinedDigital\CMS\Modules\Media\Http\Repositories\MediaRepository;
 use RefinedDigital\CMS\Modules\Tags\Models\Tag;
 
 class CoreRepository {
@@ -67,7 +68,7 @@ class CoreRepository {
 
     public function update($id, $request, $extra = [])
 	  {
-		    $model = $this->model;
+		$model = $this->model;
         $item = $model::findOrFail($id);
 
         if(is_array($request)) {
@@ -76,19 +77,31 @@ class CoreRepository {
             $data = $request->all();
         }
 
+        $basename = class_basename($item);
+
         if(is_array($extra) && sizeof($extra)) {
             $data = array_merge($data, $extra);
         }
 
+        if ($basename !== 'Page' && method_exists($item, 'findImageFields')) {
+          // handle any new file uploads
+          $data = $this->handleMediaFiles($data, $item);
+        }
+
+        if ($basename === 'Page') {
+            $data = $this->handlePageBannerMediaFile($data, $item);
+            $data = $this->handleMediaFilesViaContent($data, $item);
+        }
+
         // format the data
         $data = $this->formatData($data);
+
 
         // save the item
         $item->fill($data);
         $item->save();
 
         // now log the item
-        $basename = class_basename($item);
         activity()
             ->performedOn($item)
             ->causedBy(auth()->check() ? auth()->user()->id : null)
@@ -101,7 +114,7 @@ class CoreRepository {
 
     public function store($request, $extra = [])
 	  {
-		    $model = $this->model;
+		$model = $this->model;
 
         if(is_array($request)) {
             $data = $request;
@@ -113,11 +126,58 @@ class CoreRepository {
             $data = array_merge($data, $extra);
         }
 
+        // set the initial media fields to 0 to enable save of any required fields
+        $tempModel = new $this->model();
+        $basename = class_basename($tempModel);
+        $fieldData = $data;
+        if ($basename !== 'Page' && method_exists($tempModel, 'findImageFields')) {
+            $mediaFields = $tempModel->findImageFields();
+            if (sizeof($mediaFields)) {
+                foreach ($mediaFields as $field) {
+                    if (isset($data[$field])) {
+                        $data[$field] = 0;
+                    }
+                }
+            }
+        }
+
+        // reset the images to remove their arrays on image fields
+        if ($basename === 'Page') {
+            $d = $this->removePageMediaFields($data);
+            $pageMediaFields = $d['fields'];
+            $data = $d['data'];
+            $d = $this->removePageBannerMediaField($data);
+            $data = $d['data'];
+            $pageMediaFields = array_merge($pageMediaFields, $d['fields']);
+        }
+
         // format the data
         $data = $this->formatData($data);
 
         // save the item
         $item = $model::create($data);
+
+        if ($basename === 'Page') {
+          $this->handlePageBannerMediaFile($pageMediaFields, $item);
+          $this->handleMediaFilesViaContent($pageMediaFields, $item);
+        }
+
+        // re-save the media items with their actual id
+        if (isset($fieldData, $mediaFields) && sizeof($mediaFields)) {
+            $newFieldData = $this->handleMediaFiles($fieldData, $item);
+            $update = [];
+
+            foreach ($mediaFields as $field) {
+                if (isset($newFieldData[$field])) {
+                    $update[] = $field;
+                    $item->{$field} = $newFieldData[$field];
+                }
+            }
+
+            if (sizeof($update)) {
+                $item->save();
+            }
+        }
 
         // now log the item
         $basename = class_basename($item);
@@ -129,6 +189,167 @@ class CoreRepository {
         ;
 
         return $item;
+    }
+
+    private function handleMediaFiles($data, $item)
+    {
+        $mediaFields = $item->findImageFields();
+
+        return $this->handleMedia($data, $mediaFields, $item);
+    }
+
+    private function handlePageBannerMediaFile($data, $item)
+    {
+        $mediaFields = ['banner'];
+        foreach ($mediaFields as $file) {
+            if (isset($data[$file])) {
+                if (is_numeric($data[$file])) {
+                    continue;
+                }
+                if (is_object($data[$file])) {
+                    $data[$file] = (array) $data[$file];
+                }
+                $data[$file]['model'] = (object) ['name' => 'RefinedDigital\CMS\Modules\Pages\Models\Page'];
+            }
+        }
+
+        return $this->handleMedia($data, $mediaFields, $item);
+
+    }
+
+    private function handleMedia($data, $mediaFields, $item = false)
+    {
+        $mediaRepository = new MediaRepository();
+        $fields = [];
+        if (sizeof($mediaFields)) {
+            foreach ($mediaFields as $field) {
+                if (isset($data[$field])) {
+                    if (is_numeric($data[$field])) {
+                        continue;
+                    }
+                    $fieldData = (is_object($data[$field]) || is_array($data[$field])) ? $data[$field] : json_decode($data[$field]);
+                    if (is_array($fieldData)) {
+                        $fieldData = (object) $fieldData;
+                    }
+                    // reset the field data to the file id
+                    $data[$field] = $fieldData->id;
+                    $fields[$field] = $fieldData;
+
+                    // update the media alt text data
+                    if ($item) {
+                        if ($fieldData->alt !== $fieldData->fileAlt) {
+                            $modelId = $fieldData->model->id ?? $item->id;
+                            $mediaRepository->setAltText($fieldData->id, $modelId, $fieldData->model->name, $fieldData->alt, $field);
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($item) {
+            return $data;
+        } else {
+            return [
+                'data' => $data,
+                'fields' => $fields
+            ];
+        }
+    }
+
+    private function removePageBannerMediaField($data)
+    {
+        $d = $this->handleMedia($data, ['banner']);
+        return [
+            'fields' => $d['fields'],
+            'data' => $d['data']
+        ];
+
+    }
+
+    private function removePageMediaFields($data)
+    {
+        $d = $this->handleMediaFilesViaContent($data);
+        return [
+            'fields' => $d['fields'],
+            'data' => $d['data']
+        ];
+    }
+
+    private function handleMediaFilesViaContent($data, $item = false)
+    {
+        $keysToSearch = ['data', 'content'];
+        $mediaRepository = new MediaRepository();
+        $fields = [];
+        foreach ($keysToSearch as $key) {
+            if (isset($data[$key])) {
+                $sectionData = $data[$key];
+                $sectionDots = array_dot($sectionData);
+                $fieldDots = array_dot($sectionData);
+                $fields[$key] = [];
+                if (is_array($sectionDots) && sizeof($sectionDots)) {
+                    $imgKeys = [];
+                    foreach ($sectionDots as $k => $v) {
+                        if (is_numeric(strpos($k, 'page_content_type_id')) && $v == 4) {
+                            $imageKey = str_replace('page_content_type_id', 'content', $k);
+                            $imgKeys[] = $imageKey;
+                        }
+                    }
+
+                    if (sizeof($imgKeys)) {
+                        foreach ($imgKeys as $iKey) {
+
+                            if (
+                                array_key_exists($iKey.'.id', $sectionDots) &&
+                                array_key_exists($iKey.'.fileAlt', $sectionDots) &&
+                                array_key_exists($iKey.'.alt', $sectionDots) &&
+                                array_key_exists($iKey.'.model.name', $sectionDots)) {
+                                $alt = $sectionDots[$iKey.'.alt'];
+                                $fileAlt = $sectionDots[$iKey.'.fileAlt'];
+                                $modelName = $sectionDots[$iKey.'.model.name'];
+                                $mediaId = $sectionDots[$iKey.'.id'];
+                                if ($item) {
+                                    if ($alt !== $fileAlt) {
+                                        $field = $iKey;
+                                        $mediaRepository->setAltText($mediaId, $item->id, $modelName, $alt, $field);
+                                    }
+                                }
+
+                                foreach ($sectionDots as $sdKey => $v) {
+                                    if(is_numeric(strpos($sdKey, $iKey))) {
+                                        unset($sectionDots[$sdKey]);
+                                    }
+                                }
+                                $sectionDots[$iKey] = $mediaId;
+
+                                foreach ($fieldDots as $k => $v) {
+                                    if(is_numeric(strpos($k, $iKey))) {
+                                        array_set( $fields[$key], $k, $v );
+                                        $fields[$key][str_replace('.content', '.page_content_type_id', $iKey)] = 4;
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+
+                    $newData = [];
+                    foreach ($sectionDots as $k => $v) {
+                      array_set($newData, $k, $v);
+                    }
+                    $data[$key] = $newData;
+                }
+            }
+        }
+
+        if ($item) {
+            return $data;
+        } else {
+            return [
+                'data' => $data,
+                'fields' => $fields
+            ];
+        }
+
     }
 
 

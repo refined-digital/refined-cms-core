@@ -22,6 +22,9 @@ class PageRepository extends CoreRepository
         $item->content()->forceDelete();
         if (is_array($content) && sizeof($content)) {
             foreach ($content as $c) {
+                if (is_array($c['content']) && $c['page_content_type_id'] == 4) {
+                    $c['content'] = $c['content']['id'];
+                }
                 $item->content()->create($c);
             }
         }
@@ -146,15 +149,18 @@ class PageRepository extends CoreRepository
         $page->meta = $meta;
 
         if ($page->content && $page->content->count()) {
-            foreach ($page->content as $content) {
+            foreach ($page->content as $key => $content) {
                 $content->page_content_type_id = (int) $content->page_content_type_id;
                 $content->page_id = (int) $content->id;
                 $content->position = (int) $content->position;
                 $content->key = 'field_'.$content->id.'_'.$content->page_id.'_'.$content->page_content_type_id;
+                $content->fieldName = $content->position.'.content';
 
                 if ($content->type->id === 4 || $content->type->id === 5) {
                     $content->content = (int) $content->content;
                 }
+
+                $page->content[$key] = $content;
             }
         }
 

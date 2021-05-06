@@ -24,7 +24,7 @@
                   v-for="(cell, cellKey, index) of fields"
                 >
                   <label class="form__label" v-if="!cell.hide_label">{{ cell.name }}</label>
-                  <rd-content-editor-field :item="row[cell.field]" :options="cell"></rd-content-editor-field>
+                  <rd-content-editor-field :item="row[cell.field]" :options="cell" :model-id="modelId" :key="modelId"></rd-content-editor-field>
                 </div>
               </div>
             </td>
@@ -47,7 +47,7 @@
   import draggable from 'vuedraggable'
 
   export default {
-    props: ['item', 'data', 'fields',],
+    props: ['item', 'data', 'fields', 'modelId'],
 
     data() {
       return {

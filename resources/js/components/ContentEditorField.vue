@@ -22,7 +22,7 @@
       </template>
 
       <template v-if="item.page_content_type_id === 4">
-        <rd-image v-model="item.content" :value="item.content"></rd-image>
+        <rd-image v-model="item.content" :value="item.content" :model="{ ...imageModel, id: modelId }" :fieldName="item.fieldName" :key="modelId"></rd-image>
       </template>
 
       <template v-if="item.page_content_type_id === 5">
@@ -61,7 +61,16 @@
 
   export default {
 
-    props: [ 'item', 'options' ],
+    props: [ 'item', 'options', 'modelId' ],
+
+    data() {
+      return {
+        imageModel: {
+          name: 'RefinedDigital\\CMS\\Modules\\Pages\\Models\\Page',
+          alts: []
+        }
+      }
+    },
 
     methods: {
       selectChanged(item) {
