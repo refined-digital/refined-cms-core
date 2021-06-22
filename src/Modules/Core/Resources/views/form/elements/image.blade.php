@@ -1,5 +1,5 @@
 <?php
-    $value = '';
+    $value = 0;
     $model = new stdClass();
 
     if (isset($data->{ $field->name })) {
