@@ -48,6 +48,7 @@
 
         eventBus.$on('sitemap-close', this.closeModal);
         eventBus.$on('sitemap-reload', this.resetSitemap);
+        eventBus.$on('sitemap-clear', this.clearSitemap);
 
         axios
           .get('/refined/pages/get-tree-basic')
@@ -125,6 +126,13 @@
         closeModal() {
           this.$root.sitemap.showModal = false;
           this.$root.sitemap.active = false;
+        },
+
+        clearSitemap() {
+          this.$root.sitemap.showModal = false;
+          this.$root.sitemap.active = false;
+          this.$root.sitemap.fieldId = null;
+          this.$root.sitemap.model = null;
         },
 
         resetSitemap() {

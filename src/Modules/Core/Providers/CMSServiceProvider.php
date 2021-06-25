@@ -47,6 +47,10 @@ class CMSServiceProvider extends ServiceProvider
 			'core::layouts.master', 'RefinedDigital\CMS\Modules\Core\Http\ViewComposers\MenuComposer'
         );
 
+        $this->publishes([
+            __DIR__.'/../Config/rich-editor.php' => config_path('rich-editor.php'),
+        ], 'rich-editor');
+
         Validator::extend('not0', function($attribute, $value) {
             return $value > '0';
         });
@@ -146,5 +150,7 @@ class CMSServiceProvider extends ServiceProvider
                 }
             }
         }
+
+        $this->mergeConfigFrom(__DIR__.'/../Config/rich-editor.php', 'rich-editor');
     }
 }

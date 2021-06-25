@@ -1,3 +1,5 @@
+import Vue from 'vue'
+
 Vue.directive('sortable-table', {
   bind: function(el) {
     let element = el.querySelector('tbody');

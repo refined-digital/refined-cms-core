@@ -1,6 +1,10 @@
 {
-    "/js/FormBuilder.js": "/js/FormBuilder.js?id=9ef3a96f2160738d8817",
-    "/js/FormValidate.js": "/js/FormValidate.js?id=c3e4c065f206cc409b83",
-    "/js/main.js": "/js/main.js?id=c70ac4f5e0a999e9fcd7",
-    "/css/main.css": "/css/main.css?id=8f717ab97709dbb6a984"
+    "/js/main.js": "/js/main.js",
+    "/js/FormBuilder.js": "/js/FormBuilder.js",
+    "/js/FormValidate.js": "/js/FormValidate.js",
+    "/css/main.css": "/css/main.css",
+    "/img/link.svg": "/img/link.svg",
+    "/img/login-background.jpg": "/img/login-background.jpg",
+    "/img/unlink.svg": "/img/unlink.svg",
+    "/svg/editor-icons.svg": "/svg/editor-icons.svg"
 }

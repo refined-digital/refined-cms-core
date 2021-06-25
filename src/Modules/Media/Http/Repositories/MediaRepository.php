@@ -40,8 +40,8 @@ class MediaRepository extends CoreRepository
                 $holder->type       = 'holder';
                 $holder->children   = [];
                 $holder->files      = [];
-                $holder->show       = $pos == 0 ? true : false; // if we are to show the sub pages
-                $holder->on         = $pos == 0 ? true : false; // if we are on the active item
+                $holder->show       = $pos == 0; // if we are to show the sub pages
+                $holder->on         = $pos == 0; // if we are on the active item
 
                 // check for children
                 $children = $this->getBranch($holder->id);

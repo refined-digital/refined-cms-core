@@ -2,6 +2,9 @@
 html { background:#fff; overflow-x:hidden; }
 body { padding:0; }
 body, button, input, select, textarea { font:#{$systemFontSize}/#{$systemLineHeight} $systemFont; color:color(text); -webkit-font-smoothing: antialiased; }
+body.body-has-modal .trumbowyg-modal {
+  display: none;
+}
 
 /* end system */
 

@@ -1,3 +1,5 @@
+import Vue from 'vue'
+
 Vue.directive('sortable-repeatable-table', {
   bind(el) {
     dragula([el], {

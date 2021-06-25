@@ -1,524 +1,356 @@
 <template>
-  <div class="form__control--rich-text rich-editor" :id="editorId">
-
-    <div class="rich-editor__ckeditor" :class="{'rich-editor__ckeditor--source' : sourceCodeView }"><ckeditor :editor="editor" v-model="data" :config="config" @ready="editorReady"></ckeditor></div>
-    <div class="rich-editor__toolbar-cover" v-show="sourceCodeView"></div>
-    <textarea class="rich-editor__content" v-show="sourceCodeView" v-model="data" :name="name" :id="id"></textarea>
-
-    <div
-      v-if="showModal"
-      class="rich-editor__modal-background"
-    ></div>
-
-    <div
-      v-if="link.active"
-      class="rich-editor__modal rich-editor__modal--link"
-    >
-      <header class="rich-editor__modal-header">
-        <h3 class="rich-editor__modal-heading">Link</h3>
-        <a @click.prevent="hideLinkModal()" class="rich-editor__modal-close"><i class="fa fa-times"></i></a>
-      </header>
-      <div class="rich-editor__modal-form">
-
-
-        <div class="rich-editor__modal-row">
-          <label>Link Type</label>
-          <select class="rich-editor__modal-control" v-model="link.type">
-            <option v-for="type in linkTypes" :value="type.id">{{ type.value }}</option>
-          </select>
-        </div>
-
-        <div class="rich-editor__modal-row" v-if="link.type === 'internal'">
-          <button class="button button--green button--small" @click.prevent="loadSitemapModal()">Browse Server</button>
-        </div>
-
-        <div class="rich-editor__modal-row" v-if="link.type === 'external'">
-          <div class="rich-editor__modal-note">Must include <code>http://</code> or <code>https://</code></div>
-        </div>
-
-        <div class="rich-editor__modal-row" v-if="link.type === 'file'">
-          <button class="button button--green button--small" @click.prevent="loadMediaModal()">Browse Media</button>
-        </div>
-
-        <div class="rich-editor__modal-row">
-          <label>{{ link.type === 'email' ? 'Email Address' : 'Url'}}</label>
-          <input class="rich-editor__modal-control" type="text" ref="linkInput" v-model="link.url">
-        </div>
-
-        <div class="rich-editor__modal-row">
-          <label>title</label>
-          <input class="rich-editor__modal-control" type="text" v-model="link.attrs.title">
-        </div>
-
-        <div class="rich-editor__modal-row">
-          <label>id</label>
-          <input class="rich-editor__modal-control" type="text" v-model="link.attrs.id">
-        </div>
-
-        <div class="rich-editor__modal-row">
-          <label>class</label>
-          <input class="rich-editor__modal-control" type="text" v-model="link.attrs.class">
-        </div>
-
-        <div class="rich-editor__modal-row rich-editor__modal-row--buttons">
-          <button class="button button--small" @click.prevent="saveLink()">Save</button>
-        </div>
-      </div>
-    </div>
-
-    <div
-      v-if="image.active"
-      class="rich-editor__modal rich-editor__modal--image"
-    >
-      <header class="rich-editor__modal-header">
-        <h3 class="rich-editor__modal-heading">Insert Image</h3>
-        <a @click.prevent="hideImageModal()" class="rich-editor__modal-close"><i class="fa fa-times"></i></a>
-      </header>
-      <div class="rich-editor__modal-form">
-
-        <div class="rich-editor__modal-row">
-          <div class="rich-editor__modal-note">
-            <input class="rich-editor__modal-control" type="hidden" ref="imageInput" v-model="image.url">
-            <div class="rich-editor__modal-image">
-              <div class="rich-editor__modal-thumb" ref="imageThumb"></div>
-            </div>
-            <button class="button button--green button--small" @click.prevent="loadMediaModal('Image')">Browse Server</button>
-          </div>
-        </div>
-
-        <div class="rich-editor__modal-row">
-          <label>alt text</label>
-          <input class="rich-editor__modal-control" type="text" v-model="image.attrs.alt">
-        </div>
-
-        <div class="rich-editor__modal-row">
-          <label>id</label>
-          <input class="rich-editor__modal-control" type="text" v-model="image.attrs.id">
-        </div>
-
-        <div class="rich-editor__modal-row">
-          <label>class</label>
-          <input class="rich-editor__modal-control" type="text" v-model="image.attrs.class">
-        </div>
-
-        <div class="rich-editor__modal-row rich-editor__modal-row--buttons">
-          <button class="button button--small" @click.prevent="saveImage()">Save</button>
-        </div>
-      </div>
-    </div>
-
+  <div>
+    <div>{{ data }}</div>
+    <textarea :name="name" :id="id" ref="editor"></textarea>
   </div>
-
 </template>
 
 <script>
-  import CKEditor from '@ckeditor/ckeditor5-vue';
-  import ClassicEditor from '@ckeditor/ckeditor5-editor-classic/src/classiceditor';
 
-  import EssentialsPlugin from '@ckeditor/ckeditor5-essentials/src/essentials';
-  import BoldPlugin from '@ckeditor/ckeditor5-basic-styles/src/bold';
-  import ItalicPlugin from '@ckeditor/ckeditor5-basic-styles/src/italic';
-  import StrikethroughPlugin from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
-  import SubscriptPlugin from '@ckeditor/ckeditor5-basic-styles/src/subscript';
-  import SuperscriptPlugin from '@ckeditor/ckeditor5-basic-styles/src/superscript';
-  import CodePlugin from '@ckeditor/ckeditor5-basic-styles/src/code';
-  import ParagraphPlugin from '@ckeditor/ckeditor5-paragraph/src/paragraph';
-  import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
-  import Image from '@ckeditor/ckeditor5-image/src/image';
-  import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
-  import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
-  import HorizontalLine from '@ckeditor/ckeditor5-horizontal-line/src/horizontalline';
-  import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
-  import Alignment from '@ckeditor/ckeditor5-alignment/src/alignment';
-  import Heading from '@ckeditor/ckeditor5-heading/src/heading';
-  import List from '@ckeditor/ckeditor5-list/src/list';
+import jQuery from 'jquery'
+window.jQuery = window.$ = jQuery
+// import the editor
+import 'trumbowyg'
 
-  import RefinedImage from '../plugins/ckeditor/Image';
-  import RefinedLink from '../plugins/ckeditor/link/src/link';
-  import RefinedButtons from '../plugins/ckeditor/list/src/todolist';
+// import the editor's css
+import 'trumbowyg/dist/ui/trumbowyg.css';
 
-  export default {
+// import additional plugins
+import 'trumbowyg/plugins/cleanpaste/trumbowyg.cleanpaste.js';
+import 'trumbowyg/plugins/noembed/trumbowyg.noembed.js';
+import 'trumbowyg/plugins/table/trumbowyg.table.js';
+import 'trumbowyg/plugins/fontsize/trumbowyg.fontsize.js';
+import 'trumbowyg/plugins/history/trumbowyg.history.js';
+import 'trumbowyg/plugins/pasteembed/trumbowyg.pasteembed.js';
+import '../plugins/trumbowyg/refined-insert-image/trumbowyg.refined.insert-image.js';
+import '../plugins/trumbowyg/refined-link/trumbowyg.refined.link.js';
+import '../plugins/trumbowyg/refined-code/trumbowyg.refined.code.js';
 
-    props: ['name', 'id', 'content'],
+// reset the svg path to the website's url
+$.trumbowyg.svgPath = '/vendor/refined/core/svg/editor-icons.svg'
 
-    data() {
-      return {
+window.loadMediaModal = function(event, type, id, fieldId) {
+  event.preventDefault();
+  document.querySelector('body').classList.add('body-has-modal');
 
-        editor: ClassicEditor,
+  eventBus.$emit('media-set-type', type);
+  eventBus.$emit('media-reload');
+  window.app.media.showModal = true;
+  window.app.media.model = id;
+  window.app.media.fieldId = fieldId;
+  window.app.media.type = type;
+}
+
+
+window.loadSitemapModal = function(event, id, fieldId) {
+  event.preventDefault();
+  document.querySelector('body').classList.add('body-has-modal');
+
+  eventBus.$emit('sitemap-reload');
+  window.app.sitemap.showModal = true;
+  window.app.sitemap.active = true;
+  window.app.sitemap.model = id;
+  window.app.sitemap.fieldId = fieldId;
+}
+
+
+window.updateLinkType = function(event, id) {
+  const element = event.target;
+  const fieldId = `field-url-${id}`;
+  const row = document.getElementById(fieldId)
+
+  const inputRow = row.querySelector('.rich-editor__link--input')
+  const inputField = document.getElementById(`${fieldId}-url`)
+  const internalField = row.querySelector('.rich-editor__link--internal');
+  const externalField = row.querySelector('.rich-editor__link--external');
+  const mediaField = row.querySelector('.rich-editor__link--media');
+  const urlLabel = document.getElementById(`${fieldId}-url-label`)
+
+  const modal = document.querySelector('.trumbowyg-modal');
+  const modalBox = modal.querySelector('.trumbowyg-modal-box');
+
+  internalField.style.display = 'none';
+  externalField.style.display = 'none';
+  mediaField.style.display = 'none';
+  inputField.readOnly = false;
+  urlLabel.innerText = 'Url'
+  inputRow.classList.remove('rich-editor__link-row--no-padding');
+
+  switch(element.value) {
+    case 'internal':
+      internalField.style.display = 'block'
+      break;
+    case 'external':
+      externalField.style.display = 'block'
+      break;
+    case 'media':
+      mediaField.style.display = 'block'
+      inputField.readOnly = true;
+      break;
+    case 'email':
+      urlLabel.innerText = 'Email Address'
+      inputRow.classList.add('rich-editor__link-row--no-padding');
+      break;
+  }
+
+  // adjust the modal height
+  const modalHeight = parseInt(modal.style.height);
+  const modalBoxHeight = modalBox.offsetHeight + 10; // the + 10 comes from trumbowyg code
+  if (modalHeight && modalBoxHeight !== modalHeight) {
+    modal.style.height = `${modalBoxHeight}px`;
+  }
+}
+
+export default {
+  props: ['name', 'id', 'content'],
+
+  data() {
+    return {
+      data: '',
+      editor: {
+        el: null,
+        eventPrefix: 'tbw',
+        svgPath: '/vendor/refined/core/svg/editor-icons.svg',
 
         config: {
-          plugins: [
-            EssentialsPlugin,
-            PasteFromOffice,
-            BoldPlugin,
-            ItalicPlugin,
-            StrikethroughPlugin,
-            SubscriptPlugin,
-            SuperscriptPlugin,
-            CodePlugin,
-            ParagraphPlugin,
-            Image,
-            ImageResize,
-            ImageToolbar,
-            MediaEmbed,
-            HorizontalLine,
-            Alignment,
-            Heading,
-            List,
-            RefinedImage,
-            RefinedLink,
-            RefinedButtons,
-          ],
-          toolbar: [
-            'undo', 'redo', '|',
-            'heading', '|',
-            'bold', 'italic', 'strikethrough', '|',
-            'subscript', 'superscript', '|',
-            'alignment:left', 'alignment:right', 'alignment:center', 'alignment:justify', '|',
-            'link', 'refined:image', 'mediaEmbed', '|',
-            'todoList','bulletedList', 'numberedList', '|',
-            'horizontalLine'
-          ],
-          heading: {
-            options: [
-                { model: 'paragraph', title: 'Paragraph', },
-                { model: 'heading1', view: 'h1', title: 'Heading 1', },
-                { model: 'heading2', view: 'h2', title: 'Heading 2', },
-                { model: 'heading3', view: 'h3', title: 'Heading 3', },
-                { model: 'code', view: 'code', title: 'Code', },
-                { model: 'pre', view: 'pre', title: 'Pre', },
-                { model: 'blockquote', view: 'blockquote', title: 'Block Quote', },
-            ]
+          editorId: null,
+          btns: [],
+          btnsDef: {
+            refinedFormatting: {
+              title: 'Formatting',
+              // hasIcon: false
+            },
+            pre: {
+              fn: 'formatBlock'
+            },
           },
-          image: {
-            toolbar: [ 'refined:imageEdit' ]
-          },
+          removeformatPasted: true,
+          imageWidthModalEdit: true,
+          changeActiveDropdownIcon: true,
+          tagsToRemove: ['script', 'link'],
+          tagsToKeep: ['hr', 'img', 'embed', 'iframe', 'pre', 'code'],
+          linkType: 'simple',
+          imgDblClickHandler: (e) => {
+            const $img = e.currentTarget;
+            let src = $img.src.replace(window.app.siteUrl, '/').replace('//', '/');
+            const alt = $img.alt;
+            const id = $img.id;
+            const klass = $img.className;
 
-          link: {
-            addTargetToExternalLinks: true,
+            const base64 = '(Base64)';
+            if (src.indexOf('data:image') === 0) {
+              src = base64;
+            }
+
+
+            const options = $.trumbowyg.plugins.refinedInsertImage.getFields(this.editor.config.editorId);
+            if (src && options.src) {
+              options.src.value = src;
+            }
+            if (id && options.id) {
+              options.id.value = id;
+            }
+            if (alt && options.alt) {
+              options.alt.value = alt;
+            }
+            if (klass && options.class) {
+              options.class.value = klass;
+            }
+
+            this.editor.el.trumbowyg('openModalInsert', {
+              title: 'Edit Image',
+              fields: options,
+              callback: function(values) {
+                $img.src = values.src;
+                if (values.alt) {
+                  $img.alt = values.alt;
+                } else {
+                  $img.removeAttr('alt');
+                }
+                if (values.class) {
+                  $img.className = values.class;
+                } else {
+                  $img.removeAttr('class')
+                }
+
+                return true
+              }
+            })
+
+            return false;
+
           }
-        },
-
-        showModal: false,
-
-        editorId: null,
-
-        data: '',
-
-        sourceCodeView: false,
-
-        modalType: null,
-
-        link: {
-          active: false,
-          url: null,
-          type: 'internal',
-
-          attrs: {
-            id: null,
-            class: null,
-            title: null
-          }
-        },
-
-        sitemap: {
-          element: null
-        },
-
-        media: {
-          element: null
-        },
-
-        image: {
-          active: false,
-          url: '',
-          update: false,
-
-          attrs: {
-            id: null,
-            class: null,
-            alt: null,
-          }
-        },
-      }
-    },
-
-    components: {
-      ckeditor: CKEditor.component
-    },
-
-    created() {
-
-
-      eventBus.$on('selecting-link', link => {
-        if (window.app.sitemap.model === this.editorId) {
-          this.sitemap.element.value = link;
-        }
-
-        eventBus.$emit('sitemap-close');
-      });
-
-      eventBus.$on('selecting-file', data => {
-        if (window.app.media.model === this.editorId) {
-          console.log(this);
-          console.log(data);
-          const type = this.modalType === 'Image' ? 'image' : 'link';
-
-          if (type === 'image') {
-            this.image.url = data.link.original.replace(data.link.basePath, '/');
-            this.loadImageThumb(data.link.thumb);
-          }
-
-          if (type === 'link') {
-            this.media.element.value = data.link.original.replace(data.link.basePath, '/');
-          }
-        }
-
-        this.modalType = null;
-
-        eventBus.$emit('media-close');
-      });
-
-      eventBus.$on('rich-editor.image.open', data => {
-        if (data.id === this.editorId) {
-          this.showImageModal(data.attrs, true);
-        }
-      });
-
-      eventBus.$on('rich-editor.link.open', data => {
-        if (data.id === this.editorId) {
-          this.showLinkModal(data.attrs, data.attrs ? data.attrs : false);
-        }
-      });
-
-      eventBus.$on('rich-editor.image.insert', data => {
-        if (data.id === this.editorId) {
-          this.showImageModal();
-        }
-      });
-
-      eventBus.$on('rich-editor.view-source.toggle', data => {
-        if (data.id === this.editorId) {
-          this.sourceCodeView = !this.sourceCodeView;
-        }
-      });
-
-
-      eventBus.$on('rich-editor.sitemap.open', data => {
-        if (data.id === this.editorId) {
-          this.loadSitemapModal(data.element);
-        }
-      });
-
-      eventBus.$on('rich-editor.media.open', data => {
-        if (data.id === this.editorId) {
-          this.loadMediaModal(data.element);
-        }
-      });
-
-
-      if (this.content) {
-        this.data = this.content;
-      }
-    },
-
-    beforeDestroy() {
-      // Always destroy your editor instance when it's no longer needed
-      // this.editor.destroy()
-    },
-
-    watch: {
-      data() {
-        this.$emit('input', this.data);
-      }
-    },
-
-    methods: {
-
-      editorReady(editor) {
-        this.editorInstance = editor;
-        this.editorId = this.editorInstance.id;
-
-      },
-
-      showLinkModal(attrs) {
-        if (attrs) {
-          let href = attrs.href;
-          const type = this.getLinkType(href);
-          if (type === 'email') {
-            href = href.replace('mailto:', '');
-          }
-
-          this.link.url = href;
-          this.link.type = type;
-        }
-
-        this.setAttrs('link', attrs);
-
-        this.showModal = true;
-        this.link.active = true;
-      },
-
-      hideLinkModal() {
-        this.link.url = null;
-        this.link.active = false;
-        this.link.type = 'internal';
-
-        this.resetAttrs('link');
-
-        this.showModal = false;
-        this.modalType = null;
-      },
-
-      saveLink() {
-        let url = this.link.url;
-        let pass = true;
-
-        if (this.link.type === 'email') {
-          url = `mailto:${url}`;
-        }
-
-        if (this.link.type === 'external' && !/(http(s?)):\/\//gi.test(url)) {
-          pass = false;
-          window.swal({
-            title: 'Something went wrong',
-            text: 'Url must begin with either http:// or https://',
-            icon: 'error'
-          });
-        }
-
-        if (pass) {
-          const attrs = {
-            ...this.link.attrs
-          };
-          attrs.href = url;
-          eventBus.$emit('rich-editor.link.save', attrs);
-          this.hideLinkModal();
-        }
-      },
-
-
-      showImageModal(attrs, update = false) {
-        this.image.active = true;
-        this.showModal = true;
-        this.image.update = update;
-
-        if (attrs && attrs.src) {
-          this.image.url = attrs.src;
-        }
-
-        this.setAttrs('image', attrs);
-        if (this.image.url) {
-          this.$nextTick(() => {
-            this.loadImageThumb(attrs.src);
-          })
-        }
-
-      },
-
-      hideImageModal() {
-        this.image.url = null;
-        this.image.active = false;
-        this.image.update = false;
-        this.loadImageThumb(null);
-
-        this.resetAttrs('image');
-
-        this.showModal = false;
-        this.modalType = null;
-      },
-
-      saveImage() {
-        let pass = true;
-        if (!this.image.url) {
-          pass = false;
-          window.swal({
-            title: 'Something went wrong',
-            text: 'You must select an image',
-            icon: 'error'
-          });
-        }
-
-        if (pass) {
-          const attrs = {
-            ...this.image.attrs
-          };
-          attrs.src = this.image.url;
-          eventBus.$emit('rich-editor.image.save', attrs);
-
-          this.hideImageModal();
-        }
-      },
-
-
-
-      getLinkType(href) {
-        let type = 'internal';
-
-        if (!href) {
-          return type;
-        }
-
-        if (href.includes('mailto:')) {
-          type = 'email';
-        }
-
-        if (href.includes('http://') || href.includes('https://')) {
-          type = 'external';
-        }
-
-        if (href.includes('/storage/uploads')) {
-          type = 'file';
-        }
-
-        return type;
-      },
-
-      loadSitemapModal(element) {
-        eventBus.$emit('sitemap-reload');
-        window.app.sitemap.showModal = true;
-        window.app.sitemap.active = true;
-        window.app.sitemap.model = this.editorId;
-        this.sitemap.element = element;
-      },
-
-      loadMediaModal(type = '*') {
-        eventBus.$emit('media-set-type', type);
-        eventBus.$emit('media-reload');
-        window.app.media.showModal = true;
-        window.app.media.model = this.editorId;
-
-        this.modalType = type;
-      },
-
-
-      setAttrs(type, attrs) {
-        for (const attr in attrs) {
-          let value = attrs[attr];
-          if (attr === 'target' && !value) {
-            value = null;
-          }
-          this[type].attrs[attr] = value;
-        }
-      },
-
-      resetAttrs(type) {
-        for (const attr in this[type].attrs) {
-          this[type].attrs[attr] = null;
-        }
-      },
-
-      loadImageThumb(src) {
-        if (src) {
-          const img = new Image();
-          img.onload = function() {};
-          img.src = src;
-          this.$refs.imageThumb.style.backgroundImage = `url(${src})`;
-        } else {
-          this.$refs.imageThumb.style.backgroundImage = null;
         }
       }
     }
+  },
 
-  }
+  mounted() {
+    this.editor.config.editorId = `trumbowyg-${this.id}-${Date.now()}`;
+
+    // Return early if instance is already loaded
+    if (this.editor.el) return;
+
+    // Store DOM
+    this.editor.el = jQuery(this.$refs.editor);
+
+    // Init editor with config
+    this.editor.el.trumbowyg(this.editor.config);
+    // Set initial value
+    this.editor.el.trumbowyg('html', this.data);
+
+    // Watch for further changes
+    this.editor.el.on(`${this.editor.eventPrefix}change`, this.onChange);
+
+    // Blur event for validation libraries
+    this.editor.el.on(`${this.editor.eventPrefix}blur`, this.onBlur);
+
+    // Register events
+    this.registerEvents();
+  },
+
+  created() {
+    const config = window.app.richEditor;
+
+    if (config.toolbar) {
+      this.editor.config.btns = config.toolbar;
+    }
+
+    if (config.formatting) {
+      this.editor.config.btnsDef.refinedFormatting = {
+        ...this.editor.config.btnsDef.refinedFormatting,
+        ...config.formatting
+      }
+    }
+
+    if (config.fontSize) {
+      if (!this.editor.config.plugins) {
+        this.editor.config.plugins = {}
+      }
+      this.editor.config.plugins.fontsize = {
+        sizeList: config.fontSize
+      }
+    }
+
+    if (config.link && config.link.type && config.link.type === 'advanced') {
+      this.editor.config.linkType = 'advanced';
+    }
+
+    if (config.tagClasses) {
+      this.editor.config.tagClasses = config.tagClasses;
+    }
+
+    if (this.content) {
+      this.data = this.content;
+    }
+
+
+    eventBus.$on('selecting-file', data => {
+      document.querySelector('body').classList.remove('body-has-modal');
+
+      if (data.model === this.editor.config.editorId) {
+        const type = window.app.media.type === 'Image' ? 'image' : 'link';
+        const url = data.link.original.replace(data.link.basePath, '/')
+
+        if (type === 'image') {
+          this.loadImageThumb(url, window.app.media.fieldId);
+        }
+
+        if (type === 'link') {
+          this.loadLink(url, window.app.media.fieldId);
+        }
+      }
+
+      eventBus.$emit('media-clear');
+    });
+
+    eventBus.$on('selecting-link', link => {
+      document.querySelector('body').classList.remove('body-has-modal');
+
+      if (window.app.sitemap.model === this.editor.config.editorId) {
+        this.loadLink(link, window.app.sitemap.fieldId);
+      }
+
+      eventBus.$emit('sitemap-clear');
+    });
+  },
+
+  methods:  {
+    /**
+     * Emit input event with current editor value
+     * This will update v-model on parent component
+     * This method gets called when value gets changed by editor itself
+     *
+     * @param event
+     */
+    onChange(event) {
+      this.data = event.target.value;
+      this.$emit('input', event.target.value);
+    },
+
+    /**
+     * This event is different from tbw-blur event
+     *
+     * @param event
+     */
+    onBlur(event) {
+      this.data = event.target.value;
+      this.$emit('blur', event.target.value);
+    },
+
+    /**
+     * Emit all available events
+     */
+    registerEvents() {
+      const events = [
+        'init', 'focus', 'blur', 'change', 'resize', 'paste', 'openfullscreen', 'closefullscreen', 'close', 'modalopen', 'modalclose', 'input'
+      ];
+      events.forEach((name) => {
+        this.editor.el.on(`${this.editor.eventPrefix}${name}`, (...args) => {
+          this.$emit(`${this.editor.eventPrefix}-${name}`, ...args);
+        });
+      })
+    },
+
+    loadImageThumb(src, fieldId) {
+      const element = document.getElementById(fieldId);
+      if (element) {
+        const image = element.querySelector('.rich-editor__modal-thumb');
+        const input = element.querySelector('input')
+
+        if (image) {
+          if (src) {
+            const img = new Image();
+            img.onload = function() {};
+            img.src = src;
+            image.style.backgroundImage = `url(${src})`;
+          } else {
+            image.style.backgroundImage = null;
+          }
+        }
+
+        if (input) {
+          input.value = src;
+        }
+
+      }
+    },
+
+    loadLink(src, fieldId) {
+      const element = document.getElementById(`${fieldId}-url`)
+      if (element) {
+        element.value = src;
+      }
+    },
+
+  },
+
+  beforeDestroy() {
+    if (!this.editor.el) return;
+
+    this.editor.el.trumbowyg('destroy');
+    this.editor.el = null;
+  },
+
+};
 </script>

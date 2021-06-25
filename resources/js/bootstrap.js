@@ -1,7 +1,6 @@
 // todo: remove jquery
-try {
-  window.$ = window.jQuery = require('jquery');
-} catch (e) {}
+import jQuery from 'jquery'
+window.jQuery = window.$ = jQuery
 
 // todo: remove this too
 require('jquery-ui/ui/widgets/sortable.js');

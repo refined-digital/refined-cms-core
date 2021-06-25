@@ -73,10 +73,14 @@
 
         </div><!-- / app holder -->
 
+        <script>
+          window.app.richEditor = {!! json_encode(config('rich-editor')) !!}
+        </script>
+
         <script src="{{ asset('vendor/refined/core/js/main.js?v='.uniqid()) }}"></script>
         <script>
             window.app.siteUrl = "{{ rtrim(config('app.url'), '/') }}";
-            window.app.user = JSON.parse('{!! json_encode(users()->getLoggedInUser()) !!}');
+            window.app.user = {!! json_encode(users()->getLoggedInUser()) !!}
         </script>
         @yield('scripts')
     </body>

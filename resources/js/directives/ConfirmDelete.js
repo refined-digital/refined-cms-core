@@ -1,3 +1,5 @@
+import Vue from 'vue'
+
 Vue.directive('confirm-delete', {
   bind: function(el) {
     var submitForm = false;

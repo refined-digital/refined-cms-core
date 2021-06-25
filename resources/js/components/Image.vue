@@ -133,10 +133,8 @@
 
           setAltText() {
             let alt = this.file && this.file.alt ? this.file.alt : '';
-            console.log(this.file, this.model, this.image);
 
             if (this.model.alts.length) {
-              console.log('has some model alts');
               const found = this.model.alts.find(al => {
                 return (al.field_name === this.name)
               })
@@ -148,22 +146,17 @@
 
             this.image.alt = alt;
             if (this.file && this.file.alt) {
-              console.log('has a file alt');
               this.image.fileAlt = this.file.alt;
             }
 
             if (this.model && this.model.oldAlt) {
-              console.log('there is an old');
               alt = this.model.oldAlt;
             }
 
             if (typeof this.fieldName !== 'undefined' && this.file.alt_texts.length) {
-              console.log('there are file alts');
               const found = this.file.alt_texts.find(al => {
                 return (al.field_name === this.fieldName && al.type_id === this.model.id)
               })
-
-              console.log('found', found);
 
               if (found) {
                 alt = found.alt;
@@ -172,7 +165,6 @@
 
             // if alt is already set, use it
             if (this.alt) {
-              console.log('this there an alt already?', this.alt);
               alt = this.alt;
             }
 

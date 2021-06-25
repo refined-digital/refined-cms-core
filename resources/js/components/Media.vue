@@ -30,11 +30,11 @@
           <h3>{{ category.name }}</h3>
           <aside>
             <template v-if="show.buttons.controls">
-              <template v-if="tab == 'details-category'">
+              <template v-if="tab === 'details-category'">
                 <a href="" class="button button--grey button--small" @click.prevent.stop="categorySave">Save</a>
                 <a href="" class="button button--red button--small" @click.prevent.stop="categoryCancel">Cancel</a>
               </template>
-              <template v-if="tab == 'details-file'">
+              <template v-if="tab === 'details-file'">
                 <a href="" class="button button--grey button--small" @click.prevent.stop="mediaSave">Save</a>
                 <a href="" class="button button--red button--small" @click.prevent.stop="loadFiles">Cancel</a>
               </template>
@@ -55,16 +55,16 @@
         <div class="pages__tabs" v-if="!modal">
           <nav>
             <ul>
-              <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == 'files') }" @click="loadFiles" v-if="show.tabs.files">Files</li>
-              <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == 'details-file') }" @click="tab = 'details-file'" v-if="show.tabs.details.file">Details</li>
-              <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == 'details-category') }" @click="categoryShow" v-if="show.tabs.details.category">Details</li>
+              <li class="pages__tab" :class="{ ' pages__tab--active' : (tab === 'files') }" @click="loadFiles" v-if="show.tabs.files">Files</li>
+              <li class="pages__tab" :class="{ ' pages__tab--active' : (tab === 'details-file') }" @click="tab = 'details-file'" v-if="show.tabs.details.file">Details</li>
+              <li class="pages__tab" :class="{ ' pages__tab--active' : (tab === 'details-category') }" @click="categoryShow" v-if="show.tabs.details.category">Details</li>
             </ul>
           </nav>
         </div>
 
         <div class="pages__info">
 
-          <div class="pages__tab-pane" v-show="tab == 'details-category' && !search">
+          <div class="pages__tab-pane" v-show="tab === 'details-category' && !search">
             <header class="pages__tab-pane-header">
               <h3>Category Details</h3>
               <aside>
@@ -83,7 +83,7 @@
 
           </div>
 
-          <div class="pages__tab-pane" v-show="tab == 'details-file' && !search">
+          <div class="pages__tab-pane" v-show="tab === 'details-file' && !search">
             <header class="pages__tab-pane-header">
               <h3>File Details</h3>
             </header>
@@ -139,13 +139,13 @@
 
           </div>
 
-          <div class="pages__tab-pane pages__tab-pane--full" v-show="tab == 'files' && !search">
+          <div class="pages__tab-pane pages__tab-pane--full" v-show="tab === 'files' && !search">
             <div class="media-files">
               <header class="pages__tab-pane-header">
                 <h3>File Listing</h3>
                 <aside class="media__toggle">
-                  <i class="fas fa-th-large" :class="{ 'media__toggle--active' : $root.media.display == 'thumb' }" @click="mediaDisplay('thumb')"></i>
-                  <i class="fas fa-th-list" :class="{ 'media__toggle--active' : $root.media.display == 'list' }" @click="mediaDisplay('list')"></i>
+                  <i class="fas fa-th-large" :class="{ 'media__toggle--active' : $root.media.display === 'thumb' }" @click="mediaDisplay('thumb')"></i>
+                  <i class="fas fa-th-list" :class="{ 'media__toggle--active' : $root.media.display === 'list' }" @click="mediaDisplay('list')"></i>
                 </aside>
               </header>
 
@@ -157,7 +157,7 @@
                   v-draggable-media
                   :data-id="file.id"
                   @click="mediaLoad(file)"
-                  v-if="type == file.type || type == '*' || (type === 'Image' && file.type === 'Video')"
+                  v-if="type === file.type || type === '*' || (type === 'Image' && file.type === 'Video')"
                 >
                   <rd-media-file :file="file"></rd-media-file>
                 </div>
@@ -267,6 +267,7 @@
       eventBus.$on('media-close', this.close);
       eventBus.$on('media-set-type', this.setType);
       eventBus.$on('media-reload', this.reload);
+      eventBus.$on('media-clear', this.clear);
     },
 
     data() {
@@ -342,7 +343,7 @@
 
     watch: {
       search(value) {
-        if (this.tab != 'files' && value.length > 0) {
+        if (this.tab !== 'files' && value.length > 0) {
           this.loadFiles();
         }
       }
@@ -354,7 +355,7 @@
           let search = this.search.toLowerCase();
           let name = item.name.toLowerCase();
 
-          if (this.type == item.type || this.type == '*') {
+          if (this.type === item.type || this.type === '*') {
             return name.indexOf(search) !== -1;
           }
 
@@ -371,7 +372,7 @@
           .get('/refined/media/get-tree')
           .then(r => {
             this.$root.loading = false;
-            if (r.status == 200) {
+            if (r.status === 200) {
               this.categories = r.data.tree;
               this.leaf.category = r.data.categoryLeaf;
               this.leaf.media = r.data.mediaLeaf;
@@ -416,7 +417,7 @@
         }
 
         // always have the media category open
-        if (category.id == 1) {
+        if (category.id === 1) {
           category.show = true;
         }
       },
@@ -483,7 +484,7 @@
               let parentId = e.dataset.parent;
 
               // check to see if the parent has updated
-              if (parent.dataset.id != newParent.dataset.id) {
+              if (parent.dataset.id !== newParent.dataset.id) {
                 // we have a different parent, need to update
                 children = newParent.querySelectorAll(':scope > .tree__branch');
                 parentId = parseInt(newParent.dataset.id);
@@ -525,7 +526,7 @@
       // finds the folder the particular page is in
       findFolder() {
         let key = this.category.parent_id;
-        if (typeof this.tree[key] != 'undefined' && this.tree[key].show == false) {
+        if (typeof this.tree[key] != 'undefined' && this.tree[key].show === false) {
           this.tree[key].show = true;
         }
       },
@@ -547,7 +548,7 @@
         this.category.show = true;
         this.show.tabs.files = true;
         this.show.tabs.details.category = true;
-        this.show.buttons.categoryDelete =  (this.category.files.length || this.category.children.length) ? false : true;
+        this.show.buttons.categoryDelete =  (!(this.category.files.length || this.category.children.length));
         this.categoryClose();
 
         this.turnOnParents(this.category);
@@ -600,7 +601,7 @@
         ;
 
         // do the validation
-        if (!check.test(this.category.name) || this.category.name == null) {
+        if (!check.test(this.category.name) || this.category.name === null) {
           errors.push(1);
           let child = document.createElement('li');
           child.innerText = 'Please enter a Name';
@@ -623,7 +624,7 @@
             data: this.category,
           }
 
-          if (typeof this.category.newPage == 'undefined') {
+          if (typeof this.category.newPage === 'undefined') {
             config.method = 'PUT';
             config.url += '/'+ this.category.id
           }
@@ -634,7 +635,7 @@
               this.$root.loading = false;
               if (r.data.success) {
 
-                if (typeof this.category.newPage != 'undefined') {
+                if (typeof this.category.newPage !== 'undefined') {
                   // we have just added a page, so insert it into the menu
                   this.tree[r.data.leaf.id] = r.data.leaf;
                   if (typeof this.tree[this.category.parent_id] != 'undefined') {
@@ -723,7 +724,7 @@
       categoryFindAndRemove(items, item) {
         if (items.length) {
           items.forEach((category, index) => {
-            if (item.id == category.id) {
+            if (item.id === category.id) {
               items.splice(index, 1);
               delete this.tree[item.id];
 
@@ -750,9 +751,8 @@
           axios
             .post('/refined/media/categories/position', {
               positions: ids,
-              parent: parent,
+              parent,
             })
-            .then(response => {})
             .catch(error => {
               console.log('Sort Error', error);
             })
@@ -766,12 +766,11 @@
         let config = {
           url: '/refined/media/categories/'+itemId+'/update-parent',
           method: 'PUT',
-          data: { parentId: parentId }
+          data: { parentId }
         };
 
         axios
           .request(config)
-          .then(response => {})
           .catch(error => {
             console.log('Sort Error', error);
           })
@@ -815,7 +814,7 @@
 
           let args2 = this.$root.clone(args);
           args2.clickable = false;
-          args2.previewTemplate = self.$el.querySelector('.media__file--template').innerHTML,
+          args2.previewTemplate = self.$el.querySelector('.media__file--template').innerHTML
           delete args2.previewsContainer;
 
           this.drop2 = new Dropzone(
@@ -835,14 +834,14 @@
       },
 
       dropError(err) {
-        if (err.status == 'error') {
+        if (err.status === 'error') {
           if (typeof err.xhr != 'undefined') {
             let msg = JSON.parse(err.xhr.response);
             let message = '';
             if (typeof msg.exception != 'undefined') {
               message = msg.message ? msg.message : msg.exception;
 
-              if (message == 'Symfony\\Component\\HttpKernel\\Exception\\NotFoundHttpException') {
+              if (message === 'Symfony\\Component\\HttpKernel\\Exception\\NotFoundHttpException') {
                 message = 'Route not found, please contact support';
               }
 
@@ -909,7 +908,7 @@
           // find the media in the listing
           if (oldCategory.files.length) {
             oldCategory.files.forEach((f, index) => {
-              if (f.id == file.id) {
+              if (f.id === file.id) {
                 oldCategory.files.splice(index, 1);
               }
             });
@@ -1107,6 +1106,14 @@
         this.$root.media.model = 0;
         this.reset();
         this.scroll();
+      },
+
+      clear() {
+        this.close();
+        this.$root.media.display = 'thumb';
+    	  this.$root.media.model = null;
+        this.$root.media.fieldId = null;
+        this.$root.media.type = 'image';
       },
 
       setType(type) {

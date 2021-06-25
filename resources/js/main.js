@@ -4,6 +4,7 @@ window.dragula = require('dragula');
 window.swal = require('sweetalert');
 require('./directives/_directives');
 
+import Vue from 'vue'
 import kebabCase from 'lodash.kebabcase';
 
 import DateTimePicker from './components/DateTimePicker';
@@ -61,6 +62,7 @@ window.app = new Vue({
     	tab: 'content',
     	loading: false,
     	siteUrl: false,
+      richEditor: {},
     	user: {},
     	content: {
     	  name: null,
@@ -70,12 +72,15 @@ window.app = new Vue({
     	  active: false,
     	  display: 'thumb',
     	  showModal: false,
-    	  model: 0
+    	  model: null,
+        fieldId: null,
+        type: 'image'
     	},
     	sitemap: {
     	  active: false,
     	  showModal: false,
-    	  model: 0
+    	  model: null,
+        fieldId: null,
     	},
       linkAttributes: {},
     	form: {
