@@ -40,7 +40,6 @@ window.loadMediaModal = function(event, type, id, fieldId) {
   window.app.media.type = type;
 }
 
-
 window.loadSitemapModal = function(event, id, fieldId) {
   event.preventDefault();
   document.querySelector('body').classList.add('body-has-modal');
@@ -51,7 +50,6 @@ window.loadSitemapModal = function(event, id, fieldId) {
   window.app.sitemap.model = id;
   window.app.sitemap.fieldId = fieldId;
 }
-
 
 window.updateLinkType = function(event, id) {
   const element = event.target;

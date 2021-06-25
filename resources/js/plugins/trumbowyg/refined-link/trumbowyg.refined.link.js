@@ -343,7 +343,6 @@
       refinedLink: {
         // Code called by Trumbowyg core to register the plugin
         init: function (trumbowyg) {
-          console.log(trumbowyg.o);
           if (trumbowyg.o.linkType && trumbowyg.o.linkType === 'advanced') {
             defaultOptions.type = 'advanced'
           }
