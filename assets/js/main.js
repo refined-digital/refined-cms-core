@@ -5649,7 +5649,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
 
 __webpack_provided_window_dot_jQuery = window.$ = (jquery__WEBPACK_IMPORTED_MODULE_0___default()); // import the editor
 
@@ -84349,8 +84348,6 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c("div", [_vm._v(_vm._s(_vm.data))]),
-    _vm._v(" "),
     _c("textarea", { ref: "editor", attrs: { name: _vm.name, id: _vm.id } })
   ])
 }

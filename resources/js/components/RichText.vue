@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div>{{ data }}</div>
     <textarea :name="name" :id="id" ref="editor"></textarea>
   </div>
 </template>
