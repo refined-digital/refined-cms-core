@@ -1,10 +1,10 @@
 {
-    "/js/main.js": "/js/main.js?id=01d973ee66f0a5521a8b",
-    "/js/FormBuilder.js": "/js/FormBuilder.js?id=f1381533de9bee738943",
-    "/js/FormValidate.js": "/js/FormValidate.js?id=5789c004bfc1940af262",
-    "/css/main.css": "/css/main.css?id=b6b7abaeb2a6c77b973e",
-    "/img/link.svg": "/img/link.svg?id=fb47196760e34633638d",
-    "/img/login-background.jpg": "/img/login-background.jpg?id=e2ad4d09efdf762563af",
-    "/img/unlink.svg": "/img/unlink.svg?id=531b70139e2404afc33f",
-    "/svg/editor-icons.svg": "/svg/editor-icons.svg?id=2a1c0abf972927071bf6"
+    "/js/main.js": "/js/main.js",
+    "/js/FormBuilder.js": "/js/FormBuilder.js",
+    "/js/FormValidate.js": "/js/FormValidate.js",
+    "/css/main.css": "/css/main.css",
+    "/img/link.svg": "/img/link.svg",
+    "/img/login-background.jpg": "/img/login-background.jpg",
+    "/img/unlink.svg": "/img/unlink.svg",
+    "/svg/editor-icons.svg": "/svg/editor-icons.svg"
 }
