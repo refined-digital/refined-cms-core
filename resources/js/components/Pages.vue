@@ -50,7 +50,7 @@
       </div>
 
       <div class="pages__info">
-        <div class="pages__tab-pane" v-show="tab == 'details'">
+        <div class="pages__tab-pane" v-show="tab === 'details'">
         <h3>Page Details</h3>
 
         <div class="form form__horz">
@@ -130,73 +130,64 @@
 
         </div><!-- / form -->
         </div><!-- / details -->
-        <div class="pages__tab-pane" v-show="tab == 'content'">
+        <div class="pages__tab-pane" v-show="tab === 'content'">
           <header class="pages__tab-pane-header">
             <h3>Page Content</h3>
-            <aside v-if="$root.user.user_level_id < 2">
-              <a href="#" @click.prevent.stop="toggleContentEditorForm()" class="button button--green button--small"><i class="fa fa-plus"></i></a>
-            </aside>
           </header>
 
           <div class="pages__content-editor">
 
-            <div class="content-editor__controls" v-show="editor.showForm">
-              <div class="form">
-                <div class="form__group form__group--4">
-
-                  <div class="form__row form__row--required">
-                    <label for="form--editor-name" class="form__label">Name</label>
-                    <input type="text" id="form--editor-name" v-model="editor.form.name" required="required" class="form__control">
-                  </div><!-- / form row -->
-
-                  <div class="form__row form__row--required">
-                    <label for="form--editor-source" class="form__label">Source</label>
-                    <input type="text" id="form--editor-source" v-model="editor.form.source" required="required" class="form__control">
-                  </div><!-- / form row -->
-
-                  <div class="form__row form__row--required">
-                    <label for="form--editor-field-type" class="form__label">Field Type</label>
-                    <select id="form--editor-field-type" v-model="editor.form.field_type" required="required" class="form__control form__control--full-width">
-                      <option :value="item.id" v-for="item in contentTypes">{{ item.name }}</option>
-                    </select>
-                  </div><!-- / form row -->
-
-                  <div class="form__row">
-                    <label for="form--editor-note" class="form__label">Note</label>
-                    <input type="text" id="form--editor-note" v-model="editor.form.note" required="required" class="form__control">
-                  </div><!-- / form row -->
-
-                </div><!-- / form group -->
-
-                <div class="form__group form__group--1">
-                  <div class="form__row form__row--buttons form__row--buttons-inline">
-                    <a href="#" @click.prevent.stop="addContentField()" class="button button--blue button--small">Add Field</a>
-                  </div>
-                </div>
-
-              </div><!-- / form -->
-
+            <div class="content-editor__header" v-if="config.content">
+              <div class="content-editor__buttons">
+                <template v-for="content of config.content">
+                  <button class="button button--small button--green" :class="{ 'button--has-note' : content.description }" @click.prevent.stop="loadContentBlock(content)">
+                    <span class="button__text">
+                      {{ content.name }}
+                    </span>
+                    <span class="content-editor__button-note" v-if="content.description">
+                      <span class="fa fa-question-circle"></span>
+                      <span class="content-editor__button--content" v-html="content.description"></span>
+                    </span>
+                  </button>
+                </template>
+              </div>
             </div><!-- / content editor controls -->
 
-            <div class="content-editor__fields form form__horz">
-              <div class="content-editor__field" v-for="(item, index) in page.content" :data-id="item.id">
-
-                <div class="form__row form__row--inline-label">
-
-                  <div class="form__label form__label--with-controls">
-                    <i class="fa fa-times" @click="removeContent(index)" v-if="$root.user.user_level_id < 2"></i>
+            <div class="content-editor__data form form__horz" v-sortable-content-item>
+              <div
+                class="content-editor__item"
+                :class="{ 'open' : index === 0}"
+                v-for="(content, index) of page.content"
+                :data-index="index"
+                :data-id="content.id"
+                :key="content.id"
+              >
+                <div class="content-editor__item-header">
+                  <header @click="toggleContentBlockContent($event, index)">
+                    <div class="content-editor__item-toggle">
+                      <i class="fa fa-chevron-right"></i>
+                      <i class="fa fa-chevron-down"></i>
+                    </div>
+                    <h5>{{ content.name }}</h5>
+                  </header>
+                  <aside>
                     <i class="fa fa-sort" v-if="page.content && page.content.length > 1"></i>
-                    <label :for="'form--content-'+item.id">{{ item.name }}</label>
+                    <i class="fa fa-times" @click="removeContentBlock(index)"></i>
+                  </aside>
+                </div>
+                <div class="content-editor__item-content" :style="{ display: index === 0 ? 'block' : 'none' }">
+                  <div class="form form__horz">
+                    <div class="content-editor__form-row form__row form__row--inline-label" v-for="field of content.fields">
+                      <label :for="`form--content-${field.id}`" class="form__label">{{field.name}}</label>
+                      <rd-content-editor-field :item="field"></rd-content-editor-field>
+                    </div>
                   </div>
-
-                  <rd-content-editor-field :item="item"></rd-content-editor-field>
-
-                </div><!-- / form row -->
-              </div><!-- / field -->
-            </div><!-- / fields -->
+                </div>
+              </div>
+            </div>
           </div><!-- content editor -->
         </div>
-        <div class="pages__tab-pane" v-show="tab == 'meta'">
+        <div class="pages__tab-pane" v-show="tab === 'meta'">
           <h3>Meta Data</h3>
 
           <div class="form form__horz">
@@ -240,7 +231,7 @@
 
         </div>
 
-        <div class="pages__tab-pane" v-show="tab == item.tab" v-if="!item.default" v-for="item in tabs">
+        <div class="pages__tab-pane" v-show="tab === item.tab" v-if="!item.default" v-for="item in tabs">
             <h3>{{ item.name }}</h3>
             <template v-if="item.type === 'repeatable'">
               <rd-pages-repeatable
@@ -280,6 +271,7 @@
   import swal from 'sweetalert';
   import naturalSort from 'javascript-natural-sort';
   import _ from 'lodash';
+  import Vue from 'vue';
 
   export default {
 
@@ -292,12 +284,16 @@
       this.$root.loading = true;
       this.setupModules();
 
+      eventBus.$on('pages.sortable.content-item.dragend', data => {
+        this.reorderContentBlocks(data);
+      })
+
       axios
         .get('/refined/pages/get-tree')
         .then(r => {
           this.$root.loading = false;
 
-          if (r.status == 200) {
+          if (r.status === 200) {
             this.pages = r.data.tree;
             this.templates = r.data.templates;
             this.contentTypes = r.data.types;
@@ -338,7 +334,8 @@
           meta: {
             template_id: 0,
           },
-          data: {}
+          data: {},
+          content: []
         },
 
         leaf: {},
@@ -464,7 +461,18 @@
 
         //item.on = true; // use this only if we decide not to use the main model
         this.page.on = true;
-        this.tab = 'details';
+
+
+
+
+
+        this.tab = 'content';
+
+
+
+
+
+
         if (this.page.data == null) {
           this.page.data = {};
           this.addFieldData();
@@ -1045,71 +1053,29 @@
       ////////////////////////////////
       //// content editor
       ///////////////////////////////
-      toggleContentEditorForm() {
-        this.editor.showForm = !this.editor.showForm;
+      loadContentBlock(content) {
+        const newContent = _.cloneDeep(content);
+        newContent.fields.forEach(field => {
+          if (!field.content) {
+            field.content = field.page_content_type_id === 9 ? [] : ''
+          }
+          if (!field.id) {
+            field.id = `-${_.kebabCase(field.name)}-id-${Date.now()}`
+          }
+          if (!field.key) {
+            field.key = `-${_.kebabCase(field.name)}-key-${Date.now()}`
+          }
+        })
+        if (!newContent.id) {
+          newContent.id = `id-${Date.now()}`
+        }
+        if (!newContent.key) {
+          newContent.key = `key-${Date.now()}`
+        }
+        this.page.content.push(newContent);
       },
 
-      addContentField() {
-        let check   = /^.+[\s]{0,4}/,
-            errors  = [],
-            validationData = document.createElement('ul')
-        ;
-
-        // do the validation
-        if (!check.test(this.editor.form.name) || this.editor.form.name == null) {
-          errors.push(1);
-          let child = document.createElement('li');
-          child.innerText = 'Please enter a Name';
-          validationData.appendChild(child);
-        }
-        if (!check.test(this.editor.form.source) || this.editor.form.source == null) {
-          errors.push(1);
-          let child = document.createElement('li');
-          child.innerText = 'Please enter a Source';
-          validationData.appendChild(child);
-        }
-        if (this.editor.form.field_type == 0) {
-          errors.push(1);
-          let child = document.createElement('li');
-          child.innerText = 'Please select a Field Type';
-          validationData.appendChild(child);
-        }
-
-        if (errors.length) {
-          swal({
-            title: 'You have some errors in your form.',
-            content: validationData,
-            icon: 'error',
-            dangerMode: true,
-          });
-        } else {
-          // now push into the page content area
-          let length = this.page.content.length;
-          this.page.content.push({
-            id: 'field_'+length,
-            key: `field_${length}_${length}_${this.editor.form.field_type}`,
-            name: this.editor.form.name,
-            source: this.editor.form.source,
-            page_content_type_id: this.editor.form.field_type,
-            note: this.editor.form.note,
-            content: '',
-            position: length
-          });
-
-          this.resetContentForm();
-        }
-
-      },
-
-      resetContentForm() {
-        this.editor.form.name = null;
-        this.editor.form.source = null;
-        this.editor.form.field_type = 1;
-        this.editor.form.note = null;
-      },
-
-      removeContent(index) {
-
+      removeContentBlock(index) {
         swal({
           title: 'Are you sure?',
           icon: 'warning',
@@ -1120,8 +1086,36 @@
             this.page.content.splice(index, 1);
           }
         });
-
       },
+
+      // todo: remove the jquery from here
+      toggleContentBlockContent(event) {
+        const klass = 'content-editor__item';
+        const element = $(event.target).closest(`.${klass}`);
+        if (element) {
+          const block = element.find('.content-editor__item-content');
+
+          if (!element.hasClass('open')) {
+            block.slideDown(200, function () {
+              element.addClass('open')
+            })
+          } else {
+            block.slideUp(200, function () {
+              element.removeClass('open')
+            })
+          }
+        }
+      },
+
+      reorderContentBlocks(order) {
+        const contentLookup = _.keyBy(this.page.content, 'id');
+        const newOrder = order.map(item => {
+          return contentLookup[item.id];
+        })
+
+        Vue.set(this.page, 'content', newOrder);
+      },
+
 
       ////////////////////////////////
       //// end content editor
@@ -1200,10 +1194,17 @@
               page_content_type_id: field.page_content_type_id,
               content: this.pageContentAsArray.includes(field.page_content_type_id) ? [] : '',
               key: this.getRepeatableFieldIndex(field, index),
-              note
+              note,
+              id: `-${_.kebabCase(field.name)}-id-${Date.now()}`
             };
             if (typeof field.options !== 'undefined') {
               d.options = field.options;
+            }
+            if (typeof field.width !== 'undefined') {
+              d.width = field.width;
+            }
+            if (typeof field.height !== 'undefined') {
+              d.height = field.height;
             }
 
             row[field.field] = d;

@@ -1,51 +1,130 @@
 .content-editor {
-  &__controls {
+  &__header {
     border-bottom: 1px solid color(input-border);
     padding-bottom: 10px;
     margin-bottom: 10px;
 
-    .form {
-      &__control {
-        padding-top: 5px;
-        padding-bottom: 10px;
+    h4 {
+      margin-bottom: 0;
+    }
+  }
+
+  &__buttons {
+    .button {
+      margin: 0 0 10px;
+      position: relative;
+      padding: 0;
+
+      & + .button {
+        margin-left: 10px;
+      }
+
+      &__text {
+        display: inline-block;
+        padding: 5px 15px;
+      }
+
+      &--has-note {
+        .button__text {
+          border-right: 1px solid darken(color(green), 10);
+        }
       }
     }
   }
 
-  &__field {
-    border-bottom: 1px solid color(input-border);
-    padding: 10px 0 20px;
+  &__button-note {
+    display: inline-block;
+    padding: 5px 10px 3px 5px;
+    .fa {
+      font-size: $systemFontSize - 3px;
+
+      &:hover + .content-editor__button--content {
+        display: block;
+      }
+    }
+  }
+
+  &__button--content {
+    display: none;
+    position: absolute;
+    top: 30px;
+    left: 0;
+    background: #ededed;
+    padding: 3px;
+    color: color(text);
+    font-size: $systemFontSize - 4px;
+    width: 300px;
+    text-align: left;
+  }
+
+  &__item {
+    border: 1px solid #ededed;
+    padding: 0;
     margin: 0 0 10px;
 
-    &.gu-mirror {
-      visibility: hidden !important;
-    }
+    &-header {
+      background: #ededed;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
 
-    .form__label--with-controls {
-      position: relative;
-      padding-right: 40px;
-      cursor: default;
+      header {
+        display: flex;
+        align-items: center;
 
-      label {
-        cursor: pointer;
-      }
+        div {
+          flex: 0 0 15px;
+          margin-right: 10px;
+          cursor: pointer;
 
-      .fa-times {
-        position: absolute;
-        right: 20px;
-        top: 6px;
-        color: color(red);
-        cursor: pointer;
-
-        &:hover {
-          color: darken(color(red), $darkenAmount);
+          .fa-chevron-down {
+            display: none;
+          }
         }
       }
 
-      .fa-sort {
-        cursor: ns-resize;
-        margin-right: 3px;
+      h5 {
+        font-size: $systemFontSize + 4px;
+        margin: 0;
+      }
+
+      aside {
+        i {
+          cursor: pointer;
+
+          & + i {
+            margin-left: 10px;
+          }
+
+          &.fa-times {
+            color: color(red);
+          }
+
+          &.fa-sort {
+            cursor: ns-resize;
+          }
+        }
       }
     }
+
+    &.open header div {
+      .fa-chevron-down {
+        display: inline-block;
+      }
+      .fa-chevron-right {
+        display: none;
+      }
+    }
+
+    &-content {
+      padding: 10px;
+      display: none;
+    }
   }
+}
+
+.form__row.content-editor__form-row {
+  border-bottom: none;
+  padding-bottom: 0;
 }

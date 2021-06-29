@@ -22,7 +22,15 @@
       </template>
 
       <template v-if="item.page_content_type_id === 4">
-        <rd-image v-model="item.content" :value="item.content" :model="{ ...imageModel, id: modelId }" :fieldName="item.fieldName" :key="modelId"></rd-image>
+        <rd-image
+            v-model="item.content"
+            :value="item.content"
+            :model="{ ...imageModel, id: modelId }"
+            :fieldName="item.fieldName"
+            :key="modelId"
+            :width="item.width || item.content.width"
+            :height="item.height || item.content.height"
+        ></rd-image>
       </template>
 
       <template v-if="item.page_content_type_id === 5">
@@ -47,8 +55,9 @@
         <rd-pages-repeatable
           :item="item"
           :data="item.content"
-          :fields="options.fields"
+          :fields="item.fields || options.fields"
           :key="item.key"
+          :heading="item.heading || 'Content'"
         ></rd-pages-repeatable>
       </template>
 

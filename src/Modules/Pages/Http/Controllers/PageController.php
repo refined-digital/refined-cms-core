@@ -61,7 +61,6 @@ class PageController extends CoreController
     {
         try {
             $item = $this->pageRepository->store($request->input('page'));
-            $this->pageRepository->syncContent($item, $request->input('page.content'));
         } catch (\Exception $e) {
             return response()->json([
                 'success' => 0,
@@ -86,7 +85,6 @@ class PageController extends CoreController
     {
         try {
             $item = $this->pageRepository->update($id, $request->input('page'));
-            $this->pageRepository->syncContent($item, $request->input('page.content'));
 
             if ($request->has('parent')) {
                 $this->pageRepository->moveChildren($id, $request->input('parent'));
@@ -162,8 +160,12 @@ class PageController extends CoreController
         $templates = $this->pageRepository->getPageTemplates();
         $types = $this->pageRepository->getContentTypes();
         $leaf = $this->pageRepository->getLeaf();
-        $formRepo = new FormBuilderRepository();
-        $forms = $formRepo->getForTree();
+        $forms = [];
+
+        try {
+          $formRepo = new FormBuilderRepository();
+          $forms = $formRepo->getForTree();
+        } catch (\Exception $e) {}
 
         return response()->json([
             'tree'      => $data,
