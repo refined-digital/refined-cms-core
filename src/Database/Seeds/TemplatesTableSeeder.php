@@ -27,14 +27,10 @@ class TemplatesTableSeeder extends Seeder
                 'active'    => 1,
             ],
             [
-                'name'      => 'Contact',
-                'source'    => 'contact',
+                'name'      => 'Forms',
+                'source'    => 'forms',
                 'active'    => 1,
-            ],
-            [
-                'name'      => 'Sitemap',
-                'source'    => 'sitemap',
-                'active'    => 1,
+                'has_forms' => true
             ],
         ];
 

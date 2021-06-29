@@ -12,23 +12,7 @@ use RefinedDigital\CMS\Modules\Pages\Models\Template;
 
 class PageRepository extends CoreRepository
 {
-    protected $with = [
-        'content',
-        'content.type',
-    ];
-
-    public function syncContent($item, $content)
-    {
-        $item->content()->forceDelete();
-        if (is_array($content) && sizeof($content)) {
-            foreach ($content as $c) {
-                if (is_array($c['content']) && $c['page_content_type_id'] == 4) {
-                    $c['content'] = $c['content']['id'];
-                }
-                $item->content()->create($c);
-            }
-        }
-    }
+    protected $with = [];
 
     // if the leaf has move holder, update the child's holder too
     public function moveChildren($id, $parent)
@@ -72,8 +56,8 @@ class PageRepository extends CoreRepository
 
                 $holder->type       = 'holder';
                 $holder->children   = [];
-                $holder->show       = $pos == 0 ? true : false; // if we are to show the sub pages
-                $holder->on         = $pos == 0 ? true : false; // if we are on the active item
+                $holder->show       = $pos == 0; // if we are to show the sub pages
+                $holder->on         = $pos == 0; // if we are on the active item
                 $holder->active     = (int) $holder->active;
                 $holder->position   = (int) $holder->position;
 
@@ -111,7 +95,7 @@ class PageRepository extends CoreRepository
             foreach ($pages as $pos => $page) {
                 $page = $this->formatBranch($page, $holderId, $depth);
 
-                $data->push($page);
+                $data->push($page->toArray());
             }
         }
 
@@ -132,6 +116,7 @@ class PageRepository extends CoreRepository
         $page->position         = (int) $page->position;
         $page->protected        = (int) $page->protected;
         $page->depth            = (int) $depth;
+        $page->content          = $page->the_content ?? [];
 
         // if we have a parent id of 0 we need to update the holder id to be negative
         if ($page->parent_id === 0) {
@@ -147,22 +132,6 @@ class PageRepository extends CoreRepository
         $meta->description = $page->meta->description;
         unset($page->meta);
         $page->meta = $meta;
-
-        if ($page->content && $page->content->count()) {
-            foreach ($page->content as $key => $content) {
-                $content->page_content_type_id = (int) $content->page_content_type_id;
-                $content->page_id = (int) $content->id;
-                $content->position = (int) $content->position;
-                $content->key = 'field_'.$content->id.'_'.$content->page_id.'_'.$content->page_content_type_id;
-                $content->fieldName = $content->position.'.content';
-
-                if ($content->type->id === 4 || $content->type->id === 5) {
-                    $content->content = (int) $content->content;
-                }
-
-                $page->content[$key] = $content;
-            }
-        }
 
         // check for children
         $children = $this->getBranch($holderId, $page->id, $depth + 1);
@@ -224,7 +193,7 @@ class PageRepository extends CoreRepository
         $leaf->page_type = 1;
         $leaf->protected = 0;
         $leaf->children = [];
-        $leaf->content = config('pages.fields');
+        $leaf->content = [];
         $leaf->meta = new \stdClass();
         $leaf->meta->template_id = 1;
         $leaf->meta->uri = '';
@@ -307,6 +276,11 @@ class PageRepository extends CoreRepository
         $baseHref = pages()->getBaseHref();
 
         $page = $class::with(['meta', 'meta.template'])->find($pageId);
+
+        if (class_basename($page) == 'Page') {
+            $page->content = $this->formatPageContentForFrontend($page->the_content);
+            unset($page->the_content);
+        }
 
         // abort if no page found
         if (!isset($page->id)) {
@@ -426,10 +400,6 @@ class PageRepository extends CoreRepository
 
         // add the depth, based on the url slugs
         $page->depth = sizeof($uriBits);
-
-        if ($base == 'Page') {
-            $page->content;
-        }
 
         return $page;
     }
@@ -653,5 +623,105 @@ class PageRepository extends CoreRepository
 
         return $depths[ $depth ] ?? '0.01';
 
+    }
+
+    public function formatData($data) {
+        $data = parent::formatData($data);
+        if ($data['content']) {
+            $data['content'] = array_map(function($block) {
+                $removeFields = ['template', 'description', 'id', 'key', 'width', 'height'];
+                foreach ($removeFields as $f) {
+                    if (isset($block[$f])) {
+                        unset($block[$f]);
+                    }
+                }
+
+                if (isset($block['fields'])) {
+                    $block['fields'] = array_map(function($item) use($removeFields) {
+                        unset($item['page_content_type_id']);
+
+                        if (isset($item['fields'])) {
+                            unset($item['fields']);
+                        }
+
+                        foreach ($removeFields as $f) {
+                            if (isset($item[$f])) {
+                                unset($item[$f]);
+                            }
+                        }
+
+                        if (isset($item['content']) && is_array($item['content'])) {
+                            $item['content'] = array_map(function($content) {
+                                $newContent = $content;
+                                foreach ($newContent as $key => $cont) {
+                                    $newContent[$key] = $cont['content'];
+                                }
+                                return $newContent;
+                            }, $item['content']);
+                        }
+
+                        return $item;
+                    }, $block['fields']);
+                }
+
+                return $block;
+            }, $data['content']);
+        }
+
+        return $data;
+    }
+
+    public function formatPageContentForFrontend($content)
+    {
+        $newContent = [];
+        if (sizeof($content)) {
+            foreach ($content as $field) {
+                $newField = new \stdClass();
+                $newField->name = $field['name'];
+                $newField->template = 'templates.content.'.$field['template'];
+                $newField->content = $this->formatPageContentFields($field['fields']);
+                $newContent[] = $newField;
+            }
+        }
+
+        return $newContent;
+    }
+
+    private function formatPageContentFields($fields)
+    {
+        $newFields = new \stdClass();
+        foreach ($fields as $field) {
+            $content = $field['content'];
+            if ($field['page_content_type_id'] == 9) {
+                $repeatableContent = [];
+                foreach ($content as $row) {
+                    $newRow = new \stdClass();
+                    foreach ($row as $key => $value) {
+                        $vContent = $value['content'];
+                        if (getType($vContent) == 'array') {
+                            $alt = $vContent['alt'];
+                            if (!$alt && $vContent['fileAlt']) {
+                                $alt = $vContent['fileAlt'];
+                            }
+                            $img = new \stdClass();
+                            $img->id = $vContent['id'];
+                            $img->alt = $alt;
+                            $img->width = $vContent['width'] ?? null;
+                            $img->height = $vContent['height'] ?? null;
+                            $vContent = $img;
+                        }
+                        $newRow->{$key} = $vContent;
+
+                    }
+                    $repeatableContent[] = $newRow;
+                }
+
+                $content = $repeatableContent;
+            }
+
+            $newFields->{str_slug($field['name'], '_')} = $content;
+        }
+
+        return $newFields;
     }
 }

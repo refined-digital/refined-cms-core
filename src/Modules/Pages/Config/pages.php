@@ -13,21 +13,76 @@ return [
             'height' => 200
         ]
     ],
-    'fields' => [
+    'content' => [
         [
-            'id' => 0,
-            'key' => 'field_0_0_1',
-            'content' => '',
             'name' => 'Content',
-            'note' => '',
-            'page_content_type_id' => 1,
-            'page_id' => 0,
-            'position' => 0,
-            'source' => 'content',
-            'type' => [
-                'id' => 1,
-                'name' => 'Rich Text',
+            'template' => 'content',
+            'description' => 'A simple Heading and Rich Editor content combo',
+            'fields' => [
+                [
+                    'name' => 'Heading',
+                    'page_content_type_id' => 3,
+                ],
+                [
+                    'name' => 'Content',
+                    'page_content_type_id' => 1
+                ],
+            ]
+        ],
+        [
+            'name' => 'Banner',
+            'template' => 'banner',
+            'description' => 'A full width banner image',
+            'fields' => [
+                [
+                    'name' => 'Image',
+                    'page_content_type_id' => 4,
+                    'width' => 1920,
+                    'height' => 600
+                ],
+            ]
+        ],
+        [
+            'name' => 'Banners',
+            'template' => 'banners',
+            'description' => 'Full width rotating banners',
+            'fields' => [
+                [
+                    'name' => 'Images',
+                    'page_content_type_id' => 9,
+                    'fields' => [
+                        [
+                            'name' => 'Image',
+                            'page_content_type_id' => 4,
+                            'field' => 'image',
+                            'hide_label' => false,
+                            'width' => 1920,
+                            'height' => 600
+                        ],
+                    ]
+                ]
+            ]
+        ],
+        [
+            'name' => 'Gallery',
+            'template' => 'gallery',
+            'description' => 'A gallery layout of images',
+            'fields' => [
+                [
+                    'name' => 'Images',
+                    'page_content_type_id' => 9,
+                    'fields' => [
+                        [
+                            'name' => 'Image',
+                            'page_content_type_id' => 4,
+                            'field' => 'image',
+                            'hide_label' => false,
+                            'width' => 800,
+                            'height' => 600
+                        ],
+                    ]
+                ]
             ]
         ]
-    ],
+    ]
 ];

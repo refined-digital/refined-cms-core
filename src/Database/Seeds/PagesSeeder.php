@@ -48,19 +48,10 @@ class PagesSeeder extends Seeder
                 'page_holder_id'    => 2,
                 'parent_id'         => 0,
                 'page_type'         => 1,
-                'template_id'       => 4,
-                'position'          => 0,
-                'name'              => 'Sitemap',
-                'uri'               => 'sitemap',
-            ],
-            [
-                'page_holder_id'    => 2,
-                'parent_id'         => 0,
-                'page_type'         => 1,
                 'template_id'       => 1,
                 'position'          => 1,
-                'name'              => 'Terms and Conditions',
-                'uri'               => 'terms-and-conditions',
+                'name'              => 'Privacy Policy',
+                'uri'               => 'privacy-policy',
             ],
         ];
 
@@ -87,18 +78,6 @@ class PagesSeeder extends Seeder
                 'uriable_type'  => 'RefinedDigital\CMS\Modules\Pages\Models\Page',
             ];
             DB::table('uri')->insert($uri);
-
-            // add the initial content
-            $content = [
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-                'page_id' => $pos+1,
-                'page_content_type_id' => 1,
-                'position' => 0,
-                'name' => 'Content',
-                'source' => 'content'
-            ];
-            DB::table('page_contents')->insert($content);
         }
     }
 }

@@ -15,15 +15,20 @@
           <span :title="file.name">{{ file.name }}</span>
         </figcaption>
       </figure>
-      <div class="form__image-alt-text">
-        <label class="form__label" :for="`alt-text-id-${altId}`">Alt Text</label>
-        <input type="text" v-model="alt" :id="`alt-text-id-${altId}`" class="form__control" @keyup="emit"/>
-      </div>
+
       <aside>
         <a href="" @click.prevent.stop="loadModal" class="button button--green button--small">Browse</a>
         <a href="" @click.prevent.stop="clearFile" class="button button--red button--small">Clear File</a>
       </aside>
     </div><!-- / form image -->
+
+    <div class="form__image--note form__note" v-if="file.note" v-html="file.note"></div>
+
+
+    <div class="form__image form__image-alt-text">
+      <label class="form__label" :for="`alt-text-id-${altId}`">Alt Text</label>
+      <input type="text" v-model="alt" :id="`alt-text-id-${altId}`" class="form__control" @keyup="emit"/>
+    </div>
   </div>
 
 </template>
@@ -37,7 +42,9 @@
           'id',
           'value',
           'model',
-          'fieldName' // used only for pages / repeatables
+          'fieldName', // used only for pages / repeatables,
+          'width',
+          'height'
         ],
 
         data() {
@@ -54,7 +61,8 @@
               file: {
                 link: {
                   thumb: ''
-                }
+                },
+                note: null
               },
 
               default: {
@@ -113,6 +121,7 @@
                   if (r.status === 200) {
                     this.file = r.data.file;
                     this.setAltText();
+                    this.setFileNote();
                     if (typeof this.name !== 'undefined') {
                       this.emit();
                     }
@@ -124,11 +133,33 @@
               ;
             } else {
               this.file = this.default;
+              this.setFileNote();
               if (typeof this.name !== 'undefined') {
                 this.emit();
               }
             }
 
+          },
+
+          setFileNote() {
+
+            if (this.width || this.height) {
+
+              const n = [];
+              if (this.width) {
+                n.push(`${this.width}px wide`)
+              }
+              if (this.height) {
+                n.push(`${this.height}px tall`)
+              }
+
+              const dimensions = `<strong>${n.length > 1 ? 'fit within ' : ''}${n.join(' x ')}</strong>`
+
+              this.file.note = `
+                Image will be resized to ${dimensions}
+                <br>If you are having trouble with images, <a href="https://www.iloveimg.com/photo-editor" target="_blank">visit this page</a> to create your image.</div>
+              `;
+            }
           },
 
           setAltText() {
@@ -166,6 +197,10 @@
             // if alt is already set, use it
             if (this.alt) {
               alt = this.alt;
+            }
+
+            if (!alt && this.value.alt) {
+              alt = this.value.alt;
             }
 
             this.alt = alt;

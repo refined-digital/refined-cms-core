@@ -5,7 +5,7 @@
         <thead>
           <tr>
             <th class="data-table__cell data-table__cell--sort">&nbsp;</th>
-            <th class="data-table__cell">Content</th>
+            <th class="data-table__cell">{{ heading }}</th>
             <th class="data-table__cell data-table__cell--options-plus"><i class="fa fa-plus" @click="addRepeatable()"></i></th>
           </tr>
         </thead>
@@ -23,7 +23,7 @@
                   :class="`data-table__cell--repeatable-${index}`"
                   v-for="(cell, cellKey, index) of fields"
                 >
-                  <label class="form__label" v-if="!cell.hide_label">{{ cell.name }}</label>
+                  <label class="form__label" :for="`form--content-${row[cell.field].id}`" v-if="!cell.hide_label">{{ cell.name }}</label>
                   <rd-content-editor-field :item="row[cell.field]" :options="cell" :model-id="modelId" :key="modelId"></rd-content-editor-field>
                 </div>
               </div>
@@ -47,7 +47,7 @@
   import draggable from 'vuedraggable'
 
   export default {
-    props: ['item', 'data', 'fields', 'modelId'],
+    props: ['item', 'data', 'fields', 'modelId', 'heading'],
 
     data() {
       return {

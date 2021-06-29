@@ -142,17 +142,6 @@ trait IsPage
         return $this->morphOne('RefinedDigital\CMS\Modules\Core\Models\Uri', 'uriable');
     }
 
-    public function getContentBySource($source)
-    {
-        if(isset($this->content) && gettype($this->content) !== 'string' && sizeof($this->content)) {
-            foreach($this->content as $content) {
-                if($content->source == $source) {
-                    return help()->formatOEmbed($content->content);
-                }
-            }
-        }
-    }
-
     public function getBannerImageAttribute()
     {
         if (is_numeric($this->attributes['banner'])) {
