@@ -1,6 +1,6 @@
 {
   "name": "@refineddigital/cms-core",
-  "version": "1.7.8",
+  "version": "1.7.9",
   "scripts": {
     "dev": "npm run development",
     "development": "mix",
