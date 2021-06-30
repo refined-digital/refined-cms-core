@@ -462,16 +462,7 @@
         //item.on = true; // use this only if we decide not to use the main model
         this.page.on = true;
 
-
-
-
-
-        this.tab = 'content';
-
-
-
-
-
+        this.tab = 'details';
 
         if (this.page.data == null) {
           this.page.data = {};

@@ -161,10 +161,10 @@ class PageController extends CoreController
         $leaf = $this->pageRepository->getLeaf();
         $forms = [];
 
-        try {
+        if (class_exists('\\RefinedDigital\\FormBuilder\\Module\\Http\\Repositories\\FormBuilderRepository')) {
           $formRepo = new \RefinedDigital\FormBuilder\Module\Http\Repositories\FormBuilderRepository();
           $forms = $formRepo->getForTree();
-        } catch (\Exception $e) {}
+        }
 
         return response()->json([
             'tree'      => $data,
