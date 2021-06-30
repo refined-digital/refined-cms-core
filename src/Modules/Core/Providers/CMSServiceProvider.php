@@ -84,14 +84,16 @@ class CMSServiceProvider extends ServiceProvider
                 ]);
             }
 
-            if (
-                env('DB_DATABASE') == 'homestead' ||
-                (\DB::connection()->getDatabaseName() && !\Schema::hasTable('users'))
-            ) {
-                $this->commands([
-                    InstallDatabase::class
-                ]);
-            }
+            try {
+                if (
+                    env('DB_DATABASE') == 'homestead' ||
+                    (\DB::connection()->getDatabaseName() && !\Schema::hasTable('users'))
+                ) {
+                    $this->commands([
+                        InstallDatabase::class
+                    ]);
+                }
+            } catch (\Exception $e) {}
 
             if (!is_dir(public_path('vendor/refined/core'))) {
                 $this->commands([
