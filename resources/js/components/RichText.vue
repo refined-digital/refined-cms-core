@@ -183,59 +183,71 @@ export default {
   },
 
   mounted() {
-    this.editor.config.editorId = `trumbowyg-${this.id}-${Date.now()}`;
-
-    // Return early if instance is already loaded
-    if (this.editor.el) return;
-
-    // Store DOM
-    this.editor.el = jQuery(this.$refs.editor);
-
-    // Init editor with config
-    this.editor.el.trumbowyg(this.editor.config);
-    // Set initial value
-    this.editor.el.trumbowyg('html', this.data);
-
-    // Watch for further changes
-    this.editor.el.on(`${this.editor.eventPrefix}change`, this.onChange);
-
-    // Blur event for validation libraries
-    this.editor.el.on(`${this.editor.eventPrefix}blur`, this.onBlur);
-
-    // Register events
-    this.registerEvents();
   },
 
   created() {
-    const config = window.app.richEditor;
+    this.$nextTick(() => {
+      const time = setTimeout(() => {
+        const config = window.app.richEditor;
 
-    if (config.toolbar) {
-      this.editor.config.btns = config.toolbar;
-    }
+        if (config) {
+          if (config.toolbar) {
+            this.editor.config.btns = config.toolbar;
+          }
 
-    if (config.formatting) {
-      this.editor.config.btnsDef.refinedFormatting = {
-        ...this.editor.config.btnsDef.refinedFormatting,
-        ...config.formatting
-      }
-    }
+          if (config.formatting) {
+            this.editor.config.btnsDef.refinedFormatting = {
+              ...this.editor.config.btnsDef.refinedFormatting,
+              ...config.formatting
+            }
+          }
 
-    if (config.fontSize) {
-      if (!this.editor.config.plugins) {
-        this.editor.config.plugins = {}
-      }
-      this.editor.config.plugins.fontsize = {
-        sizeList: config.fontSize
-      }
-    }
+          if (config.fontSize) {
+            if (!this.editor.config.plugins) {
+              this.editor.config.plugins = {}
+            }
+            this.editor.config.plugins.fontsize = {
+              sizeList: config.fontSize
+            }
+          }
 
-    if (config.link && config.link.type && config.link.type === 'advanced') {
-      this.editor.config.linkType = 'advanced';
-    }
+          if (config.link && config.link.type && config.link.type === 'advanced') {
+            this.editor.config.linkType = 'advanced';
+          }
 
-    if (config.tagClasses) {
-      this.editor.config.tagClasses = config.tagClasses;
-    }
+          if (config.tagClasses) {
+            this.editor.config.tagClasses = config.tagClasses;
+          }
+        }
+
+        this.editor.config.editorId = `trumbowyg-${this.id}-${Date.now()}`;
+
+        // Return early if instance is already loaded
+        if (this.editor.el) return;
+
+        // Store DOM
+        this.editor.el = jQuery(this.$refs.editor);
+
+        // Init editor with config
+        this.editor.el.trumbowyg(this.editor.config);
+        // Set initial value
+        this.editor.el.trumbowyg('html', this.data);
+
+        // Watch for further changes
+        this.editor.el.on(`${this.editor.eventPrefix}change`, this.onChange);
+
+        // Blur event for validation libraries
+        this.editor.el.on(`${this.editor.eventPrefix}blur`, this.onBlur);
+
+        // Register events
+        this.registerEvents();
+
+        clearTimeout(time);
+
+      }, 5)
+    })
+
+
 
     if (this.content) {
       this.data = this.content;

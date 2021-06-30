@@ -122,7 +122,7 @@
           <div class="form__row form__row--inline-label" v-if="showBanner()">
             <label for="form--menu-text" class="form__label">Banner Image</label>
             <div class="form__horz-group">
-              <rd-image v-model="page.banner" fieldName="banner" :model="{ name: 'RefinedDigital\\CMS\\Modules\\Pages\\Models\\Page', alts: [], id: page.id }" :key="page.id"></rd-image>
+              <rd-image v-model="page.banner" fieldName="banner" :key="page.id"></rd-image>
               <div class="form__note" v-html="getImageNote(config.banner)"></div>
             </div>
           </div><!-- / form row -->

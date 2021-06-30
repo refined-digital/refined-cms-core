@@ -305,32 +305,4 @@ trait EditFormFieldsTrait
         return array();
     }
 
-    public function findImageFields() {
-        $fields = [];
-        if ($this->formFields) {
-            $dots = array_dot($this->formFields);
-            if (is_array($dots) && sizeof($dots)) {
-                $foundImageKeys = [];
-                // find all the image types
-                foreach ($dots as $key => $value) {
-                    if ($value === 'image') {
-                        $foundImageKeys[] = $key;
-                    }
-                }
-
-                // now find the field names
-                if (sizeof($foundImageKeys)) {
-                    foreach ($foundImageKeys as $key) {
-                        $keyToFind = str_replace('.type', '.name', $key);
-                        if (isset($dots[$keyToFind])) {
-                            $fields[] = $dots[$keyToFind];
-                        }
-                    }
-                }
-            }
-        }
-
-        return $fields;
-    }
-
 }

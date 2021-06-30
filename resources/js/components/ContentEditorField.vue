@@ -25,11 +25,9 @@
         <rd-image
             v-model="item.content"
             :value="item.content"
-            :model="{ ...imageModel, id: modelId }"
-            :fieldName="item.fieldName"
-            :key="modelId"
-            :width="item.width || item.content.width"
-            :height="item.height || item.content.height"
+            :key="item.id"
+            :width="item.width"
+            :height="item.height"
         ></rd-image>
       </template>
 
@@ -70,16 +68,7 @@
 
   export default {
 
-    props: [ 'item', 'options', 'modelId' ],
-
-    data() {
-      return {
-        imageModel: {
-          name: 'RefinedDigital\\CMS\\Modules\\Pages\\Models\\Page',
-          alts: []
-        }
-      }
-    },
+    props: [ 'item', 'options' ],
 
     methods: {
       selectChanged(item) {

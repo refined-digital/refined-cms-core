@@ -62,6 +62,9 @@ class Page extends CoreModel implements Sortable
         $formattedData = [];
         if ($data && sizeof($data)) {
             foreach ($data as $field) {
+                if (!isset($setupLookup[$field->name])) {
+                    continue;
+                }
                 $newField = $setupLookup[$field->name];
                 $newField['id'] = uniqid();
                 $newField['key'] = uniqid();
@@ -85,23 +88,6 @@ class Page extends CoreModel implements Sortable
 
                                     if (sizeof($contentField)) {
                                         $type = $contentField[0]['page_content_type_id'];
-                                        $width = $contentField[0]['width'] ?? null;
-                                        $height = $contentField[0]['height'] ?? null;
-                                        if ($type == 4) {
-                                            $newValue = [
-                                                'id' => $value,
-                                                'fileAlt' => '',
-                                                'alt' => '',
-                                                'width' => $width,
-                                                'height' => $height,
-                                                'model' => [
-                                                    'name' => get_class($this),
-                                                    'alts' => [],
-                                                ],
-                                            ];
-                                            $value = $newValue;
-                                        }
-
                                         $newContentField = [
                                             'page_content_type_id' => $type,
                                             'key' => uniqid(),
@@ -124,7 +110,7 @@ class Page extends CoreModel implements Sortable
                             }
                         }
 
-                        if ($item['page_content_type_id'] == 4) {
+                        /*if ($item['page_content_type_id'] == 4) {
                             $blockAsObject = (object) $block[0];
                             $width = $blockAsObject->width ?? null;
                             $height = $blockAsObject->height ?? null;
@@ -136,17 +122,11 @@ class Page extends CoreModel implements Sortable
                             }
                             $newValue = [
                                 'id' => $item['content'],
-                                'fileAlt' => '',
-                                'alt' => '',
                                 'width' => $width,
                                 'height' => $height,
-                                'model' => [
-                                    'name' => get_class($this),
-                                    'alts' => [],
-                                ],
                             ];
                             $item['content'] = $newValue;
-                        }
+                        }*/
 
                         $item['id'] = uniqid();
                         $item['key'] = uniqid();

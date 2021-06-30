@@ -1,6 +1,6 @@
 <template>
   <div class="form__control--image">
-    <input type="hidden" v-model="imageAsString" :name="name" :id="id">
+    <input type="hidden" v-model="image" :name="name" :id="id">
     <div class="form__image">
       <figure>
         <span class="form__image-thumb">
@@ -23,12 +23,6 @@
     </div><!-- / form image -->
 
     <div class="form__image--note form__note" v-if="file.note" v-html="file.note"></div>
-
-
-    <div class="form__image form__image-alt-text">
-      <label class="form__label" :for="`alt-text-id-${altId}`">Alt Text</label>
-      <input type="text" v-model="alt" :id="`alt-text-id-${altId}`" class="form__control" @keyup="emit"/>
-    </div>
   </div>
 
 </template>
@@ -41,22 +35,13 @@
           'name',
           'id',
           'value',
-          'model',
-          'fieldName', // used only for pages / repeatables,
           'width',
           'height'
         ],
 
         data() {
             return {
-              image: {
-                id: '',
-                fileAlt: '',
-              },
-
-              imageAsString: '',
-
-              alt: '',
+              image: '',
 
               file: {
                 link: {
@@ -71,7 +56,6 @@
                 }
               },
 
-              altId: Date.now()
             }
         },
 
@@ -84,7 +68,7 @@
         methods:  {
 
           clearFile() {
-            this.image.id = null;
+            this.image = null;
             this.file = this.$root.clone(this.default);
             this.emit();
           },
@@ -99,28 +83,22 @@
           updateFile(data) {
             if (data.model === this._uid) {
               this.file = data;
-              this.image.id = this.file.id;
-              this.setAltText();
+              this.image = this.file.id;
               this.emit();
               eventBus.$emit('media-close');
             }
           },
 
           loadFile() {
-            if (this.value && typeof this.value !== 'number') {
-              this.image.id = this.value.id;
-            } else {
-              this.image.id = this.value;
-            }
+            this.image = this.value;
 
-            if (this.image.id) {
+            if (this.value) {
               axios
-                .get('/refined/media/'+this.image.id)
+                .get('/refined/media/'+this.value)
                 .then(r => {
                   this.$root.loading = false;
                   if (r.status === 200) {
                     this.file = r.data.file;
-                    this.setAltText();
                     this.setFileNote();
                     if (typeof this.name !== 'undefined') {
                       this.emit();
@@ -162,64 +140,8 @@
             }
           },
 
-          setAltText() {
-            let alt = this.file && this.file.alt ? this.file.alt : '';
-
-            if (this.model.alts.length) {
-              const found = this.model.alts.find(al => {
-                return (al.field_name === this.name)
-              })
-
-              if (found) {
-                alt = found.alt;
-              }
-            }
-
-            this.image.alt = alt;
-            if (this.file && this.file.alt) {
-              this.image.fileAlt = this.file.alt;
-            }
-
-            if (this.model && this.model.oldAlt) {
-              alt = this.model.oldAlt;
-            }
-
-            if (typeof this.fieldName !== 'undefined' && this.file.alt_texts.length) {
-              const found = this.file.alt_texts.find(al => {
-                return (al.field_name === this.fieldName && al.type_id === this.model.id)
-              })
-
-              if (found) {
-                alt = found.alt;
-              }
-            }
-
-            // if alt is already set, use it
-            if (this.alt) {
-              alt = this.alt;
-            }
-
-            if (!alt && this.value.alt) {
-              alt = this.value.alt;
-            }
-
-            this.alt = alt;
-          },
-
           emit() {
-            let data = null;
-            if (this.image.id) {
-              const image = {
-                id: this.image.id,
-                fileAlt: this.file.alt,
-                alt: this.alt,
-                model: this.model
-              };
-              data = typeof this.name !== 'undefined' ? JSON.stringify(image) : image;
-              this.imageAsString = data;
-            }
-
-            this.$emit('input', data);
+            this.$emit('input', this.image);
           }
 
 

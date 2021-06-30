@@ -24,7 +24,7 @@
                   v-for="(cell, cellKey, index) of fields"
                 >
                   <label class="form__label" :for="`form--content-${row[cell.field].id}`" v-if="!cell.hide_label">{{ cell.name }}</label>
-                  <rd-content-editor-field :item="row[cell.field]" :options="cell" :model-id="modelId" :key="modelId"></rd-content-editor-field>
+                  <rd-content-editor-field :item="getItem(row, cell)" :options="cell" :key="row[cell.field].id"></rd-content-editor-field>
                 </div>
               </div>
             </td>
@@ -47,11 +47,12 @@
   import draggable from 'vuedraggable'
 
   export default {
-    props: ['item', 'data', 'fields', 'modelId', 'heading'],
+    props: ['item', 'data', 'fields', 'heading'],
 
     data() {
       return {
-        parent: null
+        parent: null,
+        formattedData: []
       }
     },
 
@@ -82,6 +83,18 @@
           }
         }
         return false;
+      },
+
+      getItem(row, cell) {
+        const item = row[cell.field];
+
+        // attach the width and height to the image item;
+        if (item.page_content_type_id === 4 && (cell.width || cell.height)) {
+          item.width = cell.width || null;
+          item.height = cell.height || null;
+        }
+
+        return item;
       }
     }
   }

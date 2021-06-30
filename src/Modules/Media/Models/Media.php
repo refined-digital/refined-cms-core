@@ -45,10 +45,6 @@ class Media extends CoreModel implements Sortable {
         'mp4'
     ];
 
-    protected $with = [
-        'altTexts'
-    ];
-
     protected $table = 'media';
 
     public function getLinkAttribute() {
@@ -103,10 +99,5 @@ class Media extends CoreModel implements Sortable {
 
     private function getBasePath() {
         return storage_path('app/public/uploads/' . $this->id . '/' . $this->file);
-    }
-
-    public function altTexts()
-    {
-        return $this->hasMany('RefinedDigital\CMS\Modules\Media\Models\MediaAltText');
     }
 }
