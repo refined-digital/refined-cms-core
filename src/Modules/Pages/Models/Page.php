@@ -42,15 +42,6 @@ class Page extends CoreModel implements Sortable
     public function getTheContentAttribute() {
         $data = $this->content;
         $setup = config('pages.content');
-        $imageAlts = \DB::table('media_alt_text')->whereTypeDetails(get_class($this))
-            ->whereTypeId($this->id)
-            ->get();
-        $imageAltsLookup = [];
-        if ($imageAlts->count()) {
-            foreach ($imageAlts as $img) {
-                $imageAltsLookup[$img->field_name] = $img->alt;
-            }
-        }
 
         $setupLookup = [];
         if ($setup && sizeof($setup)) {
@@ -137,24 +128,6 @@ class Page extends CoreModel implements Sortable
                 $formattedData[] = $newField;
             }
         }
-
-        // attach the alts
-        $dots = array_dot($formattedData);
-        if (sizeof($imageAltsLookup)) {
-            foreach ($imageAltsLookup as $key => $value) {
-                if (isset($dots[$key.'.alt'])) {
-                    $dots[$key.'.alt'] = $value;
-                }
-            }
-
-            $formattedDataWithAlts = [];
-            foreach ($dots as $key => $value) {
-                array_set($formattedDataWithAlts, $key, $value);
-            }
-            $formattedData = $formattedDataWithAlts;
-        }
-
-        // help()->trace($formattedData);
 
         return $formattedData;
     }
