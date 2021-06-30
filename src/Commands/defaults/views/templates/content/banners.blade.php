@@ -2,15 +2,13 @@
   $images = [];
   foreach ($content->images as $img) {
       if (isset($img->image) && $img->image->id) {
-        $image = new stdClass();
-        $image->image = asset(
+        $image = asset(
           image()
             ->load($img->image->id)
             ->width($img->image->width)
             ->height($img->image->height)
             ->string()
           );
-        $image->alt = $img->image->alt ?? $img->image->fileAlt;
         $images[] = $image;
       }
   }
