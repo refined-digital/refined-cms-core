@@ -23,7 +23,7 @@
 {!!
   view()
     ->make('templates.includes.banners')
-    ->with(compact($images))
+    ->with(compact('images'))
     ->with('controls', true)
     ->with('pager', true)
 !!}
