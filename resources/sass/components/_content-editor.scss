@@ -72,6 +72,7 @@
       header {
         display: flex;
         align-items: center;
+        flex: 1;
 
         div {
           flex: 0 0 15px;
@@ -90,6 +91,7 @@
       }
 
       aside {
+        flex: 0 0 40px;
         i {
           cursor: pointer;
 
