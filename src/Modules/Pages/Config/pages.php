@@ -29,7 +29,7 @@ return [
                 ],
             ]
         ],
-        /**/
+        /*
         [
             'name' => 'Banner',
             'template' => 'banner',
@@ -85,5 +85,6 @@ return [
                 ]
             ]
         ]
+        */
     ]
 ];

@@ -698,16 +698,15 @@ class PageRepository extends CoreRepository
                     $newRow = new \stdClass();
                     foreach ($row as $key => $value) {
                         $vContent = $value['content'];
-                        if (getType($vContent) == 'array') {
-                            $alt = $vContent['alt'];
-                            if (!$alt && $vContent['fileAlt']) {
-                                $alt = $vContent['fileAlt'];
-                            }
+                        $vField = array_values(array_filter($field['fields'], function ($f) use($key) {
+                            return $f['field'] == $key;
+                        }));
+
+                        if (sizeof($vField) && isset($vField[0]['page_content_type_id']) && $vField[0]['page_content_type_id'] == 4) {
                             $img = new \stdClass();
-                            $img->id = $vContent['id'];
-                            $img->alt = $alt;
-                            $img->width = $vContent['width'] ?? null;
-                            $img->height = $vContent['height'] ?? null;
+                            $img->id = $vContent;
+                            $img->width = $vField[0]['width'] ?? null;
+                            $img->height = $vField[0]['height'] ?? null;
                             $vContent = $img;
                         }
                         $newRow->{$key} = $vContent;
@@ -717,6 +716,13 @@ class PageRepository extends CoreRepository
                 }
 
                 $content = $repeatableContent;
+            }
+            if ($field['page_content_type_id'] == 4) {
+                $imageId = $content;
+                $content = new \stdClass();
+                $content->id = $imageId;
+                $content->width = $field['width'] ?? null;
+                $content->height = $field['height'] ?? null;
             }
 
             $newFields->{str_slug($field['name'], '_')} = $content;

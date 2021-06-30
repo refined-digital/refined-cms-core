@@ -100,25 +100,7 @@ class Page extends CoreModel implements Sortable
                                 }, $item['fields']);
                             }
                         }
-
-                        /*if ($item['page_content_type_id'] == 4) {
-                            $blockAsObject = (object) $block[0];
-                            $width = $blockAsObject->width ?? null;
-                            $height = $blockAsObject->height ?? null;
-                            if (!$width && isset($item['width'])) {
-                                $width = $item['width'];
-                            }
-                            if (!$height && isset($item['height'])) {
-                                $height = $item['height'];
-                            }
-                            $newValue = [
-                                'id' => $item['content'],
-                                'width' => $width,
-                                'height' => $height,
-                            ];
-                            $item['content'] = $newValue;
-                        }*/
-
+                        
                         $item['id'] = uniqid();
                         $item['key'] = uniqid();
                         return $item;
