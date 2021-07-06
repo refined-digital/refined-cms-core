@@ -29,8 +29,11 @@ class PaymentGateway {
         if ($fields['Address 2']) {
             $address[] = $fields['Address 2'];
         }
-        if ($fields['Suburb']) {
+        if (isset($fields['Suburb']) && $fields['Suburb']) {
             $address[] = $fields['Suburb'];
+        }
+        if (isset($fields['City / Town']) && $fields['City / Town']) {
+            $address[] = $fields['City / Town'];
         }
         if ($fields['State']) {
             $address[] = $fields['State'];

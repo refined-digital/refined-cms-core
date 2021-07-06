@@ -66,7 +66,7 @@ class Page extends CoreModel implements Sortable
                         }));
 
                         if (sizeof($block)) {
-                            $item['content'] = $block[0]->content;
+                            $item['content'] = $block[0]->content ?? '';
                         }
 
                         if ($item['page_content_type_id'] == 9 && is_array($item['content'])) {
@@ -78,7 +78,7 @@ class Page extends CoreModel implements Sortable
                                     }));
 
                                     if (sizeof($contentField)) {
-                                        $type = $contentField[0]['page_content_type_id'];
+                                        $type = $contentField[0]['page_content_type_id'] ?? 1;
                                         $newContentField = [
                                             'page_content_type_id' => $type,
                                             'key' => uniqid(),
@@ -100,7 +100,7 @@ class Page extends CoreModel implements Sortable
                                 }, $item['fields']);
                             }
                         }
-                        
+
                         $item['id'] = uniqid();
                         $item['key'] = uniqid();
                         return $item;
