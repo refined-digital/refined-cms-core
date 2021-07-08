@@ -102,4 +102,9 @@ class PaymentGateway {
         return $this;
     }
 
+    public function roundNumber($number)
+    {
+        return round($number, 2);
+    }
+
 }
