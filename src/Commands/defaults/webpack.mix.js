@@ -1,4 +1,5 @@
 const mix = require('laravel-mix');
+const { exec } = require('child_process');
 
 /*
  |--------------------------------------------------------------------------
@@ -14,8 +15,10 @@ const mix = require('laravel-mix');
 mix
   .disableNotifications()
   .sass('resources/sass/main.scss', 'public/css/main.css')
-    .options({
-      processCssUrls: false
-    })
+  .options({
+    processCssUrls: false,
+  })
   .js('resources/js/main.js', 'public/js/main.js')
-;
+  .then(() => {
+    exec('php artisan responsecache:clear');
+  });

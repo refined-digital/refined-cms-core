@@ -6,7 +6,7 @@ use Spatie\ResponseCache\Facades\ResponseCache;
 
 trait ClearResponseCacheTrait
 {
-    public static function bootClearsResponseCache()
+    public static function bootClearResponseCacheTrait()
     {
         self::created(function () {
             ResponseCache::clear();

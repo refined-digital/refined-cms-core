@@ -85,8 +85,8 @@ www
 
     // webpack.mix
     $contents = file_get_contents(base_path('webpack.mix.js'));
-    $search = ['public/', 'mix'];
-    $replace = ['public_html/', 'mix
+    $search = ['public/', '.disableNotifications()'];
+    $replace = ['public_html/', '.disableNotifications()
   .setPublicPath(\'public_html/\')'];
     $contents = str_replace($search, $replace, $contents);
     file_put_contents(base_path('webpack.mix.js'), $contents);

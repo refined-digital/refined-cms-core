@@ -4,13 +4,14 @@ namespace RefinedDigital\CMS\Modules\Pages\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use RefinedDigital\CMS\Modules\Core\Models\CoreModel;
+use RefinedDigital\CMS\Modules\Core\Traits\ClearResponseCacheTrait;
 use RefinedDigital\CMS\Modules\Pages\Traits\IsPage;
 use RefinedDigital\CMS\Modules\Pages\Traits\SortablePageTrait;
 use Spatie\EloquentSortable\Sortable;
 
 class Page extends CoreModel implements Sortable
 {
-    use SoftDeletes, IsPage, SortablePageTrait;
+    use SoftDeletes, IsPage, SortablePageTrait, ClearResponseCacheTrait;
 
     /**
      * The attributes that are mass assignable.
