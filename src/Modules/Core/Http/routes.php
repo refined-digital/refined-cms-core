@@ -5,7 +5,7 @@ use RefinedDigital\CMS\Modules\Core\Aggregates\CustomModuleRouteAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\PublicRouteAggregate;
 
 // the login routes
-Route::middleware(['web'])
+Route::middleware(['web', 'cacheResponse'])
     ->namespace('RefinedDigital\CMS\Modules\Users\Http\Controllers')
     ->group(function(){
         Route::redirect('/home', 'refined/pages');
@@ -56,7 +56,7 @@ Route::middleware(['web', 'auth', 'userLevel', 'admin'])
     })
 ;
 
-Route::middleware(['web'])
+Route::middleware(['web', 'cacheResponse'])
     ->namespace('RefinedDigital\\CMS\\Modules\\Pages\\Http\\Controllers')
     ->group(function() {
         Route::get('sitemap.xml',   ['uses' => 'PageController@xmlSitemap']);
@@ -65,7 +65,7 @@ Route::middleware(['web'])
 ;
 
 // include the public routes
-Route::middleware(['web'])
+Route::middleware(['web', 'cacheResponse'])
     ->as('refined.')
     ->namespace('RefinedDigital\\')
     ->group(function(){

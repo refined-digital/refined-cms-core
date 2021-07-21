@@ -3,12 +3,13 @@
 namespace RefinedDigital\CMS\Modules\Core\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use RefinedDigital\CMS\Modules\Core\Traits\ClearResponseCacheTrait;
 use RefinedDigital\CMS\Modules\Core\Traits\EditFormFieldsTrait;
 use Spatie\EloquentSortable\SortableTrait;
 
 class CoreModel extends Model
 {
-    use SortableTrait, EditFormFieldsTrait;
+    use SortableTrait, EditFormFieldsTrait, ClearResponseCacheTrait;
 
     protected $appends = [];
 
