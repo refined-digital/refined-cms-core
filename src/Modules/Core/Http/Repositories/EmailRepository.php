@@ -246,6 +246,10 @@ class EmailRepository extends CoreRepository {
             case 4: // radio
             case 5: // checkbox
                 $data = $this->getOptionName($field, $data);
+                // field override for select overrides
+                if (!$data && isset($request[$fieldName])) {
+                    $data = $request[$fieldName];
+                }
                 break;
             case 6: // single checkbox
             case 13: // yes no select
