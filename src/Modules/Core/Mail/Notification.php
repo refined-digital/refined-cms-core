@@ -41,10 +41,10 @@ class Notification extends Mailable
         $data->subject($this->settings->subject);
 
         if(isset($this->settings->cc)) {
-            $data->cc($this->settings->cc);
+            $data->cc(help()->explodeAndTrim($this->settings->cc));
         }
         if(isset($this->settings->bcc)) {
-            $data->bcc($this->settings->bcc);
+            $data->bcc(help()->explodeAndTrim($this->settings->bcc));
         }
         if(isset($this->settings->replyTo)) {
             $data->replyTo($this->settings->replyTo);

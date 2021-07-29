@@ -281,4 +281,14 @@ class Help {
         return $dimensions;
     }
 
+    public function explodeAndTrim($data)
+    {
+        $items = explode(',', $data);
+        $values = array_map(function($item) {
+            return trim($item);
+        }, $items);
+
+        return array_filter($values);
+    }
+
 }

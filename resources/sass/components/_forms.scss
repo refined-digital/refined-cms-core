@@ -7,7 +7,7 @@
     font-size: $systemFontSize;
   }
 
-  &__control {
+  &__control, .form__control--email-tags .selectize-input {
     display: block;
     width: 100%;
     border: 0;
@@ -22,7 +22,7 @@
 
     transition: all 0s linear 0s;
 
-    &:focus {
+    &:focus, &.input-active {
       background-size: 100% 2px, 100% 1px;
       transition-duration: 0.2s;
     }
@@ -86,6 +86,12 @@
         &.gu-mirror {
           visibility: hidden !important;
         }
+      }
+    }
+
+    &--email-tags {
+      .selectize-input {
+        padding: 2px 0 6px !important;
       }
     }
   }

@@ -55,6 +55,23 @@ class CMSServiceProvider extends ServiceProvider
             return $value > '0';
         });
 
+        Validator::extend('emails', function($attribute, $value) {
+            $rules = [
+                'email' => 'email',
+            ];
+            $emails = explode(',', $value);
+            foreach ($emails as $email) {
+                $data = [
+                    'email' => trim($email)
+                ];
+                $validator = Validator::make($data, $rules);
+                if ($validator->fails()) {
+                    return false;
+                }
+            }
+            return true;
+        });
+
 
         // load in the routes
         $this->loadRoutesFrom(__DIR__.'/../Http/routes.php');

@@ -18,7 +18,7 @@ class CreateEmailSubmissionTable extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->integer('form_id')->nullable();
-            $table->string('to')->nullable();
+            $table->text('to')->nullable();
             $table->string('from')->nullable();
             $table->string('ip')->nullable();
             $table->longText('data')->nullable();

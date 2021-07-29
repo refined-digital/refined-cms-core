@@ -29,11 +29,13 @@ import FormRepeatable from './components/FormRepeatable';
 import Icon from './components/Icon';
 import SelectAsTags from './components/SelectAsTags';
 import ProductVariations from './components/ProductVariations';
+import FormEmail from './components/FormEmail';
 
 Vue.component('rd-date-time-picker', DateTimePicker);
 Vue.component('rd-date-picker', DatePicker);
 Vue.component('rd-rich-text', RichText);
 Vue.component('rd-tags', Tags);
+Vue.component('rd-form-email', FormEmail);
 Vue.component('rd-select-as-tags', SelectAsTags);
 Vue.component('rd-pages', Pages);
 Vue.component('rd-pages-branch', PagesBranch);

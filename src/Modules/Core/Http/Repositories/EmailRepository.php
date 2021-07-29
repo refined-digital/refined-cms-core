@@ -21,7 +21,8 @@ class EmailRepository extends CoreRepository {
     public function send($settings)
     {
         $email = new Notification($settings);
-        Mail::to($settings->to)->send($email);
+        $emailAddresses = help()->explodeAndTrim($settings->to);
+        Mail::to($emailAddresses)->send($email);
 
         $submissionData = [
             'to'    => $settings->to,
