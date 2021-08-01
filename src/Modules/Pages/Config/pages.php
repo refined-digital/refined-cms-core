@@ -13,6 +13,14 @@ return [
             'height' => 200
         ]
     ],
+
+    /*
+    // global image quality override, default by image() is 90
+    'image' => [
+        'quality' => 90
+    ],
+    */
+
     'content' => [
         [
             'name' => 'Content',
