@@ -655,7 +655,16 @@
 
       // view page
       viewPage() {
-        window.open(this.url + this.page.meta.uri);
+        let url = this.url + this.page.meta.uri;
+        let i = 0;
+        while(url.endsWith('/')) {
+          url = url.slice(0, -1);
+          i += 1;
+          if (i > 5) {
+            break;
+          }
+        }
+        window.open(url);
       },
 
       // save the page

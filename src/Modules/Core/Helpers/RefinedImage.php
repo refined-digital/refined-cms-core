@@ -14,6 +14,7 @@ class RefinedImage {
     protected $type = null;
     protected $force = null;
     protected $returnType = 'string'; // object | image | string
+    protected $quality = 90;
 
     protected $directory = '';
     protected $extension = '';
@@ -83,6 +84,12 @@ class RefinedImage {
         return $this;
     }
 
+    public function quality($quality = 90)
+    {
+        $this->quality = (float) $quality;
+        return $this;
+    }
+
     public function forceNewFile($force = false)
     {
         if ($force) {
@@ -118,7 +125,7 @@ class RefinedImage {
             if (!file_exists($this->directory.$fileName) || $this->force) {
 
                 // load the image
-                $image = Image::make($this->directory.$this->file->file);
+                $image = Image::make($this->directory.$this->file->file, $this->quality);
 
                 if ($this->type && $this->width && $this->height) {
                     if ($this->type == 'fit') {
