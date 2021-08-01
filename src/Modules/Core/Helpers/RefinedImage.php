@@ -124,8 +124,13 @@ class RefinedImage {
             // only create if we are forcing, or the file doesn't already exist
             if (!file_exists($this->directory.$fileName) || $this->force) {
 
+                $quality = $this->quality;
+                if (config('pages.image.quality')) {
+                    $quality = (float) config('pages.image.quality');
+                }
+
                 // load the image
-                $image = Image::make($this->directory.$this->file->file, $this->quality);
+                $image = Image::make($this->directory.$this->file->file, $quality);
 
                 if ($this->type && $this->width && $this->height) {
                     if ($this->type == 'fit') {
