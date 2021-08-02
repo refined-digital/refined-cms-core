@@ -191,6 +191,11 @@ class PageController extends CoreController
      */
     public function render($uri = false)
     {
+
+        if (isset($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI'] == '//') {
+            return redirect('/');
+        }
+
         // the rendering of the page stuff
         $page = $this->pageRepository->findByUri($uri);
 
