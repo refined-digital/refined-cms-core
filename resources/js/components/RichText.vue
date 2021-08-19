@@ -182,9 +182,6 @@ export default {
     }
   },
 
-  mounted() {
-  },
-
   created() {
     this.$nextTick(() => {
       const time = setTimeout(() => {
@@ -258,7 +255,7 @@ export default {
       document.querySelector('body').classList.remove('body-has-modal');
 
       if (data.model === this.editor.config.editorId) {
-        const type = window.app.media.type === 'Image' ? 'image' : 'link';
+        const type = window.app.media.type.toLowerCase() === 'image' ? 'image' : 'link';
         const url = data.link.original.replace(data.link.basePath, '/')
 
         if (type === 'image') {
@@ -268,9 +265,10 @@ export default {
         if (type === 'link') {
           this.loadLink(url, window.app.media.fieldId);
         }
+
+        eventBus.$emit('media-clear');
       }
 
-      eventBus.$emit('media-clear');
     });
 
     eventBus.$on('selecting-link', link => {

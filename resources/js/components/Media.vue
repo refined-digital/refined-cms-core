@@ -1106,6 +1106,7 @@
         this.$root.media.model = 0;
         this.reset();
         this.scroll();
+        document.querySelector('body').classList.remove('body-has-modal');
       },
 
       clear() {
