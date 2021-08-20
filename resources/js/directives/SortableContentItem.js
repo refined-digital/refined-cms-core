@@ -5,7 +5,7 @@ Vue.directive('sortable-content-item', {
     dragula([el], {
       direction: 'vertical',
       moves: (el, container, handle) => {
-        return handle.classList.contains('fa-sort');
+        return handle.classList.contains('fa-sort') && handle.parentElement.classList.contains('content-editor__item-sort');
       },
     })
     .on('dragend', el => {

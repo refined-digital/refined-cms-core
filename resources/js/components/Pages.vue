@@ -170,7 +170,7 @@
                     </div>
                     <h5>{{ content.name }}</h5>
                   </header>
-                  <aside>
+                  <aside class="content-editor__item-sort">
                     <i class="fa fa-sort" v-if="page.content && page.content.length > 1"></i>
                     <i class="fa fa-times" @click="removeContentBlock(index)"></i>
                   </aside>
