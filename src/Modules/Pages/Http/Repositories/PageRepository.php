@@ -691,6 +691,9 @@ class PageRepository extends CoreRepository
     {
         $newFields = new \stdClass();
         foreach ($fields as $field) {
+            if (!$field['content']) {
+                continue;
+            }
             $content = $field['content'];
             if ($field['page_content_type_id'] == 9) {
                 $repeatableContent = [];
