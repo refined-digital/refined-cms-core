@@ -126,7 +126,7 @@ MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
 
         // add in the cache settings
         $file .= "
-RESPONSE_CACHE_ENABLED=true
+RESPONSE_CACHE_ENABLED=false
 RESPONSE_CACHE_HEADER_NAME=\"".str_slug($siteName)."\"
 RESPONSE_CACHE_DRIVER=file
 RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
