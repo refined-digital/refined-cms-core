@@ -30,6 +30,11 @@ class Pages {
             }
         }
 
+        // sort the content buttons by the name
+        usort($config['content'], function($a, $b) {
+            return strcmp($a['name'], $b['name']);
+        });
+
         return $config;
     }
 
