@@ -73,21 +73,30 @@ class Page extends CoreModel implements Sortable
                         if ($item['page_content_type_id'] == 9 && is_array($item['content'])) {
                             $item['content'] = array_map(function($content) use ($item) {
                                 $newContent = [];
+                                // add any new fields that might be missing to the content object
+                                foreach ($item['fields'] as $field) {
+                                    if (!isset($content->{$field['field']})) {
+                                        $content->{$field['field']} = null;
+                                    }
+                                }
+
                                 foreach ($content as $key => $value) {
                                     $contentField = array_values(array_filter($item['fields'], function ($cField) use ($key) {
                                         return $cField['field'] === $key;
                                     }));
 
+                                    $newContentField = [
+                                        'page_content_type_id' => 1,
+                                        'key' => uniqid(),
+                                        'id' => uniqid(),
+                                        'content' => $value,
+                                    ];
+
                                     if (sizeof($contentField)) {
-                                        $type = $contentField[0]['page_content_type_id'] ?? 1;
-                                        $newContentField = [
-                                            'page_content_type_id' => $type,
-                                            'key' => uniqid(),
-                                            'id' => uniqid(),
-                                            'content' => $value,
-                                        ];
-                                        $newContent[$key] = $newContentField;
+                                        $newContentField['page_content_type_id'] = $contentField[0]['page_content_type_id'] ?? 1;
                                     }
+
+                                    $newContent[$key] = $newContentField;
                                 }
 
                                 return $newContent;
