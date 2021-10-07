@@ -629,7 +629,7 @@ class PageRepository extends CoreRepository
         $data = parent::formatData($data);
         if ($data['content']) {
             $data['content'] = array_map(function($block) {
-                $removeFields = ['template', 'description', 'id', 'key', 'width', 'height'];
+                $removeFields = ['description', 'id', 'key', 'width', 'height'];
                 foreach ($removeFields as $f) {
                     if (isset($block[$f])) {
                         unset($block[$f]);

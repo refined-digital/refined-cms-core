@@ -45,19 +45,30 @@ class Page extends CoreModel implements Sortable
         $setup = pages()->formatConfigContent(config('pages.content'));
 
         $setupLookup = [];
+        $setupLookupByName = [];
         if ($setup && sizeof($setup)) {
             foreach ($setup as $field) {
-                $setupLookup[$field['name']] = $field;
+                $setupLookup[$field['template']] = $field;
+                $setupLookupByName[$field['name']] = $field;
             }
         }
 
         $formattedData = [];
         if ($data && sizeof($data)) {
             foreach ($data as $field) {
-                if (!isset($setupLookup[$field->name])) {
+                if (isset($field->template)) {
+                    $lookup = $setupLookup;
+                    $lookupKey = $field->template;
+                } else {
+                    $lookup = $setupLookupByName;
+                    $lookupKey = $field->name;
+                }
+
+                if (!isset($lookup[$lookupKey])) {
                     continue;
                 }
-                $newField = $setupLookup[$field->name];
+
+                $newField = $lookup[$lookupKey];
                 $newField['id'] = uniqid();
                 $newField['key'] = uniqid();
                 if (isset($newField['fields'], $field->fields) && sizeof($newField['fields']) && sizeof($field->fields)) {

@@ -86,7 +86,6 @@ class CoreRepository {
         // format the data
         $data = $this->formatData($data);
 
-
         // save the item
         $item->fill($data);
         $item->save();
