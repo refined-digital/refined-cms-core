@@ -42,7 +42,7 @@ class Page extends CoreModel implements Sortable
 
     public function getTheContentAttribute() {
         $data = $this->content;
-        $setup = config('pages.content');
+        $setup = pages()->formatConfigContent(config('pages.content'));
 
         $setupLookup = [];
         if ($setup && sizeof($setup)) {

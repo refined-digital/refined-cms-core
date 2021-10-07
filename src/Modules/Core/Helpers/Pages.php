@@ -36,20 +36,7 @@ class Pages {
         });
 
         if (function_exists('forms')) {
-            $formContent = forms()->getForSelect('content forms');
-            $config['content'] = array_map(function($content) use ($formContent) {
-                if (isset($content['fields']) && is_array($content['fields']) && sizeof($content['fields'])) {
-                    $content['fields'] = array_map(function($field) use ($formContent) {
-                        if (isset($field['options']) && $field['options'] == 'forms') {
-                            $field['options'] = $formContent;
-                        }
-
-                        return $field;
-                    }, $content['fields']);
-                }
-
-                return $content;
-            }, $config['content']);
+            $config['content'] = $this->formatConfigContent($config['content']);
         }
 
         return $config;
@@ -150,5 +137,24 @@ class Pages {
     public function getPageLink($pageId)
     {
         return Page::find($pageId)->meta->uri;
+    }
+
+    public function formatConfigContent($config)
+    {
+        $formContent = forms()->getForSelect('content forms');
+
+        return array_map(function($content) use ($formContent) {
+            if (isset($content['fields']) && is_array($content['fields']) && sizeof($content['fields'])) {
+                $content['fields'] = array_map(function($field) use ($formContent) {
+                    if (isset($field['options']) && $field['options'] == 'forms') {
+                        $field['options'] = $formContent;
+                    }
+
+                    return $field;
+                }, $content['fields']);
+            }
+
+            return $content;
+        }, $config);
     }
 }
