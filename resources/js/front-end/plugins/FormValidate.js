@@ -1,9 +1,10 @@
+const validator = require('email-validator');
+
 export class FormValidate {
 
   constructor() {
     this.self = this;
     this.regs = {
-      email 		: /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i,
       pass 		: /^[A-Za-z0-9!@#$%^&*()_]{5,20}$/, // Password supports special characters and here min length 6 max 20 charters.
       blank 		: /^.+[\s]{0,4}/ ,
       name		: /^[a-zA-Z0-9]{6,12}[\s]{0,4}/,
@@ -53,12 +54,13 @@ export class FormValidate {
         switch (field.type) {
           case 'number': 		check = this.regs.num;    break;
           case 'password':  check = this.regs.pass;	  break;
-          case 'email': 		check = this.regs.email;  break;
           case 'tel': 			check = this.regs.phone;  break;
           case 'date': 			check = this.regs.date;	  break;
         }
 
-        if (!check.test(field.value)) {
+        if (field.type === 'email') {
+          error = !validator.validate(field.value);
+        } else if (!check.test(field.value)) {
           error = true;
         }
         break;

@@ -38,6 +38,7 @@
     "axios": "^0.21.1",
     "dragula": "^3.7.3",
     "dropzone": "^5.9.2",
+    "email-validator": "^2.0.4",
     "flatpickr": "^4.6.9",
     "javascript-natural-sort": "^0.7.1",
     "jquery": "^3.6.0",
