@@ -67,7 +67,7 @@
             </div><!-- / right -->
 
             @if($activeModule != 'media')
-                <rd-media :modal="true"></rd-media>
+                <rd-media :modal="true" :max-filesize="{{ help()->getUploadMaxFilesize() }}"></rd-media>
                 <rd-sitemap></rd-sitemap>
             @endif
 

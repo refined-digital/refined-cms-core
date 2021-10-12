@@ -256,6 +256,10 @@
         type: Boolean,
         default: null
       },
+      maxFilesize: {
+        type: Number,
+        default: 10
+      }
     },
 
     created () {
@@ -789,7 +793,7 @@
           let args = {
             url: '/refined/media/upload-file',
             acceptedFiles: 'image/*,.pdf,.docx,.doc,.xls,.xlsx,.zip,.mp4',
-            maxFilesize: 10,
+            maxFilesize: this.maxFilesize,
             timeout: 300000,
             createImageThumbnails: true,
             previewsContainer: self.$el.querySelector('.media-uploader__preview-listing'),

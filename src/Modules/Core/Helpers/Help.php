@@ -291,4 +291,22 @@ class Help {
         return array_filter($values);
     }
 
+    public function getUploadMaxFilesize() {
+        $size = (int) ini_get('upload_max_filesize');
+
+        $htaccess = explode(PHP_EOL, file_get_contents(public_path('.htaccess')));
+
+        // see if there is an upload_max_filesize
+        if (sizeof($htaccess)) {
+            foreach ($htaccess as $line) {
+                if (is_numeric(strpos($line, 'upload_max_filesize'))) {
+                    $lineItems = explode(' ', $line);
+                    $size = (int) $lineItems[sizeof($lineItems)-1];
+                }
+            }
+        }
+
+        return $size;
+    }
+
 }

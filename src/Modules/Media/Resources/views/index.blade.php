@@ -3,5 +3,5 @@
 @section('title', $heading)
 
 @section('template')
-    <rd-media></rd-media>
+    <rd-media :max-filesize="{{ help()->getUploadMaxFilesize() }}"></rd-media>
 @stop
