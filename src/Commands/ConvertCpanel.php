@@ -59,6 +59,10 @@ class ConvertCpanel extends Install
 .config/
 .gitconfig
 .local/
+.bash_history
+.gitold/
+.softaculous/
+.vim/
 access-logs
 etc/
 logs/
