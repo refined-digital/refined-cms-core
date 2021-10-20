@@ -276,8 +276,18 @@ class PageRepository extends CoreRepository
         $baseHref = pages()->getBaseHref();
 
         $page = $class::with(['meta', 'meta.template'])->find($pageId);
+        $base = class_basename($page);
+        $page->type = $base;
+        $page->url = $baseHref.$uri;
 
-        if (class_basename($page) == 'Page') {
+
+        // if the page is a redirect page, set the session and redirect to the home page
+        if ($base == 'Page' && isset($page->page_type) && $page->page_type == 2) {
+            session()->put('page-redirected-from', $page->id);
+            return redirect('/');
+        }
+
+        if ($base == 'Page') {
             $page->content = $this->formatPageContentForFrontend($page->the_content);
             unset($page->the_content);
         }
@@ -298,10 +308,6 @@ class PageRepository extends CoreRepository
             $page->is_single_page = true;
             $page->original = $original;
         }
-
-        $base = class_basename($page);
-        $page->type = $base;
-        $page->url = $baseHref.$uri;
 
         if (isset($tag)) {
             $page->tag = $tag;

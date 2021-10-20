@@ -92,8 +92,12 @@
                 <select id="form--page-type" v-model="page.page_type" required="required" class="form__control">
                   <option :value="1">Page</option>
                   <option :value="0">Holder</option>
+                  <option :value="2">Redirect to Home Page</option>
                 </select>
-                <div class="form__note">Is this a page, or just a menu item?</div>
+                <div class="form__note">
+                  Page: A standard page<br/>
+                  Holder: A menu item, not a page<br/>
+                  Redirect: Sets a session and redirects to the home page</div>
               </div>
             </div><!-- / form row -->
 
