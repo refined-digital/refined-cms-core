@@ -31,7 +31,7 @@ class {{Name}}Controller extends CoreController
             'edit'      => 'refined.{{name}}.edit',
             'destroy'   => 'refined.{{name}}.destroy'
         ];
-        $table->sortable = false;
+        $table->sortable = true;
 
         $this->table = $table;
     }
