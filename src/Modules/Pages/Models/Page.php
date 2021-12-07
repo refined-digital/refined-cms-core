@@ -81,6 +81,10 @@ class Page extends CoreModel implements Sortable
                             $item['content'] = $block[0]->content ?? '';
                         }
 
+                        if (!isset($item['content'])) {
+                            $item['content'] = $item['page_content_type_id'] == 9 ? [] : '';
+                        }
+
                         if ($item['page_content_type_id'] == 9 && is_array($item['content'])) {
                             $item['content'] = array_map(function($content) use ($item) {
                                 $newContent = [];
