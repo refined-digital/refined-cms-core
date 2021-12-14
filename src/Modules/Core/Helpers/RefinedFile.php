@@ -14,11 +14,29 @@ class RefinedFile {
         return $this;
     }
 
-    public function link() {
+    public function link()
+    {
         if ($this->file) {
             return $this->file->link->original;
         }
 
-        return '';
+        return null;
+    }
+
+    public function path()
+    {
+        if ($this->file) {
+            $url = $this->file->link->original;
+            $base = $this->file->link->basePath;
+            $path = str_replace($base, '', $url);
+            return public_path($path);
+        }
+
+        return null;
+    }
+
+    public function getFile()
+    {
+        return $this->file;
     }
 }
