@@ -427,4 +427,14 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         }
 
     }
+
+    public function updateGitIgnore()
+    {
+        $content = '
+.idea
+.DS_Store
+        ';
+        $ignore = file_get_contents(base_path('.gitignore'));
+        file_put_contents(base_path('.gitignore'), $ignore . $content);
+    }
 }

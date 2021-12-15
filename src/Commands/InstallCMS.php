@@ -43,6 +43,7 @@ class InstallCMS extends Install
         $this->linkStorage();
         $this->setupDb();
         $this->copyTemplates();
+        $this->updateGitIgnore();
         $this->addUser();
         $this->setupComplete();
     }
