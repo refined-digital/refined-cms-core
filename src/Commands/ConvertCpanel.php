@@ -63,6 +63,7 @@ class ConvertCpanel extends Install
 .gitold/
 .softaculous/
 .vim/
+.trash/
 access-logs
 etc/
 logs/
