@@ -23,4 +23,22 @@ class Tags {
 
         return $data;
     }
+
+    public function getByType($type)
+    {
+        $types = \DB::table('tags')
+                    ->select('name', 'id')
+                    ->orderBy('position')
+                    ->get();
+
+        $data = [];
+        if ($types && $types->count()) {
+            foreach ($types as $type) {
+                $data[$type->id] = $type->name;
+            }
+        }
+
+        return $data;
+
+    }
 }
