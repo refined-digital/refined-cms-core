@@ -497,7 +497,8 @@ class PageRepository extends CoreRepository
                 }
 
                 // if we are on the home page, we should be active
-                if (request()->url() == rtrim(config('app.url'), '/') && $page->id == 1) {
+                $homePageId = config('pages.home_page_override') ?? 1;
+                if (request()->url() == rtrim(config('app.url'), '/') && $page->id == $homePageId) {
                     $classes[] = 'nav__item--active';
                 }
 
