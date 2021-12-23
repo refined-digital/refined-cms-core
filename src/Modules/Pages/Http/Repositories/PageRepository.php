@@ -414,7 +414,8 @@ class PageRepository extends CoreRepository
     {
         // the home page
         if (!$uri || $uri == '/') {
-            $uriReference = Uri::whereUriableId(1)
+            $homePageId = config('pages.home_page_override');
+            $uriReference = Uri::whereUriableId($homePageId ?? 1)
                                 ->whereUriableType('RefinedDigital\CMS\Modules\Pages\Models\Page')
                                 ->first();
         } else {
