@@ -22,6 +22,7 @@
                   class="data-table__cell--repeatable"
                   :class="`data-table__cell--repeatable-${index}`"
                   v-for="(cell, cellKey, index) of fields"
+                  v-show="row[cell.field].show"
                 >
                   <label class="form__label" :for="`form--content-${row[cell.field].id}`" v-if="!cell.hide_label">{{ cell.name }}</label>
                   <rd-content-editor-field :item="getItem(row, cell)" :options="cell" :key="row[cell.field].id"></rd-content-editor-field>
@@ -45,6 +46,7 @@
 
 <script>
   import draggable from 'vuedraggable'
+  import { keyBy } from 'lodash'
 
   export default {
     props: ['item', 'data', 'fields', 'heading'],
@@ -52,12 +54,30 @@
     data() {
       return {
         parent: null,
-        formattedData: []
+        fieldsByKey: {}
       }
     },
 
     created() {
       this.parent = this.getParent();
+      this.fieldsByKey = keyBy(this.fields, 'field')
+
+
+      eventBus.$on('content-editor.select.changed', (item) => {
+        this.data.forEach(row => {
+          if (item.item.id === row[item.options.field].id) {
+            const keyCheck = `${item.options.field}:${item.item.content}`;
+            for (const field in row) {
+              const f = row[field];
+              const fDetails = this.fieldsByKey[field];
+              if (fDetails.showOn) {
+                f.show = keyCheck === fDetails.showOn
+              }
+            }
+
+          }
+        })
+      });
     },
 
     components: {

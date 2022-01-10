@@ -36,7 +36,7 @@
       </template>
 
       <template v-if="item.page_content_type_id === 6 && item.options">
-        <select v-model="item.content" required="required" class="form__control" :change="selectChanged(item)">
+        <select v-model="item.content" required="required" class="form__control" :change="selectChanged(item, options)">
           <option :value="opt.value" v-for="opt in item.options">{{ opt.label }}</option>
         </select>
       </template>
@@ -70,9 +70,15 @@
 
     props: [ 'item', 'options' ],
 
+    created() {
+      if (this.item.page_content_type_id == 6 && this.item.content == '' && this.item.options && this.item.options.length > 0) {
+        this.item.content = this.item.options[0].value;
+      }
+    },
+
     methods: {
-      selectChanged(item) {
-        eventBus.$emit('content-editor.select.changed', item);
+      selectChanged(item, options) {
+        eventBus.$emit('content-editor.select.changed', { item, options });
       }
     }
 

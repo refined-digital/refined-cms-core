@@ -1076,6 +1076,7 @@
         if (!newContent.key) {
           newContent.key = `key-${Date.now()}`
         }
+
         this.page.content.push(newContent);
       },
 
@@ -1199,7 +1200,8 @@
               content: this.pageContentAsArray.includes(field.page_content_type_id) ? [] : '',
               key: this.getRepeatableFieldIndex(field, index),
               note,
-              id: `-${_.kebabCase(field.name)}-id-${Date.now()}`
+              id: `-${_.kebabCase(field.name)}-id-${Date.now()}`,
+              show: true
             };
             if (typeof field.options !== 'undefined') {
               d.options = field.options;

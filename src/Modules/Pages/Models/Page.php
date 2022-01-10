@@ -105,10 +105,14 @@ class Page extends CoreModel implements Sortable
                                         'key' => uniqid(),
                                         'id' => uniqid(),
                                         'content' => $value,
+                                        'show' => true
                                     ];
 
                                     if (sizeof($contentField)) {
                                         $newContentField['page_content_type_id'] = $contentField[0]['page_content_type_id'] ?? 1;
+                                        if ($newContentField['page_content_type_id'] === 6 && isset($contentField[0]['options'])) {
+                                            $newContentField['options'] = $contentField[0]['options'];
+                                        }
                                     }
 
                                     $newContent[$key] = $newContentField;
