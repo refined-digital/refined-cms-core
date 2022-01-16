@@ -4,6 +4,7 @@ namespace RefinedDigital\CMS\Modules\Core\Traits;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Str;
 
 trait EditFormFieldsTrait
 {
@@ -44,7 +45,7 @@ trait EditFormFieldsTrait
         $module = strtolower(class_basename($this));
         $config = config($module);
         if (!$config) {
-            $config = config(str_plural($module));
+            $config = config(Str::plural($module));
         }
         $fields = $this->fieldsMergeConfig($fields, $config);
 

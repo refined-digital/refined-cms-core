@@ -8,7 +8,7 @@ return [
             'height' => 600,
         ],
         'internal' => [
-            'active' => true,
+            'active' => false,
             'width' => 1200,
             'height' => 200
         ]
@@ -34,6 +34,26 @@ return [
                 [
                     'name' => 'Content',
                     'page_content_type_id' => 1
+                ],
+            ]
+        ],
+        [
+            'name' => 'Form',
+            'template' => 'form',
+            'description' => 'Content and Form combo',
+            'fields' => [
+                [
+                    'name' => 'Heading',
+                    'page_content_type_id' => 3,
+                ],
+                [
+                    'name' => 'Content',
+                    'page_content_type_id' => 1
+                ],
+                [
+                    'name' => 'Form',
+                    'page_content_type_id' => 6,
+                    'options' => 'forms',
                 ],
             ]
         ],

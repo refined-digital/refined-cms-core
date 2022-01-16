@@ -38,7 +38,7 @@ class PagesSeeder extends Seeder
                 'page_holder_id'    => 1,
                 'parent_id'         => 0,
                 'page_type'         => 1,
-                'template_id'       => 3,
+                'template_id'       => 1,
                 'position'          => 2,
                 'form_id'           => 1,
                 'name'              => 'Contact Us',

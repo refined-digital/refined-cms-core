@@ -4,6 +4,7 @@ namespace RefinedDigital\CMS\Modules\Pages\Traits;
 
 use RefinedDigital\CMS\Modules\Core\Models\Uri;
 use RefinedDigital\CMS\Modules\Pages\Scopes\IsPageScope;
+use Str;
 
 trait IsPage
 {
@@ -63,7 +64,7 @@ trait IsPage
             if ($base != 'Page') {
                 $config = config(strtolower($base));
                 if (!$config) {
-                    $config = config(str_plural(strtolower($base)));
+                    $config = config(Str::plural(strtolower($base)));
                 }
 
                 if (isset($config['details_template_id'])) {

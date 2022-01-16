@@ -2,6 +2,8 @@
 
 namespace RefinedDigital\CMS\Modules\Pages\Aggregates;
 
+use Str;
+
 class PageAggregate
 {
 
@@ -20,7 +22,7 @@ class PageAggregate
 
             foreach ($module['fields'] as $field) {
                 if (!isset($field['index'])) {
-                    $field['index'] = str_slug($field['name'],'_');
+                    $field['index'] = Str::slug($field['name'],'_');
                 }
                 $fields[] = $field;
             }

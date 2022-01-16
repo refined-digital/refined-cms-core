@@ -141,7 +141,10 @@ class Pages {
 
     public function formatConfigContent($config)
     {
-        $formContent = forms()->getForSelect('content forms');
+        $formContent = [];
+        if (function_exists('forms')) {
+            $formContent = forms()->getForSelect('content forms');
+        }
 
         return array_map(function($content) use ($formContent) {
             if (isset($content['fields']) && is_array($content['fields']) && sizeof($content['fields'])) {

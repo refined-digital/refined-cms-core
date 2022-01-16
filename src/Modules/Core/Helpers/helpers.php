@@ -25,7 +25,7 @@ if (! function_exists('image')) {
     }
 }
 
-if (! function_exists('Files')) {
+if (! function_exists('files')) {
     function files()
     {
         return app(RefinedFile::class);

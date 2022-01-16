@@ -1,10 +1,14 @@
+@php
+  $attrs['v-model'] = 'form.reply';
+  $values = [];
+  if (function_exists('forms')) {
+      $values = forms()->getReplyToOptions();
+  }
+@endphp
 <div>
-    <?php
-        $attrs['v-model'] = 'form.reply';
-    ?>
     {!!
         html()
-            ->select($field->name.'_type', forms()->getReplyToOptions())
+            ->select($field->name.'_type', $values)
             ->class('form__control')
             ->id('form--'.$field->name.'-type')
             ->attributes($attrs)

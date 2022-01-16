@@ -57,7 +57,7 @@ Route::middleware(['web', 'auth', 'userLevel', 'admin'])
 ;
 
 Route::middleware(['web', 'cacheResponse'])
-    ->namespace('RefinedDigital\\CMS\\Modules\\Pages\\Http\\Controllers')
+    ->namespace('RefinedDigital\CMS\Modules\Pages\Http\Controllers')
     ->group(function() {
         Route::get('sitemap.xml',   ['uses' => 'PageController@xmlSitemap']);
         Route::get('{uri}',         ['uses'=>'PageController@render'])->where('uri', '(.*)');

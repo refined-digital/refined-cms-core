@@ -1,4 +1,4 @@
-<div class="form__group form__group--{{ forms()->getGroupCount($groups) }}">
+<div class="form__group form__group--{{ core()->getGroupCount($groups) }}">
     @foreach($groups as $field)
         @if (isset($field->count)) @continue @endif
         <div

@@ -9,6 +9,11 @@
   left: 0;
   transform: translate3d(0, -100%, 0);
   transition: transform .51s cubic-bezier(0.230,  1.000, 0.320, 1.000);
+  display: none;
+
+  &--loaded {
+    display: block;
+  }
 
   &, a {
     color: #fff;

@@ -13,6 +13,7 @@ use RuntimeException;
 use PDO;
 use Artisan;
 use DB;
+use Str;
 
 class Install extends Command
 {
@@ -34,6 +35,7 @@ class Install extends Command
     protected $dbUser = null;
     protected $dbPass = null;
     protected $userAdded = false;
+    protected $siteName = null;
 
     /**
      * Create a new command instance.
@@ -57,6 +59,9 @@ class Install extends Command
         $this->createSymLink();
         $this->setupDb();
         $this->copyTemplates();
+        $this->updatePackageJson();
+        $this->askCpanel();
+        $this->publishPageConfig();
         $this->addUser();
     }
 
@@ -74,9 +79,11 @@ class Install extends Command
         });
         $question->setMaxAttempts(3);
         $siteName = $helper->ask($this->input, $this->output, $question);
+        $this->siteName = $siteName;
+
 
         // ask for the url
-        $question = new Question('Site Url?: ', false);
+        $question = new Question('Site Url? (http://127.0.0.1:8000): ', 'http://127.0.0.1:8000');
         $question->setValidator(function($answer) {
             if (strlen($answer) < 1) {
                 throw new RuntimeException('Site URL is required');
@@ -97,37 +104,76 @@ class Install extends Command
             $siteUrl = 'http://'.$siteUrl;
         }
 
-
         // database
-        $this->setupDbDetails();
+        $this->setupDbDetails(false);
 
-        $this->output->writeln('<info>Writing config</info>');
-        // now do the search and replace on file strings
-        $file = file_get_contents(app()->environmentFilePath());
+
+        $question = new ConfirmationQuestion('Do you want to send emails?: ', false);
+        $mail = $helper->ask($this->input, $this->output, $question);
+
         $search = [
             '(APP_NAME=(.*?)\n)',
             '(APP_URL=(.*?)\n)',
-            '(MAIL_NAME=(.*?)\n)',
-            '(MAIL_DRIVER=(.*?)\n)',
-            '(MAIL_ENCRYPTION=(.*?)\n)',
         ];
         $replace = [
             "APP_NAME=\"".$siteName."\"\n",
             "APP_URL=".$siteUrl."\n",
-            "MAIL_NAME='".$siteName."'\n",
-            "MAIL_DRIVER=mailgun\n",
-            "MAIL_ENCRYPTION=null
-MAIL_FROM_NAME='RefinedCMS'
-MAIL_FROM_ADDRESS=no-reply@mg.refineddigital.co.nz
-MAILGUN_DOMAIN=mg.refineddigital.co.nz
-MAILGUN_SECRET=key-d72898ceed103fd84f6f3f9774c2b018\n",
         ];
+
+        $mailgunDomain = null;
+        $mailgunSecret = null;
+
+        // mailgun questions
+        if ($mail == '1') {
+            $search[] = '(MAIL_MAILER=(.*?)\n)';
+            $search[] = '(MAIL_PORT=(.*?)\n)';
+            $search[] = '(MAIL_FROM_NAME=(.*?)\n)';
+            $search[] = '(MAIL_FROM_ADDRESS=(.*?)\n)';
+
+            $replace[] = "MAIL_MAILER=mailgun\n";
+            $replace[] = "MAIL_PORT=2525\n";
+
+            $question = new Question('Mailgun Domain? (mg.refineddigital.co.nz): ', 'mg.refineddigital.co.nz');
+            $question->setValidator(function ($answer) {
+                if(strlen($answer) < 1) {
+                    throw new RuntimeException('Mailgun Domain is required');
+                }
+                return $answer;
+            });
+            $question->setMaxAttempts(3);
+            $domain = $helper->ask($this->input, $this->output, $question);
+
+            $replace[] = "MAIL_FROM_NAME=\"RefinedCMS\"\nMAILGUN_DOMAIN=\n";
+            $replace[] = 'MAIL_FROM_ADDRESS=no-reply@'.$domain."\n";
+
+
+            $question = new Question('Mailgun Secret?: ', false);
+            $question->setHidden(true);
+            $question->setHiddenFallback(false);
+            $question->setValidator(function ($answer) {
+                if(strlen($answer) < 1) {
+                    throw new RuntimeException('Mailgun Secret is required');
+                }
+                return $answer;
+            });
+            $question->setMaxAttempts(3);
+            $secret = $helper->ask($this->input, $this->output, $question);
+
+            $search[] = '(MAILGUN_DOMAIN=(.*?)\n)';
+            $replace[] = "MAILGUN_DOMAIN=".$domain."\nMAILGUN_SECRET=".$secret."\n";
+        }
+
+
+        $this->output->writeln('<info>Writing config</info>');
+        // now do the search and replace on file strings
+        $file = file_get_contents(app()->environmentFilePath());
         $file = preg_replace($search, $replace, $file);
+
 
         // add in the cache settings
         $file .= "
 RESPONSE_CACHE_ENABLED=false
-RESPONSE_CACHE_HEADER_NAME=\"".str_slug($siteName)."\"
+RESPONSE_CACHE_HEADER_NAME=\"".Str::slug($siteName)."\"
 RESPONSE_CACHE_DRIVER=file
 RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         file_put_contents(app()->environmentFilePath(), $file);
@@ -135,12 +181,14 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         $this->output->writeln('<info>Finished writing config</info>');
     }
 
-    protected function setupDbDetails()
+    protected function setupDbDetails($output = true)
     {
         $helper = $this->getHelper('question');
 
+        $databaseName = Str::slug('refined '.$this->siteName, '_');
+
         // database
-        $question = new Question('Database?: ', false);
+        $question = new Question('Database? ('.$databaseName.'): ', $databaseName);
         $question->setValidator(function ($answer) {
             if(strlen($answer) < 1) {
                 throw new RuntimeException('Database is required');
@@ -148,7 +196,7 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
             return $answer;
         });
         $dbName = $helper->ask($this->input, $this->output, $question);
-        $dbName = str_slug($dbName, '_');
+        $dbName = Str::slug($dbName, '_');
 
         // database user
         $question = new Question('Database User?: ', false);
@@ -172,7 +220,10 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         });
         $dbPassword = $helper->ask($this->input, $this->output, $question);
 
-        $this->output->writeln('<info>Writing db config</info>');
+        if ($output) {
+            $this->output->writeln('<info>Writing db config</info>');
+        }
+
         // now do the search and replace on file strings
         $file = file_get_contents(app()->environmentFilePath());
         $search = [
@@ -190,12 +241,22 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         $this->dbName = $dbName;
         $this->dbUser = $dbUser;
         $this->dbPass = $dbPassword;
-        $this->output->writeln('<info>Finished writing db config</info>');
+        if ($output) {
+            $this->output->writeln('<info>Finished writing db config</info>');
+        }
     }
 
 
     protected function setupDb()
     {
+        $helper = $this->getHelper('question');
+
+        $question = new ConfirmationQuestion('Does the database already exist? ', false);
+
+        if($helper->ask($this->input, $this->output, $question)) {
+            return;
+        }
+
         $this->output->writeln('<info>Installing the Database</info>');
         $db = new PDO('mysql:host='.env('DB_HOST').';', $this->dbUser, $this->dbPass);
         $db->exec('CREATE DATABASE `'.$this->dbName.'`;');
@@ -298,19 +359,38 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
             case 'Admin': $userLevelId = 2; break;
         }
 
+        $db = new PDO('mysql:host='.env('DB_HOST').';', $this->dbUser, $this->dbPass);
+        $db->exec('USE '.$this->dbName);
+
+        // run migrations
+        $newConfig = config()->get('database.connections.mysql');
+        $newConfig['username'] = $this->dbUser;
+        $newConfig['password'] = $this->dbPass;
+        $newConfig['database'] = $this->dbName;
+        config()->set('database.connections.temp', $newConfig);
 
         // create the user
-        DB::table('users')->insert([
-            'created_at'    => Carbon::now(),
-            'updated_at'    => Carbon::now(),
+        $data = [
+            'created_at'    => "'".Carbon::now()."'",
+            'updated_at'    => "'".Carbon::now()."'",
             'active'        => 1,
             'position'      => 0,
-            'first_name'    => $first,
-            'last_name'     => $last,
-            'email'         => $email,
-            'password'      => bcrypt($password),
+            'first_name'    => "'".$first."'",
+            'last_name'     => "'".$last."'",
+            'email'         => "'".$email."'",
+            'password'      => "'".bcrypt($password)."'",
             'user_level_id' => $userLevelId
-        ]);
+        ];
+
+        $fields = [];
+        $values = [];
+
+        foreach ($data as $field => $value) {
+            $fields[] = $field;
+            $values[] = $value;
+        }
+        $sql = 'INSERT INTO users ('.implode(', ', $fields).') VALUES ('.implode(', ', $values).')';
+        $db->exec($sql);
 
         $this->userAdded = true;
         $this->addUser();
@@ -331,6 +411,10 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         }
         $link .= 'core';
 
+        if (is_link($link)) {
+            return;
+        }
+
         if (! windows_os()) {
             return symlink($target, $link);
         }
@@ -345,6 +429,10 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         $link = public_path('storage');
         $target = '../storage/app/public/';
 
+        if (is_link($link)) {
+            return;
+        }
+
         if (! windows_os()) {
             return symlink($target, $link);
         }
@@ -356,7 +444,7 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
 
     protected function regenerateKey()
     {
-        $process = new Process('php artisan key:generate');
+        $process = new Process(['php artisan key:generate']);
         $process->run();
     }
 
@@ -370,31 +458,26 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         $this->output->writeln('<info>Copying Templates</info>');
         $base = base_path('vendor/refineddigital/cms/src/Commands/defaults');
 
-        $dir = $base.'/views';
-        exec('rm -R '.resource_path('views'));
-        exec('cp -R '.$dir.' '.resource_path('views'));
+        $directories = [
+            'views',
+            'sass',
+            'js'
+        ];
 
-        $dir = $base.'/sass';
-        exec('rm -R '.resource_path('sass'));
-        exec('cp -R '.$dir.' '.resource_path('sass'));
+        foreach ($directories as $directory) {
+            $dir = $base.'/'.$directory;
+            if (is_dir(resource_path($directory))) {
+                exec('rm -R '.resource_path($directory));
+            }
+            exec('cp -R '.$dir.' '.resource_path($directory));
+        }
 
-        $dir = $base.'/js';
-        exec('rm -R '.resource_path('js'));
-        exec('cp -R '.$dir.' '.resource_path('js'));
+        if (is_dir(resource_path('css'))) {
+            exec('rm -R '.resource_path('css'));
+        }
 
         unlink(base_path('webpack.mix.js'));
         file_put_contents(base_path('webpack.mix.js'), file_get_contents($base.'/webpack.mix.js'));
-
-        /*
-        $files = scandir($dir);
-        array_shift($files);array_shift($files);
-        $this->copy($files, $dir, 'views/layouts');
-
-        $dir = __DIR__.'/defaults/views/templates';
-        $files = scandir($dir);
-        array_shift($files);array_shift($files);
-        $this->copy($files, $dir, 'views/templates');
-*/
     }
 
     protected function enableCacheResponseMiddleware()
@@ -436,5 +519,81 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         ';
         $ignore = file_get_contents(base_path('.gitignore'));
         file_put_contents(base_path('.gitignore'), $ignore . $content);
+    }
+
+    public function askCpanel()
+    {
+        $helper = $this->getHelper('question');
+
+        $question = new ConfirmationQuestion('Do you want to convert for cPanel?: ', false);
+        $answer = $helper->ask($this->input, $this->output, $question);
+
+        if ($answer) {
+            Artisan::call('refinedCMS:convert-cpanel');
+        }
+    }
+
+    public function publishPageConfig()
+    {
+        Artisan::call('vendor:publish', [
+            '--tag' => 'pages'
+        ]);
+    }
+
+    public function updatePackageJson()
+    {
+
+        $contents = json_decode(file_get_contents(base_path('package.json'), true));
+
+        $toDelete = [
+            'axios',
+            'postcss',
+            'lodash'
+        ];
+
+        $toAdd = [
+            'prettier' => '^2.5.0',
+            'sass' => '^1.43.5',
+            'sass-loader' => '^12.3.0'
+        ];
+
+        foreach ($toDelete as $package) {
+            if (isset($contents->devDependencies->{$package})) {
+                unset($contents->devDependencies->{$package});
+            }
+        }
+
+        foreach ($toAdd as $package => $version) {
+            if (!isset($contents->devDependencies->{$package})) {
+                $contents->devDependencies->{$package} = $version;
+            }
+        }
+
+        $toAdd = [
+            '@fancyapps/ui' => '^4.0.9',
+            '@splidejs/splide' =>  '^3.6.4'
+        ];
+
+        if (!isset($contents->dependencies)) {
+            $contents->dependencies = new \stdClass();
+        }
+
+        foreach ($toAdd as $package => $version) {
+            if (!isset($contents->dependencies->{$package})) {
+                $contents->dependencies->{$package} = $version;
+            }
+        }
+
+        $search = [
+            '\/'
+        ];
+        $replace = [
+            '/'
+        ];
+
+        $jsonContent = json_encode($contents, JSON_PRETTY_PRINT);
+        $jsonContent = str_replace($search, $replace, $jsonContent);
+
+        file_put_contents(base_path('package.json'), $jsonContent);
     }
 }

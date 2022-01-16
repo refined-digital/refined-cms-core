@@ -9,6 +9,7 @@ use RefinedDigital\CMS\Modules\Pages\Models\Page;
 use RefinedDigital\CMS\Modules\Pages\Models\PageContentType;
 use RefinedDigital\CMS\Modules\Pages\Models\PageHolder;
 use RefinedDigital\CMS\Modules\Pages\Models\Template;
+use Str;
 
 class PageRepository extends CoreRepository
 {
@@ -381,7 +382,7 @@ class PageRepository extends CoreRepository
         // add in some classes
         $classes = [];
         $classes[] = 'page__id--'.$page->id;
-        $classes[] = 'page__template--'.str_slug($page->meta->template->name);
+        $classes[] = 'page__template--'.Str::slug($page->meta->template->name);
 
         // set some extra fun stuff to the page
         $head = pages()->getPageHeaders();
@@ -534,8 +535,8 @@ class PageRepository extends CoreRepository
         $page->name = $type;
 
         $classes = [];
-        $classes[] = 'page__id--'.str_slug($type);
-        $classes[] = 'page__template--'.str_slug($type);
+        $classes[] = 'page__id--'.Str::slug($type);
+        $classes[] = 'page__template--'.Str::slug($type);
 
         // set some extra fun stuff to the page
         $head = pages()->getPageHeaders();
@@ -736,7 +737,7 @@ class PageRepository extends CoreRepository
                 $content->height = $field['height'] ?? null;
             }
 
-            $newFields->{str_slug($field['name'], '_')} = $content;
+            $newFields->{Str::slug($field['name'], '_')} = $content;
         }
 
         return $newFields;

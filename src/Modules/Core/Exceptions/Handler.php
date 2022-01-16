@@ -2,17 +2,17 @@
 
 namespace RefinedDigital\CMS\Modules\Core\Exceptions;
 
-use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\ViewErrorBag;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
     /**
      * A list of the exception types that are not reported.
      *
-     * @var array
+     * @var array<int, class-string<Throwable>>
      */
     protected $dontReport = [
         //
@@ -21,42 +21,38 @@ class Handler extends ExceptionHandler
     /**
      * A list of the inputs that are never flashed for validation exceptions.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $dontFlash = [
+        'current_password',
         'password',
         'password_confirmation',
     ];
 
     /**
-     * Report or log an exception.
+     * Register the exception handling callbacks for the application.
      *
-     * @param  \Exception  $exception
      * @return void
      */
-    public function report(Exception $exception)
+    public function register()
     {
-        parent::report($exception);
+        $this->reportable(function(Throwable $e) {
+            //
+        });
     }
 
     /**
-     * Render an exception into an HTTP response.
+     * Render the given HttpException.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
-     * @return \Illuminate\Http\Response
+     * @param  \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface  $e
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function render($request, Exception $exception)
-    {
-        return parent::render($request, $exception);
-    }
-
-    protected function renderHttpException(HttpException $e)
+    protected function renderHttpException(HttpExceptionInterface $e)
     {
         $this->registerErrorViewPaths();
 
         $dir = __DIR__.'/../Resources/views/errors/front-end';
-        if (request()->segment(1) == 'refined') {
+        if(request()->segment(1) == 'refined') {
             $dir = __DIR__.'/../Resources/views/errors/admin';
         }
 
@@ -68,9 +64,9 @@ class Handler extends ExceptionHandler
             base_path('vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/views')
         ]);
 
-        if (view()->exists($view = "errors::{$e->getStatusCode()}")) {
+        if(view()->exists($view = "errors::{$e->getStatusCode()}")) {
             return response()->view($view, [
-                'errors' => new ViewErrorBag,
+                'errors'    => new ViewErrorBag,
                 'exception' => $e,
             ], $e->getStatusCode(), $e->getHeaders());
         }

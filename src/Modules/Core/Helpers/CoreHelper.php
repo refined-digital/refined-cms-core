@@ -22,4 +22,20 @@ class CoreHelper {
 
     return implode(' ', $bits);
   }
+
+  public function getGroupCount($group)
+  {
+      $size = sizeof($group);
+
+      if (sizeof($group)) {
+          foreach ($group as $d) {
+              if (isset($d->count)) {
+                  $size = $d->count;
+                  continue;
+              }
+          }
+      }
+
+      return $size;
+  }
 }

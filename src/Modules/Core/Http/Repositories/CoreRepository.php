@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use RefinedDigital\CMS\Modules\Media\Http\Repositories\MediaRepository;
 use RefinedDigital\CMS\Modules\Tags\Models\Tag;
+use Str;
 
 class CoreRepository {
 
@@ -235,7 +236,7 @@ class CoreRepository {
                 }
 
                 $tag->meta->original_uri = $tag->meta->uri;
-                $tag->meta->uri = str_slug($type).'/'.$tag->meta->uri;
+                $tag->meta->uri = Str::slug($type).'/'.$tag->meta->uri;
             }
         }
 
