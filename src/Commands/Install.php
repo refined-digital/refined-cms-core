@@ -529,7 +529,11 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         $answer = $helper->ask($this->input, $this->output, $question);
 
         if ($answer) {
-            Artisan::call('refinedCMS:convert-cpanel');
+            $dir = public_path();
+            $dirs = explode('/', $dir);
+            if ($dirs[sizeof($dirs)-1] !== 'public_html') {
+                Artisan::call('refinedCMS:convert-cpanel');
+            }
         }
     }
 
@@ -595,5 +599,23 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         $jsonContent = str_replace($search, $replace, $jsonContent);
 
         file_put_contents(base_path('package.json'), $jsonContent);
+    }
+
+    protected function cleanUpMigrations()
+    {
+        $filesToDelete = [
+            '2014_10_12_000000_create_users_table',
+            '2014_10_12_100000_create_password_resets_table',
+            '2019_08_19_000000_create_failed_jobs_table',
+            '2019_12_14_000001_create_personal_access_tokens_table'
+        ];
+
+        $path = database_path('migrations');
+        foreach ($filesToDelete as $file) {
+            $filePath = $path.'/'.$file.'.php';
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
     }
 }

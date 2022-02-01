@@ -48,6 +48,7 @@ class InstallCMS extends Install
         $this->addUser();
         $this->askCpanel();
         $this->publishPageConfig();
+        $this->cleanUpMigrations();
         $this->setupComplete();
     }
 }
