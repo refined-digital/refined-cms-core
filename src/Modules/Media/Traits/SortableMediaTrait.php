@@ -34,7 +34,7 @@ trait SortableMediaTrait
      * @param array|\ArrayAccess $ids
      * @param int $startOrder
      */
-    public static function setNewOrder($ids, int $startOrder = 1)
+    public static function setNewOrder($ids, int $startOrder = 1, string $primaryKeyColumn = null): void
     {
         $parentId = request()->get('media_category_id');
 

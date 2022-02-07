@@ -276,9 +276,9 @@ export default {
 
       if (window.app.sitemap.model === this.editor.config.editorId) {
         this.loadLink(link, window.app.sitemap.fieldId);
+        eventBus.$emit('sitemap-clear');
       }
 
-      eventBus.$emit('sitemap-clear');
     });
   },
 

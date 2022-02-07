@@ -25,9 +25,9 @@ class CoreHelper {
 
   public function getGroupCount($group)
   {
-      $size = sizeof($group);
+      $size = is_array($group) ? sizeof($group) : 1;
 
-      if (sizeof($group)) {
+      if (is_array($group) && sizeof($group)) {
           foreach ($group as $d) {
               if (isset($d->count)) {
                   $size = $d->count;

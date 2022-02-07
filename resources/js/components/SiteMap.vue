@@ -129,6 +129,7 @@
         },
 
         clearSitemap() {
+          console.log('clearing sitemap');
           this.$root.sitemap.showModal = false;
           this.$root.sitemap.active = false;
           this.$root.sitemap.fieldId = null;

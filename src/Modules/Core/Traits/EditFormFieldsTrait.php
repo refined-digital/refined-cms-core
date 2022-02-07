@@ -5,6 +5,7 @@ namespace RefinedDigital\CMS\Modules\Core\Traits;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Str;
+use Arr;
 
 trait EditFormFieldsTrait
 {
@@ -67,10 +68,10 @@ trait EditFormFieldsTrait
             if (is_array($configFields) && sizeof($configFields)) {
                 foreach ($configFields as $name => $data) {
                     $key = $this->findFieldKey($fields, $name);
-                    $field =  array_get($fields, $key);
+                    $field =  Arr::get($fields, $key);
                     if ($field) {
                         $newField = array_merge($field, $data);
-                        array_set($fields, $key, $newField);
+                        Arr::set($fields, $key, $newField);
                     }
 
                 }
@@ -161,7 +162,7 @@ trait EditFormFieldsTrait
                             if ($type == 'Before') {
                                 $position = $key - 1;
                                 if ($position == -1) {
-                                    array_prepend($fields, $tab);
+                                    Arr::prepend($fields, $tab);
                                 } else {
                                     array_splice($fields, $position + 1, 0, [$tab]);
                                 }
@@ -191,7 +192,7 @@ trait EditFormFieldsTrait
     {
 
         if (sizeof($data)) {
-            $dots = array_dot($fields);
+            $dots = Arr::dot($fields);
             if (sizeof($dots)) {
                 foreach ($data as $replace) {
                     $bit = false;
@@ -234,7 +235,7 @@ trait EditFormFieldsTrait
         $bit = implode('.', $bit);
 
         // grab the data for the given child
-        $data = array_get($fields, $bit);
+        $data = Arr::get($fields, $bit);
 
         // recreate the child array
         $newBlocks = [];
@@ -254,7 +255,7 @@ trait EditFormFieldsTrait
 
         // throw the child back into the array
         if (sizeof($newBlocks)) {
-            array_set($fields, $bit, $newBlocks);
+            Arr::set($fields, $bit, $newBlocks);
         }
 
         return $fields;
@@ -262,7 +263,7 @@ trait EditFormFieldsTrait
 
     private function addToFields($fields, $replace)
     {
-        $dots = array_dot($fields);
+        $dots = Arr::dot($fields);
 
         $haveSections = false;
         // check if there are any sections
@@ -280,9 +281,9 @@ trait EditFormFieldsTrait
             $haveSections = implode('.', $haveSections);
 
             // grab the data for the given child
-            $data = array_get($fields, $haveSections);
+            $data = Arr::get($fields, $haveSections);
             $data[] = $replace;
-            array_set($fields, $haveSections, $data);
+            Arr::set($fields, $haveSections, $data);
         } else {
             // todo: check on a section that doesn't have sections
         }
