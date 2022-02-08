@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use DB;
 use File;
+use Str;
 
 class CreateModule extends Install
 {
