@@ -15,6 +15,11 @@ class PageRepository extends CoreRepository
 {
     protected $with = [];
 
+    public function __construct()
+    {
+        $this->setModel('RefinedDigital\CMS\Modules\Pages\Models\Page');
+    }
+
     // if the leaf has move holder, update the child's holder too
     public function moveChildren($id, $parent)
     {
@@ -741,5 +746,30 @@ class PageRepository extends CoreRepository
         }
 
         return $newFields;
+    }
+
+    public function getForSelect($order = false, $orderDir = 'asc')
+    {
+        $data = $this->model::whereActive(1);
+
+        if ($order) {
+            $data->orderBy($order, $orderDir);
+        } else {
+            $data->order();
+        }
+
+        $data = $data->get();
+
+
+        if (!$data->count()) {
+            return [];
+        }
+
+        $items = [0 => 'Please Select'];
+        foreach ($data as $item) {
+            $items[$item->id] = $item->name;
+        }
+
+        return $items;
     }
 }

@@ -38,6 +38,24 @@ class CoreRepository {
         return $data;
     }
 
+    public function getForSelect()
+    {
+        $data = $this->model::whereActive(1)
+            ->order()
+            ->get();
+
+        if (!$data->count()) {
+            return [];
+        }
+
+        $items = [0 => 'Please Select'];
+        foreach ($data as $item) {
+            $items[$item->id] = $item->name;
+        }
+
+        return $items;
+    }
+
     public function find($id)
     {
         return $this->model::find($id);

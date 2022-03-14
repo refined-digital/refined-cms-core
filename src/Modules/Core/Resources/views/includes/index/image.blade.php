@@ -1,3 +1,16 @@
-@if ( $d->{$field->field} )
-{!! image()->load($d->{$field->field})->width(80)->height(80)->get() !!}
+@php
+$value = $d->{$field->field};
+unset($img);
+if($value) {
+  $isSvg = files()->load($value)->url();
+  if (is_numeric(strpos($isSvg, '.svg'))) {
+    $img = $isSvg;
+  } else {
+    $img = image()->load($d->{$field->field})->width(80)->height(80)->string();
+  }
+}
+@endphp
+
+@if ($img)
+  <img src="{{ $img }}" height="80"/>
 @endif

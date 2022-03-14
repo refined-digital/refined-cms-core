@@ -41,4 +41,8 @@ class Uri extends Model
         return $this->belongsTo('RefinedDigital\CMS\Modules\Pages\Models\Template');
     }
 
+    public function details()
+    {
+        return $this->morphTo(__FUNCTION__, 'uriable_type', 'uriable_id');//('RefinedDigital\CMS\Modules\Pages\Models\Page', 'uriable');
+    }
 }

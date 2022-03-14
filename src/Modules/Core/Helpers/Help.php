@@ -204,6 +204,14 @@ class Help {
         return '//www.youtube.com/embed/'.$videoKey.'?rel=0&showinfo=0&autoplay='.$autoplay;
     }
 
+    public function getVimeoEmbedLink($link, $attrs =['muted' => true, 'controls' => 0, 'loop' => 1, 'autoplay' => 1])
+    {
+        $videoBits = explode('/', $link);
+        $videoKey = $videoBits[sizeof($videoBits)-1];
+        $joiner = is_numeric(strpos($videoKey, '?')) ? '&' : '?';
+        return 'https://player.vimeo.com/video/'.$videoKey.$joiner.http_build_query($attrs);
+    }
+
     public function getDaysOfWeek()
     {
         return [
@@ -292,7 +300,8 @@ class Help {
         return array_filter($values);
     }
 
-    public function getUploadMaxFilesize() {
+    public function getUploadMaxFilesize()
+    {
         $size = (int) ini_get('upload_max_filesize');
 
         $htaccess = explode(PHP_EOL, file_get_contents(public_path('.htaccess')));

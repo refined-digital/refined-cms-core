@@ -15,7 +15,8 @@ class TagRepository extends CoreRepository
 	public function all()
     {
         return $this->model::
-            orderBy('type')
+            where('type', '!=', 'pages')
+            ->orderBy('type')
             ->orderBy('position')
             ->get()
         ;
@@ -24,7 +25,8 @@ class TagRepository extends CoreRepository
 	public function getAll()
     {
         $data = $this->model::
-            keywords()
+            where('type', '!=', 'pages')
+            ->keywords()
         ;
 
         if (!request()->has('sort')) {

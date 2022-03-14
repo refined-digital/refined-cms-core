@@ -23,6 +23,11 @@ class RefinedFile {
         return null;
     }
 
+    public function url()
+    {
+        return $this->link();
+    }
+
     public function path()
     {
         if ($this->file) {
@@ -38,5 +43,10 @@ class RefinedFile {
     public function getFile()
     {
         return $this->file;
+    }
+
+    public function getData()
+    {
+        return file_get_contents($this->path());
     }
 }

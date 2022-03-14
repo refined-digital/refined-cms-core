@@ -50,6 +50,7 @@
     "raw-loader": "^4.0.2",
     "sweetalert": "^2.1.2",
     "trumbowyg": "file:../../../sandbox/Trumbowyg",
+    "vanilla-picker": "^2.12.1",
     "vue": "^2.6.14",
     "vue-multiselect": "^2.1.6",
     "vue-sortable": "^0.1.3",

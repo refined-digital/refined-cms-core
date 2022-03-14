@@ -1,7 +1,9 @@
 <?php
 
+use RefinedDigital\CMS\Modules\Core\Helpers\Breadcrumbs;
 use RefinedDigital\CMS\Modules\Core\Helpers\CoreHelper;
 use RefinedDigital\CMS\Modules\Core\Helpers\Help;
+use RefinedDigital\CMS\Modules\Core\Helpers\Format;
 use RefinedDigital\CMS\Modules\Core\Helpers\Menu;
 use RefinedDigital\CMS\Modules\Core\Helpers\Pages;
 use RefinedDigital\CMS\Modules\Core\Helpers\PaymentGatewayHelper;
@@ -15,6 +17,13 @@ if (! function_exists('help')) {
     function help()
     {
         return app(Help::class);
+    }
+}
+
+if (! function_exists('format')) {
+    function format()
+    {
+        return app(Format::class);
     }
 }
 
@@ -79,5 +88,12 @@ if (! function_exists('core')) {
     function core()
     {
         return app(CoreHelper::class);
+    }
+}
+
+if (! function_exists('breadcrumbs')) {
+    function breadcrumbs()
+    {
+        return app(Breadcrumbs::class);
     }
 }

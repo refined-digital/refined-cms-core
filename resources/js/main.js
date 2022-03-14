@@ -30,6 +30,7 @@ import Icon from './components/Icon';
 import SelectAsTags from './components/SelectAsTags';
 import ProductVariations from './components/ProductVariations';
 import FormEmail from './components/FormEmail';
+import ColourPicker from './components/ColourPicker';
 
 Vue.component('rd-date-time-picker', DateTimePicker);
 Vue.component('rd-date-picker', DatePicker);
@@ -53,6 +54,7 @@ Vue.component('rd-sitemap', SiteMap);
 Vue.component('rd-form-options', FormOptions);
 Vue.component('rd-form-repeatable', FormRepeatable);
 Vue.component('rd-product-variations', ProductVariations);
+Vue.component('rd-colour-picker', ColourPicker);
 Vue.component('Icon', Icon);
 
 window.eventBus = new Vue({});
