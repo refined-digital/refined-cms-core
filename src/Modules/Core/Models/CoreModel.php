@@ -84,4 +84,13 @@ class CoreModel extends Model
         }
     }
 
+    public function getModelImagesAttribute()
+    {
+        if (isset($this->attributes['images']) && $this->attributes['images']) {
+            return json_decode(json_decode($this->attributes['images']));
+        }
+
+        return [];
+    }
+
 }
