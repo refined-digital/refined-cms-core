@@ -16,7 +16,7 @@ class Format
         return str_replace($search, $replace, $content);
     }
 
-    public function button($content, $additionalClasses = [], $target = false)
+    public function button($content, $additionalClasses = [], $target = false, $additionalAttributes = [])
     {
         if (isset($content->link) && $content->link) {
             $linkText = isset($content->link_title) && $content->link_title ? $content->link_title : 'Find out more';
@@ -34,6 +34,10 @@ class Format
 
             if (is_numeric(strpos($link, 'http')) && !is_numeric(strpos($link, config('app.url')))) {
                 $attributes['target'] = '_blank';
+            }
+
+            if (sizeof($additionalAttributes)) {
+                $attributes = array_merge($attributes, $additionalAttributes);
             }
 
             return '<a href="'.$link.'"'.help()->arrToAttr($attributes).'>'.$linkText.'</a>';
