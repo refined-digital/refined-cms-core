@@ -29,12 +29,32 @@ class {{Name}} extends CoreModel implements Sortable
     public $formFields = [
         [
             'name' => 'Content',
-            'fields' => [
-                [
-                    [ 'label' => 'Active', 'name' => 'active', 'required' => true, 'type' => 'select', 'options' => [1 => 'Yes', 0 => 'No'] ],
-                    [ 'label' => 'Name', 'name' => 'name', 'required' => true{-page , 'attrs' => ['v-model' => 'content.name', '@keyup' => 'updateSlug' ] -} ],
+            'sections' => [
+                'left' => [
+                    'blocks' => [
+                        [
+                            'name' => 'Content',
+                            'fields' => [
+                                [
+                                    [ 'label' => 'Name', 'name' => 'name', 'required' => true{-page , 'attrs' => ['v-model' => 'content.name', '@keyup' => 'updateSlug' ] -} ],
+                                ],
+                            ]
+                        ]
+                    ]
+                ],
+                'right' => [
+                    'blocks' => [
+                        [
+                            'name' => 'Settings',
+                            'fields' => [
+                                [
+                                    [ 'label' => 'Active', 'name' => 'active', 'required' => true, 'type' => 'select', 'options' => [1 => 'Yes', 0 => 'No'] ],
+                                ],
+                            ]
+                        ]
+                    ]
                 ],
             ]
-        ]
+        ],
     ];
 }
