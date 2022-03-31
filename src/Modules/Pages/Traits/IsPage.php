@@ -85,6 +85,10 @@ trait IsPage
                 $name = $model->name;
             }
 
+            $search = ['[colour]', '[/colour]'];
+            $replace = ['', ''];
+            $name = str_replace($search, $replace, $name);
+
             $modelType = get_class($model);
 
             $uriData = [
@@ -112,6 +116,7 @@ trait IsPage
             }
         });
 
+        /*
         static::getModel()->deleted(function($model) {
 
            if($model->implementsSoftDeletes()) {
@@ -127,7 +132,7 @@ trait IsPage
                     $model->content()->forceDelete();
                 }
             }
-        });
+        });*/
 
     }
 

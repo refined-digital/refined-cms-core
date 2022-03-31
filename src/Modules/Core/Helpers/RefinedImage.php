@@ -23,6 +23,8 @@ class RefinedImage {
     protected $originalFileName = '';
     protected $attributes = [];
 
+    protected $dimensions = [];
+
 
     public function __construct()
     {
@@ -53,6 +55,14 @@ class RefinedImage {
             if (isset($this->file->alt) && $this->file->alt) {
                 $this->attributes['alt'] = $this->file->alt;
             }
+        }
+
+        return $this;
+    }
+
+    public function dimensions(array $dimensions) {
+        if (is_array($dimensions)) {
+            $this->dimensions = $dimensions;
         }
 
         return $this;
@@ -116,50 +126,58 @@ class RefinedImage {
         return $this;
     }
 
+    public function createImage($width, $height, $fileName = false)
+    {
+        $fileName = $this->buildFileName($fileName, $width, $height);
+
+        // only create if we are forcing, or the file doesn't already exist
+        if(!file_exists($this->directory.$fileName) || $this->force) {
+
+            // load the image
+            $image = Image::make($this->directory.$this->file->file, $this->getQuality());
+
+            if($this->type && $width && $height) {
+                if($this->type == 'fit') {
+                    $image->fit($width, $height);
+                } elseif($this->type == 'fill') {
+                    $image->fit($width, $height, function($constrain) {
+                        $constrain->upsize();
+                    });
+                }
+            } else {
+                if($width && $height) {
+                    $image->resize($width, $height, function($constrain) {
+                        $constrain->upsize();
+                        $constrain->aspectRatio();
+                    });
+                } elseif($width && !$height) {
+                    $image->resize($width, null, function($constrain) {
+                        $constrain->upsize();
+                        $constrain->aspectRatio();
+                    });
+                } elseif(!$width && $height) {
+                    $image->resize(null, $height, function($constrain) {
+                        $constrain->upsize();
+                        $constrain->aspectRatio();
+                    });
+                }
+            }
+
+            // now save it
+            $image->save($this->directory.$fileName);
+        }
+
+        return $this->path.$fileName;
+    }
+
     public function save($fileName = false)
     {
       try {
         // only process if we do have a file
         if (isset($this->file->id) && $this->file->type == 'Image') {
-            $fileName = $this->buildFileName($fileName);
+            $this->createImage($this->width, $this->height, $fileName);
 
-            // only create if we are forcing, or the file doesn't already exist
-            if (!file_exists($this->directory.$fileName) || $this->force) {
-
-                // load the image
-                $image = Image::make($this->directory.$this->file->file, $this->getQuality());
-
-                if ($this->type && $this->width && $this->height) {
-                    if ($this->type == 'fit') {
-                        $image->fit($this->width, $this->height);
-                    } else if ($this->type == 'fill') {
-                        $image->fit($this->width, $this->height, function($constrain){
-                            $constrain->upsize();
-                        });
-                    }
-                }
-                else {
-                    if($this->width && $this->height) {
-                        $image->resize($this->width, $this->height, function($constrain){
-                            $constrain->upsize();
-                            $constrain->aspectRatio();
-                        });
-                    } elseif($this->width && !$this->height) {
-                        $image->resize($this->width, null, function($constrain){
-                            $constrain->upsize();
-                            $constrain->aspectRatio();
-                        });
-                    } elseif(!$this->width && $this->height) {
-                        $image->resize(null, $this->height, function($constrain){
-                            $constrain->upsize();
-                            $constrain->aspectRatio();
-                        });
-                    }
-                }
-
-                // now save it
-                $image->save($this->directory.$fileName);
-            }
+            $fileName = $this->buildFileName($fileName, $this->width, $this->height);
 
             // return the image
             $dimensions = getimagesize($this->directory.$fileName);
@@ -202,8 +220,14 @@ class RefinedImage {
 
     public function get()
     {
-        $this->returnType = 'image';
-        return $this->save();
+        $filePath = $this->directory.$this->file->file;
+        if (strpos($this->file->file, '.svg') && file_exists($filePath)) {
+            return file_get_contents($filePath);
+        } else {
+            $this->returnType = 'image';
+            return $this->save();
+
+        }
     }
 
     public function string()
@@ -218,9 +242,58 @@ class RefinedImage {
         return $this->save();
     }
 
-    private function buildFileName($fileName = false)
+    public function pictureHtml()
+    {
+        $html = '<picture>';
+        if (!sizeof($this->dimensions)) {
+            $image = asset($this->createImage($this->width, $this->height));
+            $baseImage = $image;
+            $html .= $this->buildSourceHtml($image);
+        } else {
+            $width = 0;
+            foreach ($this->dimensions as $dims) {
+                $image = asset($this->createImage($dims['width'], $dims['height']));
+                $html .= $this->buildSourceHtml($image, $dims['media'] ?? false);
+                if ($dims['width'] > $width) {
+                    $width = $dims['width'];
+                    $baseImage = $image;
+                }
+            }
+        }
+
+            $html .= PHP_EOL."\t".'<img src="'.$baseImage.'"/>';
+        $html .= PHP_EOL.'</picture>';
+
+        return $html;
+    }
+
+    private function buildSourceHtml($image, $media = false)
+    {
+        $html = PHP_EOL."\t<source ";
+        $attrs = [
+            'srcset' => $image,
+        ];
+
+        if (is_numeric($media) && $media > 200) {
+            $attrs['media'] = '(min-width: '.$media.'px)';
+        }
+
+        $html .= core()->arrayToAttr($attrs);
+        $html .= '></source>';
+
+        return $html;
+    }
+
+    private function buildFileName($fileName = false, $width = false, $height = false)
     {
         $name = [];
+
+        if (!$width) {
+            $width = $this->width;
+        }
+        if (!$height) {
+            $height = $this->height;
+        }
 
         // add the filename
         if($fileName) {
@@ -230,18 +303,18 @@ class RefinedImage {
         }
 
         // set the dimensions
-        if ($this->width && $this->height) {
-            $name[] = $this->width.'x'.$this->height;
+        if ($width && $height) {
+            $name[] = $width.'x'.$height;
         }
 
         // if only width, add it
-        if ($this->width && !$this->height) {
-            $name[] = 'w'.$this->width;
+        if ($width && !$height) {
+            $name[] = 'w'.$width;
         }
 
         // if only height, add it
-        if (!$this->width && $this->height) {
-            $name[] = 'h'.$this->height;
+        if (!$width && $height) {
+            $name[] = 'h'.$height;
         }
 
         // only add the type if it is one of the valid types

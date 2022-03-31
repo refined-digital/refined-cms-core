@@ -60,5 +60,24 @@
     @endphp
     window.app.form.typeId = {{ $typeId }};
   @endif
+
+  var buttons = document.querySelectorAll('.app__content-header aside .button--blue');
+  if (buttons.length) {
+    var hasSaveButton = false;
+    buttons.forEach(button => {
+      if (button.innerHTML === 'Save') {
+        hasSaveButton = true;
+      }
+    })
+
+    if (hasSaveButton) {
+      document.addEventListener('keydown', e => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+          e.preventDefault();
+          window.app.submitForm('save');
+        }
+      })
+    }
+  }
 </script>
 @append

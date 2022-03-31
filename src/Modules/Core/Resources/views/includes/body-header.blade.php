@@ -2,15 +2,17 @@
     if (!isset($showHeader)) {
         $showHeader = true;
     }
+    $search = ['[colour]','[/colour]'];
+    $replace = ['', ''];
 ?>
 @if(isset($routeEnd) && ($routeEnd == 'index' || $routeEnd == 'fields'))
     @if($showHeader)
         <div class="app__content-header">
             <h2>
                 @if (isset($parent->name))
-                    <a href="{{ $parent->index ?? '#' }}">{{ $parent->name }}</a> /
+                    <a href="{{ $parent->index ?? '#' }}">{{ str_replace($search, $replace, $parent->name) }}</a> /
                 @endif
-                <a href="{{ $routes->index ?? '#' }}">{{ $heading }}</a>
+                <a href="{{ $routes->index ?? '#' }}">{{ str_replace($search, $replace, $heading) }}</a>
             </h2>
             <aside>
                 @if ($canCreate && isset($routes->create) && ($routeEnd == 'index' || $routeEnd == 'fields'))
@@ -30,10 +32,10 @@
         <div class="app__content-header">
             <h2>
                 @if (isset($parent->name))
-                    <a href="{{ $parent->index ?? '#' }}">{{ $parent->name }}</a> /
+                    <a href="{{ $parent->index ?? '#' }}">{{ str_replace($search, $replace, $parent->name) }}</a> /
                 @endif
-                <a href="{{ $routes->index ?? '#' }}">{{ $heading }}</a> / {{ $routeEnd == 'create' ? 'Create' : ''}}
-                <span>{{ $data->name }}</span>
+                <a href="{{ $routes->index ?? '#' }}">{{ str_replace($search, $replace, $heading) }}</a> / {{ $routeEnd == 'create' ? 'Create' : ''}}
+                <span>{{ str_replace($search, $replace, $data->name) }}</span>
             </h2>
             @include('core::includes.body-header-buttons')
         </div>

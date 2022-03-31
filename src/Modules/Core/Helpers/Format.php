@@ -55,4 +55,22 @@ class Format
 
         return $content;
     }
+
+    public function colour($content, $replacements = [])
+    {
+        if (!sizeof($replacements)) {
+            return $content;
+        }
+
+        foreach ($replacements as $key => $value) {
+            if (is_numeric($key)) {
+                $key = $value;
+            }
+            $search = ['['.$key.']', '[/'.$key.']'];
+            $replace = ['<span class="text-colour--'.$value.'">', '</span>'];
+            $content = str_replace($search, $replace, $content);
+        }
+
+        return $content;
+    }
 }

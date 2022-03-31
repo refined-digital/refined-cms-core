@@ -21,6 +21,9 @@
                 @endif
 
                 <div class="data-table">
+                  @if (isset($tableSettings->note) && $tableSettings->note)
+                    <p>{!! $tableSettings->note !!}</p>
+                  @endif
 
                     <table{!! $sort ? ' v-sortable-table data-route="'.$routes->sort.'"' : '' !!}>
                         <thead>
