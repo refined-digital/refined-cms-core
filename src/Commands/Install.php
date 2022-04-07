@@ -120,47 +120,49 @@ class Install extends Command
             "APP_URL=".$siteUrl."\n",
         ];
 
-        $mailgunDomain = null;
-        $mailgunSecret = null;
+        $emailDomain = null;
+        $emailSecret = null;
 
-        // mailgun questions
+        // email questions
         if ($mail == '1') {
             $search[] = '(MAIL_MAILER=(.*?)\n)';
             $search[] = '(MAIL_PORT=(.*?)\n)';
+            $search[] = '(MAIL_USERNAME=(.*?)\n)';
             $search[] = '(MAIL_FROM_NAME=(.*?)\n)';
             $search[] = '(MAIL_FROM_ADDRESS=(.*?)\n)';
 
-            $replace[] = "MAIL_MAILER=mailgun\n";
-            $replace[] = "MAIL_PORT=2525\n";
+            $replace[] = "MAIL_MAILER=smtp\n";
+            $replace[] = "MAIL_PORT=587\n";
+            $replace[] = "MAIL_USERNAME=apikey\n";
 
-            $question = new Question('Mailgun Domain? (mg.refineddigital.co.nz): ', 'mg.refineddigital.co.nz');
+            $question = new Question('Domain? (sg.refinedcms.com): ', 'sg.refinedcms.com');
             $question->setValidator(function ($answer) {
                 if(strlen($answer) < 1) {
-                    throw new RuntimeException('Mailgun Domain is required');
+                    throw new RuntimeException('SendGrid Domain is required');
                 }
                 return $answer;
             });
             $question->setMaxAttempts(3);
             $domain = $helper->ask($this->input, $this->output, $question);
 
-            $replace[] = "MAIL_FROM_NAME=\"RefinedCMS\"\nMAILGUN_DOMAIN=\n";
+            $replace[] = 'MAIL_FROM_NAME="'.$this->siteName."\"\n";
             $replace[] = 'MAIL_FROM_ADDRESS=no-reply@'.$domain."\n";
 
 
-            $question = new Question('Mailgun Secret?: ', false);
+            $question = new Question('Mail Secret?: ', false);
             $question->setHidden(true);
             $question->setHiddenFallback(false);
             $question->setValidator(function ($answer) {
                 if(strlen($answer) < 1) {
-                    throw new RuntimeException('Mailgun Secret is required');
+                    throw new RuntimeException('Mail Secret is required');
                 }
                 return $answer;
             });
             $question->setMaxAttempts(3);
             $secret = $helper->ask($this->input, $this->output, $question);
 
-            $search[] = '(MAILGUN_DOMAIN=(.*?)\n)';
-            $replace[] = "MAILGUN_DOMAIN=".$domain."\nMAILGUN_SECRET=".$secret."\n";
+            $search[] = ['(MAIL_PASSWORD=(.*?)\n)'];
+            $replace[] = "MAIL_PASSWORD=".$secret."\n";
         }
 
 
