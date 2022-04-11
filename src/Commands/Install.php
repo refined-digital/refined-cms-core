@@ -161,7 +161,7 @@ class Install extends Command
             $question->setMaxAttempts(3);
             $secret = $helper->ask($this->input, $this->output, $question);
 
-            $search[] = ['(MAIL_PASSWORD=(.*?)\n)'];
+            $search[] = '(MAIL_PASSWORD=(.*?)\n)';
             $replace[] = "MAIL_PASSWORD=".$secret."\n";
         }
 
