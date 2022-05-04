@@ -402,6 +402,9 @@
       },
 
       showDefaultTab(tab) {
+        return true;
+
+        /*
         if (this.$root.user.user_level_id < 2) {
           return true;
         }
@@ -414,6 +417,7 @@
         }
 
         return show;
+         */
       },
 
       showTab(tab) {
