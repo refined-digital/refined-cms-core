@@ -1,6 +1,6 @@
 <template>
     <div class="form__control--tags">
-      <input type="text" class="form__control" :value="tags" :name="'modelTags[' + field.name.replace('data__', '') + ']'" required :id="'form--'+field.name" autocomplete="off">
+      <input type="text" class="form__control" :value="tags" :name="this.fieldName" required :id="'form--'+field.name" autocomplete="off">
     </div>
 </template>
 
@@ -9,7 +9,7 @@
 
   export default {
 
-    props: [ 'field', 'type', 'values', 'choices', 'dontAllowCreate', 'valueField' ],
+    props: [ 'field', 'type', 'values', 'choices', 'dontAllowCreate', 'valueField', 'asSelect', 'valueType' ],
 
     data() {
       return {
@@ -18,15 +18,20 @@
         setType: this.type || 'tags',
         placeholder: 'Select Tags',
         options: [],
+        fieldName: 'modelTags[]'
       }
     },
 
     created () {
       this.placeholder = `Select ${this.field.label ? this.field.label : this.setType.replace(/-/gi,' ')}`;
+      this.fieldName = `modelTags[${this.field.name.replace('data__', '')}`;
+      if (this.asSelect) {
+        this.fieldName = this.field.name;
+      }
 
       if (this.choices) {
         this.choices.forEach(choice => {
-          this.options.push({ ...choice });
+          this.options.push({ ... choice});
         });
       }
 
@@ -36,6 +41,11 @@
           this.values[this.setType].forEach(tag => {
             this.value.push(tag);
           });
+        } else if (this.asSelect) {
+          const valuesAsArray = this.values.split(',').map(id => parseInt(id))
+          const values = this.options
+              .filter(option => valuesAsArray.includes(option.id))
+          this.value = values.map(v => v);
         } else {
           this.tags = this.values[this.setType];
         }
@@ -73,7 +83,7 @@
         val.forEach(i => {
           v.push(i.name);
         })
-        this.tags = v.join(',');
+        this.tags = v.join('|');
       }
     },
 
@@ -83,7 +93,7 @@
         let element = this.$el.querySelector('.form__control');
         let selectizeOptions = {
           plugins: ['restore_on_backspace', 'remove_button'],
-          delimiter: ',',
+          delimiter: '|',
           persist: true,
           maxItems: null,
           placeholder: this.placeholder,
@@ -103,7 +113,15 @@
             false
           ,
           onChange: function(value) {
-            self.tags = value;
+            if (self.valueType && self.valueType === 'id') {
+              const valueAsArray = value.split('|');
+              const valueIds = self.options
+                  .filter(option => valueAsArray.includes(option.name))
+                  .map(option => option.id)
+              self.tags = valueIds.join(',');
+            } else {
+              self.tags = value.replace(/\|/g, ',');
+            }
           }
         };
 
