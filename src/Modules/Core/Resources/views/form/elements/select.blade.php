@@ -8,7 +8,11 @@
               unset($options[$index]);
               if (is_array($data)) {
                   foreach ($data as $id => $d) {
-                      $options[$id] = $d;
+                      if (is_array($d)) {
+                        $options[$d['id']] = $d['name'];
+                      } else {
+                        $options[$id] = $d;
+                      }
                   }
               } else {
                   $options[$index] = $data;
