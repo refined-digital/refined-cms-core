@@ -98,9 +98,11 @@ www
 
 
     // server
-    $contents = file_get_contents(base_path('server.php'));
-    $contents = str_replace('/public', '/public_html', $contents);
-    file_put_contents(base_path('server.php'), $contents);
+    if (file_exists(base_path('server.php'))) {
+        $contents = file_get_contents(base_path('server.php'));
+        $contents = str_replace('/public', '/public_html', $contents);
+        file_put_contents(base_path('server.php'), $contents);
+    }
 
     // public html
     $contents = file_get_contents(public_path('index.php'));

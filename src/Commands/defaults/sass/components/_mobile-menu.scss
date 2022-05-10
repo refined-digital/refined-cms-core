@@ -95,6 +95,17 @@
 
   &__trigger {
     display: none;
+    color: color(main-color-1);
+    cursor: pointer;
+    flex: 0 0 30px;
+    margin-left: 15px;
+    svg {
+      height: 30px;
+    }
+
+    @include respond($mobileMenuAt) {
+      display: block;
+    }
   }
 
 }

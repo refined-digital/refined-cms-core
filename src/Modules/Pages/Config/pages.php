@@ -1,5 +1,37 @@
 <?php
 
+$heading = [
+    'name' => 'Heading',
+    'field' => 'heading',
+    'page_content_type_id' => 3,
+];
+
+$content = [
+    'name' => 'Content',
+    'field' => 'content',
+    'page_content_type_id' => 1
+];
+
+$link = [
+    'name' => 'Link',
+    'field' => 'link',
+    'page_content_type_id' => 7,
+];
+
+$linkTitle = [
+    'name' => 'Link Title',
+    'field' => 'link_title',
+    'page_content_type_id' => 3,
+];
+
+$icon = [
+    'name' => 'Icon',
+    'page_content_type_id' => 4,
+    'field' => 'icon',
+    'hide_label' => false,
+    'note' => 'Preferred format is <code>svg</code>'
+];
+
 return [
     'banner' => [
         'home' => [
@@ -27,14 +59,8 @@ return [
             'template' => 'content',
             'description' => 'A simple Heading and Rich Editor content combo',
             'fields' => [
-                [
-                    'name' => 'Heading',
-                    'page_content_type_id' => 3,
-                ],
-                [
-                    'name' => 'Content',
-                    'page_content_type_id' => 1
-                ],
+                $heading,
+                $content,
             ]
         ],
         [
@@ -42,18 +68,25 @@ return [
             'template' => 'form',
             'description' => 'Content and Form combo',
             'fields' => [
-                [
-                    'name' => 'Heading',
-                    'page_content_type_id' => 3,
-                ],
-                [
-                    'name' => 'Content',
-                    'page_content_type_id' => 1
-                ],
+                $heading,
+                $content,
                 [
                     'name' => 'Form',
                     'page_content_type_id' => 6,
                     'options' => 'forms',
+                ],
+            ]
+        ],
+        [
+            'name' => 'Full Width Image',
+            'template' => 'full-width-image',
+            'description' => 'A full width image',
+            'fields' => [
+                [
+                    'name' => 'Image',
+                    'page_content_type_id' => 4,
+                    'width' => 1920,
+                    'height' => 960
                 ],
             ]
         ],
@@ -67,7 +100,7 @@ return [
                     'name' => 'Image',
                     'page_content_type_id' => 4,
                     'width' => 1920,
-                    'height' => 600
+                    'height' => 960
                 ],
             ]
         ],
@@ -86,33 +119,12 @@ return [
                             'field' => 'image',
                             'hide_label' => false,
                             'width' => 1920,
-                            'height' => 600
+                            'height' => 960
                         ],
                     ]
                 ]
             ]
         ],
-        [
-            'name' => 'Gallery',
-            'template' => 'gallery',
-            'description' => 'A gallery layout of images',
-            'fields' => [
-                [
-                    'name' => 'Images',
-                    'page_content_type_id' => 9,
-                    'fields' => [
-                        [
-                            'name' => 'Image',
-                            'page_content_type_id' => 4,
-                            'field' => 'image',
-                            'hide_label' => false,
-                            'width' => 800,
-                            'height' => 600
-                        ],
-                    ]
-                ]
-            ]
-        ]
         */
     ]
 ];

@@ -1,12 +1,14 @@
-<div class="page__block">
+@php
+  $classes = [
+    'page__block',
+    'page__block--content',
+  ];
+@endphp
+<section class="{{ implode(' ', $classes) }}">
   <div class="holder">
     <article>
-      @if (isset($content->heading) && $content->heading)
-        <h2 class="heading">{{ $content->heading }}</h2>
-      @endif
-      @if (isset($content->content) && $content->content)
-        <div class="cont">{!! $content->content !!}</div>
-      @endif
+      @include('templates.includes.heading')
+      @include('templates.includes.content-text')
     </article>
   </div>
-</div>
+</section>

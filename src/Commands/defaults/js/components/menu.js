@@ -1,6 +1,6 @@
 const menuClass = 'mobile-menu';
 const trigger = document.querySelector(`.${menuClass}__trigger`);
-const body = document.querySelector('body');
+const body = document.querySelector(`.${menuClass}`);
 
 if (trigger && body) {
   trigger.addEventListener('click', () => {

@@ -7,6 +7,7 @@ if (sliders.length) {
       type: 'fade',
       pagination: false,
       rewind: true,
+      autoplay: true,
     }).mount();
   });
 }

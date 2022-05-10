@@ -1,15 +1,14 @@
 @php
   $classes = [
     'page__block',
+    'page__block--form',
   ];
 @endphp
-<div class="{{ implode(' ', $classes) }}">
+<section class="{{ implode(' ', $classes) }}">
   <article>
-    @if (isset($content->heading) && $content->heading)
-      <h2 class="heading">{{ $content->heading }}</h2>
-    @endif
+    @include('templates.includes.heading')
     <div>
-      <div>{!! $content->content !!}</div>
+      @include('templates.includes.content-text')
       <div>
         @if ($content->form)
           {!! forms()->form($content->form)->render() !!}
@@ -17,4 +16,4 @@
       </div>
     </div>
   </article>
-</div>
+</section>
