@@ -26,6 +26,11 @@ class TemplatesTableSeeder extends Seeder
                 'source'    => 'home',
                 'active'    => 1,
             ],
+            [
+                'name'      => 'Search',
+                'source'    => 'search',
+                'active'    => 0,
+            ],
         ];
 
         foreach($templates as $pos => $u) {

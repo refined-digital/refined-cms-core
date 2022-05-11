@@ -8,7 +8,8 @@ use RefinedDigital\CMS\Modules\Media\Http\Repositories\MediaRepository;
 use RefinedDigital\CMS\Modules\Tags\Models\Tag;
 use Str;
 
-class CoreRepository {
+class CoreRepository
+{
 
     protected $model;
 
@@ -20,20 +21,19 @@ class CoreRepository {
         $this->model = $model;
     }
 
-	public function getAll()
+    public function getAll()
     {
         return $this->model::
-            keywords()
-            ->order()
-            ->paging()
-        ;
+        keywords()
+                           ->order()
+                           ->paging();
     }
 
     public function getForFront()
     {
         $data = $this->model::whereActive(1)
-            ->order()
-            ->get();
+                            ->order()
+                            ->get();
 
         return $data;
     }
@@ -41,15 +41,15 @@ class CoreRepository {
     public function getForSelect()
     {
         $data = $this->model::whereActive(1)
-            ->order()
-            ->get();
+                            ->order()
+                            ->get();
 
-        if (!$data->count()) {
+        if(!$data->count()) {
             return [];
         }
 
         $items = [0 => 'Please Select'];
-        foreach ($data as $item) {
+        foreach($data as $item) {
             $items[$item->id] = $item->name;
         }
 
@@ -64,7 +64,7 @@ class CoreRepository {
     public function destroy($id)
     {
         $model = $this->model;
-        $item = $model::find($id);
+        $item  = $model::find($id);
         if(isset($item->id)) {
             $item->delete();
 
@@ -73,8 +73,7 @@ class CoreRepository {
                 ->performedOn($item)
                 ->causedBy(auth()->check() ? auth()->user()->id : null)
                 ->withProperties(['Deleted item' => $id])
-                ->log('An item was deleted')
-            ;
+                ->log('An item was deleted');
 
             // send back a note to say all good
             return true;
@@ -86,9 +85,9 @@ class CoreRepository {
     }
 
     public function update($id, $request, $extra = [])
-	  {
-		$model = $this->model;
-        $item = $model::findOrFail($id);
+    {
+        $model = $this->model;
+        $item  = $model::findOrFail($id);
 
         if(is_array($request)) {
             $data = $request;
@@ -114,15 +113,14 @@ class CoreRepository {
             ->performedOn($item)
             ->causedBy(auth()->check() ? auth()->user()->id : null)
             ->withProperties([$basename.' has been updated' => $id])
-            ->log($basename.' has been updated')
-        ;
+            ->log($basename.' has been updated');
 
         return $item;
     }
 
     public function store($request, $extra = [])
-	  {
-		$model = $this->model;
+    {
+        $model = $this->model;
 
         if(is_array($request)) {
             $data = $request;
@@ -146,8 +144,7 @@ class CoreRepository {
             ->performedOn($item)
             ->causedBy(auth()->check() ? auth()->user()->id : null)
             ->withProperties([$basename.' has been created' => $item->id])
-            ->log($basename.' has been created')
-        ;
+            ->log($basename.' has been created');
 
         return $item;
     }
@@ -157,10 +154,14 @@ class CoreRepository {
     {
 
         // force the first name
-        if(isset($data['name']))            $data['name']           = ucfirst($data['name']);
-        if(isset($data['first_name']))      $data['first_name']     = ucfirst($data['first_name']);
+        if(isset($data['name'])) {
+            $data['name'] = ucfirst($data['name']);
+        }
+        if(isset($data['first_name'])) {
+            $data['first_name'] = ucfirst($data['first_name']);
+        }
         if(isset($data['password'])) {
-            if ($data['password']) {
+            if($data['password']) {
                 $data['password'] = bcrypt($data['password']);
             } else {
                 unset($data['password']);
@@ -169,10 +170,10 @@ class CoreRepository {
             unset($data['password']);
         }
 
-        if (isset($data['parent_id']) && isset($data['page_holder_id'])) {
-            if ($data['parent_id'] < 0) {
+        if(isset($data['parent_id']) && isset($data['page_holder_id'])) {
+            if($data['parent_id'] < 0) {
                 $data['page_holder_id'] = abs($data['parent_id']);
-                $data['parent_id'] = 0;
+                $data['parent_id']      = 0;
             }
         }
 
@@ -206,22 +207,22 @@ class CoreRepository {
             }
         }
 
-        if (isset($data['reply_to_type']) && $data['reply_to_type'] != 'text') {
+        if(isset($data['reply_to_type']) && $data['reply_to_type'] != 'text') {
             $data['reply_to'] = $data['reply_to_type'];
         }
 
         // check for extra data fields
-        if (sizeof($data)) {
+        if(sizeof($data)) {
             $extraData = [];
-            foreach ($data as $key => $value) {
-                if (is_numeric(strpos($key, 'data__'))) {
-                    $newKey = str_replace('data__', '', $key);
+            foreach($data as $key => $value) {
+                if(is_numeric(strpos($key, 'data__'))) {
+                    $newKey             = str_replace('data__', '', $key);
                     $extraData[$newKey] = $value;
                     unset($data[$key]);
                 }
             }
 
-            if (sizeof($extraData)) {
+            if(sizeof($extraData)) {
                 $data['data'] = $extraData;
             }
         }
@@ -230,31 +231,30 @@ class CoreRepository {
     }
 
 
-
     protected function getTagCollection($type, $model = false)
     {
-        if ($model) {
+        if($model) {
             $tags = DB::table('taggables')
-                        ->select('tag_id')
-                        ->whereTaggableType($model)
-                        ->groupBy('tag_id')
-                        ->get();
+                      ->select('tag_id')
+                      ->whereTaggableType($model)
+                      ->groupBy('tag_id')
+                      ->get();
         }
 
         $tag = Tag::with('meta')->whereType($type);
-        if (isset($tags) && $tags) {
+        if(isset($tags) && $tags) {
             $tag->whereIn('id', $tags->pluck('tag_id'));
         }
         $data = $tag->orderBy('position')->get();
 
-        if ($data && $data->count()) {
-            foreach ($data as $tag) {
-                if (isset($tag->meta->original_uri)) {
+        if($data && $data->count()) {
+            foreach($data as $tag) {
+                if(isset($tag->meta->original_uri)) {
                     continue;
                 }
 
                 $tag->meta->original_uri = $tag->meta->uri;
-                $tag->meta->uri = Str::slug($type).'/'.$tag->meta->uri;
+                $tag->meta->uri          = Str::slug($type).'/'.$tag->meta->uri;
             }
         }
 

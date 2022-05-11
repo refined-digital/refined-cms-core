@@ -61,7 +61,7 @@ class Install extends Command
         $this->copyTemplates();
         $this->updatePackageJson();
         $this->askCpanel();
-        $this->publishPageConfig();
+        $this->publishConfigs();
         $this->addUser();
     }
 
@@ -126,16 +126,18 @@ class Install extends Command
         // email questions
         if ($mail == '1') {
             $search[] = '(MAIL_MAILER=(.*?)\n)';
+            $search[] = '(MAIL_HOST=(.*?)\n)';
             $search[] = '(MAIL_PORT=(.*?)\n)';
             $search[] = '(MAIL_USERNAME=(.*?)\n)';
             $search[] = '(MAIL_FROM_NAME=(.*?)\n)';
             $search[] = '(MAIL_FROM_ADDRESS=(.*?)\n)';
 
             $replace[] = "MAIL_MAILER=smtp\n";
+            $replace[] = "MAIL_HOST=smtp.sendgrid.net\n";
             $replace[] = "MAIL_PORT=587\n";
             $replace[] = "MAIL_USERNAME=apikey\n";
 
-            $question = new Question('Domain? (sg.refinedcms.com): ', 'sg.refinedcms.com');
+            $question = new Question('Domain? (mail.refinedcms.com): ', 'mail.refinedcms.com');
             $question->setValidator(function ($answer) {
                 if(strlen($answer) < 1) {
                     throw new RuntimeException('SendGrid Domain is required');
@@ -179,6 +181,12 @@ RESPONSE_CACHE_HEADER_NAME=\"".Str::slug($siteName)."\"
 RESPONSE_CACHE_DRIVER=file
 RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         file_put_contents(app()->environmentFilePath(), $file);
+
+        // add in the scout config
+
+        $file .= "
+SCOUT_DRIVER=database
+        ";
 
         $this->output->writeln('<info>Finished writing config</info>');
     }
@@ -480,6 +488,9 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
 
         unlink(base_path('webpack.mix.js'));
         file_put_contents(base_path('webpack.mix.js'), file_get_contents($base.'/webpack.mix.js'));
+
+        unlink(base_path('.prettier'));
+        file_put_contents(base_path('.prettier'), file_get_contents($base.'/.prettier'));
     }
 
     protected function enableCacheResponseMiddleware()
@@ -487,7 +498,19 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         $dir = app_path('Http/Kernel.php');
         $file = file_get_contents($dir);
         $search = ['protected $routeMiddleware = ['];
-        $replace = ['protected $routeMiddleware = [' . "\n\t\t". '\'cacheResponse\' => \Spatie\ResponseCache\Middlewares\CacheResponse::class,'];
+
+        $options = [
+            '\'doNotCacheResponse\' => \Spatie\ResponseCache\Middlewares\DoNotCacheResponse::class,',
+            '\'cacheResponse\' => \Spatie\ResponseCache\Middlewares\CacheResponse::class,'
+        ];
+
+        $replaceString = 'protected $routeMiddleware = [';
+        foreach ($options as $option) {
+            $replaceString.= "\n\t\t". $option;
+        }
+        $replaceString .= '';
+
+        $replace = [$replaceString];
 
         $file = str_replace($search, $replace, $file);
 
@@ -539,10 +562,13 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         }
     }
 
-    public function publishPageConfig()
+    public function publishConfigs()
     {
         Artisan::call('vendor:publish', [
             '--tag' => 'pages'
+        ]);
+        Artisan::call('vendor:publish', [
+            '--provider' => 'Laravel\Scout\ScoutServiceProvider'
         ]);
     }
 

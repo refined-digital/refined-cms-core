@@ -53,6 +53,15 @@ class PagesSeeder extends Seeder
                 'name'              => 'Privacy Policy',
                 'uri'               => 'privacy-policy',
             ],
+            [
+                'page_holder_id'    => 3,
+                'parent_id'         => 0,
+                'page_type'         => 1,
+                'template_id'       => 3,
+                'position'          => 1,
+                'name'              => 'Search',
+                'uri'               => 'search',
+            ],
         ];
 
         foreach($data as $pos => $arg) {

@@ -142,5 +142,4 @@ class Page extends CoreModel implements Sortable
 
         return $formattedData;
     }
-
 }

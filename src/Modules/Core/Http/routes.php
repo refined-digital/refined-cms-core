@@ -24,7 +24,6 @@ Route::middleware(['web', 'cacheResponse'])
     })
 ;
 
-
 Route::middleware(['web', 'auth', 'userLevel', 'admin'])
     ->as('refined.')
     ->prefix('refined')

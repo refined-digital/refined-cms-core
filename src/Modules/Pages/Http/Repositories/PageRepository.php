@@ -413,6 +413,11 @@ class PageRepository extends CoreRepository
         // add the depth, based on the url slugs
         $page->depth = sizeof($uriBits);
 
+        // add search results, if using the search template
+        if (isset($page->meta->template->name) && $page->meta->template->name === 'Search') {
+            $page->search = search()->getResults();
+        }
+
         return $page;
     }
 

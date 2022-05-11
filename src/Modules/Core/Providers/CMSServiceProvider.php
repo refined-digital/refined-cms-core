@@ -50,6 +50,9 @@ class CMSServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../Config/rich-editor.php' => config_path('rich-editor.php'),
         ], 'rich-editor');
+        $this->publishes([
+            __DIR__.'/../Config/searchable-models.php' => config_path('searchable-models.php'),
+        ], 'searchable-models');
 
         Validator::extend('not0', function($attribute, $value) {
             return $value > '0';
@@ -171,5 +174,6 @@ class CMSServiceProvider extends ServiceProvider
         }
 
         $this->mergeConfigFrom(__DIR__.'/../Config/rich-editor.php', 'rich-editor');
+        $this->mergeConfigFrom(__DIR__.'/../Config/searchable-models.php', 'searchable-models');
     }
 }
