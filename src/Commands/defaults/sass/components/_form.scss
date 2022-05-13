@@ -26,6 +26,11 @@
   select.form__control {
     padding: 12px 5px 10px;
     width: 100%;
+    -webkit-appearance: none;
+    border-radius: 0;
+    background: #fff
+    url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzODQgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgUHJvIDYuMS4xIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlIChDb21tZXJjaWFsIExpY2Vuc2UpIENvcHlyaWdodCAyMDIyIEZvbnRpY29ucywgSW5jLiAtLT48cGF0aCBkPSJNMzYyLjcgMjAzLjlsLTE1OS4xIDE0NGMtNi4xMjUgNS40NjktMTUuMzEgNS40NjktMjEuNDQgMEwyMS4yOSAyMDMuOUMxNC43MyAxOTcuMSAxNC4yIDE4Ny45IDIwLjEgMTgxLjNDMjYuMzggMTc0LjQgMzYuNSAxNzQuNSA0Mi43MyAxODAuMUwxOTIgMzE0LjVsMTQ5LjMtMTM0LjRjNi41OTQtNS44NzcgMTYuNjktNS4zNjEgMjIuNjIgMS4xODhDMzY5LjggMTg3LjkgMzY5LjMgMTk3LjEgMzYyLjcgMjAzLjl6Ii8+PC9zdmc+)
+    no-repeat right 10px center / 20px;
   }
 
   &__label {
