@@ -87,7 +87,7 @@
         text-transform: uppercase;
       }
 
-      &.nav-active > a, a:hover {
+      &.nav__item--active > a, a:hover {
         color: rgba(255, 255, 255, 0.3);
       }
     }
