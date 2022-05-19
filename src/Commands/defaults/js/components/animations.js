@@ -10,7 +10,7 @@ const observer = (entries, klass) => {
 };
 const observerConfig = {
   root: null,
-  threshold: 0.5,
+  threshold: 0.25,
 };
 
 const time = setTimeout(() => {
