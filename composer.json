@@ -3,7 +3,7 @@
   "description": "Laravel based CMS",
   "require": {
     "php": "^8.0",
-    "laravel/framework": "^9.1",
+    "laravel/framework": "^9.1|^8.7",
     "laravel/ui": "^3.4",
     "barryvdh/laravel-debugbar": "^3.6",
     "intervention/image": "^2.7",

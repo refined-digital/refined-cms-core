@@ -10,21 +10,22 @@
             <th class="data-table__cell data-table__cell--options-plus"><i class="fa fa-plus" @click="addRepeatable(item)"></i></th>
           </tr>
         </thead>
-        <tbody v-sortable-repeatable-table>
-          <tr v-for="(item, index) in items" class="form__control--options-row" :data-index="index">
+        <tbody v-sortable-repeatable-table :data-id="id">
+          <tr v-for="(item, index) in items" class="form__control--options-row" :data-index="index" :key="item._key">
             <td class="data-table__cell data-table__cell--sort"><i class="fa fa-sort" v-if="items.length > 1"></i></td>
             <td class="data-table__cell">
               <template
                 v-for="(cell, cellKey, index) of item"
-                v-if="cell.hide_field"
+                v-if="cell.hide_field && cellKey !== '_key'"
               >
                 <input type="hidden" v-model="cell.content"/>
               </template>
               <div class="data-table__repeatable" :class="`data-table__repeatable--${name}`">
                 <div
                   class="data-table__cell--repeatable"
-                  :class="`data-table__cell--repeatable-${index}`"
-                  v-for="(cell, cellKey, index) of item"
+                  :class="`data-table__cell--repeatable-${childIndex}`"
+                  v-for="(cell, cellKey, childIndex) of item"
+                  :key="cell._key"
                   v-if="!cell.hide_field"
                 >
                   <label class="form__label" v-if="!cell.hide_label">{{ cell.name }}</label>
@@ -48,6 +49,8 @@
 </template>
 
 <script>
+  import _ from 'lodash';
+
   export default {
 
     props: ['item', 'name', 'value'],
@@ -56,6 +59,7 @@
         return {
           items: [],
           values: [],
+          id: Date.now()
         }
     },
 
@@ -71,6 +75,32 @@
           this.items.push(item);
         });
       }
+
+      this.items = this.items.map(item => {
+        for (const key in item) {
+          if (key === '_key') {
+            continue;
+          }
+
+          item[key]._key = `repeatable_${key}_${this.uid()}`
+        }
+
+        item._key = `repeatable_${this.uid()}`
+        return item;
+      })
+
+      eventBus.$on('sortable-repeatable-table.dragend', data => {
+        if (data.id === this.id.toString()) {
+          const orderedArray = [];
+          data.indexes.forEach(index => {
+            orderedArray.push(this.items[index]);
+          })
+
+          orderedArray.forEach((item, index) => {
+            this.$set(this.items, index, item);
+          })
+        }
+      })
     },
 
     watch: {
@@ -84,6 +114,10 @@
     },
 
     methods: {
+      uid() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+      },
+
       addRepeatable(item) {
         let data = {};
         item.fields.forEach(field => {

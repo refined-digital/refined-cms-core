@@ -25,7 +25,7 @@
         <rd-image
             v-model="item.content"
             :value="item.content"
-            :key="item.id"
+            :key="item._key || item.id"
             :width="item.width"
             :height="item.height"
         ></rd-image>
