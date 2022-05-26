@@ -569,9 +569,9 @@ SCOUT_DRIVER=database
         Artisan::call('vendor:publish', [
             '--tag' => 'pages'
         ]);
-        Artisan::call('vendor:publish', [
-            '--provider' => 'Laravel\Scout\ScoutServiceProvider'
-        ]);
+        // Artisan::call('vendor:publish', [
+        //     '--provider' => 'Laravel\Scout\ScoutServiceProvider'
+        // ]);
     }
 
     public function updatePackageJson()
