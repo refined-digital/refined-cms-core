@@ -32,6 +32,4 @@
 
     @include('templates.includes.top')
 
-    @include('templates.includes.page-banners')
-
 
