@@ -489,10 +489,10 @@ SCOUT_DRIVER=database
         unlink(base_path('webpack.mix.js'));
         file_put_contents(base_path('webpack.mix.js'), file_get_contents($base.'/webpack.mix.js'));
 
-        if (file_exists(base_path('.prettier'))) {
-            unlink(base_path('.prettier'));
+        if (file_exists(base_path('.prettierrc'))) {
+            unlink(base_path('.prettierrc'));
         }
-        file_put_contents(base_path('.prettier'), file_get_contents($base.'/.prettier'));
+        file_put_contents(base_path('.prettierrc'), file_get_contents($base.'/.prettierrc'));
     }
 
     protected function enableCacheResponseMiddleware()
