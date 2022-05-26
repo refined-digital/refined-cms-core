@@ -47,7 +47,7 @@ class InstallCMS extends Install
         $this->updateGitIgnore();
         $this->addUser();
         $this->askCpanel();
-        $this->publishPageConfig();
+        $this->publishConfigs();
         $this->cleanUpMigrations();
         $this->setupComplete();
     }
