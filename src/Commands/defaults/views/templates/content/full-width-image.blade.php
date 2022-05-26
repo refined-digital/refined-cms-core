@@ -5,7 +5,6 @@
     'page__block--no-padding',
   ];
 @endphp
-<section class="{{ implode(' ', $classes) }}">
 @if (isset($content->image) && $content->image)
   <section class="{{ implode(' ', $classes) }}">
     {!!
