@@ -13,12 +13,16 @@ class CoreModel extends Model
 
     protected $appends = [];
 
+    protected $exceptLength = 200;
+    protected $exceptType = 'character';
+
     protected $order = [ 'column' => 'position', 'direction' => 'asc'];
 
     public $sortable = [
         'order_column_name' => 'position',
         'sort_when_creating' => true,
     ];
+
 
     public function scopeActive($query)
 	{
@@ -91,6 +95,29 @@ class CoreModel extends Model
         }
 
         return [];
+    }
+
+
+    public function getExcerptAttribute()
+    {
+        $content = strip_tags($this->content);
+
+        $length = $this->exceptLength;
+
+        if ($this->exceptType === 'word') {
+            $wordsInText = str_word_count($content, 1);
+            $newContent = array_slice($wordsInText, 0, $length);
+            $excerpt = implode(' ', $newContent);
+        } else {
+            $excerpt = substr($content, 0, $length);
+        }
+
+        if (strlen($content) > strlen($excerpt)) {
+            $excerpt .= '<span>...</span>';
+        }
+
+        return $excerpt;
+
     }
 
 }
