@@ -13,8 +13,8 @@ class CoreModel extends Model
 
     protected $appends = [];
 
-    protected $exceptLength = 200;
-    protected $exceptType = 'character';
+    protected $excerptLength = 200;
+    protected $excerptType = 'character';
 
     protected $order = [ 'column' => 'position', 'direction' => 'asc'];
 
@@ -25,12 +25,12 @@ class CoreModel extends Model
 
 
     public function scopeActive($query)
-	{
-		$query->whereActive(1);
-	}
+    {
+        $query->whereActive(1);
+    }
 
-	public function scopeOrder($query, $default = false, $direction = false)
-	{
+    public function scopeOrder($query, $default = false, $direction = false)
+    {
         if(request()->has('sort')) {
             $sort = request()->get('sort');
         }
@@ -39,36 +39,36 @@ class CoreModel extends Model
             $dir = request()->get('dir');
         }
 
-		if(isset($sort) && isset($dir)) {
-			$query->orderBy($sort, $dir);
-		}
+        if(isset($sort) && isset($dir)) {
+            $query->orderBy($sort, $dir);
+        }
 
-		if (!$default) {
-		    $default = $this->order['column'];
-		}
+        if (!$default) {
+            $default = $this->order['column'];
+        }
 
-		if (!$direction) {
-		    $direction = $this->order['direction'];
-		}
+        if (!$direction) {
+            $direction = $this->order['direction'];
+        }
 
 
-		$query->orderBy($default, $direction);
-	}
+        $query->orderBy($default, $direction);
+    }
 
-	public function scopePaging($query, $perPage=20)
-	{
-		if(request()->has('perPage')) {
-			$perPage = request()->get('perPage');
+    public function scopePaging($query, $perPage=20)
+    {
+        if(request()->has('perPage')) {
+            $perPage = request()->get('perPage');
 
-			if ($perPage == 'all') {
-			    return $query->get();
-			}
-		}
+            if ($perPage == 'all') {
+                return $query->get();
+            }
+        }
 
-		return $query->paginate($perPage);
-	}
+        return $query->paginate($perPage);
+    }
 
-	public function scopeKeywords($query)
+    public function scopeKeywords($query)
     {
         if(request()->has('keywords') && strlen(request()->get('keywords')) > 0) {
             $query
@@ -102,9 +102,9 @@ class CoreModel extends Model
     {
         $content = strip_tags($this->content);
 
-        $length = $this->exceptLength;
+        $length = $this->excerptLength;
 
-        if ($this->exceptType === 'word') {
+        if ($this->excerptType === 'word') {
             $wordsInText = str_word_count($content, 1);
             $newContent = array_slice($wordsInText, 0, $length);
             $excerpt = implode(' ', $newContent);
