@@ -98,7 +98,7 @@
       // get the content types
       this.$root.loading = true;
       axios
-        .get('/refined/pages/get-tree')
+        .get(`${window.siteUrl}/refined/pages/get-tree`)
         .then(r => {
           this.$root.loading = false;
           if (r.status == 200) {
@@ -272,7 +272,7 @@
             });
           } else {
             let config = {
-              url: '/refined/settings/'+this.model,
+              url: `${window.siteUrl}/refined/settings/${this.model}`,
               method: 'POST',
               data: this.content
             }

@@ -293,7 +293,7 @@
       })
 
       axios
-        .get('/refined/pages/get-tree')
+        .get(`${window.siteUrl}/refined/pages/get-tree`)
         .then(r => {
           this.$root.loading = false;
 
@@ -576,7 +576,7 @@
       // set the url for the meta section
       setUrl() {
 
-        let urlBits = [this.siteUrl];
+        let urlBits = [window.siteUrl];
         if (this.page.parent_id != 0) {
           // find the parent
           let parentUri = this.findParentUri(this.page.parent_id);
@@ -631,7 +631,7 @@
 
           if (value) {
             axios
-              .delete('/refined/pages/'+this.page.id)
+              .delete(`${window.siteUrl}/refined/pages/${this.page.id}`)
               .then(r => {
                 this.$root.loading = false;
 
@@ -679,7 +679,7 @@
       savePage() {
         this.$root.loading = true;
         let config = {
-          url: '/refined/pages',
+          url: `${window.siteUrl}/refined/pages`,
           method: 'POST',
           data: {
             page: this.page,
@@ -864,7 +864,7 @@
       // updates the parent ids in the db
       updateParentDB(item) {
         let config = {
-          url: '/refined/pages/'+item.id+'/update-parent',
+          url: `${window.siteUrl}/refined/pages/${item.id}/update-parent`,
           method: 'PUT',
           data: {
             page: {
@@ -1020,7 +1020,7 @@
       reposition(ids, parent) {
         if (Array.isArray(ids) && ids.length) {
           axios
-            .post('/refined/pages/position', {
+            .post(`${window.siteUrl}/refined/pages/position`, {
               positions: ids,
               parent: parent,
             })

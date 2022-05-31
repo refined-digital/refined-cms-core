@@ -373,7 +373,7 @@
       // reload the media library
       reload() {
         axios
-          .get('/refined/media/get-tree')
+          .get(`${window.siteUrl}/refined/media/get-tree`)
           .then(r => {
             this.$root.loading = false;
             if (r.status === 200) {
@@ -623,7 +623,7 @@
 
           this.$root.loading = true;
           let config = {
-            url: '/refined/media/categories',
+            url: `${window.siteUrl}/refined/media/categories`,
             method: 'POST',
             data: this.category,
           }
@@ -693,7 +693,7 @@
           if (value) {
           this.$root.loading = true;
             axios
-              .delete('/refined/media/categories/'+this.category.id)
+              .delete(`${window.siteUrl}/refined/media/categories/${this.category.id}`)
               .then(r => {
                 this.$root.loading = false;
 
@@ -753,7 +753,7 @@
       reposition(ids, parent) {
         if (Array.isArray(ids) && ids.length) {
           axios
-            .post('/refined/media/categories/position', {
+            .post(`${window.siteUrl}/refined/media/categories/position`, {
               positions: ids,
               parent,
             })
@@ -768,7 +768,7 @@
       // updates the parent ids in the db
       categoryUpdateParent(itemId, parentId) {
         let config = {
-          url: '/refined/media/categories/'+itemId+'/update-parent',
+          url: `${window.siteUrl}/refined/media/categories/${itemId}/update-parent`,
           method: 'PUT',
           data: { parentId }
         };
@@ -791,7 +791,7 @@
         if (this.drop == null) {
           let self = this;
           let args = {
-            url: '/refined/media/upload-file',
+            url: `${window.siteUrl}/refined/media/upload-file`,
             acceptedFiles: 'image/*,.pdf,.docx,.doc,.xls,.xlsx,.zip,.mp4',
             maxFilesize: this.maxFilesize,
             timeout: 300000,
@@ -924,7 +924,7 @@
 
           // update the db
           axios
-            .post('/refined/media/update-parent', {
+            .post(`${window.siteUrl}/refined/media/update-parent`, {
               media: e.mediaId,
               media_category_id: e.categoryId,
             })
@@ -978,7 +978,7 @@
 
           this.$root.loading = true;
           let config = {
-            url: '/refined/media/'+this.file.id,
+            url: `${window.siteUrl}/refined/media/${this.file.id}`,
             method: 'PUT',
             data: this.file,
           }
@@ -1031,7 +1031,7 @@
 
           if (value) {
             axios
-              .delete('/refined/media/'+item.id)
+              .delete(`${window.siteUrl}/refined/media/${item.id}`)
               .then(r => {
                 this.$root.loading = false;
 

@@ -73,7 +73,9 @@
 
         </div><!-- / app holder -->
 
-
+        <script>
+          window.siteUrl = "{{ rtrim(config('app.url'), '/') }}";
+        </script>
         <script src="{{ asset('vendor/refined/core/js/main.js?v='.uniqid()) }}"></script>
         <script>
             window.app.richEditor = {!! json_encode(config('rich-editor')) !!}

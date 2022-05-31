@@ -52,7 +52,7 @@
       }
 
       // get the available tags
-      axios.get('/refined/tags/get-all-tags')
+      axios.get(`${window.siteUrl}/refined/tags/get-all-tags`)
         .then(r => {
           if (r.status == 200) {
             let data = r.data;

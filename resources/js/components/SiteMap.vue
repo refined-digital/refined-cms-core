@@ -51,7 +51,7 @@
         eventBus.$on('sitemap-clear', this.clearSitemap);
 
         axios
-          .get('/refined/pages/get-tree-basic')
+          .get(`${window.siteUrl}/refined/pages/get-tree-basic`)
           .then(r => {
             this.$root.loading = false;
 

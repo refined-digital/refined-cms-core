@@ -94,7 +94,7 @@
 
             if (this.value) {
               axios
-                .get('/refined/media/'+this.value)
+                .get(`${window.siteUrl}/refined/media/${this.value}`)
                 .then(r => {
                   this.$root.loading = false;
                   if (r.status === 200) {
