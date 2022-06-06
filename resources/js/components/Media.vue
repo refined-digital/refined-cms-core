@@ -91,7 +91,7 @@
             <div class="media__details">
               <div class="media__details-thumbnail">
 
-                <rd-media-file :file="file"></rd-media-file>
+                <rd-media-file :file="file" :site-url="window.siteUrl"></rd-media-file>
 
                 <a :href="file.link.original" target="_blank" class="media__file-link">View File</a>
                 <a href="#" @click.prevent.stop="mediaDelete(file)" target="_blank" class="media__file-delete">Delete File</a>
@@ -159,7 +159,7 @@
                   @click="mediaLoad(file)"
                   v-if="type === file.type || type === '*' || (type === 'Image' && file.type === 'Video')"
                 >
-                  <rd-media-file :file="file"></rd-media-file>
+                  <rd-media-file :file="file" :site-url="window.siteUrl"></rd-media-file>
                 </div>
 
               </div><!-- / files -->
@@ -202,7 +202,7 @@
                   :data-id="file.id"
                   @click="mediaLoad(file)"
                 >
-                  <rd-media-file :file="file"></rd-media-file>
+                  <rd-media-file :file="file" :site-url="window.siteUrl"></rd-media-file>
                 </div>
 
               </div><!-- / files -->

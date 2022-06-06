@@ -1,7 +1,7 @@
 <template>
     <figure>
       <span class="media__file-thumb">
-        <img :src="`${window.siteUrl}/vendor/refined/core/img/ui/media-thumb.png`">
+        <img :src="`${siteUrl}/vendor/refined/core/img/ui/media-thumb.png`">
         <span
           class="media__file-thumb-image"
           v-if="file.type == 'Image'" :style="{ backgroundImage: 'url('+ file.link.thumb +')' }"
@@ -22,7 +22,7 @@
 
   export default {
 
-    props: [ 'file' ],
+    props: [ 'file', 'siteUrl' ],
 
   }
 </script>
