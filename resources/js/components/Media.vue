@@ -91,7 +91,7 @@
             <div class="media__details">
               <div class="media__details-thumbnail">
 
-                <rd-media-file :file="file" :site-url="window.siteUrl"></rd-media-file>
+                <rd-media-file :file="file" :site-url="siteUrl"></rd-media-file>
 
                 <a :href="file.link.original" target="_blank" class="media__file-link">View File</a>
                 <a href="#" @click.prevent.stop="mediaDelete(file)" target="_blank" class="media__file-delete">Delete File</a>
@@ -159,7 +159,7 @@
                   @click="mediaLoad(file)"
                   v-if="type === file.type || type === '*' || (type === 'Image' && file.type === 'Video')"
                 >
-                  <rd-media-file :file="file" :site-url="window.siteUrl"></rd-media-file>
+                  <rd-media-file :file="file" :site-url="siteUrl"></rd-media-file>
                 </div>
 
               </div><!-- / files -->
@@ -171,7 +171,7 @@
                 <i class="spinner"></i>
                 <figure>
                     <span class="media__file-thumb dz-image">
-                      <img src="/vendor/refined/core/img/ui/media-thumb.png">
+                      <img :src="`${siteUrl}/vendor/refined/core/img/ui/media-thumb.png`">
                       <span class="media__file-thumb-holder"><img data-dz-thumbnail></span>
                     </span>
                   <figcaption>
@@ -202,7 +202,7 @@
                   :data-id="file.id"
                   @click="mediaLoad(file)"
                 >
-                  <rd-media-file :file="file" :site-url="window.siteUrl"></rd-media-file>
+                  <rd-media-file :file="file" :site-url="siteUrl"></rd-media-file>
                 </div>
 
               </div><!-- / files -->
@@ -272,12 +272,15 @@
       eventBus.$on('media-set-type', this.setType);
       eventBus.$on('media-reload', this.reload);
       eventBus.$on('media-clear', this.clear);
+
+      this.siteUrl = window.siteUrl;
     },
 
     data() {
       return {
         tab: 'details',
         type: '*',
+        siteUrl: '',
 
         search: '',
 
