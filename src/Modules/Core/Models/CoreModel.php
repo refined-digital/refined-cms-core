@@ -97,16 +97,25 @@ class CoreModel extends Model
         return [];
     }
 
-
     public function getExcerptAttribute()
     {
         $content = strip_tags($this->content);
+        $search = ['&nbsp;', '’'];
+        $replace = [' ', "'"];
+        $content = str_replace($search, $replace, $content);
 
         $length = $this->excerptLength;
 
         if ($this->excerptType === 'word') {
-            $wordsInText = str_word_count($content, 1);
-            $newContent = array_slice($wordsInText, 0, $length);
+            $wordsInText = preg_split('/([\s\n\r]+)/u', $content, null, PREG_SPLIT_DELIM_CAPTURE);
+            $wordsWithNoSpaces = array_filter($wordsInText, function($word) {
+                if ($word === ' ') {
+                    return false;
+                }
+
+                return $word;
+            });
+            $newContent = array_slice($wordsWithNoSpaces, 0, $length);
             $excerpt = implode(' ', $newContent);
         } else {
             $excerpt = substr($content, 0, $length);
@@ -117,7 +126,6 @@ class CoreModel extends Model
         }
 
         return $excerpt;
-
     }
 
 }
