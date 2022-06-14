@@ -128,6 +128,8 @@ class RefinedImage {
 
     public function createImage($width, $height, $fileName = false)
     {
+        $width = (int) $width;
+        $height = (int) $height;
         $fileName = $this->buildFileName($fileName, $width, $height);
 
         // only create if we are forcing, or the file doesn't already exist
