@@ -30,12 +30,15 @@
 
     $showAllowCreate = false;
 
+    help()->trace($value);
+
 @endphp
 <rd-tags
   :field="{{ json_encode($field) }}"
   :values="{{ json_encode($value) }}"
   :dont-allow-create="{{ $field->options->allowCreate ?? 'true' }}"
   :as-select="true"
+  value-field="id"
   @if (sizeof($choices))
   :choices="{{ json_encode($choices) }}"
   @endif

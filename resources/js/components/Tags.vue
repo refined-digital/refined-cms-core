@@ -18,7 +18,8 @@
         setType: this.type || 'tags',
         placeholder: 'Select Tags',
         options: [],
-        fieldName: 'modelTags[]'
+        fieldName: 'modelTags[]',
+        delimiter: '|'
       }
     },
 
@@ -42,7 +43,7 @@
             this.value.push(tag);
           });
         } else if (this.asSelect) {
-          const valuesAsArray = this.values.split(',').map(id => parseInt(id))
+          const valuesAsArray = this.values.split(this.delimiter).map(id => parseInt(id))
           const values = this.options
               .filter(option => valuesAsArray.includes(option.id))
           this.value = values.map(v => v);
@@ -81,7 +82,11 @@
       value(val) {
         let v = [];
         val.forEach(i => {
-          v.push(i.name);
+          if (this.valueType === 'id') {
+            v.push(i.id);
+          } else {
+            v.push(i.name);
+          }
         })
         this.tags = v.join('|');
       }
@@ -93,7 +98,7 @@
         let element = this.$el.querySelector('.form__control');
         let selectizeOptions = {
           plugins: ['restore_on_backspace', 'remove_button'],
-          delimiter: '|',
+          delimiter: self.delimiter,
           persist: true,
           maxItems: null,
           placeholder: this.placeholder,
@@ -114,11 +119,11 @@
           ,
           onChange: function(value) {
             if (self.valueType && self.valueType === 'id') {
-              const valueAsArray = value.split('|');
+              const valueAsArray = value.split(self.delimiter);
               const valueIds = self.options
                   .filter(option => valueAsArray.includes(option.name))
                   .map(option => option.id)
-              self.tags = valueIds.join(',');
+              self.tags = valueIds.join(self.delimiter);
             } else {
               self.tags = value.replace(/\|/g, ',');
             }
