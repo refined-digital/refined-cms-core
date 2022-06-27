@@ -30,8 +30,6 @@
 
     $showAllowCreate = false;
 
-    help()->trace($value);
-
 @endphp
 <rd-tags
   :field="{{ json_encode($field) }}"
