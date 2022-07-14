@@ -62,9 +62,8 @@
             </div>
           </div><!-- / form row -->
 
-          <template v-if="page.id > 1 || page.newPage">
 
-            <div class="form__row form__row--inline-label">
+            <div class="form__row form__row--inline-label" v-if="page.id > 1 || page.newPage">
               <label for="form--active" class="form__label">Show Page</label>
               <div class="form__horz-group">
                 <select id="form--active" v-model="page.active" required="required" class="form__control">
@@ -86,6 +85,7 @@
               </div>
             </div><!-- / form row -->
 
+          <template v-if="page.id > 1 || page.newPage">
             <div class="form__row form__row--inline-label">
               <label for="form--page-type" class="form__label">Page Type</label>
               <div class="form__horz-group">
