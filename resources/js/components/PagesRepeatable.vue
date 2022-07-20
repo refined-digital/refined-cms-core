@@ -14,7 +14,7 @@
           handle=".data-table__cell--sort"
           tag="tbody"
         >
-          <tr v-for="(row, index) of data" class="form__control--options-row" :data-index="index">
+          <tr v-for="(row, index) of data" class="form__control--options-row" :data-index="index" :key="`${item.key}_${index}`">
             <td class="data-table__cell data-table__cell--sort"><i class="fa fa-sort" v-if="data.length > 1"></i></td>
             <td class="data-table__cell">
               <div class="data-table__repeatable" :class="`data-table__repeatable--${item.name}`">
@@ -25,11 +25,11 @@
                   v-show="row[cell.field].show"
                 >
                   <label class="form__label" :for="`form--content-${row[cell.field].id}`" v-if="!cell.hide_label">{{ cell.name }}</label>
-                  <rd-content-editor-field :item="getItem(row, cell)" :options="cell" :key="row[cell.field].id"></rd-content-editor-field>
+                  <rd-content-editor-field :item="getItem(row, cell)" :options="cell" :key="`field_${row[cell.field].id}`"></rd-content-editor-field>
                 </div>
               </div>
             </td>
-            <td class="data-table__cell data-table__cell--options-delete"><i class="fa fa-times" @click="removeRepeatable(item, index)"></i></td>
+            <td class="data-table__cell data-table__cell--options-delete"><i class="fa fa-times" @click="removeRepeatable(row, index)"></i></td>
           </tr>
         </draggable>
         <tfoot v-if="data && data.length > 0">
@@ -90,7 +90,17 @@
       },
 
       removeRepeatable(item, index) {
-        this.parent.removeRepeatable(this.data, item, index);
+        swal({
+          title: 'Are you sure?',
+          icon: 'warning',
+          buttons: true,
+          dangerMode: true,
+        })
+        .then((value) => {
+          if (value) {
+            this.data.splice(index, 1);
+          }
+        });
       },
 
       getParent(name = 'Pages') {
