@@ -605,19 +605,21 @@ class PageRepository extends CoreRepository
 
             $templateAddress = 'templates::'.$d->meta->template->source;
             $children = $this->getPagesForXmlSitemap($holderId, $d->id, $url);
-            if (view()->exists($templateAddress)) {
-                $view = view()
-                    ->make($templateAddress)
-                    ->with('page', $d)
-                    ->with('xmlUrl', $page->url)
-                    ->renderSections();
-                if (isset($view['xml-sitemap'])) {
-                    $xmlChildren = json_decode($view['xml-sitemap']);
-                    if (sizeof($xmlChildren)) {
-                        $children = array_merge($children, $xmlChildren);
+            try {
+                if (view()->exists($templateAddress)) {
+                    $view = view()
+                        ->make($templateAddress)
+                        ->with('page', $d)
+                        ->with('xmlUrl', $page->url)
+                        ->renderSections();
+                    if (isset($view['xml-sitemap'])) {
+                        $xmlChildren = json_decode($view['xml-sitemap']);
+                        if (sizeof($xmlChildren)) {
+                            $children = array_merge($children, $xmlChildren);
+                        }
                     }
                 }
-            }
+            } catch(\Exception $e) {}
 
             $page->children = $children;
             $pages[] = $page;
