@@ -293,11 +293,6 @@ class PageRepository extends CoreRepository
             return redirect('/');
         }
 
-        if ($base == 'Page') {
-            $page->content = $this->formatPageContentForFrontend($page->the_content);
-            unset($page->the_content);
-        }
-
         // abort if no page found
         if (!isset($page->id)) {
             abort(404);
@@ -319,6 +314,11 @@ class PageRepository extends CoreRepository
             $page->tag = $tag;
             $page->tag->base = $baseHref.$uriReference->uri;
             $page->base = $baseHref.$uriReference->uri;
+        }
+
+        if ($base == 'Page') {
+            $page->content = $this->formatPageContentForFrontend($page->the_content);
+            unset($page->the_content);
         }
 
         // if we are on a blog article, add in the base href for searching
