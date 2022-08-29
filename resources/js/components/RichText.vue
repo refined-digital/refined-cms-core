@@ -26,7 +26,7 @@ import '../plugins/trumbowyg/refined-link/trumbowyg.refined.link.js';
 import '../plugins/trumbowyg/refined-code/trumbowyg.refined.code.js';
 
 // reset the svg path to the website's url
-$.trumbowyg.svgPath = '/vendor/refined/core/svg/editor-icons.svg'
+$.trumbowyg.svgPath = window.siteUrl+'/vendor/refined/core/svg/editor-icons.svg'
 
 window.loadMediaModal = function(event, type, id, fieldId) {
   event.preventDefault();
