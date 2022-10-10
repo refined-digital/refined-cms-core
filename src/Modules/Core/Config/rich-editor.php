@@ -9,7 +9,7 @@ return [
     ['superscript', 'subscript'],
     ['refinedLink', 'unlink', 'refinedInsertImage', 'noembed'],
     ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
-    ['unorderedList', 'orderedList'],
+    ['unorderedList', 'orderedList', 'indent', 'outdent'],
     ['horizontalRule'],
     ['removeformat'],
   ],

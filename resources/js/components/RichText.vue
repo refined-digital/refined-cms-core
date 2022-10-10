@@ -20,6 +20,7 @@ import 'trumbowyg/plugins/noembed/trumbowyg.noembed.js';
 import 'trumbowyg/plugins/table/trumbowyg.table.js';
 import 'trumbowyg/plugins/fontsize/trumbowyg.fontsize.js';
 import 'trumbowyg/plugins/history/trumbowyg.history.js';
+import 'trumbowyg/plugins/indent/trumbowyg.indent.js';
 import 'trumbowyg/plugins/pasteembed/trumbowyg.pasteembed.js';
 import '../plugins/trumbowyg/refined-insert-image/trumbowyg.refined.insert-image.js';
 import '../plugins/trumbowyg/refined-link/trumbowyg.refined.link.js';
@@ -107,7 +108,7 @@ export default {
       editor: {
         el: null,
         eventPrefix: 'tbw',
-        svgPath: '/vendor/refined/core/svg/editor-icons.svg',
+        // svgPath: '/vendor/refined/core/svg/editor-icons.svg',
 
         config: {
           editorId: null,
