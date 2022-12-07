@@ -3,10 +3,10 @@
     <div class="banner__image">
       {!!
         image()
-          ->load($image->image->id)
+          ->load($content->image->id)
           ->dimensions([
-              ['media' => 800, 'width' => $image->image->width, 'height' => $image->image->height],
-              ['width' => $image->image->width * 0.75, 'height' => $image->image->height * 0.75]
+              ['media' => 800, 'width' => $content->image->width, 'height' => $content->image->height],
+              ['width' => $content->image->width * 0.75, 'height' => $content->image->height * 0.75]
           ])
           ->pictureHtml()
       !!}

@@ -251,7 +251,7 @@ class RefinedImage {
         if (!$this->file) {
             return 'Failed to create image';
         }
-        
+
         try {
             $html = '<picture>';
             if (!sizeof($this->dimensions)) {
