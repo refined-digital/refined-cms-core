@@ -128,13 +128,16 @@ class RefinedImage {
 
     public function createImage($width, $height, $fileName = false)
     {
+        if (!$this->file) {
+            return null;
+        }
+
         $width = (int) $width;
         $height = (int) $height;
         $fileName = $this->buildFileName($fileName, $width, $height);
 
         // only create if we are forcing, or the file doesn't already exist
         if(!file_exists($this->directory.$fileName) || $this->force) {
-
             // load the image
             $image = Image::make($this->directory.$this->file->file, $this->getQuality());
 
@@ -228,7 +231,6 @@ class RefinedImage {
         } else {
             $this->returnType = 'image';
             return $this->save();
-
         }
     }
 
@@ -246,27 +248,36 @@ class RefinedImage {
 
     public function pictureHtml()
     {
-        $html = '<picture>';
-        if (!sizeof($this->dimensions)) {
-            $image = asset($this->createImage($this->width, $this->height));
-            $baseImage = $image;
-            $html .= $this->buildSourceHtml($image);
-        } else {
-            $width = 0;
-            foreach ($this->dimensions as $dims) {
-                $image = asset($this->createImage($dims['width'], $dims['height']));
-                $html .= $this->buildSourceHtml($image, $dims['media'] ?? false);
-                if ($dims['width'] > $width) {
-                    $width = $dims['width'];
-                    $baseImage = $image;
+        if (!$this->file) {
+            return 'Failed to create image';
+        }
+        
+        try {
+            $html = '<picture>';
+            if (!sizeof($this->dimensions)) {
+                $image = asset($this->createImage($this->width, $this->height));
+                $baseImage = $image;
+                $html .= $this->buildSourceHtml($image);
+            } else {
+                $width = 0;
+                foreach ($this->dimensions as $dims) {
+                    $image = asset($this->createImage($dims['width'], $dims['height']));
+                    $html .= $this->buildSourceHtml($image, $dims['media'] ?? false);
+                    if ($dims['width'] > $width) {
+                        $width = $dims['width'];
+                        $baseImage = $image;
+                    }
                 }
             }
+
+                $html .= PHP_EOL."\t".'<img src="'.$baseImage.'"/>';
+            $html .= PHP_EOL.'</picture>';
+
+            return $html;
+
+        } catch (\Exception $error) {
+            return $error->getMessage();
         }
-
-            $html .= PHP_EOL."\t".'<img src="'.$baseImage.'"/>';
-        $html .= PHP_EOL.'</picture>';
-
-        return $html;
     }
 
     private function buildSourceHtml($image, $media = false)
