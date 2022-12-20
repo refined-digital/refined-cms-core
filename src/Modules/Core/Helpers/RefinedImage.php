@@ -96,6 +96,12 @@ class RefinedImage {
         return $this;
     }
 
+    public function format($format)
+    {
+        $this->extension = $format;
+        return $this;
+    }
+
     public function quality($quality = 90)
     {
         $this->quality = (float) $quality;
@@ -139,7 +145,7 @@ class RefinedImage {
         // only create if we are forcing, or the file doesn't already exist
         if(!file_exists($this->directory.$fileName) || $this->force) {
             // load the image
-            $image = Image::make($this->directory.$this->file->file, $this->getQuality());
+            $image = Image::make($this->directory.$this->file->file);
 
             if($this->type && $width && $height) {
                 if($this->type == 'fit') {
@@ -169,7 +175,7 @@ class RefinedImage {
             }
 
             // now save it
-            $image->save($this->directory.$fileName);
+            $image->save($this->directory.$fileName, $this->getQuality(), $this->extension);
         }
 
         return $this->path.$fileName;
