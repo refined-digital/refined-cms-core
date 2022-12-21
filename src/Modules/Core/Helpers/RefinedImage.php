@@ -17,6 +17,7 @@ class RefinedImage {
     protected $force = null;
     protected $returnType = 'string'; // object | image | string
     protected $quality = 90;
+    protected $lazy = false;
 
     protected $directory = '';
     protected $extension = '';
@@ -99,6 +100,12 @@ class RefinedImage {
     public function format($format)
     {
         $this->extension = $format;
+        return $this;
+    }
+
+    public function lazy($lazy = true)
+    {
+        $this->lazy = $lazy;
         return $this;
     }
 
@@ -204,6 +211,9 @@ class RefinedImage {
                             }
                             $img .= $attrs;
                         }
+                        if ($this->lazy) {
+                            $img .= ' loading="lazy"';
+                        }
                     $img .= '/>';
                     break;
                 case 'object':
@@ -276,7 +286,7 @@ class RefinedImage {
                 }
             }
 
-                $html .= PHP_EOL."\t".'<img src="'.$baseImage.'"/>';
+                $html .= PHP_EOL."\t".'<img src="'.$baseImage.'"'.($this->lazy ? ' loading="lazy"' : '').'/>';
             $html .= PHP_EOL.'</picture>';
 
             return $html;
