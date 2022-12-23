@@ -21,8 +21,10 @@ class RefinedImage {
 
     protected $directory = '';
     protected $extension = '';
+    protected $originalExtension = '';
     protected $originalFileName = '';
     protected $attributes = [];
+    protected $newTypes = ['webp', 'avif'];
 
     protected $dimensions = [];
 
@@ -50,6 +52,7 @@ class RefinedImage {
             $this->directory .= $file->id.'/';
             $this->path .= $file->id.'/';
             $this->extension = pathinfo($this->directory.$file->file, PATHINFO_EXTENSION);
+            $this->originalExtension = pathinfo($this->directory.$file->file, PATHINFO_EXTENSION);
             $this->originalFileName = str_replace('.'.$this->extension, '', $file->file);
 
             // add the alt text into the attributes
@@ -139,7 +142,7 @@ class RefinedImage {
         return $this;
     }
 
-    public function createImage($width, $height, $fileName = false)
+    public function createImage($width, $height, $fileName = false, $extension = false)
     {
         if (!$this->file) {
             return null;
@@ -147,7 +150,7 @@ class RefinedImage {
 
         $width = (int) $width;
         $height = (int) $height;
-        $fileName = $this->buildFileName($fileName, $width, $height);
+        $fileName = $this->buildFileName($fileName, $width, $height, $extension);
 
         // only create if we are forcing, or the file doesn't already exist
         if(!file_exists($this->directory.$fileName) || $this->force) {
@@ -182,7 +185,8 @@ class RefinedImage {
             }
 
             // now save it
-            $image->save($this->directory.$fileName, $this->getQuality(), $this->extension);
+            $ext = $extension ?? $this->extension;
+            $image->save($this->directory.$fileName, $this->getQuality(), $ext);
         }
 
         return $this->path.$fileName;
@@ -271,14 +275,18 @@ class RefinedImage {
         try {
             $html = '<picture>';
             if (!sizeof($this->dimensions)) {
-                $image = asset($this->createImage($this->width, $this->height));
+                $image = $this->createImage($this->width, $this->height);
                 $baseImage = $image;
                 $html .= $this->buildSourceHtml($image);
+                $html .= $this->buildNewSourceHtml();
             } else {
                 $width = 0;
                 foreach ($this->dimensions as $dims) {
-                    $image = asset($this->createImage($dims['width'], $dims['height']));
+                    $image = $this->createImage($dims['width'], $dims['height']);
                     $html .= $this->buildSourceHtml($image, $dims['media'] ?? false);
+                    if (in_array($this->extension, $this->newTypes)) {
+                        $html .= $this->buildNewSourceHtml();
+                    }
                     if ($dims['width'] > $width) {
                         $width = $dims['width'];
                         $baseImage = $image;
@@ -286,7 +294,7 @@ class RefinedImage {
                 }
             }
 
-                $html .= PHP_EOL."\t".'<img src="'.$baseImage.'"'.($this->lazy ? ' loading="lazy"' : '').'/>';
+            $html .= PHP_EOL."\t".'<img src="'.asset($baseImage).'"'.($this->lazy ? ' loading="lazy"' : '').'/>';
             $html .= PHP_EOL.'</picture>';
 
             return $html;
@@ -296,12 +304,25 @@ class RefinedImage {
         }
     }
 
+    private function buildNewSourceHtml()
+    {
+        $this->force = true;
+        $image = $this->createImage($this->width, $this->height, false, $this->originalExtension);
+        $this->force = false;
+        return $this->buildSourceHtml($image);
+    }
+
     private function buildSourceHtml($image, $media = false)
     {
         $html = PHP_EOL."\t<source ";
         $attrs = [
-            'srcset' => $image,
+            'srcset' => asset($image),
         ];
+
+        if ($this->extension && $this->originalExtension && $this->extension !== $this->originalExtension) {
+            $localPath = storage_path(str_replace('/storage', 'app/public', $image));
+            $attrs['type'] = mime_content_type($localPath);
+        }
 
         if (is_numeric($media) && $media > 200) {
             $attrs['media'] = '(min-width: '.$media.'px)';
@@ -313,7 +334,7 @@ class RefinedImage {
         return $html;
     }
 
-    private function buildFileName($fileName = false, $width = false, $height = false)
+    private function buildFileName($fileName = false, $width = false, $height = false, $extension = '')
     {
         $name = [];
 
@@ -360,7 +381,8 @@ class RefinedImage {
         $name = Str::slug(implode(' ', $name));
 
         // add the extension
-        $name .= '.'.$this->extension;
+        $ext = $extension ?: $this->extension;
+        $name .= '.'.$ext;
 
         // return the file name
         return $name;
