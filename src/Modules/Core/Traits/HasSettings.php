@@ -9,7 +9,7 @@ trait HasSettings
 {
     public function hasSetting($key)
     {
-        if (isset($page->settings->{$key}) && $page->settings->{$key}) {
+        if (isset($this->settings->{$key}) && $this->settings->{$key}) {
             return true;
         }
     }
