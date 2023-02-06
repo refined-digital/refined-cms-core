@@ -5,6 +5,7 @@ namespace RefinedDigital\CMS\Modules\Core\Helpers;
 use Illuminate\Http\Response;
 use RefinedDigital\CMS\Modules\Pages\Aggregates\PageAggregate;
 use RefinedDigital\CMS\Modules\Pages\Models\Page;
+use RefinedDigital\CMS\Modules\Pages\Http\Repositories\PageRepository;
 
 class Pages {
 
@@ -159,5 +160,38 @@ class Pages {
 
             return $content;
         }, $config);
+    }
+    
+    public function getPageListing()
+    {
+        $pages = Page::with(['meta','meta.template'])
+            ->whereActive(1)
+            ->where('id','>', 1)
+            ->wherePageHolderId(1)
+            ->whereParentId(0)
+            ->whereHideFromMenu(0)
+            ->orderby('position','asc')
+            ->get();
+
+        $repo = new PageRepository();
+        foreach ($pages as $page) {
+            $page->content = $repo->formatPageContentForFrontend($page->the_content);
+            unset($page->the_content);
+        }
+
+        return $pages;
+    }
+
+    public function getSubPageListing($pageId)
+    {
+        $pages = Page::with(['meta','meta.template'])
+            ->whereActive(1)
+            ->where('id','>', 1)
+            ->wherePageHolderId(1)
+            ->whereParentId($pageId)
+            ->whereHideFromMenu(0)
+            ->orderby('position','asc')
+            ->get();
+        return $pages;
     }
 }
