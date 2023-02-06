@@ -1,13 +1,13 @@
-import Splide from '@splidejs/splide';
+import Swiper, { Navigation } from 'swiper';
 
-const sliders = document.querySelectorAll('.banners');
-if (sliders.length) {
-  sliders.forEach((element) => {
-    new Splide(`#${element.id}`, {
-      type: 'fade',
-      pagination: false,
-      rewind: true,
-      autoplay: true,
-    }).mount();
+const sliders = document.querySelector('.banners');
+if (sliders) {
+  new Swiper('.banners .swiper', {
+    modules: [Navigation],
+    loop: true,
+    navigation: {
+      nextEl: '.banners .swiper-button-next',
+      prevEl: '.banners .swiper-button-prev',
+    },
   });
 }

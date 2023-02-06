@@ -17,7 +17,8 @@ class RefinedImage {
     protected $force = null;
     protected $returnType = 'string'; // object | image | string
     protected $quality = 90;
-    protected $lazy = false;
+    protected $lazy = true;
+    protected $useNewFormat = true;
 
     protected $directory = '';
     protected $extension = '';
@@ -97,6 +98,12 @@ class RefinedImage {
     public function fit()
     {
         $this->type = 'fit';
+        return $this;
+    }
+
+    public function onlyUseOldFormat()
+    {
+        $this->useNewFormat = false;
         return $this;
     }
 
@@ -194,6 +201,10 @@ class RefinedImage {
 
     public function save($fileName = false)
     {
+        if ($this->useNewFormat) {
+            $this->format('avif');
+        }
+
       try {
         // only process if we do have a file
         if (isset($this->file->id) && $this->file->type == 'Image') {

@@ -73,4 +73,46 @@ class Format
 
         return $content;
     }
+
+    function desktopMobileImages($desktop = ['width' => 1920, 'height' => 1080, 'src' => ''], $mobile = ['width' => 800, 'height' => 1150, 'src' => ''], )
+    {
+        if (isset($desktop['src']) && !isset($mobile['src'])) {
+            return image()
+                ->load($desktop['src'])
+                ->dimensions([
+                    ['media' => 800, 'width' => $desktop['width'], 'height' => $desktop['height']],
+                    ['width' => $desktop['width'] * 0.75, 'height' => $desktop['height'] * 0.75]
+                ])
+                ->pictureHtml();
+        }
+
+        $images = [];
+        $images[] = image()->load($desktop['src'])
+            ->width($desktop['width'])
+            ->height($desktop['height'])
+            ->string();
+
+        if (isset($mobile['src']) && $mobile['src']) {
+            $images[] = image()->load($mobile['src'])
+                ->width($mobile['width'])
+                ->height($mobile['height'])
+                ->string();
+
+        }
+
+
+        $html = '<picture>';
+        foreach ($images as $index => $img) {
+            $html .= '<source srcset="' . $img . '"';
+            if ($index == 0) {
+                $html .= ' media="(min-width: 640px)"';
+            }
+            $html .= '/>';
+        }
+        $html .= '<img src="' . $images[0] . '"/>';
+        $html .= '</picture>';
+
+        return $html;
+    }
+
 }

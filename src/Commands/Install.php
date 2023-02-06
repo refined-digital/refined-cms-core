@@ -486,7 +486,9 @@ SCOUT_DRIVER=database
             exec('rm -R '.resource_path('css'));
         }
 
-        unlink(base_path('webpack.mix.js'));
+        if (file_exists(base_path('webpack.mix.js'))) {
+            unlink(base_path('webpack.mix.js'));
+        }
         file_put_contents(base_path('webpack.mix.js'), file_get_contents($base.'/webpack.mix.js'));
 
         if (file_exists(base_path('.prettierrc'))) {
@@ -605,7 +607,7 @@ SCOUT_DRIVER=database
 
         $toAdd = [
             '@fancyapps/ui' => '^4.0.9',
-            '@splidejs/splide' =>  '^3.6.4'
+            'swiper' =>  '^8.4.5'
         ];
 
         if (!isset($contents->dependencies)) {

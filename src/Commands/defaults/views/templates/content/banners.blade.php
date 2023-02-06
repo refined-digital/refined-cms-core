@@ -21,7 +21,7 @@
         @foreach ($images as $image)
           <li class="splide__slide">
             <figure class="banner__image">
-
+              {!! $image !!}
             </figure>
           </li>
         @endforeach
@@ -36,7 +36,7 @@
       </button>
     </div>
   </section>
-</div>
+  </div>
 @endif
 
 
