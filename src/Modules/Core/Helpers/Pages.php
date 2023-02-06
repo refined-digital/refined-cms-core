@@ -161,7 +161,7 @@ class Pages {
             return $content;
         }, $config);
     }
-    
+
     public function getPageListing()
     {
         $pages = Page::with(['meta','meta.template'])
