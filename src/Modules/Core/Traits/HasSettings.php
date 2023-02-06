@@ -17,7 +17,7 @@ trait HasSettings
     public function getSetting($key)
     {
         if ($this->hasSetting($key)) {
-            return $this->settings->{$key};
+            return $this->settings->{$key}->value;
         }
 
         return null;
