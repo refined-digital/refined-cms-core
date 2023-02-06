@@ -74,7 +74,7 @@ class Format
         return $content;
     }
 
-    function desktopMobileImages($desktop = ['width' => 1920, 'height' => 1080, 'src' => ''], $mobile = ['width' => 800, 'height' => 1150, 'src' => ''], )
+    function desktopMobileImages($desktop = ['width' => 1920, 'height' => 1080, 'src' => ''], $mobile = ['width' => 800, 'height' => 1150, 'src' => ''])
     {
         if (isset($desktop['src']) && !isset($mobile['src'])) {
             return image()
