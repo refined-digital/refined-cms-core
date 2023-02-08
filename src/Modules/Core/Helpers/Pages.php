@@ -169,7 +169,6 @@ class Pages {
             ->where('id','>', 1)
             ->wherePageHolderId(1)
             ->whereParentId(0)
-            ->whereHideFromMenu(0)
             ->orderby('position','asc')
             ->get();
 
@@ -189,7 +188,6 @@ class Pages {
             ->where('id','>', 1)
             ->wherePageHolderId(1)
             ->whereParentId($pageId)
-            ->whereHideFromMenu(0)
             ->orderby('position','asc')
             ->get();
         return $pages;
