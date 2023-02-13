@@ -84,16 +84,7 @@ class Pages {
 
     public function getErrorPageVariables($title = 'Error', $statusCode = 404)
     {
-        $page = new \stdClass();
-        $head = pages()->getPageHeaders();
-
-        $page->title = $title;
-        $page->head = implode("\n\t\t", $head);
-        $page->classes = 'page__error--'.$statusCode;
-        $page->settings = settings()->get('pages');
-
-
-        return $page;
+        return new Page404($title, $statusCode);
     }
 
     public function getSubPages($parentId = 0, $hideFromMenu = false)
