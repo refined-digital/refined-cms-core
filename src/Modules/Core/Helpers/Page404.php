@@ -12,10 +12,10 @@ class Page404 {
 
     use HasSettings;
 
-    protected $title = 'Error';
-    protected $classes = '';
-    protected $settings = [];
-    protected $head = '';
+    public $title = 'Error';
+    public $classes = '';
+    public $settings = [];
+    public $head = '';
 
     public function __construct($title, $statusCode = 404)
     {
