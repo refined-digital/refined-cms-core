@@ -96,7 +96,11 @@ class Help {
 
         $link = $prefix.$url;
 
-        if ($isExternal && $addTarget) {
+        // check if its a file
+        $info = pathinfo($link);
+        $isFile = isset($info['extension']);
+
+        if (($isFile || $isExternal) && $addTarget) {
             $link .= '" target="_blank';
         }
 
