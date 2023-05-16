@@ -81,6 +81,12 @@ class Help {
 
         $url = ltrim($url, '/');
 
+        // trim the base url, if it was included (urls should be relative, not absolute)
+        $base = rtrim(config('app.url'), '/');
+        if (is_numeric(strpos($url, $base))) {
+            $url = str_replace($base, '', $url);
+        }
+
         // if there is no http, then add the site url
         if(!is_numeric(strpos($url, 'http://')) && !is_numeric(strpos($url, 'https://'))) {
             $prefix = rtrim(config('app.url'), '/').'/';
@@ -96,7 +102,7 @@ class Help {
 
         $link = $prefix.$url;
 
-        // check if its a file
+        // check if it's a file
         $info = pathinfo($link);
         $isFile = isset($info['extension']);
 
