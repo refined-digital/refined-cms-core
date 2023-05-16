@@ -80,16 +80,16 @@ class Help {
         $isExternal = false;
 
         $url = ltrim($url, '/');
+        $base = rtrim(config('app.url'), '/');
 
         // trim the base url, if it was included (urls should be relative, not absolute)
-        $base = rtrim(config('app.url'), '/');
         if (is_numeric(strpos($url, $base))) {
             $url = str_replace($base, '', $url);
         }
 
         // if there is no http, then add the site url
         if(!is_numeric(strpos($url, 'http://')) && !is_numeric(strpos($url, 'https://'))) {
-            $prefix = rtrim(config('app.url'), '/').'/';
+            $prefix = $base.'/';
         } else {
             $isExternal = true;
         }
