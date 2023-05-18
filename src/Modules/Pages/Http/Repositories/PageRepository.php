@@ -587,6 +587,7 @@ class PageRepository extends CoreRepository
     public function getPagesForXmlSitemap($holderId, $parentId, $parentUrl = '/')
     {
         $data = Page::with('meta')
+                     ->whereActive(1)
                      ->wherePageHolderId($holderId)
                      ->whereParentId($parentId)
                      ->get();
@@ -607,6 +608,7 @@ class PageRepository extends CoreRepository
             $children = $this->getPagesForXmlSitemap($holderId, $d->id, $url);
             try {
                 if (view()->exists($templateAddress)) {
+                    $d->content = $this->formatPageContentForFrontend($d->the_content);
                     $view = view()
                         ->make($templateAddress)
                         ->with('page', $d)
