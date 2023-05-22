@@ -92,6 +92,7 @@ window.app = new Vue({
         typeId: 1,
         receipt: 0,
         reply: 0,
+        labelPosition: 1,
         field: {
           type: 0,
           showOptionsFor: [

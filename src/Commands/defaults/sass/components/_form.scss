@@ -13,7 +13,7 @@
     display: block;
     width: 100%;
     padding: 10px 15px;
-    font-size: 16px;
+    font-size: $systemFontSize;
     background-color: #fff;
     border: 1px solid color(main-color-1);
   }
@@ -24,7 +24,7 @@
   }
 
   select.form__control {
-    padding: 10px 15px 25px 15px;
+    padding: 10px 25px 15px 15px;
     width: 100%;
     -webkit-appearance: none;
     border-radius: 0;
@@ -36,10 +36,10 @@
   &__label {
     cursor: pointer;
     line-height: 1;
+    display: block;
+    font-size: $systemFontSize;
     text-transform: uppercase;
     margin-bottom: 10px;
-    display: block;
-    font-size: 16px;
   }
 
   &__row {
@@ -52,6 +52,35 @@
         display: inline-block;
         font-size: 80%;
         color: #c00;
+      }
+    }
+
+    &--floating-label {
+      .form {
+        &__label {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          transition: all 100ms linear;
+          margin-bottom: 0;
+        }
+
+        &__control {
+          padding: 10px 0;
+          border: 0;
+          border-bottom: 1px solid color(main-color-1);
+
+          &:focus + .form__label,
+          &:not(:placeholder-shown) + .form__label {
+            top: -8px;
+            transform: translateY(0);
+            font-size: $systemFontSize - 5px;
+          }
+        }
+      }
+
+      select.form__control {
+        padding-left: 0;
       }
     }
   }
