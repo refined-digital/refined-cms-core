@@ -395,7 +395,8 @@ class PageRepository extends CoreRepository
         if (isset($_GET) && sizeof($_GET)) {
             $head[] = '<link rel="canonical" href="'.request()->url().'" />';
         } elseif(request()->url() != $baseHref.$page->meta->uri) {
-            $head[] = '<link rel="canonical" href="'.rtrim($baseHref.$page->meta->uri, '/').'/"/>';
+            // todo: fix this
+            // $head[] = '<link rel="canonical" href="'.rtrim($baseHref.$page->meta->uri, '/').'/"/>';
         } elseif(isset($page->is_single_page)) {
             $head[] = '<link rel="canonical" href="'.rtrim($baseHref, '/').'/"/>';
         }
