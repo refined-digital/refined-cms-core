@@ -442,7 +442,7 @@ class PageRepository extends CoreRepository
         return $uriReference;
     }
 
-    public function getPagesForMenu($holder, $parent = 0, $maxDepth = 10, $level = 1, $parentUrl = '')
+    public function getPagesForMenu($holder, $parent = 0, $maxDepth = 10, $level = 1, $parentUrl = '', $skip = 0, $limit = 0)
     {
         $data = [];
         $pages = Page::with(['meta', 'meta.template'])
@@ -450,7 +450,17 @@ class PageRepository extends CoreRepository
                         ->whereHideFromMenu(0)
                         ->wherePageHolderId($holder)
                         ->whereParentId($parent)
-                        ->order()
+        ;
+
+        if ($skip) {
+            $pages = $pages->skip($skip);
+        }
+
+        if ($limit) {
+            $pages = $pages->limit($limit);
+        }
+
+        $pages = $pages->order()
                         ->get();
 
         $total = sizeof($pages);
