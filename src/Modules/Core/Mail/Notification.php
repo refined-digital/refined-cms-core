@@ -46,8 +46,8 @@ class Notification extends Mailable
         if(isset($this->settings->bcc)) {
             $data->bcc(help()->explodeAndTrim($this->settings->bcc));
         }
-        if(isset($this->settings->replyTo)) {
-            $data->replyTo($this->settings->replyTo);
+        if(isset($this->settings->reply_to)) {
+            $data->replyTo($this->settings->reply_to);
         }
 
         if (isset($this->settings->files) && is_array($this->settings->files)) {
