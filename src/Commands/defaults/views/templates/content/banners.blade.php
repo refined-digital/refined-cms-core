@@ -1,42 +1,47 @@
 @php
   $images = [];
-  foreach ($content->images as $img) {
-      if (isset($img->image) && $img->image->id) {
-          $image = new stdClass();
-          $image->src = image()
-            ->load($img->image->id)
-            ->dimensions([
-                ['media' => 800, 'width' => $img->image->width, 'height' => $img->image->height],
-                ['width' => $img->image->width * 0.75, 'height' => $img->image->height * 0.75]
-            ])
-            ->pictureHtml();
-        $images[] = $image;
-      }
+  if (isset($content->images) && is_array($content->images) && sizeof($content->images)) {
+    foreach ($content->images as $img) {
+        if (isset($img->image) && $img->image->id) {
+            $image = new stdClass();
+            $image->src = desktopMobileImages([
+                'src' => $img->image->id,
+                'width' => $img->image->width,
+                'height' => $img->image->height
+            ],[
+                'src' => $img->mobile_image->id,
+                'width' => $img->mobile_image->width,
+                'height' => $img->mobile_image->height
+            ]);
+          $images[] = $image;
+        }
+    }
   }
 @endphp
 @if (isset($images) && sizeof($images))
-  <section class="banner splide" id="banner-{{ uniqid() }}">
-    <div class="splide__track">
-      <ul class="splide__list">
-        @foreach ($images as $image)
-          <li class="splide__slide">
-            <figure class="banner__image">
-              {!! $image !!}
-            </figure>
-          </li>
-        @endforeach
-      </ul>
-    </div>
-    <div class="splide__arrows">
-      <button class="splide__arrow splide__arrow--prev" type="button" aria-label="Go to last slide">
-        @include('icons.arrow-left')
-      </button>
-      <button class="splide__arrow splide__arrow--next" type="button" aria-label="Next slide">
-        @include('icons.arrow-right')
-      </button>
+  <section class="banner banners fade-in">
+    <div class="full-width-images" id="swiper--{{ uniqid() }}">
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          @foreach ($images as $img)
+            <div class="swiper-slide">
+              {!! $img->src !!}
+            </div>
+          @endforeach
+        </div>
+        @if (sizeof($images) > 1)
+          <div class="swiper--prev"></div>
+          <div class="swiper--next"></div>
+        @endif
+      </div>
+      @if (isset($content->link) && $content->link)
+        <div class="banner__caption text--right">
+          @include('templates.includes.link')
+        </div>
+      @endif
+      @if (sizeof($images) > 1)
+        <div class="swiper-pagination"></div>
+      @endif
     </div>
   </section>
-  </div>
 @endif
-
-
