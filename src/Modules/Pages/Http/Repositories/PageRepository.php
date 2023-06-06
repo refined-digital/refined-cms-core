@@ -612,6 +612,7 @@ class PageRepository extends CoreRepository
             $page = new \stdClass();
             $page->url = implode('/', $urls);
             $page->date = $d->updated_at->toAtomString();
+            $page->page_type = $d->page_type;
             $s = sizeof($urls);
             $page->priority = $d->meta->uri === '/' ? '1.0' : $this->getXmlSitemapPriority($s);
 
