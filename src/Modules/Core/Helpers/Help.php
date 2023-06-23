@@ -222,6 +222,15 @@ class Help {
         return 'https://player.vimeo.com/video/'.$videoKey.$joiner.http_build_query($attrs);
     }
 
+    public function getVideoShareLink($link, $autoPlay, $attrs)
+    {
+        if (is_numeric(strpos($link, 'youtube'))) {
+            return $this->getYoutubeEmbedLink($link, $autoPlay);
+        } else if (is_numeric(strpos($link, 'vimeo'))) {
+            return $this->getVimeoEmbedLink($link, $attrs);
+        }
+    }
+
     public function getDaysOfWeek()
     {
         return [
