@@ -79,6 +79,7 @@ class Format
         if (isset($desktop['src']) && !isset($mobile['src'])) {
             return image()
                 ->load($desktop['src'])
+                ->fit()
                 ->dimensions([
                     ['media' => 800, 'width' => $desktop['width'], 'height' => $desktop['height']],
                     ['width' => $desktop['width'] * 0.75, 'height' => $desktop['height'] * 0.75]
@@ -88,12 +89,14 @@ class Format
 
         $images = [];
         $images[] = image()->load($desktop['src'])
+            ->fit()
             ->width($desktop['width'])
             ->height($desktop['height'])
             ->string();
 
         if (isset($mobile['src']) && $mobile['src']) {
             $images[] = image()->load($mobile['src'])
+                ->fit()
                 ->width($mobile['width'])
                 ->height($mobile['height'])
                 ->string();
