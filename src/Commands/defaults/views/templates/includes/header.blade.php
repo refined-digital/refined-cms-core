@@ -28,7 +28,8 @@
 
     <body{!! isset($page->classes) ? ' class="'.$page->classes.'"' : '' !!}>
 
-    @include('templates.includes.mobile-menu')
+    @include('templates.modals.mobile-menu')
+    @include('templates.modals.enquire')
 
     @include('templates.includes.top')
 

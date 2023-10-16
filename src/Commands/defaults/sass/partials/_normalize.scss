@@ -1,7 +1,5 @@
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
 *, *:before, *:after {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 html, body { margin:0; padding:0; }
@@ -264,4 +262,12 @@ td,
 th {
   padding: 0;
   vertical-align: top;
+}
+
+details > summary {
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
 }

@@ -8,11 +8,35 @@
 
 @import 'mixins/respond';
 
+:root {
+	--site-padding: 120px;
+	--block-padding: 80px;
+
+	@include respond(660px) {
+		--block-padding: 30px;
+	}
+
+	@include respond(1600px) {
+		--site-padding: 80px;
+	}
+
+	@include respond(1200px) {
+		--site-padding: 30px;
+		--block-padding: 60px;
+	}
+
+	@include respond(500px) {
+		--block-padding: 20px;
+	}
+}
+
 @import 'partials/normalize';
 @import 'partials/setup';
 @import 'partials/document-setup';
 @import 'partials/paging';
 
+@import 'pages/top';
+@import 'pages/block';
 
 @import 'components/animations';
 @import 'components/buttons';
@@ -23,7 +47,7 @@
 @import 'components/error-pages';
 @import 'components/image';
 @import 'components/menu';
-@import 'components/mobile-menu';
+@import 'components/modal';
 @import 'components/content-block';
 @import 'components/heading';
 @import 'components/flex';
