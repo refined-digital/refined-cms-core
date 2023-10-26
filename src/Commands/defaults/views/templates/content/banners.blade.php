@@ -4,7 +4,7 @@
     foreach ($content->images as $img) {
         if (isset($img->image) && $img->image->id) {
             $image = new stdClass();
-            $image->src = desktopMobileImages([
+            $image->src = format()->desktopMobileImages([
                 'src' => $img->image->id,
                 'width' => $img->image->width,
                 'height' => $img->image->height
@@ -20,8 +20,8 @@
 @endphp
 @if (isset($images) && sizeof($images))
   <section class="banner banners fade-in">
-    <div class="full-width-images" id="swiper--{{ uniqid() }}">
-      <div class="swiper">
+    <div class="full-width-images">
+      <div class="swiper" id="swiper--{{ uniqid() }}">
         <div class="swiper-wrapper">
           @foreach ($images as $img)
             <div class="swiper-slide">
@@ -30,8 +30,8 @@
           @endforeach
         </div>
         @if (sizeof($images) > 1)
-          <div class="swiper--prev"></div>
-          <div class="swiper--next"></div>
+          <div class="swiper__button swiper__button--prev"></div>
+          <div class="swiper__button swiper__button--next"></div>
         @endif
       </div>
       @if (isset($content->link) && $content->link)
