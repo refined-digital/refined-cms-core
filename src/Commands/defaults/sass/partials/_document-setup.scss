@@ -14,8 +14,11 @@
 
 .note {
   margin:0 0 20px;
-  &.has-error { color:color(required); }
+  &.has-error {
+    color:var(--required-color);
+  }
 }
 
-
-.required { color:color(required); }
+.required {
+  color:var(--required-color);
+}

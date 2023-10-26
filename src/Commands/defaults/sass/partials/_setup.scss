@@ -1,6 +1,6 @@
 /* system */
 html {
-  background: color(html);
+  background: var(--html);
   overflow-x: hidden;
   scroll-behavior: smooth;
   @media print {
@@ -15,7 +15,7 @@ body {
 }
 body, button, input, select, textarea {
   font: #{$systemFontSize}/#{$systemLineHeight} $systemFont;
-  color: color(text);
+  color: var(--text-color);
   -webkit-font-smoothing: antialiased;
 }
 /* end system */
@@ -42,10 +42,10 @@ h5 {
 h6 { }
 
 a {
-  color: color(text);
+  color: var(--text-color);
   text-decoration: none;
   &:hover {
-    color: color(main-color-2);
+    color: var(--main-color-2);
   }
   @include respond($respondSmall) {
     overflow-wrap: break-word;

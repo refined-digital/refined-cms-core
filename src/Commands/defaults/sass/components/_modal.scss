@@ -27,7 +27,7 @@
     right: 0;
     top: 0;
     height: 100%;
-    background-color: color(main-color-1);
+    background-color: var(--main-color-1);
     padding: var(--site-padding);
     width: 35%;
     @include respond(1200px) {
@@ -97,8 +97,8 @@
       a {
         font-size: 25px;
         line-height: 1.5;
-        color: color(text);
-        border-bottom: 1px solid color(text);
+        color: var(--text);
+        border-bottom: 1px solid var(--text);
         padding: 15px 0;
         display: block;
       }
@@ -111,7 +111,7 @@
   }
 
   &__trigger {
-    color: color(text);
+    color: var(--text);
     cursor: pointer;
     padding: 10px 15px;
     font-size: $systemFontSize + 6px;
@@ -159,7 +159,7 @@
   }
 
   .modal__trigger {
-    color: color(text);
+    color: var(--text);
 
     span {
       display: none;

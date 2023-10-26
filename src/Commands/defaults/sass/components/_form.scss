@@ -15,7 +15,7 @@
     padding: 10px 15px;
     font-size: $systemFontSize;
     background-color: #fff;
-    border: 1px solid color(main-color-1);
+    border: 1px solid var(--main-color-1);
   }
 
   textarea.form__control {
@@ -68,7 +68,7 @@
         &__control {
           padding: 10px 0;
           border: 0;
-          border-bottom: 1px solid color(main-color-1);
+          border-bottom: 1px solid var(--main-color-1);
 
           &:focus + .form__label,
           &:not(:placeholder-shown) + .form__label {

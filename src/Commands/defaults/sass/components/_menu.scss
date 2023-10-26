@@ -32,7 +32,7 @@
     }
 
     &.nav__item--active > a {
-      color: color(main-color-2);
+      color: var(--main-color-2);
     }
   }
 

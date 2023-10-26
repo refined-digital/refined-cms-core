@@ -5,8 +5,8 @@
   font-size: $systemFontSize - 2;
   padding: 10px 20px;
   position: relative;
-  border: 1px solid color(text);
-  color: color(text);
+  border: 1px solid var(--text-color);
+  color: var(--text-color);
   min-width: 200px;
   text-align: center;
   background: transparent;
@@ -16,8 +16,8 @@
   }
 
   &:hover {
-    color: color(main-color-2);
-    border-color: color(main-color-2);
+    color: var(--main-color-2);
+    border-color: var(--main-color-2);
   }
 
   &--white {
