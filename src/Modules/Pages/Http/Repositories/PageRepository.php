@@ -10,6 +10,7 @@ use RefinedDigital\CMS\Modules\Pages\Models\PageContentType;
 use RefinedDigital\CMS\Modules\Pages\Models\PageHolder;
 use RefinedDigital\CMS\Modules\Pages\Models\Template;
 use Str;
+use Illuminate\Support\Arr;
 
 class PageRepository extends CoreRepository
 {
@@ -711,10 +712,14 @@ class PageRepository extends CoreRepository
         $newContent = [];
         if (sizeof($content)) {
             foreach ($content as $field) {
+                $formattedContent = $this->formatPageContentFields($field['fields']);
+                if (isset($field['apiResource']) && $field['apiResource']) {
+                    $formattedContent = (new $field['apiResource']($field));
+                }
                 $newField = new \stdClass();
                 $newField->name = $field['name'];
                 $newField->template = 'templates.content.'.$field['template'];
-                $newField->content = $this->formatPageContentFields($field['fields']);
+                $newField->content = $formattedContent;
                 $newContent[] = $newField;
             }
         }
@@ -724,18 +729,36 @@ class PageRepository extends CoreRepository
 
     private function formatPageContentFields($fields)
     {
+        $settingKeys = [];
+        $settingKey = '[settings:';
+        $isApi = isset(request()->route()->getAction()['prefix']) && request()->route()->getAction()['prefix'] === 'api';
+
         $newFields = new \stdClass();
         foreach ($fields as $field) {
-            if (!$field['content']) {
-                continue;
-            }
             $content = $field['content'];
+            if (!is_array($content) && Str::contains($content, $settingKey) && !in_array($content, $settingKeys)) {
+                $settingKeys[] = $content;
+            }
             if ($field['page_content_type_id'] == 9) {
                 $repeatableContent = [];
                 foreach ($content as $row) {
                     $newRow = new \stdClass();
                     foreach ($row as $key => $value) {
                         $vContent = $value['content'];
+                        if (!is_array($vContent) && Str::contains($vContent, $settingKey) && !in_array($vContent, $settingKeys)) {
+                            $settingKeys[] = $vContent;
+                        }
+
+                        if (is_array($vContent)) {
+                            foreach ($vContent as $c) {
+                                foreach ($c as $d) {
+                                    if (Str::contains($d->content, $settingKey) && !in_array($d->content, $settingKeys)) {
+                                        $settingKeys[] = $d->content;
+                                    }
+                                }
+                            }
+                        }
+
                         $vField = array_values(array_filter($field['fields'], function ($f) use($key) {
                             return $f['field'] == $key;
                         }));
@@ -747,7 +770,14 @@ class PageRepository extends CoreRepository
                             $img->height = $vField[0]['height'] ?? null;
                             $vContent = $img;
                         }
-                        $newRow->{$key} = $vContent;
+
+                        if ($isApi) {
+                            $newRow->{$key} = new \stdClass();
+                            $newRow->{$key}->content = $vContent;
+                            $newRow->{$key}->type = $vField[0]['page_content_type_id'] ?? 3;
+                        } else {
+                            $newRow->{$key} = $vContent;
+                        }
 
                     }
                     $repeatableContent[] = $newRow;
@@ -763,7 +793,30 @@ class PageRepository extends CoreRepository
                 $content->height = $field['height'] ?? null;
             }
 
-            $newFields->{Str::slug($field['name'], '_')} = $content;
+            $key = Str::slug($field['name'], '_');
+
+            // if the content is being requested from the api, attach the content type id to the content as well
+            if ($isApi) {
+                $newFields->{$key} = new \stdClass();
+                $newFields->{$key}->content = $content;
+                $newFields->{$key}->type = $field['page_content_type_id'];
+            } else {
+                $newFields->{$key} = $content;
+            }
+        }
+
+        if (sizeof($settingKeys)) {
+            $values = settings()->getByKeyCodes($settingKeys);
+            $newFieldsAsArray = json_decode(json_encode($newFields), true);
+            $flattened = Arr::dot($newFieldsAsArray);
+            foreach ($flattened as $key => $value) {
+                if (in_array($value, $settingKeys) && isset($values[$value])) {
+                    $flattened[$key] = $values[$value];
+                }
+            }
+            $newFieldsAsArray = Arr::undot($flattened);
+            // convert back to object
+            $newFields = json_decode(json_encode($newFieldsAsArray));
         }
 
         return $newFields;
@@ -792,5 +845,20 @@ class PageRepository extends CoreRepository
         }
 
         return $items;
+    }
+
+    public static function dot($array, $prepend = '')
+    {
+        $results = [];
+
+        foreach ($array as $key => $value) {
+            if (is_array($value) && ! empty($value)) {
+                $results = array_merge($results, static::dot($value, $prepend.$key.'.'));
+            } else {
+                $results[$prepend.$key] = $value;
+            }
+        }
+
+        return $results;
     }
 }

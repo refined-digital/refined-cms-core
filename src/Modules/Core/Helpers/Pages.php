@@ -31,14 +31,15 @@ class Pages {
             }
         }
 
+
         // sort the content buttons by the name
         usort($config['content'], function($a, $b) {
             return strcmp($a['name'], $b['name']);
         });
 
-        if (function_exists('forms')) {
-            $config['content'] = $this->formatConfigContent($config['content']);
-        }
+        $config['content'] = $this->formatConfigContent($config['content']);
+
+        // help()->trace($config['content'], true);
 
         return $config;
     }
@@ -73,6 +74,11 @@ class Pages {
         $head[] = '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">';
         $head[] = '<meta name="csrf-token" content="'.csrf_token().'">';
         $head[] = '<base href="'.$this->getBaseHref().'"/>';
+
+        if (env('SHOPIFY_DOMAIN') && env('SHOPIFY_API_KEY')) {
+            $head[] = '<meta name="robots" content="noindex,nofollow">';
+        }
+
 
         return $head;
     }
@@ -143,6 +149,24 @@ class Pages {
                 $content['fields'] = array_map(function($field) use ($formContent) {
                     if (isset($field['options']) && $field['options'] == 'forms') {
                         $field['options'] = $formContent;
+                    }
+
+                    if (isset($field['options']) && !is_array($field['options']) && gettype($field['options']) === 'string') {
+                        $class = new $field['options']();
+                        if (method_exists($class, 'getForConfigSelect')) {
+                            $field['options'] = $class->getForConfigSelect();
+                        } else {
+                            $field['options'] = [];
+                        }
+                    }
+
+                    if (isset($field['options']) && is_array($field['options']) && sizeof($field['options']) && gettype($field['options'][0]) === 'string') {
+                        $class = new $field['options'][0]();
+                        if (method_exists($class, $field['options'][1])) {
+                            $field['options'] = $class->{$field['options'][1]}();
+                        } else {
+                            $field['options'] = [];
+                        }
                     }
 
                     return $field;

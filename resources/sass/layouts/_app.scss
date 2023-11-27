@@ -174,4 +174,10 @@
   &--has-media, &--has-sitemap {
     z-index: 1001;
   }
+
+  &__module--media.app--has-media {
+    .app__right {
+      z-index: 3;
+    }
+  }
 }

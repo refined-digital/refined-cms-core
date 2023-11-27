@@ -4,6 +4,8 @@ window.dragula = require('dragula');
 window.swal = require('sweetalert');
 require('./directives/_directives');
 
+const { default: Echo } = require('laravel-echo');
+
 import Vue from 'vue'
 import kebabCase from 'lodash.kebabcase';
 
@@ -32,6 +34,26 @@ import ProductVariations from './components/ProductVariations';
 import FormEmail from './components/FormEmail';
 import ColourPicker from './components/ColourPicker';
 
+window.eventBus = new Vue({});
+
+const echo = new Echo({
+    broadcaster: 'pusher',
+    key: process.env.MIX_PUSHER_APP_KEY,
+    cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+    wsHost: window.location.hostname,
+    wsPort: 6001,
+    forceTLS: false,
+    disableStats: true,
+});
+
+echo
+    .private('refinedCMS.media.updated')
+    .listenToAll((e, data) => {
+        if (data.media) {
+            window.eventBus.$emit('media-updated', data.media);
+        }
+    })
+
 Vue.component('rd-date-time-picker', DateTimePicker);
 Vue.component('rd-date-picker', DatePicker);
 Vue.component('rd-rich-text', RichText);
@@ -57,7 +79,6 @@ Vue.component('rd-product-variations', ProductVariations);
 Vue.component('rd-colour-picker', ColourPicker);
 Vue.component('Icon', Icon);
 
-window.eventBus = new Vue({});
 
 window.app = new Vue({
     el: '#app',
@@ -66,6 +87,7 @@ window.app = new Vue({
     	tab: 'content',
     	loading: false,
     	siteUrl: false,
+    	publicUrl: false,
       richEditor: {},
     	user: {},
     	content: {
@@ -115,7 +137,7 @@ window.app = new Vue({
 
       // copies the page meta
       copyUrl() {
-        let string = this.siteUrl + '/' + this.content.uri;
+        let string = this.publicUrl + '/' + this.content.uri;
         let el = document.createElement('textarea');
 
         el.value = string;

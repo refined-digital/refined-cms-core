@@ -2,6 +2,8 @@
 @php
   $bits = explode('.', Route::currentRouteName());
   $module = $bits[1];
+  $siteUrl = rtrim(config('app.url'), '/');
+  $publicUrl = rtrim(env('PUBLIC_URL') ?? config('app.url'), '/');
 @endphp
         <div id="app" class="app__holder app__module--{{ $module }}" :class="{ 'app--has-media' : media.active, 'app--has-media' : media.showModal, 'app--has-sitemap' : sitemap.active }">
 
@@ -16,7 +18,7 @@
                     <ul>
                         @foreach($menu as $item)
                         <li class="app__nav-item{{ in_array($activeModule, $item->activeFor) ? ' app__nav-item--active' : '' }}">
-                            <a href="{{ route('refined.'.$item->route.'.index') }}">
+                            <a href="{{ is_array($item->route) ? route('refined.'.$item->route[0], $item->route[1]) : route('refined.'.$item->route.'.index') }}">
                                 <i class="{{ $item->icon }}"></i>
                                 <span>{{ $item->name }}</span>
                             </a>
@@ -52,7 +54,7 @@
                     <div class="app__profile">
                         Welcome back {{ auth()->user()->first_name }}
                         <span> | </span>
-                        <a href="{{ config('app.url') }}" target="_blank">View Website</a>
+                        <a href="{{ $publicUrl }}" target="_blank">View Website</a>
                         <span> | </span>
                         <a href="{{ route('logout') }}">Logout</a>
                     </div>
@@ -74,12 +76,14 @@
         </div><!-- / app holder -->
 
         <script>
-          window.siteUrl = "{{ rtrim(config('app.url'), '/') }}";
+          window.siteUrl = "{{ $siteUrl }}";
+          window.publicUrl = "{{ $publicUrl }}";
         </script>
         <script src="{{ asset('vendor/refined/core/js/main.js?v='.uniqid()) }}"></script>
         <script>
             window.app.richEditor = {!! json_encode(config('rich-editor')) !!}
-            window.app.siteUrl = "{{ rtrim(config('app.url'), '/') }}";
+            window.app.siteUrl = "{{ $siteUrl }}";
+            window.app.publicUrl = "{{ $publicUrl }}";
             window.app.user = {!! json_encode(users()->getLoggedInUser()) !!}
         </script>
         @yield('scripts')

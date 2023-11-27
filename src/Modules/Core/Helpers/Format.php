@@ -118,4 +118,23 @@ class Format
         return $html;
     }
 
+    public function maybeJsonDecode($data)
+    {
+        if (is_string($data)) {
+            // Attempt to decode JSON string
+            $decoded = json_decode($data, true);
+
+            if (is_string($decoded)) {
+                return $this->maybeJsonDecode($decoded);
+            }
+
+            // Check if decoding was successful
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return $decoded;
+            }
+        }
+
+        // If not a string or decoding fails, return the original data
+        return $data;
+    }
 }

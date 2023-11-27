@@ -14,3 +14,7 @@ let token = document.head.querySelector('meta[name="csrf-token"]');
 if (token) {
   window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
 }
+
+import Echo from "laravel-echo"
+
+window.Pusher = require('pusher-js');

@@ -7,6 +7,16 @@ const modalLookup = {};
 if (modals.length) {
     modals.forEach((modal) => {
         modalLookup[modal.dataset.type] = modal;
+        const child = modal.querySelector('.modal__inner');
+        modal.addEventListener('click', (e) => {
+            if (e.target !== child) {
+                closeModal(modal);
+            }
+        });
+
+        child.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
     });
 }
 
@@ -27,33 +37,46 @@ window.onload = () => {
     });
 };
 
-const openModal = (type) => {
-    const modal = modalLookup[type];
+const toggleModal = (element) => {
+    const modal = modalLookup[element.dataset.type];
     if (!modal.classList.contains('modal--has-loaded')) {
         modal.classList.add('modal--has-loaded');
     }
+
+    // first check if any is open, other than the current modal
+    const activeModals = document.querySelectorAll(
+        '.modal--active:not([data-type="' + element.dataset.type + '"])'
+    );
+
+    if (activeModals.length) {
+        activeModals.forEach((el) => {
+            closeModal(el);
+        });
+    }
+
     modal.classList.toggle('modal--active');
+    element.classList.toggle('modal__trigger--active');
 };
 
-const modalFn = function (e) {
+const closeModal = (modal) => {
+    modal.classList.remove('modal--active');
+    const trigger = document.querySelector(
+        `.modal__trigger--button[data-type="${modal.dataset.type}"]`
+    );
+    if (trigger) {
+        trigger.classList.remove('modal__trigger--active');
+    }
+};
+
+const modalFn = (e) => {
     e.preventDefault();
     const targetElement = e.target.closest('[data-type]');
-    if (!targetElement.dataset.type) {
+    if (!targetElement.dataset.type || !modalLookup[targetElement.dataset.type]) {
         return;
     }
 
-    if (modalLookup[targetElement.dataset.type]) {
-        openModal(targetElement.dataset.type);
-    } else {
-        const activeModals = document.querySelectorAll('.modal--active');
-        if (activeModals.length) {
-            // close the last one
-            activeModals[activeModals.length - 1].classList.remove('modal--active');
-        } else {
-            // open the menu
-            openModal('menu');
-        }
-    }
+    // toggle the modal
+    toggleModal(targetElement);
 };
 
 if (modalTriggers.length) {

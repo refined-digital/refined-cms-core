@@ -3,14 +3,18 @@
     <input type="hidden" v-model="image" :name="name" :id="id">
     <div class="form__image">
       <figure>
-        <span class="form__image-thumb">
-          <img src="/vendor/refined/core/img/ui/media-thumb.png">
-          <span class="form__image-thumb-img" v-if="file.type === 'Image'" :style="{ backgroundImage: 'url('+ file.link.thumb +')' }"></span>
+        <div class="form__image-thumb">
+          <img
+              class="form__image-thumb-img"
+              v-if="file.type == 'Image'"
+              :src="fileUrl"
+          />
+          <div class="spinner" v-if="file.type === 'Image' && file.external_id && !file.external_url"></div>
           <span class="form__image-thumb-img form__image-thumb-video" v-if="file.type == 'Video'">
             <i class="fas fa-video"></i>
             <span class="form__image-thumb-name">{{ file.name }}</span>
           </span>
-        </span>
+        </div>
         <figcaption>
           <span :title="file.name">{{ file.name }}</span>
         </figcaption>
@@ -47,13 +51,18 @@
                 link: {
                   thumb: ''
                 },
-                note: null
+                external_id: '',
+                external_url: '',
+                note: null,
+                type: ''
               },
 
               default: {
                 link: {
                   thumb: ''
-                }
+                },
+                external_id: '',
+                external_url: '',
               },
 
             }
@@ -63,6 +72,18 @@
           this.loadFile();
 
           eventBus.$on('selecting-file', this.updateFile);
+          eventBus.$on('media-updated', this.mediaUpdated);
+        },
+
+        computed: {
+          fileUrl() {
+            if (this.file.external_url) {
+              return this.file.external_url;
+            }
+
+            return this.file.link.thumb;
+          }
+
         },
 
         methods:  {
@@ -78,6 +99,12 @@
             eventBus.$emit('media-reload');
             this.$root.media.showModal = true;
             this.$root.media.model = this._uid;
+          },
+
+          mediaUpdated(data) {
+            if (data.external_url) {
+              this.file.external_url = data.external_url;
+            }
           },
 
           updateFile(data) {
@@ -97,7 +124,7 @@
                 .get(`${window.siteUrl}/refined/media/${this.value}`)
                 .then(r => {
                   this.$root.loading = false;
-                  if (r.status === 200) {
+                  if (r.status === 200 && r.data.file) {
                     this.file = r.data.file;
                     this.setFileNote();
                     if (typeof this.name !== 'undefined') {

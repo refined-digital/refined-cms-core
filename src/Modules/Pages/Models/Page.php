@@ -97,14 +97,16 @@ class Page extends CoreModel implements Sortable
                                 $newContent = [];
                                 // add any new fields that might be missing to the content object
                                 foreach ($item['fields'] as $field) {
-                                    if (!isset($content->{$field['field']})) {
-                                        $content->{$field['field']} = null;
+                                    $fKey = $field['field'] ?? \Str::snake($field['name']);
+                                    if (!isset($content->{$fKey})) {
+                                        $content->{$fKey} = null;
                                     }
                                 }
 
                                 foreach ($content as $key => $value) {
                                     $contentField = array_values(array_filter($item['fields'], function ($cField) use ($key) {
-                                        return $cField['field'] === $key;
+                                        $cKey = $cField['field'] ?? \Str::snake($cField['name']);
+                                        return $cKey === $key;
                                     }));
 
                                     $newContentField = [

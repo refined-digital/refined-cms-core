@@ -25,6 +25,8 @@ class CreateMediaTable extends Migration
             $table->string('file');
             $table->string('alt')->nullable();
             $table->text('description')->nullable();
+            $table->text('external_id')->nullable();
+            $table->text('external_url')->nullable();
 
             $table->foreign('media_category_id')->references('id')->on('media_categories')->onDelete('cascade');
         });

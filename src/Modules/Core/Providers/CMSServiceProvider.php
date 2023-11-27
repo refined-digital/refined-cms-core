@@ -77,7 +77,10 @@ class CMSServiceProvider extends ServiceProvider
 
 
         // load in the routes
-        $this->loadRoutesFrom(__DIR__.'/../Http/routes.php');
+        $this->loadRoutesFrom(__DIR__.'/../Http/Routes/api.php');
+        $this->loadRoutesFrom(__DIR__.'/../Http/Routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/../Http/Routes/channels.php');
+
 
         // load in the option for assets
         $this->publishes([

@@ -112,6 +112,25 @@ class SettingRepository extends CoreRepository
         return $data;
     }
 
+    public function getKeyValue($model)
+    {
+        $data = $this->get($model);
+        $newData = [];
+
+        foreach ($data as $key => $item) {
+            $value = $item->value;
+            if (is_object($item->value) && $item->type === 'Image') {
+                $value = new \stdClass();
+                $value->id = $item->value->external_id ?? $item->value->id;
+                $value->url = $item->value->external_url ?? $item->value->link->original;
+            }
+            $newData[$key] = $value;
+        }
+
+
+        return $newData;
+    }
+
 
     public function updateSettings($request, $model)
     {
@@ -155,5 +174,51 @@ class SettingRepository extends CoreRepository
         return $this->settingModel;
     }
 
+    public function getByKeyCode($code)
+    {
+        $name = $this->getNameFromKey($code);
 
+        return $this->getValueByNameAndModel($name[0], $name[1]);
+    }
+
+    public function getByKeyCodes($codes)
+    {
+        $names = array_map(function($code) {
+            return $this->getNameFromKey($code);
+        }, $codes);
+
+        $data = [];
+        foreach ($names as $name) {
+            $content = $this->getValueByNameAndModel($name[0], $name[1]);
+            $data[$name[2]] = $content;
+        }
+
+        return $data;
+    }
+
+    public function getNameFromKey($key)
+    {
+        $name = str_replace('_', ' ', $key);
+        $bits = explode(':', trim($name, '[]'));
+        array_shift($bits);
+        return [...$bits, $key];
+    }
+
+    private function getValueByNameAndModel($model, $name)
+    {
+        $data = $this->model
+            ::whereRaw('LOWER(name) = ?', [strtolower($name)])
+            ->whereModel($model)
+            ->first();
+
+        if (!$data) {
+            return null;
+        }
+
+        if ($data && isset($data->value->content) && $data->value->content) {
+            return $data->value->content;
+        }
+
+        return null;
+    }
 }

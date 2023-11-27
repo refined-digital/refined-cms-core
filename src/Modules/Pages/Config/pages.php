@@ -4,6 +4,7 @@ $heading = [
     'name' => 'Heading',
     'field' => 'heading',
     'page_content_type_id' => 3,
+    'note' => 'Use <code>|</code> for a new line.'
 ];
 
 $content = [
@@ -90,7 +91,6 @@ return [
                 ],
             ]
         ],
-        /*
         [
             'name' => 'Banner',
             'template' => 'banner',
@@ -119,12 +119,11 @@ return [
                             'field' => 'image',
                             'hide_label' => false,
                             'width' => 1920,
-                            'height' => 960
+                            'height' => 1065
                         ],
                     ]
                 ]
             ]
         ],
-        */
     ]
 ];

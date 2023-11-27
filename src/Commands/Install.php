@@ -114,10 +114,12 @@ class Install extends Command
         $search = [
             '(APP_NAME=(.*?)\n)',
             '(APP_URL=(.*?)\n)',
+            '(LOG_CHANNEL=(.*?)\n)',
         ];
         $replace = [
             "APP_NAME=\"".$siteName."\"\n",
             "APP_URL=".$siteUrl."\n",
+            "LOG_CHANNEL=stack\n",
         ];
 
         $emailDomain = null;
@@ -183,7 +185,6 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         file_put_contents(app()->environmentFilePath(), $file);
 
         // add in the scout config
-
         $file .= "
 SCOUT_DRIVER=database
         ";

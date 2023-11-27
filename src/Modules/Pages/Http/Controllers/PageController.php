@@ -191,6 +191,9 @@ class PageController extends CoreController
      */
     public function render($uri = false)
     {
+        if (env('PUBLIC_URL') && env('SHOPIFY_ACCESS_TOKEN')) {
+            return redirect('/refined/pages');
+        }
 
         if (isset($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI'] == '//') {
             return redirect('/');

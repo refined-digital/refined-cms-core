@@ -24,7 +24,9 @@ class Media extends CoreModel implements Sortable {
         'file',
         'alt',
         'description',
-        'mime'
+        'mime',
+        'external_id',
+        'external_url'
     ];
 
     protected $appends = [

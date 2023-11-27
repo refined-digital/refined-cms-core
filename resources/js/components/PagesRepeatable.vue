@@ -65,6 +65,9 @@
 
       eventBus.$on('content-editor.select.changed', (item) => {
         this.data.forEach(row => {
+          if (!item.options || (item.options && !row[item.options.field])) {
+            return;
+          }
           if (item.item.id === row[item.options.field].id) {
             const keyCheck = `${item.options.field}:${item.item.content}`;
             for (const field in row) {

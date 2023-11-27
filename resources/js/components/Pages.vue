@@ -281,7 +281,7 @@
 
     name: 'Pages',
 
-    props: [ 'siteUrl', 'config', 'modules' ],
+    props: [ 'siteUrl', 'publicUrl', 'config', 'modules' ],
 
     created () {
       // get pages
@@ -575,8 +575,7 @@
 
       // set the url for the meta section
       setUrl() {
-
-        let urlBits = [window.siteUrl];
+        let urlBits = [window.publicUrl];
         if (this.page.parent_id != 0) {
           // find the parent
           let parentUri = this.findParentUri(this.page.parent_id);

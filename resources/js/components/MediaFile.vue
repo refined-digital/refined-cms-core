@@ -1,11 +1,12 @@
 <template>
     <figure>
       <span class="media__file-thumb">
-        <img :src="`${siteUrl}/vendor/refined/core/img/ui/media-thumb.png`">
-        <span
+        <img
           class="media__file-thumb-image"
-          v-if="file.type == 'Image'" :style="{ backgroundImage: 'url('+ file.link.thumb +')' }"
-        ></span>
+          v-if="file.type == 'Image'"
+          :src="fileUrl"
+        />
+        <div class="spinner" v-if="file.type === 'Image' && file.external_id && !file.external_url && !external_url"></div>
         <i class="fas fa-file" v-if="file.type == 'File'"></i>
         <i class="fas fa-video" v-if="file.type == 'Video'"></i>
       </span>
@@ -23,6 +24,38 @@
   export default {
 
     props: [ 'file', 'siteUrl' ],
+
+    created() {
+      eventBus.$on('media-updated', this.mediaUpdated);
+    },
+
+    data() {
+      return {
+        external_url: undefined,
+      }
+    },
+
+    computed: {
+      fileUrl() {
+        if (this.file.external_url) {
+          return this.file.external_url;
+        }
+
+        if (this.external_url) {
+          return this.external_url;
+        }
+
+        return this.file.link.thumb;
+      }
+    },
+
+    methods: {
+      mediaUpdated(item) {
+        if (item.id === this.file.id && item.external_url) {
+          this.external_url = item.external_url;
+        }
+      }
+    }
 
   }
 </script>

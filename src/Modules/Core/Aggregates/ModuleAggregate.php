@@ -22,6 +22,7 @@ class ModuleAggregate
     {
         $this->routeFiles[$config['order']] = json_decode(json_encode([
             'name'              => $config['name'],
+            'heading'           => $config['heading'] ?? $config['name'],
             'icon'              => $config['icon'],
             'route'             => $config['route'],
             'activeFor'         => $config['activeFor'],

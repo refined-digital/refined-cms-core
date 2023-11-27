@@ -40,6 +40,17 @@ class RefinedFile {
         return null;
     }
 
+    public function storagePath()
+    {
+        if ($this->file) {
+            $url = $this->file->link->original;
+            $base = $this->file->link->basePath;
+            return '/'.ltrim(str_replace($base, '', $url), '/');
+        }
+
+        return null;
+    }
+
     public function getFile()
     {
         return $this->file;

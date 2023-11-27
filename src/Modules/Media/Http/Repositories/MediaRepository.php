@@ -201,9 +201,22 @@ class MediaRepository extends CoreRepository
                 // store  the file
                 $file->storeAs($uploadDirectory, $fileName);
 
+                // need to have a local copy and a copy on hydrogen, so store locally as
+                // the storeAs will store on hydrogen
+                if (config('filesystems.default') === 'shopify_hydrogen') {
+                    // todo: find a better way than using sessions
+                    if (session()->has('shopify_hydrogen') && session()->get('shopify_hydrogen')) {
+                        $newFile->external_id = session()->get('shopify_hydrogen');
+                        $newFile->save();
+                    }
+                }
+
                 return $newFile;
 
             } catch(\Exception $e) {
+                \Log::info($e->getMessage());
+                \Log::info($e->getFile());
+                \Log::info($e->getLine());
                 // delete the file if it fails
                 $newFile->forceDelete();
             }

@@ -2,7 +2,7 @@
   <div class="pages settings">
     <section class="pages__content">
       <div class="pages__header">
-        <h3>Settings</h3>
+        <h3>{{ heading }}</h3>
         <aside>
           <template v-if="$root.user.user_level_id < 2">
             <a href="" class="button button--green button--small" @click.prevent.stop="toggleContentEditorForm">Add a Setting</a>
@@ -68,10 +68,12 @@
 
                 <div class="form__row form__row--inline-label" :class="{ 'form__row--required' : item.required }">
 
-                  <div class="form__label form__label--with-controls">
+                  <div class="form__label form__label--with-controls setting-controls">
+                    <div>
+                      <i class="fa fa-sort"></i>
+                      <label :for="'form--content-'+item.id">{{ item.name }}</label>
+                    </div>
                     <i class="fa fa-times" @click="removeContent(index)" v-if="$root.user.user_level_id < 2"></i>
-                    <i class="fa fa-sort"></i>
-                    <label :for="'form--content-'+item.id">{{ item.name }}</label>
                   </div>
 
                   <rd-content-editor-field :item="item"></rd-content-editor-field>
@@ -92,7 +94,7 @@
 
   export default {
 
-    props: [ 'data', 'model' ],
+    props: [ 'data', 'model', 'heading' ],
 
     created () {
       // get the content types
@@ -136,8 +138,6 @@
             options: []
           }
         },
-
-        contentSort: null,
       }
     },
 
@@ -318,3 +318,16 @@
 
   }
 </script>
+
+<style>
+.setting-controls {
+  display: flex;
+  justify-content: space-between;
+  padding-right: 10px;
+}
+
+.setting-controls .fa-times {
+  color: #f44336;
+  padding-top: 5px;
+}
+</style>

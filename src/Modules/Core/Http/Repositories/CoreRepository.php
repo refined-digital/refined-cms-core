@@ -23,8 +23,7 @@ class CoreRepository
 
     public function getAll()
     {
-        return $this->model::
-        keywords()
+        return $this->model::keywords()
                            ->order()
                            ->paging();
     }
@@ -51,6 +50,23 @@ class CoreRepository
         $items = [0 => 'Please Select'];
         foreach($data as $item) {
             $items[$item->id] = $item->name;
+        }
+
+        return $items;
+    }
+
+    public function getForConfigSelect()
+    {
+        $data = $this->model::whereActive(1)
+                            ->order()
+                            ->get();
+
+        if(!$data->count()) {
+            return [];
+        }
+
+        foreach($data as $item) {
+            $items[] = [ 'label' => $item->name, 'value' => $item->id ];
         }
 
         return $items;

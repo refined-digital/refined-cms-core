@@ -93,7 +93,7 @@
 
                 <rd-media-file :file="file" :site-url="siteUrl"></rd-media-file>
 
-                <a :href="file.link.original" target="_blank" class="media__file-link">View File</a>
+                <a :href="file.external_url || file.link.original" target="_blank" class="media__file-link">View File</a>
                 <a href="#" @click.prevent.stop="mediaDelete(file)" target="_blank" class="media__file-delete">Delete File</a>
 
               </div>
@@ -126,7 +126,7 @@
                     <label class="form__label">File Url</label>
                     <div class="form__horz-group">
                       <div class="form__control--url">
-                        <input type="text" id="form--slug" v-model="file.link.original" readonly required="required" class="form__control">
+                        <input type="text" id="form--slug" v-model="file.external_url || file.link.original" readonly required="required" class="form__control">
                         <span class="copy-url" @click="copyUrl"><i class="fas fa-link"></i></span>
                       </div>
                     </div>
@@ -272,6 +272,7 @@
       eventBus.$on('media-set-type', this.setType);
       eventBus.$on('media-reload', this.reload);
       eventBus.$on('media-clear', this.clear);
+      eventBus.$on('media-updated', this.mediaUpdated);
 
       this.siteUrl = window.siteUrl;
     },
@@ -298,6 +299,8 @@
             original: '',
             thumb: ''
           },
+          external_url: '',
+          external_id: '',
         },
 
         categoryClone: {},
@@ -893,11 +896,19 @@
 
       mediaClose() {
         this.$root.media.active = false;
+        const element = document.querySelector('#app');
+        if (element && element.classList.contains('app--has-media')) {
+          element.classList.remove('app--has-media');
+        }
         this.drop.removeAllFiles();
       },
 
       mediaOpen() {
         this.$root.media.active = true;
+        const element = document.querySelector('#app');
+        if (element && !element.classList.contains('app--has-media')) {
+          element.classList.add('app--has-media');
+        }
         this.drop.removeAllFiles();
       },
 
@@ -1018,6 +1029,17 @@
             })
           ;
 
+        }
+      },
+
+      mediaUpdated(item) {
+        if (this.files[item.id]) {
+          this.files[item.id] = item;
+        }
+
+        if (this.file.id == item.id && item.external_url) {
+          this.file.external_url = item.external_url;
+          this.file.external_id = item.external_id;
         }
       },
 
