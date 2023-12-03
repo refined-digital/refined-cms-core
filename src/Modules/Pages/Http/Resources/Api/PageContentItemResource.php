@@ -15,7 +15,7 @@ class PageContentItemResource extends JsonResource
         $this->uuid = \Str::uuid();
 
         // is an image or file
-        if ($this->type == 4 || $this->type == 5) {
+        if (($this->type == 4 || $this->type == 5) && isset($this->content->id)) {
             $content = $this->content;
             $media = Media::find($this->content->id);
             if ($media) {
@@ -36,7 +36,7 @@ class PageContentItemResource extends JsonResource
                 foreach ($row as $key => $value) {
                     $c = $value->content;
                     // image or file
-                    if ($value->type == 4 || $value->type == 5) {
+                    if (($value->type == 4 || $value->type == 5) && isset($value->content->id)) {
                         $media = Media::find($value->content->id);
                         if ($media) {
                             unset($value->id);

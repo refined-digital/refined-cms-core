@@ -492,6 +492,7 @@ class PageRepository extends CoreRepository
                 // grab the url
                 $url = isset($page->meta->uri) ? $page->meta->uri : '';
                 $page->url = $base.$parentUrl.$separator.$url;
+                $page->slug = $url;
                 // if we are a holder, just set the path as a '#'
                 if($page->page_type == '0') {
                     $page->url = request()->getUri().'#';

@@ -51,18 +51,20 @@ class Handler extends ExceptionHandler
     {
         $this->registerErrorViewPaths();
 
-        $dir = __DIR__.'/../Resources/views/errors/front-end';
-        if(request()->segment(1) == 'refined') {
-            $dir = __DIR__.'/../Resources/views/errors/admin';
-        }
+        if (!request()->segment(1) === 'api') {
+            $dir = __DIR__.'/../Resources/views/errors/front-end';
+            if(request()->segment(1) == 'refined') {
+                $dir = __DIR__.'/../Resources/views/errors/admin';
+            }
 
-        // replace the errors with the custom cms ones
-        view()->replaceNamespace('errors', [
-            base_path('resources/views/errors'),
-            $dir,
-            app_path('views/errors'),
-            base_path('vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/views')
-        ]);
+            // replace the errors with the custom cms ones
+            view()->replaceNamespace('errors', [
+                base_path('resources/views/errors'),
+                $dir,
+                app_path('views/errors'),
+                base_path('vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/views')
+            ]);
+        }
 
         if(view()->exists($view = "errors::{$e->getStatusCode()}")) {
             return response()->view($view, [
