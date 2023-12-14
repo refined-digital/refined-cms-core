@@ -67,7 +67,7 @@ class SettingRepository extends CoreRepository
 
         if ($items && $items->count()) {
             foreach ($items as $item) {
-                $type = isset($types[$item->value->page_content_type_id]) ? $types[$item->value->page_content_type_id] : null;
+                $type = $types[$item->value->page_content_type_id] ?? null;
                 $key = Str::slug($item->name, '_');
 
                 if (($item->value->page_content_type_id == 4 || $item->value->page_content_type_id == 5)){
@@ -80,32 +80,14 @@ class SettingRepository extends CoreRepository
                 $d->position = (int) $item->position;
                 $d->note = $item->value->note;
                 $d->value = $item->value->content;
-                $d->options = isset($item->value->options) ? $item->value->options : [];
+                $d->options = $item->value->options ?? [];
                 $d->type = $type;
 
                 $data[$key] = $d;
             }
         }
 
-        if (sizeof($media)) {
-            // grab all the media by the ids, this is to add back into the data
-            $mediaRepo = new MediaRepository();
-            $mediaFiles = $mediaRepo->getByIds($media);
-            if ($mediaFiles && $mediaFiles->count()) {
-                $mediaFileLookup = [];
-
-                foreach ($mediaFiles as $file) {
-                    $mediaFileLookup[$file->id] = (object) $file->toArray();
-                }
-
-                foreach ($mediaKeys as $index => $mediaKey) {
-                  if (isset($media[$index], $mediaFileLookup[$media[$index]]) && $data[$mediaKey]) {
-                      $data[$mediaKey]->true_value = $data[$mediaKey]->value;
-                      $data[$mediaKey]->value = $mediaFileLookup[$media[$index]];
-                  }
-                }
-            }
-        }
+        $data = $this->attachMedia($data, $media, $mediaKeys);
 
         $data = json_decode(json_encode($data));
 
@@ -174,14 +156,14 @@ class SettingRepository extends CoreRepository
         return $this->settingModel;
     }
 
-    public function getByKeyCode($code)
+    public function getByKeyCode($code, $attachMedia = false)
     {
         $name = $this->getNameFromKey($code);
 
-        return $this->getValueByNameAndModel($name[0], $name[1]);
+        return $this->getValueByNameAndModel($name[0], $name[1], $attachMedia);
     }
 
-    public function getByKeyCodes($codes)
+    public function getByKeyCodes($codes, $attachMedia = false)
     {
         $names = array_map(function($code) {
             return $this->getNameFromKey($code);
@@ -189,7 +171,7 @@ class SettingRepository extends CoreRepository
 
         $data = [];
         foreach ($names as $name) {
-            $content = $this->getValueByNameAndModel($name[0], $name[1]);
+            $content = $this->getValueByNameAndModel($name[0], $name[1], $attachMedia);
             $data[$name[2]] = $content;
         }
 
@@ -204,21 +186,63 @@ class SettingRepository extends CoreRepository
         return [...$bits, $key];
     }
 
-    private function getValueByNameAndModel($model, $name)
+    private function getValueByNameAndModel($model, $name, $attachMedia = false)
     {
         $data = $this->model
             ::whereRaw('LOWER(name) = ?', [strtolower($name)])
             ->whereModel($model)
             ->first();
 
+
         if (!$data) {
             return null;
         }
 
-        if ($data && isset($data->value->content) && $data->value->content) {
+        if (isset($data->value->content) && $data->value->content) {
+            if ($attachMedia) {
+                $key = Str::slug($data->name, '_');
+                $media = [];
+                $mediaKeys = [];
+                if (($data->value->page_content_type_id == 4 || $data->value->page_content_type_id == 5)){
+                    $media[] = $data->value->content;
+                    $mediaKeys[] = $key;
+                }
+
+                $withMedia = $this->attachMedia([$key => clone $data], $media, $mediaKeys);
+                if (isset($withMedia[$key]->value)) {
+                    return $withMedia[$key]->value;
+                }
+            }
+
+
             return $data->value->content;
         }
 
         return null;
+    }
+
+    private function attachMedia($data, $media, $mediaKeys)
+    {
+        if (sizeof($media)) {
+            // grab all the media by the ids, this is to add back into the data
+            $mediaRepo = new MediaRepository();
+            $mediaFiles = $mediaRepo->getByIds($media);
+            if ($mediaFiles && $mediaFiles->count()) {
+                $mediaFileLookup = [];
+
+                foreach ($mediaFiles as $file) {
+                    $mediaFileLookup[$file->id] = (object) $file->toArray();
+                }
+
+                foreach ($mediaKeys as $index => $mediaKey) {
+                    if (isset($media[$index], $mediaFileLookup[$media[$index]]) && $data[$mediaKey]) {
+                        $data[$mediaKey]->true_value = $data[$mediaKey]->value;
+                        $data[$mediaKey]->value = $mediaFileLookup[$media[$index]];
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
 }

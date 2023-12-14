@@ -79,6 +79,19 @@ class Help {
         $prefix = '';
         $isExternal = false;
 
+        if (\Str::startsWith($url, '[settings')) {
+            $link = settings()->getByKeyCode($url, true);
+            if (isset($link->link->original) && $link->link->original) {
+                return $link->link->original . '" target="_blank';
+            }
+        }
+
+        if (\Str::startsWith($url, '[forms')) {
+            $bits = explode(':', trim($url, '[]'));
+            $key = end($bits);
+            return '#" data-type="'.$key;
+        }
+
         $url = ltrim($url, '/');
         $base = rtrim(config('app.url'), '/');
 

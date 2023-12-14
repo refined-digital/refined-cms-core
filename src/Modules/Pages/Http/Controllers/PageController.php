@@ -179,6 +179,79 @@ class PageController extends CoreController
     {
         $data = $this->pageRepository->getTree();
 
+
+        if (class_exists('\\RefinedDigital\\FormBuilder\\Module\\Http\\Repositories\\FormBuilderRepository')) {
+            $formRepo = new \RefinedDigital\FormBuilder\Module\Http\Repositories\FormBuilderRepository();
+            $forms = $formRepo->getForTree();
+            array_shift($forms);
+
+            if (sizeof($forms)) {
+                $children = [];
+                foreach ($forms as $form) {
+                    $child = new \stdClass();
+                    $child->id = $form['id'];
+                    $child->name = $form['name'];
+                    $child->meta = new \stdClass();
+                    $child->meta->uri = '[forms:'.\Str::slug($form['name']).']';
+                    $child->hide_from_menu = false;
+                    $child->on = false;
+                    $child->active = true;
+                    $child->children = [];
+                    $child->depth = 1;
+                    $child->page_holder_id = 9999;
+                    $children[] = $child;
+                }
+                $formData = new \stdClass();
+                $formData->id = 9999;
+                $formData->active = true;
+                $formData->position = sizeof($data);
+                $formData->name = 'Forms';
+                $formData->type = 'holder';
+                $formData->on = false;
+                $formData->show = false;
+                $formData->children = $children;
+                $data[] = $formData;
+            }
+        }
+
+        // add in the page settings, but only for file types
+        $settings = json_decode(json_encode(settings()->get('pages')), true);
+        if (is_array($settings) && sizeof($settings)) {
+            $filtered = array_filter($settings, function($item) {
+                return $item['type'] === 'File';
+            });
+
+            if (sizeof($filtered)) {
+                $children = [];
+                foreach ($filtered as $index => $item) {
+                    $child = new \stdClass();
+                    $child->id = (int) ('9998'.$index);
+                    $child->name = $item['name'];
+                    $child->meta = new \stdClass();
+                    $child->meta->uri = '[settings:pages:'.\Str::slug($item['name']).']';
+                    $child->hide_from_menu = false;
+                    $child->on = false;
+                    $child->active = true;
+                    $child->children = [];
+                    $child->depth = 1;
+                    $child->page_holder_id = 9998;
+                    $children[] = $child;
+                }
+                $formData = new \stdClass();
+                $formData->id = 9998;
+                $formData->active = true;
+                $formData->position = sizeof($data);
+                $formData->name = 'Settings';
+                $formData->type = 'holder';
+                $formData->on = false;
+                $formData->show = false;
+                $formData->children = $children;
+                $data[] = $formData;
+            }
+        }
+
+
+
         return response()->json($data);
     }
 

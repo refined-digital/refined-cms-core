@@ -181,7 +181,10 @@
                 </div>
                 <div class="content-editor__item-content" :style="{ display: index === 0 ? 'block' : 'none' }">
                   <div class="form form__horz">
-                    <div class="content-editor__form-row form__row form__row--inline-label" v-for="field of content.fields">
+                    <div
+                        class="content-editor__form-row form__row form__row--inline-label"
+                        v-for="field of content.fields"
+                    >
                       <label :for="`form--content-${field.id}`" class="form__label">{{field.name}}</label>
                       <rd-content-editor-field :item="field" :key="`${content.id}_${field.id}`"></rd-content-editor-field>
                     </div>

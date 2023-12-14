@@ -120,7 +120,13 @@
             }
           }
 
-          return '/'+link.reverse().join('/');
+          const joint = link.reverse().join('/');
+
+          if (joint.startsWith('[')) {
+            return joint;
+          }
+
+          return `/${joint}`;
         },
 
         closeModal() {
