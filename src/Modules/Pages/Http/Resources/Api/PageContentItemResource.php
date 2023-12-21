@@ -8,7 +8,7 @@ use RefinedDigital\CMS\Modules\Media\Models\Media;
 class PageContentItemResource extends JsonResource
 {
 
-    public function toArray($request): array|string|\stdClass
+    public function toArray($request)
     {
 
         $content = $this->content;
