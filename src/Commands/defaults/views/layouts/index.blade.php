@@ -1,9 +1,9 @@
 @include('templates.includes.header')
 
-  <div class="page">
+<main class="page">
 
     @yield('template')
 
-  </div><!-- / page -->
+</main><!-- / page -->
 
 @include('templates.includes.footer')

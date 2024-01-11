@@ -1,0 +1,34 @@
+.button {
+  display:inline-block;
+  line-height: 1;
+  text-transform: uppercase;
+  font-size: calc(var(--font-size) - 2px);
+  padding: 10px 20px;
+  position: relative;
+  border: 1px solid var(--text-color);
+  color: var(--text-color);
+  min-width: 200px;
+  text-align: center;
+  background: transparent;
+
+  &:focus {
+    outline:0;
+  }
+
+  &:hover {
+    color: var(--main-color-2);
+    border-color: var(--main-color-2);
+  }
+
+  &--white {
+    color: #fff;
+    border-color: #fff;
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  &--full {
+    width: 100%;
+  }
+}

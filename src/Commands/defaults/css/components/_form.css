@@ -1,0 +1,103 @@
+.form {
+  width: 100%;
+  position: relative;
+
+  &__after-note {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  &__control {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    font-size: var(--font-size);
+    background-color: #fff;
+    border: 1px solid var(--main-color-1);
+  }
+
+  & textarea.form__control {
+    height: 160px;
+    resize: none;
+  }
+
+  & select.form__control {
+    padding: 10px 25px 15px 15px;
+    width: 100%;
+    -webkit-appearance: none;
+    border-radius: 0;
+    background: #fff
+    url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzODQgNTEyIj48IS0tISBGb250IEF3ZXNvbWUgUHJvIDYuMS4xIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlIChDb21tZXJjaWFsIExpY2Vuc2UpIENvcHlyaWdodCAyMDIyIEZvbnRpY29ucywgSW5jLiAtLT48cGF0aCBkPSJNMzYyLjcgMjAzLjlsLTE1OS4xIDE0NGMtNi4xMjUgNS40NjktMTUuMzEgNS40NjktMjEuNDQgMEwyMS4yOSAyMDMuOUMxNC43MyAxOTcuMSAxNC4yIDE4Ny45IDIwLjEgMTgxLjNDMjYuMzggMTc0LjQgMzYuNSAxNzQuNSA0Mi43MyAxODAuMUwxOTIgMzE0LjVsMTQ5LjMtMTM0LjRjNi41OTQtNS44NzcgMTYuNjktNS4zNjEgMjIuNjIgMS4xODhDMzY5LjggMTg3LjkgMzY5LjMgMTk3LjEgMzYyLjcgMjAzLjl6Ii8+PC9zdmc+)
+    no-repeat right 10px center / 20px;
+  }
+
+  &__label {
+    cursor: pointer;
+    line-height: 1;
+    display: block;
+    font-size: var(--font-size);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  &__row {
+    margin: 0 0 20px;
+    flex: 0 0 100%;
+    position: relative;
+    &--required {
+      .form__label:after {
+        content: '*';
+        display: inline-block;
+        font-size: 80%;
+        color: #c00;
+      }
+    }
+
+    &--floating-label {
+      .form {
+        &__label {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          transition: all 100ms linear;
+          margin-bottom: 0;
+        }
+
+        &__control {
+          padding: 10px 0;
+          border: 0;
+          border-bottom: 1px solid var(--main-color-1);
+
+          &:focus + .form__label,
+          &:not(:placeholder-shown) + .form__label {
+            top: -8px;
+            transform: translateY(0);
+            font-size: calc(var(--font-size) - 5px);
+          }
+        }
+      }
+
+      & select.form__control {
+        padding-left: 0;
+      }
+    }
+  }
+
+  &__row--captcha, &__row--buttons {
+    flex: 0 0 50%;
+    align-self: center;
+  }
+
+  &__row--captcha {
+    text-align: left;
+    .g-recaptcha {
+      display: inline-block;
+    }
+  }
+
+  &__row--buttons {
+    text-align: right;
+  }
+}

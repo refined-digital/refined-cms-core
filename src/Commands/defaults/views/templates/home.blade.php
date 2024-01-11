@@ -2,6 +2,6 @@
 
 @section('template')
 
-  @include('templates.includes.content')
+    @include('templates.includes.content')
 
 @stop

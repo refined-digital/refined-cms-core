@@ -471,7 +471,7 @@ SCOUT_DRIVER=database
 
         $directories = [
             'views',
-            'sass',
+            'css',
             'js'
         ];
 
@@ -483,14 +483,15 @@ SCOUT_DRIVER=database
             exec('cp -R '.$dir.' '.resource_path($directory));
         }
 
-        if (is_dir(resource_path('css'))) {
-            exec('rm -R '.resource_path('css'));
+        if (file_exists(base_path('vite.config.js'))) {
+            unlink(base_path('vite.config.js'));
         }
+        file_put_contents(base_path('vite.config.js'), file_get_contents($base.'/vite.config.js'));
 
-        if (file_exists(base_path('webpack.mix.js'))) {
-            unlink(base_path('webpack.mix.js'));
+        if (file_exists(base_path('postcss.config.js'))) {
+            unlink(base_path('postcss.config.js'));
         }
-        file_put_contents(base_path('webpack.mix.js'), file_get_contents($base.'/webpack.mix.js'));
+        file_put_contents(base_path('postcss.config.js'), file_get_contents($base.'/postcss.config.js'));
 
         if (file_exists(base_path('.prettierrc'))) {
             unlink(base_path('.prettierrc'));
@@ -502,14 +503,14 @@ SCOUT_DRIVER=database
     {
         $dir = app_path('Http/Kernel.php');
         $file = file_get_contents($dir);
-        $search = ['protected $routeMiddleware = ['];
+        $search = ['protected $middlewareAliases = ['];
 
         $options = [
             '\'doNotCacheResponse\' => \Spatie\ResponseCache\Middlewares\DoNotCacheResponse::class,',
             '\'cacheResponse\' => \Spatie\ResponseCache\Middlewares\CacheResponse::class,'
         ];
 
-        $replaceString = 'protected $routeMiddleware = [';
+        $replaceString = 'protected $middlewareAliases = [';
         foreach ($options as $option) {
             $replaceString.= "\n\t\t". $option;
         }
@@ -572,9 +573,6 @@ SCOUT_DRIVER=database
         Artisan::call('vendor:publish', [
             '--tag' => 'pages'
         ]);
-        // Artisan::call('vendor:publish', [
-        //     '--provider' => 'Laravel\Scout\ScoutServiceProvider'
-        // ]);
     }
 
     public function updatePackageJson()
@@ -584,14 +582,17 @@ SCOUT_DRIVER=database
 
         $toDelete = [
             'axios',
-            'postcss',
-            'lodash'
+            'vite',
+            'laravel-vite-plugin'
         ];
 
         $toAdd = [
-            'prettier' => '^2.5.0',
-            'sass' => '^1.43.5',
-            'sass-loader' => '^12.3.0'
+            'laravel-vite-plugin' => '^1.0.1',
+            'postcss-discard-comments' => '^6.0.1',
+            'postcss-nested' => '^6.0.1',
+            'postcss-preset-env' => '^9.3.0',
+            'prettier' => '^3.1.1',
+            'vite' => '^5.0.11',
         ];
 
         foreach ($toDelete as $package) {
@@ -607,8 +608,8 @@ SCOUT_DRIVER=database
         }
 
         $toAdd = [
-            '@fancyapps/ui' => '^4.0.9',
-            'swiper' =>  '^8.4.5'
+            '@fancyapps/ui' => '^5.0.33',
+            'swiper' =>  '^11.0.5'
         ];
 
         if (!isset($contents->dependencies)) {

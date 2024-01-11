@@ -1,0 +1,21 @@
+/*
+.fade-in-up {
+  transition: all 1.5s;
+  opacity: 0;
+  transform: translateY(7vw);
+
+  &--active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  transition: all 1.5s;
+  opacity: 0;
+
+  &--active {
+    opacity: 1;
+  }
+}
+*/

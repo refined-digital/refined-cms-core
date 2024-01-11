@@ -1,3 +1,3 @@
 <a href="{{ config('app.url') }}">
-  @include('icons.logo')
+    @include('icons.logo')
 </a>

@@ -7,6 +7,13 @@ $heading = [
     'note' => 'Use <code>|</code> for a new line.'
 ];
 
+$title = [
+    'name' => 'Title',
+    'field' => 'title',
+    'page_content_type_id' => 3,
+    'note' => 'Use <code>|</code> for a new line.'
+];
+
 $content = [
     'name' => 'Content',
     'field' => 'content',
@@ -31,6 +38,15 @@ $icon = [
     'field' => 'icon',
     'hide_label' => false,
     'note' => 'Preferred format is <code>svg</code>'
+];
+
+$background = [
+    'name' => 'Background Colour',
+    'page_content_type_id' => 6,
+    'options' => [
+        ['label' => 'White', 'value' => 'white'],
+        ['label' => 'Grey', 'value' => 'grey'],
+    ]
 ];
 
 return [
@@ -58,9 +74,19 @@ return [
         [
             'name' => 'Content',
             'template' => 'content',
-            'description' => 'A simple Heading and Rich Editor content combo',
             'fields' => [
                 $heading,
+                $title,
+                $background,
+                $content,
+            ]
+        ],
+        [
+            'name' => 'Plain Content',
+            'template' => 'plain-content',
+            'fields' => [
+                $heading,
+                $title,
                 $content,
             ]
         ],
@@ -102,6 +128,13 @@ return [
                     'width' => 1920,
                     'height' => 960
                 ],
+                [
+                    'name' => 'Mobile Image',
+                    'page_content_type_id' => 4,
+                    'width' => 800,
+                    'height' => 1150,
+                    'field' => 'mobile_image'
+                ],
             ]
         ],
         [
@@ -120,6 +153,13 @@ return [
                             'hide_label' => false,
                             'width' => 1920,
                             'height' => 1065
+                        ],
+                        [
+                            'name' => 'Mobile Image',
+                            'page_content_type_id' => 4,
+                            'width' => 800,
+                            'height' => 1150,
+                            'field' => 'mobile_image'
                         ],
                     ]
                 ]

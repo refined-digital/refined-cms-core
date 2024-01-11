@@ -35,7 +35,7 @@ trait SortablePageTrait
      * @param array|\ArrayAccess $ids
      * @param int $startOrder
      */
-    public static function setNewOrder($ids, int $startOrder = 1, string $primaryKeyColumn = null): void
+    public static function setNewOrder($ids, int $startOrder = 1, string $primaryKeyColumn = null, callable $modifyQuery = null): void
     {
         $parentId = request()->get('parent');
 
@@ -43,10 +43,12 @@ trait SortablePageTrait
             throw new InvalidArgumentException('You must pass an array or ArrayAccess object to setNewOrder');
         }
 
-        $model = new static;
+        $model = new static();
 
         $orderColumnName = $model->determineOrderColumnName();
-        $primaryKeyColumn = $model->getKeyName();
+        if (is_null($primaryKeyColumn)) {
+            $primaryKeyColumn = $model->getKeyName();
+        }
 
         if ($parentId < 0) {
             // if its a negative, it means the parent is a holder

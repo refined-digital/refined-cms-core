@@ -80,6 +80,7 @@ class Format
             return image()
                 ->load($desktop['src'])
                 ->fit()
+                ->lazy()
                 ->dimensions([
                     ['media' => 800, 'width' => $desktop['width'], 'height' => $desktop['height']],
                     ['width' => $desktop['width'] * 0.75, 'height' => $desktop['height'] * 0.75]
@@ -90,6 +91,7 @@ class Format
         $images = [];
         $images[] = image()->load($desktop['src'])
             ->fit()
+            ->lazy()
             ->width($desktop['width'])
             ->height($desktop['height'])
             ->string();
@@ -97,6 +99,7 @@ class Format
         if (isset($mobile['src']) && $mobile['src']) {
             $images[] = image()->load($mobile['src'])
                 ->fit()
+                ->lazy()
                 ->width($mobile['width'])
                 ->height($mobile['height'])
                 ->string();
@@ -112,7 +115,7 @@ class Format
             }
             $html .= '/>';
         }
-        $html .= '<img src="' . $images[0] . '"/>';
+        $html .= '<img src="' . $images[0] . '" loading="lazy"/>';
         $html .= '</picture>';
 
         return $html;

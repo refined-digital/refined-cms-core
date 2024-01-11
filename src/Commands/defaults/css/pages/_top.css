@@ -1,0 +1,28 @@
+.page__top {
+  padding-inline: var(--site-padding);
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  z-index: 9000;
+  background: var(--main-color-1);
+
+  @media (max-width: 1920px) {
+    padding-inline: 30px;
+  }
+
+  & a {
+    color: var(--main-color-2);
+  }
+}
+
+.page__logo {
+  & a {
+    display: block;
+  }
+
+  & svg {
+    height: 50px;
+    max-width: 100%;
+  }
+}

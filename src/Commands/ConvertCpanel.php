@@ -88,34 +88,14 @@ www
   {
     $this->output->writeln('<info>Updating files</info>');
 
-    // webpack.mix
-    $contents = file_get_contents(base_path('webpack.mix.js'));
-    $search = ['public/', '.disableNotifications()'];
-    $replace = ['public_html/', '.disableNotifications()
-  .setPublicPath(\'public_html/\')'];
-    $contents = str_replace($search, $replace, $contents);
-    file_put_contents(base_path('webpack.mix.js'), $contents);
-
-
-    // server
-    if (file_exists(base_path('server.php'))) {
-        $contents = file_get_contents(base_path('server.php'));
-        $contents = str_replace('/public', '/public_html', $contents);
-        file_put_contents(base_path('server.php'), $contents);
+    // vite.config
+    if (file_get_contents(base_path('vite.config.js'))) {
+        $contents = file_get_contents(base_path('vite.config.js'));
+        $search = ["'public'"];
+        $replace = ["'public_html'"];
+        $contents = str_replace($search, $replace, $contents);
+        file_put_contents(base_path('vite.config.js'), $contents);
     }
-
-    // public html
-    $contents = file_get_contents(public_path('index.php'));
-    $search = '$app = require_once __DIR__.\'/../bootstrap/app.php\';';
-    $replace = '$app = require_once __DIR__.\'/../bootstrap/app.php\';
-
-// set the public path to this directory
-$app->bind(\'path.public\', function() {
-    return __DIR__;
-});';
-    $contents = str_replace($search, $replace, $contents);
-    file_put_contents(public_path('index.php'), $contents);
-
 
     // bootstrap
     $contents = file_get_contents(base_path('bootstrap/app.php'));
@@ -127,10 +107,7 @@ $app->bind(\'path.public\', function() {
 );
 
 // set the public path to this directory
-$app->bind(\'path.public\', function() {
-    $dir = realpath(__DIR__ . \'/../public_html\');
-    return $dir;
-});';
+$app->usePublicPath($app->basePath(\'public_html\'));';
     $contents = str_replace($search, $replace, $contents);
     file_put_contents(base_path('bootstrap/app.php'), $contents);
   }

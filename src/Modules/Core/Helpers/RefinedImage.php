@@ -2,7 +2,8 @@
 
 namespace RefinedDigital\CMS\Modules\Core\Helpers;
 
-use Intervention\Image\ImageManagerStatic as Image;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 use RefinedDigital\CMS\Modules\Media\Models\Media;
 use Str;
 
@@ -17,7 +18,7 @@ class RefinedImage {
     protected $force = null;
     protected $returnType = 'string'; // object | image | string
     protected $quality = 90;
-    protected $lazy = true;
+    protected $isLazy = true;
     protected $useNewFormat = true;
 
     protected $directory = '';
@@ -115,7 +116,7 @@ class RefinedImage {
 
     public function lazy($lazy = true)
     {
-        $this->lazy = $lazy;
+        $this->isLazy = $lazy;
         return $this;
     }
 
@@ -162,32 +163,22 @@ class RefinedImage {
         // only create if we are forcing, or the file doesn't already exist
         if(!file_exists($this->directory.$fileName) || $this->force) {
             // load the image
-            $image = Image::make($this->directory.$this->file->file);
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($this->directory.$this->file->file);
 
             if($this->type && $width && $height) {
                 if($this->type == 'fit') {
-                    $image->fit($width, $height);
+                    $image->cover(width: $width, height: $height);
                 } elseif($this->type == 'fill') {
-                    $image->fit($width, $height, function($constrain) {
-                        $constrain->upsize();
-                    });
+                    $image->pad(width: $width, height: $height);
                 }
             } else {
                 if($width && $height) {
-                    $image->resize($width, $height, function($constrain) {
-                        $constrain->upsize();
-                        $constrain->aspectRatio();
-                    });
+                    $image->scaleDown(width: $width, height: $height);
                 } elseif($width && !$height) {
-                    $image->resize($width, null, function($constrain) {
-                        $constrain->upsize();
-                        $constrain->aspectRatio();
-                    });
+                    $image->scaleDown(width: $width);
                 } elseif(!$width && $height) {
-                    $image->resize(null, $height, function($constrain) {
-                        $constrain->upsize();
-                        $constrain->aspectRatio();
-                    });
+                    $image->scaleDown(height: $height);
                 }
             }
 
@@ -226,7 +217,7 @@ class RefinedImage {
                             }
                             $img .= $attrs;
                         }
-                        if ($this->lazy) {
+                        if ($this->isLazy) {
                             $img .= ' loading="lazy"';
                         }
                     $img .= '/>';
@@ -305,7 +296,7 @@ class RefinedImage {
                 }
             }
 
-            $html .= PHP_EOL."\t".'<img src="'.asset($baseImage).'"'.($this->lazy ? ' loading="lazy"' : '').'/>';
+            $html .= PHP_EOL."\t".'<img src="'.asset($baseImage).'"'.($this->isLazy ? ' loading="lazy"' : '').'/>';
             $html .= PHP_EOL.'</picture>';
 
             return $html;

@@ -1,0 +1,16 @@
+.banner {
+  position: relative;
+  overflow: hidden;
+
+  &__image, swiper-slide {
+    position: relative;
+    height: 100vh;
+
+    & img {
+      width: 100%;
+      height: 100vh;
+      display: block;
+      object-fit: cover;
+    }
+  }
+}

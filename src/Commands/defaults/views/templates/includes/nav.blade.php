@@ -1,3 +1,11 @@
 <div class="page__nav">
-  {!! menu()->holder('pages')->get($page) !!}
+    {!! menu()->holder('pages')->get($page) !!}
+    <a href="#" class="modal__trigger--button fade-in" data-type="menu">
+        <span class="modal__trigger--menu">
+            @include('icons.bars')
+        </span>
+        <span class="modal__trigger--close">
+            @include('icons.close')
+        </span>
+    </a>
 </div>
