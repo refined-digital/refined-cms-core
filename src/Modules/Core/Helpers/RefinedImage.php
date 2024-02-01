@@ -34,6 +34,9 @@ class RefinedImage {
     public function __construct()
     {
         $this->directory = storage_path('app/public/uploads/');
+        if (help()->isMultiTenancy()) {
+            $this->directory = storage_path('uploads/');
+        }
     }
 
     public function load($file)
@@ -62,6 +65,7 @@ class RefinedImage {
                 $this->attributes['alt'] = $this->file->alt;
             }
         }
+
 
         return $this;
     }
@@ -200,7 +204,6 @@ class RefinedImage {
         // only process if we do have a file
         if (isset($this->file->id) && $this->file->type == 'Image') {
             $this->createImage($this->width, $this->height, $fileName);
-
             $fileName = $this->buildFileName($fileName, $this->width, $this->height);
 
             // return the image
@@ -247,12 +250,16 @@ class RefinedImage {
 
     public function get()
     {
-        $filePath = $this->directory.$this->file->file;
-        if (strpos($this->file->file, '.svg') && file_exists($filePath)) {
-            return file_get_contents($filePath);
-        } else {
-            $this->returnType = 'image';
-            return $this->save();
+        try {
+            $filePath = $this->directory.$this->file->file;
+            if (strpos($this->file->file, '.svg') && file_exists($filePath)) {
+                return file_get_contents($filePath);
+            } else {
+                $this->returnType = 'image';
+                return $this->save();
+            }
+        } catch (\Exception $error) {
+            return $error->getMessage();
         }
     }
 

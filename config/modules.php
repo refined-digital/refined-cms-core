@@ -9,6 +9,10 @@ return [
         'Provider' => RefinedDigital\CMS\Modules\Pages\Providers\PageServiceProvider::class,
         'Aliases' => []
     ],
+    'Config' => [
+        'Provider' => RefinedDigital\CMS\Modules\SiteSettings\Providers\SiteSettingsServiceProvider::class,
+        'Aliases' => []
+    ],
     'Settings' => [
         'Provider' => RefinedDigital\CMS\Modules\Settings\Providers\SettingServiceProvider::class,
         'Aliases' => []

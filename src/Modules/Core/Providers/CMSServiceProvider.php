@@ -4,6 +4,8 @@ namespace RefinedDigital\CMS\Modules\Core\Providers;
 
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Routing\Router;
+use Illuminate\Routing\UrlGenerator;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Foundation\AliasLoader;
@@ -14,6 +16,7 @@ use RefinedDigital\CMS\Commands\InstallDatabase;
 use RefinedDigital\CMS\Commands\InstallSymLink;
 use RefinedDigital\CMS\Modules\Core\Exceptions\Handler;
 use RefinedDigital\CMS\Modules\Core\Http\Middleware\Admin;
+use RefinedDigital\CMS\Modules\Core\Http\Middleware\InjectTenantParameter;
 use RefinedDigital\CMS\Modules\Core\Http\Middleware\UserLevel;
 use RefinedDigital\CMS\Modules\Core\Http\ResourceRegistrar;
 use RefinedDigital\CMS\Modules\Core\Aggregates\CustomModuleRouteAggregate;
@@ -23,6 +26,7 @@ use RefinedDigital\CMS\Modules\Core\Aggregates\PublicRouteAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\RouteAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\ModuleAggregate;
 
+use RefinedDigital\CMS\Modules\Core\Routing\CustomUrlGenerator;
 use Validator;
 
 
@@ -80,7 +84,6 @@ class CMSServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/../Http/Routes/api.php');
         $this->loadRoutesFrom(__DIR__.'/../Http/Routes/web.php');
         $this->loadRoutesFrom(__DIR__.'/../Http/Routes/channels.php');
-
 
         // load in the option for assets
         $this->publishes([
@@ -178,5 +181,15 @@ class CMSServiceProvider extends ServiceProvider
 
         $this->mergeConfigFrom(__DIR__.'/../Config/rich-editor.php', 'rich-editor');
         $this->mergeConfigFrom(__DIR__.'/../Config/searchable-models.php', 'searchable-models');
+
+        // add the custom url generator if multi tenancy
+        if (help()->isMultiTenancy()) {
+            $this->app->extend('url', function ($service, $app) {
+                return new CustomUrlGenerator(
+                    $app['router']->getRoutes(),
+                    $app['request']
+                );
+            });
+        }
     }
 }

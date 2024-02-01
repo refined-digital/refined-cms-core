@@ -51,7 +51,7 @@ class PageServiceProvider extends ServiceProvider
             'children' => [
                 (object) [ 'name' => 'Pages', 'route' => 'pages', 'activeFor' => ['pages']],
                 (object) [ 'name' => 'Templates', 'route' => 'templates', 'activeFor' => ['templates'], 'max_user_level_id' => 1],
-                (object) [ 'name' => 'Settings', 'route' => ['settings.index', 'pages'], 'activeFor' => ['settings']],
+                (object) [ 'name' => 'Settings', 'route' => ['settings.index', ['type' => 'pages']], 'activeFor' => ['settings']],
             ]
         ];
 

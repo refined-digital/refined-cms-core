@@ -845,6 +845,12 @@
 
       dropError(err) {
         if (err.status === 'error') {
+          const error = err.previewElement.querySelector('.dz-error-mark');
+          if (error) {
+            error.addEventListener('click', () => {
+              $(err.previewElement).fadeOut(300).remove();
+            })
+          }
           if (typeof err.xhr != 'undefined') {
             let msg = JSON.parse(err.xhr.response);
             let message = '';

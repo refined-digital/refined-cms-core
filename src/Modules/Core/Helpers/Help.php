@@ -351,4 +351,50 @@ class Help {
         return $size;
     }
 
+    public function isMultiTenancy(): bool
+    {
+        return (bool) env('APP_MULTI_TENANCY');
+    }
+
+    public function getIncomingUrl($host = false): string
+    {
+        $parsedUrl = parse_url(request()->url());
+        $cleanedUrl = '';
+
+        if (isset($parsedUrl['scheme'])) {
+            $cleanedUrl .= $parsedUrl['scheme'] . '://';
+        }
+
+        if (isset($parsedUrl['host'])) {
+            $cleanedUrl .= $host ? $host : $parsedUrl['host'];
+        }
+
+        if (isset($parsedUrl['port'])) {
+            $cleanedUrl .= ':' . $parsedUrl['port'];
+        }
+
+        return $cleanedUrl;
+    }
+
+    public function getSiteUrl(): string
+    {
+        if ($this->isMultiTenancy()) {
+            $url = $this->getIncomingUrl().'/'.request()->segment(1);
+            return rtrim($url, '/');
+        }
+
+        return rtrim(config('app.url'), '/');
+    }
+
+    public function getPublicUrl(): string
+    {
+        if ($this->isMultiTenancy()) {
+            $tenant = tenant();
+            $domain = $tenant->domains()->first()->domain;
+            $url = $this->getIncomingUrl($domain);
+            return rtrim($url, '/');
+        }
+
+        return rtrim(env('PUBLIC_URL') ?? config('app.url'), '/');
+    }
 }

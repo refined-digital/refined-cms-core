@@ -59,6 +59,10 @@
         ></rd-pages-repeatable>
       </template>
 
+      <template v-if="item.page_content_type_id === 10">
+        <input type="color" v-model="item.content" class="form__control--color">
+      </template>
+
       <div class="form__note" v-if="item.note && item.page_content_type_id !== 9" v-html="item.note"></div>
     </div>
 

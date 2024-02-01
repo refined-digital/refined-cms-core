@@ -149,6 +149,10 @@
         &-error-message {
           color: color(red);
         }
+
+        &-error-mark {
+          cursor: pointer;
+        }
       }
 
       &.dz {

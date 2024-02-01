@@ -12,7 +12,7 @@
 
         <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
-        <link rel="stylesheet" href="{{ asset('vendor/refined/core/css/main.css?v='.uniqid()) }}"/>
+        <link rel="stylesheet" href="{{ refined_asset('vendor/refined/core/css/main.css?v='.uniqid()) }}"/>
     </head>
 
     <body>

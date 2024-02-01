@@ -181,22 +181,23 @@ class MediaRepository extends CoreRepository
         if (isset($newFile->id)) {
             try {
 
-                $directory = storage_path('app/public/uploads');
-
-                // check and create the uploads directory if it does not exist
-                if (!is_dir($directory)) {
-                    mkdir($directory);
+                $path = 'app/public/uploads';
+                $uploadDirectory = 'public/uploads';
+                if (help()->isMultiTenancy()) {
+                    $path = 'uploads';
+                    $uploadDirectory = 'uploads';
                 }
+                $directory = storage_path($path);
 
                 // create the file directory
                 $directory = $directory.'/'.$newFile->id;
 
                 // create the file directory
                 if (!is_dir($directory)) {
-                    mkdir($directory);
+                    mkdir($directory, 0755, true);
                 }
 
-                $uploadDirectory = 'public/uploads/'.$newFile->id;
+                $uploadDirectory .= '/'.$newFile->id;
 
                 // store  the file
                 $file->storeAs($uploadDirectory, $fileName);

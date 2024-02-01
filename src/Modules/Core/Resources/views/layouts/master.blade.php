@@ -1,9 +1,9 @@
 @include('core::includes.header')
 @php
   $bits = explode('.', Route::currentRouteName());
-  $module = $bits[1];
-  $siteUrl = rtrim(config('app.url'), '/');
-  $publicUrl = rtrim(env('PUBLIC_URL') ?? config('app.url'), '/');
+  $module = $bits[$activeOffset ?? 1];
+  $siteUrl = help()->getSiteUrl();
+  $publicUrl = help()->getPublicUrl();
 @endphp
         <div id="app" class="app__holder app__module--{{ $module }}" :class="{ 'app--has-media' : media.active, 'app--has-media' : media.showModal, 'app--has-sitemap' : sitemap.active }">
 
@@ -11,7 +11,7 @@
 
             <div class="app__left">
                 <figure class="app__logo">
-                    <a href="{{ config('app.url') }}/refined"><img src="{{ asset('vendor/refined/core/img/logos/admin-small-logo.png') }}"/></a>
+                    <a href="{{ $siteUrl }}/refined"><img src="{{ refined_asset('vendor/refined/core/img/logos/admin-small-logo.png') }}"/></a>
                 </figure>
                 <nav class="app__nav">
                     @if(is_array($menu) && sizeof($menu))
@@ -79,7 +79,7 @@
           window.siteUrl = "{{ $siteUrl }}";
           window.publicUrl = "{{ $publicUrl }}";
         </script>
-        <script src="{{ asset('vendor/refined/core/js/main.js?v='.uniqid()) }}"></script>
+        <script src="{{ refined_asset('vendor/refined/core/js/main.js?v='.uniqid()) }}"></script>
         <script>
             window.app.richEditor = {!! json_encode(config('rich-editor')) !!}
             window.app.siteUrl = "{{ $siteUrl }}";

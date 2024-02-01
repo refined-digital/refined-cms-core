@@ -35,6 +35,5 @@ class MediaFileUpdated implements ShouldBroadcast
     public function broadcastOn()
     {
         return new PrivateChannel('refinedCMS.media.updated');
-        // return new Channel('refinedCMS.media.updated');
     }
 }

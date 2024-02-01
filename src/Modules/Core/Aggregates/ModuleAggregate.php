@@ -20,7 +20,7 @@ class ModuleAggregate
      */
     public function addMenuItem($config)
     {
-        $this->routeFiles[$config['order']] = json_decode(json_encode([
+        $data = json_decode(json_encode([
             'name'              => $config['name'],
             'heading'           => $config['heading'] ?? $config['name'],
             'icon'              => $config['icon'],
@@ -29,6 +29,14 @@ class ModuleAggregate
             'max_user_level_id' => isset($config['max_user_level_id']) ? $config['max_user_level_id'] : null,
             'children'          => isset($config['children']) && is_array($config['children']) ? $config['children'] : [],
         ]));
+
+
+        $this->routeFiles[$config['order']] = $data;
+        foreach ($data->children as $index => $child) {
+            if (gettype($child->route) == 'array' && is_array($child->route) && isset($child->route[1]) && gettype($child->route[1]) == 'object') {
+                $child->route[1] = (array) $child->route[1];
+            }
+        }
     }
 
     public function addSubMenuItem($parent, $config)

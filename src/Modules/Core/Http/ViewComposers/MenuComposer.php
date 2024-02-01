@@ -15,7 +15,11 @@ class MenuComposer
      */
     public function compose(View $view)
     {
-        if (request()->segment(1) == 'refined') {
+        $offset = 1;
+        if (help()->isMultiTenancy()) {
+            $offset = 2;
+        }
+        if (request()->segment($offset) == 'refined') {
 
             $routeAggregate = app(ModuleAggregate::class);
             $menu = $routeAggregate->getMenuItems();
@@ -45,11 +49,12 @@ class MenuComposer
             $activeModule = $route[1];
 
             if ($activeModule == 'settings') {
-                $activeModule = request()->segment(2);
+                $activeModule = request()->segment($offset + 1);
                 $view->with('settings', true);
             }
 
             $view->with(compact('activeModule'));
+            $view->with('activeOffset', $offset - 1);
         }
 
     }

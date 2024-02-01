@@ -4,3 +4,5 @@
 /package-lock.json
 /composer.lock
 .env
+.DS_Store
+

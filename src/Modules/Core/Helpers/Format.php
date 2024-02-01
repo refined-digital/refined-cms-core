@@ -109,13 +109,13 @@ class Format
 
         $html = '<picture>';
         foreach ($images as $index => $img) {
-            $html .= '<source srcset="' . $img . '"';
+            $html .= '<source srcset="' . asset($img) . '"';
             if ($index == 0) {
                 $html .= ' media="(min-width: 640px)"';
             }
             $html .= '/>';
         }
-        $html .= '<img src="' . $images[0] . '" loading="lazy"/>';
+        $html .= '<img src="' . asset($images[0]) . '" loading="lazy"/>';
         $html .= '</picture>';
 
         return $html;

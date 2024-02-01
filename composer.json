@@ -12,8 +12,7 @@
     "spatie/laravel-html": "^3.4",
     "spatie/laravel-responsecache": "^7.4",
     "spatie/laravel-sluggable": "^3.5",
-    "protonemedia/laravel-cross-eloquent-search": "^3.3",
-    "doctrine/dbal": "^3.7"
+    "protonemedia/laravel-cross-eloquent-search": "^3.3"
   },
   "license": "MIT",
   "authors": [

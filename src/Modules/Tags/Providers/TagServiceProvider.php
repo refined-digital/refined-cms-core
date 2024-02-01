@@ -28,6 +28,10 @@ class TagServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        if (help()->isMultiTenancy()) {
+            return;
+        }
+
         app(RouteAggregate::class)
             ->addRouteFile('tags', __DIR__.'/../Http/routes.php');
 
