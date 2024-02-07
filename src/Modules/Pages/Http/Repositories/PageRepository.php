@@ -477,7 +477,7 @@ class PageRepository extends CoreRepository
 
             // set the base href
             // rtrim will remove the last / - i am doing this to force the / incase we set the config to have the /
-            $base = rtrim(config('app.url'), '/').'/';
+            $base = rtrim(help()->config('app.url'), '/').'/';
 
             foreach($pages as $page) {
                 $i++;

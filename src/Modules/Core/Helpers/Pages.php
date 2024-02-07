@@ -85,6 +85,10 @@ class Pages {
 
     public function getBaseHref()
     {
+        if (help()->isMultiTenancy() && tenant()) {
+            return rtrim(request()->getSchemeAndHttpHost(), '/').'/';
+        }
+
         return rtrim(config('app.url'), '/').'/';
     }
 

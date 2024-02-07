@@ -397,4 +397,13 @@ class Help {
 
         return rtrim(env('PUBLIC_URL') ?? config('app.url'), '/');
     }
+
+    public function config($key, $default = null)
+    {
+        if ($this->isMultiTenancy() && $key === 'app.url') {
+            return pages()->getBaseHref();
+        }
+
+        return config($key, $default);
+    }
 }
