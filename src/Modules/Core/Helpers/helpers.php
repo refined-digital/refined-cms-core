@@ -110,7 +110,15 @@ if (!function_exists('refined_asset')) {
     function refined_asset($path, $secure = null)
     {
         if (help()->isMultiTenancy() && function_exists('global_asset')) {
-            return global_asset($path);
+            $parsedUrl = parse_url(config('app.url'));
+            $domain = config('tenancy.central_domains')[0];
+
+            if (isset($parsedUrl['host'])) {
+                $parsedUrl['host'] = $domain;
+                $domain = help()->build_url($parsedUrl);
+            }
+
+            return rtrim($domain, '/').'/'.$path;
         }
 
         return asset($path, $secure);

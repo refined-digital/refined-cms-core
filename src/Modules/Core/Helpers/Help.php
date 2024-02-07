@@ -390,7 +390,7 @@ class Help {
     {
         if ($this->isMultiTenancy()) {
             $tenant = tenant();
-            $domain = $tenant->domains()->first()->domain;
+            $domain = $tenant->domains()->orderBy('created_at')->first()->domain;
             $url = $this->getIncomingUrl($domain);
             return rtrim($url, '/');
         }
@@ -405,5 +405,19 @@ class Help {
         }
 
         return config($key, $default);
+    }
+
+    public function build_url(array $parts) {
+        $scheme   = isset($parts['scheme']) ? "{$parts['scheme']}://" : '';
+        $host     = $parts['host'] ?? '';
+        $port     = isset($parts['port']) ? ":{$parts['port']}" : '';
+        $user     = $parts['user'] ?? '';
+        $pass     = isset($parts['pass']) ? ":{$parts['pass']}" : '';
+        $pass     = ($user || $pass) ? "$pass@" : '';
+        $path     = $parts['path'] ?? '';
+        $query    = isset($parts['query']) ? "?{$parts['query']}" : '';
+        $fragment = isset($parts['fragment']) ? "#{$parts['fragment']}" : '';
+
+        return "$scheme$user$pass$host$port$path$query$fragment";
     }
 }
