@@ -11,9 +11,25 @@ class Format
 {
     use Macroable;
 
-    public function heading($content, $search = '|', $replace = '<br/>')
+    public function heading($content, $search = '|', $replace = 'br', $class = '')
     {
-        return str_replace($search, $replace, $content);
+        $occurances = array_map('trim', explode($search, $content));
+
+        if ($replace === 'br') {
+            return implode('<br>', $occurances);
+        }
+
+        foreach ($occurances as $index => &$item) {
+            $newItem = '<'.$replace;
+            if ($class) {
+                $newItem.= ' class="'.$class.' '.$class.'--'.($index + 1).'"';
+            }
+            $newItem .= '>'.$item.'</'.$replace.'>';
+            
+            $item = $newItem;
+        }
+
+        return implode('', $occurances);
     }
 
     public function button($content, $additionalClasses = [], $target = false, $additionalAttributes = [])
