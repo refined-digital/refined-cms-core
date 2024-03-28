@@ -550,7 +550,7 @@ class PageRepository extends CoreRepository
     public function setAsPage($type)
     {
 
-        $settings = settings()->get('pages');
+        $settings = settings()->get('site-settings');
         $baseHref = pages()->getBaseHref();
 
         $page = new \stdClass();

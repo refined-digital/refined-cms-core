@@ -25,7 +25,7 @@ class Format
                 $newItem.= ' class="'.$class.' '.$class.'--'.($index + 1).'"';
             }
             $newItem .= '>'.$item.'</'.$replace.'>';
-            
+
             $item = $newItem;
         }
 
