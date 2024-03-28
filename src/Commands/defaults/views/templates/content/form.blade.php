@@ -7,9 +7,9 @@
 @endphp
 <section class="{{ implode(' ', $classes) }}">
     <article>
-        @include('templates.includes.heading')
+        @include('templates.includes.content.heading')
         <div>
-            @include('templates.includes.content-text')
+            @include('templates.includes.content.text')
             <div>
                 @if (isset($content->form) && $content->form && function_exists('forms'))
                     {!! forms()->load($content->form)->render() !!}
