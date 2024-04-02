@@ -798,7 +798,7 @@
           let self = this;
           let args = {
             url: `${window.siteUrl}/refined/media/upload-file`,
-            acceptedFiles: 'image/*,.pdf,.docx,.doc,.xls,.xlsx,.zip,.mp4',
+            acceptedFiles: 'image/*,.pdf,.docx,.doc,.xls,.xlsx,.zip,.mp4,.json',
             maxFilesize: this.maxFilesize,
             timeout: 300000,
             createImageThumbnails: true,
