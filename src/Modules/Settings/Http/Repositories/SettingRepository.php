@@ -5,6 +5,7 @@ namespace RefinedDigital\CMS\Modules\Settings\Http\Repositories;
 use RefinedDigital\CMS\Modules\Core\Http\Repositories\CoreRepository;
 use RefinedDigital\CMS\Modules\Media\Http\Repositories\MediaRepository;
 use RefinedDigital\CMS\Modules\Pages\Models\PageContentType;
+use RefinedDigital\CMS\Modules\Core\Enums\PageContentType as PageContentTypeEnum;
 use Str;
 
 class SettingRepository extends CoreRepository
@@ -70,7 +71,7 @@ class SettingRepository extends CoreRepository
                 $type = $types[$item->value->page_content_type_id] ?? null;
                 $key = Str::slug($item->name, '_');
 
-                if (($item->value->page_content_type_id == 4 || $item->value->page_content_type_id == 5)){
+                if (($item->value->page_content_type_id == PageContentTypeEnum::IMAGE->value || $item->value->page_content_type_id == PageContentTypeEnum::FILE->value)){
                   $media[] = $item->value->content;
                   $mediaKeys[] = $key;
                 }
@@ -203,7 +204,7 @@ class SettingRepository extends CoreRepository
                 $key = Str::slug($data->name, '_');
                 $media = [];
                 $mediaKeys = [];
-                if (($data->value->page_content_type_id == 4 || $data->value->page_content_type_id == 5)){
+                if (($data->value->page_content_type_id == PageContentTypeEnum::IMAGE->value || $data->value->page_content_type_id == PageContentTypeEnum::FILE->value)){
                     $media[] = $data->value->content;
                     $mediaKeys[] = $key;
                 }

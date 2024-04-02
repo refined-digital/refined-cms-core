@@ -1,40 +1,42 @@
 <?php
 
+use RefinedDigital\CMS\Modules\Core\Enums\PageContentType;
+
 $heading = [
     'name' => 'Heading',
     'field' => 'heading',
-    'page_content_type_id' => 3,
+    'page_content_type_id' => PageContentType::PLAIN->value,
     'note' => 'Use <code>|</code> for a new line.'
 ];
 
 $title = [
     'name' => 'Title',
     'field' => 'title',
-    'page_content_type_id' => 3,
+    'page_content_type_id' => PageContentType::PLAIN->value,
     'note' => 'Use <code>|</code> for a new line.'
 ];
 
 $content = [
     'name' => 'Content',
     'field' => 'content',
-    'page_content_type_id' => 1
+    'page_content_type_id' => PageContentType::RICH->value
 ];
 
 $link = [
     'name' => 'Link',
     'field' => 'link',
-    'page_content_type_id' => 7,
+    'page_content_type_id' => PageContentType::LINK->value,
 ];
 
 $linkTitle = [
     'name' => 'Link Title',
     'field' => 'link_title',
-    'page_content_type_id' => 3,
+    'page_content_type_id' => PageContentType::PLAIN->value,
 ];
 
 $icon = [
     'name' => 'Icon',
-    'page_content_type_id' => 4,
+    'page_content_type_id' => PageContentType::IMAGE->value,
     'field' => 'icon',
     'hide_label' => false,
     'note' => 'Preferred format is <code>svg</code>'
@@ -42,7 +44,7 @@ $icon = [
 
 $background = [
     'name' => 'Background Colour',
-    'page_content_type_id' => 6,
+    'page_content_type_id' => PageContentType::SELECT->value,
     'options' => [
         ['label' => 'White', 'value' => 'white'],
         ['label' => 'Grey', 'value' => 'grey'],
@@ -99,7 +101,7 @@ return [
                 $content,
                 [
                     'name' => 'Form',
-                    'page_content_type_id' => 6,
+                    'page_content_type_id' => PageContentType::SELECT->value,
                     'options' => 'forms',
                 ],
             ]
@@ -111,7 +113,7 @@ return [
             'fields' => [
                 [
                     'name' => 'Image',
-                    'page_content_type_id' => 4,
+                    'page_content_type_id' => PageContentType::IMAGE->value,
                     'width' => 1920,
                     'height' => 960
                 ],
@@ -124,13 +126,13 @@ return [
             'fields' => [
                 [
                     'name' => 'Image',
-                    'page_content_type_id' => 4,
+                    'page_content_type_id' => PageContentType::IMAGE->value,
                     'width' => 1920,
                     'height' => 960
                 ],
                 [
                     'name' => 'Mobile Image',
-                    'page_content_type_id' => 4,
+                    'page_content_type_id' => PageContentType::IMAGE->value,
                     'width' => 800,
                     'height' => 1150,
                     'field' => 'mobile_image'
@@ -144,11 +146,11 @@ return [
             'fields' => [
                 [
                     'name' => 'Images',
-                    'page_content_type_id' => 9,
+                    'page_content_type_id' => PageContentType::REPEATABLE->value,
                     'fields' => [
                         [
                             'name' => 'Image',
-                            'page_content_type_id' => 4,
+                            'page_content_type_id' => PageContentType::IMAGE->value,
                             'field' => 'image',
                             'hide_label' => false,
                             'width' => 1920,
@@ -156,7 +158,7 @@ return [
                         ],
                         [
                             'name' => 'Mobile Image',
-                            'page_content_type_id' => 4,
+                            'page_content_type_id' => PageContentType::IMAGE->value,
                             'width' => 800,
                             'height' => 1150,
                             'field' => 'mobile_image'

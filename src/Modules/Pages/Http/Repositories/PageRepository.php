@@ -9,6 +9,7 @@ use RefinedDigital\CMS\Modules\Pages\Models\Page;
 use RefinedDigital\CMS\Modules\Pages\Models\PageContentType;
 use RefinedDigital\CMS\Modules\Pages\Models\PageHolder;
 use RefinedDigital\CMS\Modules\Pages\Models\Template;
+use RefinedDigital\CMS\Modules\Core\Enums\PageContentType as PageContentTypeEnum;
 use Str;
 use Illuminate\Support\Arr;
 
@@ -741,7 +742,7 @@ class PageRepository extends CoreRepository
             if (!is_array($content) && Str::contains($content, $settingKey) && !in_array($content, $settingKeys)) {
                 $settingKeys[] = $content;
             }
-            if ($field['page_content_type_id'] == 9) {
+            if ($field['page_content_type_id'] == PageContentTypeEnum::REPEATABLE->value) {
                 $repeatableContent = [];
                 foreach ($content as $row) {
                     $newRow = new \stdClass();
@@ -765,7 +766,7 @@ class PageRepository extends CoreRepository
                             return $f['field'] == $key;
                         }));
 
-                        if (sizeof($vField) && isset($vField[0]['page_content_type_id']) && $vField[0]['page_content_type_id'] == 4) {
+                        if (sizeof($vField) && isset($vField[0]['page_content_type_id']) && $vField[0]['page_content_type_id'] == PageContentTypeEnum::IMAGE->value) {
                             $img = new \stdClass();
                             $img->id = $vContent;
                             $img->width = $vField[0]['width'] ?? null;
@@ -776,7 +777,7 @@ class PageRepository extends CoreRepository
                         if ($isApi) {
                             $newRow->{$key} = new \stdClass();
                             $newRow->{$key}->content = $vContent;
-                            $newRow->{$key}->type = $vField[0]['page_content_type_id'] ?? 3;
+                            $newRow->{$key}->type = $vField[0]['page_content_type_id'] ?? PageContentTypeEnum::PLAIN->value;
                         } else {
                             $newRow->{$key} = $vContent;
                         }
@@ -787,7 +788,7 @@ class PageRepository extends CoreRepository
 
                 $content = $repeatableContent;
             }
-            if ($field['page_content_type_id'] == 4) {
+            if ($field['page_content_type_id'] == PageContentTypeEnum::IMAGE->value) {
                 $imageId = $content;
                 $content = new \stdClass();
                 $content->id = $imageId;

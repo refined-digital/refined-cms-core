@@ -9,6 +9,7 @@ use RefinedDigital\CMS\Modules\Core\Traits\HasSettings;
 use RefinedDigital\CMS\Modules\Pages\Traits\ContentBySource;
 use RefinedDigital\CMS\Modules\Pages\Traits\IsPage;
 use RefinedDigital\CMS\Modules\Pages\Traits\SortablePageTrait;
+use RefinedDigital\CMS\Modules\Core\Enums\PageContentType;
 use Spatie\EloquentSortable\Sortable;
 
 class Page extends CoreModel implements Sortable
@@ -89,10 +90,10 @@ class Page extends CoreModel implements Sortable
                         }
 
                         if (!isset($item['content'])) {
-                            $item['content'] = $item['page_content_type_id'] == 9 ? [] : '';
+                            $item['content'] = $item['page_content_type_id'] == PageContentType::REPEATABLE->value ? [] : '';
                         }
 
-                        if ($item['page_content_type_id'] == 9 && is_array($item['content'])) {
+                        if ($item['page_content_type_id'] == PageContentType::REPEATABLE->value && is_array($item['content'])) {
                             $item['content'] = array_map(function($content) use ($item) {
                                 $newContent = [];
                                 // add any new fields that might be missing to the content object
@@ -110,7 +111,7 @@ class Page extends CoreModel implements Sortable
                                     }));
 
                                     $newContentField = [
-                                        'page_content_type_id' => 1,
+                                        'page_content_type_id' => PageContentType::RICH->value,
                                         'key' => uniqid(),
                                         'id' => uniqid(),
                                         'content' => $value,
@@ -118,8 +119,8 @@ class Page extends CoreModel implements Sortable
                                     ];
 
                                     if (sizeof($contentField)) {
-                                        $newContentField['page_content_type_id'] = $contentField[0]['page_content_type_id'] ?? 1;
-                                        if ($newContentField['page_content_type_id'] === 6 && isset($contentField[0]['options'])) {
+                                        $newContentField['page_content_type_id'] = $contentField[0]['page_content_type_id'] ?? PageContentType::RICH->value;
+                                        if ($newContentField['page_content_type_id'] === PageContentType::SELECT->value && isset($contentField[0]['options'])) {
                                             $newContentField['options'] = $contentField[0]['options'];
                                         }
                                     }
