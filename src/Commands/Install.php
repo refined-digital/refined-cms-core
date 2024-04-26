@@ -278,7 +278,7 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
             'DB_PASSWORD',
         ];
 
-        $file = preg_replace($search, $replace, $file);
+        $file = str_replace($search, $replace, $file);
 
         file_put_contents($envPath, $file);
 
