@@ -670,8 +670,7 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         file_put_contents($file, $contents);
     }
 
-
-    private function addErrorHandler()
+    protected function addErrorHandler()
     {
         $appFile = base_path('bootstrap/app.php');
 
@@ -682,7 +681,6 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         $replace = '->withExceptions(function (Exceptions $exceptions) {'."\n\t\t".'refinedErrorHandler()->register($exceptions)';
 
         $appData = str_replace($search, $replace, $appData);
-        $appData .= "\n];";
 
         file_put_contents($appFile, $appData);
     }
