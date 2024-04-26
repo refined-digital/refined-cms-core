@@ -264,6 +264,7 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
             '#DB_USERNAME',
             '#DB_PASSWORD',
         ];
+
         $replace = [
             'DB_HOST',
             'DB_PORT',
@@ -277,6 +278,7 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
             'DB_PASSWORD',
         ];
 
+        $file = preg_replace($search, $replace, $file);
 
         file_put_contents($envPath, $file);
 
@@ -666,5 +668,22 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         $contents = file_get_contents($file);
         $contents = str_replace("Route::get('/', function () {\n    return view('welcome');\n});", '', $contents);
         file_put_contents($file, $contents);
+    }
+
+
+    private function addErrorHandler()
+    {
+        $appFile = base_path('bootstrap/app.php');
+
+        // get the contents of the file
+        $appData = file_get_contents($appFile);
+
+        $search = '->withExceptions(function (Exceptions $exceptions) {';
+        $replace = '->withExceptions(function (Exceptions $exceptions) {'."\n\t\t".'refinedErrorHandler()->register($exceptions)';
+
+        $appData = str_replace($search, $replace, $appData);
+        $appData .= "\n];";
+
+        file_put_contents($appFile, $appData);
     }
 }

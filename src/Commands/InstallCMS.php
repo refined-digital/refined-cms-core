@@ -43,6 +43,7 @@ class InstallCMS extends Install
         $this->setupDb();
         $this->copyTemplates();
         $this->removeWelcomeRoute();
+        $this->addErrorHandler();
         $this->updatePackageJson();
         $this->updateGitIgnore();
         $this->addUser();
