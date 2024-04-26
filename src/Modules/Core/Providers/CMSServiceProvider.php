@@ -15,6 +15,7 @@ use RefinedDigital\CMS\Commands\InstallCMS;
 use RefinedDigital\CMS\Commands\InstallDatabase;
 use RefinedDigital\CMS\Commands\InstallSymLink;
 use RefinedDigital\CMS\Modules\Core\Exceptions\Handler;
+use RefinedDigital\CMS\Modules\Core\Exceptions\RegisterErrorViews;
 use RefinedDigital\CMS\Modules\Core\Http\Middleware\Admin;
 use RefinedDigital\CMS\Modules\Core\Http\Middleware\InjectTenantParameter;
 use RefinedDigital\CMS\Modules\Core\Http\Middleware\UserLevel;
@@ -25,9 +26,11 @@ use RefinedDigital\CMS\Modules\Core\Aggregates\PaymentGatewayAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\PublicRouteAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\RouteAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\ModuleAggregate;
-
 use RefinedDigital\CMS\Modules\Core\Routing\CustomUrlGenerator;
+
 use Validator;
+use Spatie\ResponseCache\Middlewares\CacheResponse;
+use Spatie\ResponseCache\Middlewares\DoNotCacheResponse;
 
 
 class CMSServiceProvider extends ServiceProvider
@@ -43,7 +46,7 @@ class CMSServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         view()->addNamespace('core', [
-            base_path().'/resources/views',
+            base_path('/resources/views'),
             __DIR__.'/../Resources/views',
         ]);
 
@@ -78,7 +81,6 @@ class CMSServiceProvider extends ServiceProvider
             }
             return true;
         });
-
 
         // load in the routes
         $this->loadRoutesFrom(__DIR__.'/../Http/Routes/api.php');
@@ -128,10 +130,13 @@ class CMSServiceProvider extends ServiceProvider
             }
         }
 
-
         // register the custom middleware
         $router->aliasMiddleware('userLevel', UserLevel::class);
         $router->aliasMiddleware('admin', Admin::class);
+
+        // load the responsecache middleware
+        $router->aliasMiddleware('cacheResponse', CacheResponse::class);
+        $router->aliasMiddleware('doNotCacheResponse', DoNotCacheResponse::class);
     }
 
     /**
@@ -147,7 +152,6 @@ class CMSServiceProvider extends ServiceProvider
             return $registrar;
         });
 
-
         // load in the helpers
         $this->app->singleton(RouteAggregate::class);
         $this->app->singleton(CustomModuleRouteAggregate::class);
@@ -155,10 +159,6 @@ class CMSServiceProvider extends ServiceProvider
         $this->app->singleton(ModuleAggregate::class);
         $this->app->singleton(PackageAggregate::class);
         $this->app->singleton(PaymentGatewayAggregate::class);
-
-        // override the error handler
-        $this->app->singleton(ExceptionHandler::class, Handler::class);
-
 
         // load in the modules
         $this->mergeConfigFrom(__DIR__.'/../../../../config/modules.php', 'modules');
@@ -181,7 +181,7 @@ class CMSServiceProvider extends ServiceProvider
 
         $this->mergeConfigFrom(__DIR__.'/../Config/rich-editor.php', 'rich-editor');
         $this->mergeConfigFrom(__DIR__.'/../Config/searchable-models.php', 'searchable-models');
-
+        
         // add the custom url generator if multi tenancy
         if (help()->isMultiTenancy()) {
             $this->app->extend('url', function ($service, $app) {

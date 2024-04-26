@@ -115,11 +115,13 @@ class Install extends Command
             '(APP_NAME=(.*?)\n)',
             '(APP_URL=(.*?)\n)',
             '(LOG_CHANNEL=(.*?)\n)',
+            '(SESSION_DRIVER=(.*?)\n)',
         ];
         $replace = [
             "APP_NAME=\"".$siteName."\"\n",
             "APP_URL=".$siteUrl."\n",
-            "LOG_CHANNEL=stack\n",
+            "LOG_CHANNEL=daily\n",
+            "SESSION_DRIVER=file\n",
         ];
 
         $emailDomain = null;
@@ -175,7 +177,6 @@ class Install extends Command
         $file = file_get_contents(app()->environmentFilePath());
         $file = preg_replace($search, $replace, $file);
 
-
         // add in the cache settings
         $file .= "
 RESPONSE_CACHE_ENABLED=false
@@ -184,10 +185,6 @@ RESPONSE_CACHE_DRIVER=file
 RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         file_put_contents(app()->environmentFilePath(), $file);
 
-        // add in the scout config
-        $file .= "
-SCOUT_DRIVER=database
-        ";
 
         $this->output->writeln('<info>Finished writing config</info>');
     }
@@ -235,19 +232,53 @@ SCOUT_DRIVER=database
             $this->output->writeln('<info>Writing db config</info>');
         }
 
+        $envPath = app()->environmentFilePath();
+
         // now do the search and replace on file strings
-        $file = file_get_contents(app()->environmentFilePath());
+        $file = file_get_contents($envPath);
         $search = [
             '(DB_DATABASE=(.*?)\n)',
             '(DB_USERNAME=(.*?)\n)',
             '(DB_PASSWORD=(.*?)\n)',
+            '(DB_CONNECTION=(.*?)\n)',
         ];
         $replace = [
             "DB_DATABASE=".$dbName."\n",
             "DB_USERNAME=".$dbUser."\n",
             "DB_PASSWORD=\"".$dbPassword."\"\n",
+            "DB_CONNECTION=mysql\n",
         ];
-        file_put_contents(app()->environmentFilePath(), preg_replace($search, $replace, $file));
+
+        $file = preg_replace($search, $replace, $file);
+
+        // remove the commented out db files
+        $search = [
+            '# DB_HOST',
+            '# DB_PORT',
+            '# DB_DATABASE',
+            '# DB_USERNAME',
+            '# DB_PASSWORD',
+            '#DB_HOST',
+            '#DB_PORT',
+            '#DB_DATABASE',
+            '#DB_USERNAME',
+            '#DB_PASSWORD',
+        ];
+        $replace = [
+            'DB_HOST',
+            'DB_PORT',
+            'DB_DATABASE',
+            'DB_USERNAME',
+            'DB_PASSWORD',
+            'DB_HOST',
+            'DB_PORT',
+            'DB_DATABASE',
+            'DB_USERNAME',
+            'DB_PASSWORD',
+        ];
+
+
+        file_put_contents($envPath, $file);
 
         $this->dbName = $dbName;
         $this->dbUser = $dbUser;
@@ -499,30 +530,6 @@ SCOUT_DRIVER=database
         file_put_contents(base_path('.prettierrc'), file_get_contents($base.'/.prettierrc'));
     }
 
-    protected function enableCacheResponseMiddleware()
-    {
-        $dir = app_path('Http/Kernel.php');
-        $file = file_get_contents($dir);
-        $search = ['protected $middlewareAliases = ['];
-
-        $options = [
-            '\'doNotCacheResponse\' => \Spatie\ResponseCache\Middlewares\DoNotCacheResponse::class,',
-            '\'cacheResponse\' => \Spatie\ResponseCache\Middlewares\CacheResponse::class,'
-        ];
-
-        $replaceString = 'protected $middlewareAliases = [';
-        foreach ($options as $option) {
-            $replaceString.= "\n\t\t". $option;
-        }
-        $replaceString .= '';
-
-        $replace = [$replaceString];
-
-        $file = str_replace($search, $replace, $file);
-
-        file_put_contents($dir, $file);
-    }
-
     private function copy($files, $dir, $public)
     {
         if (!is_dir(resource_path($public))) {
@@ -587,12 +594,12 @@ SCOUT_DRIVER=database
         ];
 
         $toAdd = [
-            'laravel-vite-plugin' => '^1.0.1',
-            'postcss-discard-comments' => '^6.0.1',
+            'laravel-vite-plugin' => '^1.0.2',
+            'postcss-discard-comments' => '^7.0.0',
             'postcss-nested' => '^6.0.1',
-            'postcss-preset-env' => '^9.3.0',
-            'prettier' => '^3.1.1',
-            'vite' => '^5.0.11',
+            'postcss-preset-env' => '^9.5.9',
+            'prettier' => '^3.2.5',
+            'vite' => '^5.2.11',
         ];
 
         foreach ($toDelete as $package) {
@@ -608,8 +615,8 @@ SCOUT_DRIVER=database
         }
 
         $toAdd = [
-            '@fancyapps/ui' => '^5.0.33',
-            'swiper' =>  '^11.0.5'
+            '@fancyapps/ui' => '^5.0.36',
+            'swiper' =>  '^11.1.1'
         ];
 
         if (!isset($contents->dependencies)) {
@@ -651,5 +658,13 @@ SCOUT_DRIVER=database
                 unlink($filePath);
             }
         }
+    }
+
+    protected function removeWelcomeRoute()
+    {
+        $file = base_path('routes/web.php');
+        $contents = file_get_contents($file);
+        $contents = str_replace("Route::get('/', function () {\n    return view('welcome');\n});", '', $contents);
+        file_put_contents($file, $contents);
     }
 }

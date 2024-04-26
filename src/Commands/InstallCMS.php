@@ -38,11 +38,11 @@ class InstallCMS extends Install
     {
         $this->askQuestions();
         $this->regenerateKey();
-        $this->enableCacheResponseMiddleware();
         $this->createSymLink();
         $this->linkStorage();
         $this->setupDb();
         $this->copyTemplates();
+        $this->removeWelcomeRoute();
         $this->updatePackageJson();
         $this->updateGitIgnore();
         $this->addUser();

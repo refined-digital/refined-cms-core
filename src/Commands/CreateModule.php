@@ -204,30 +204,17 @@ class CreateModule extends Install
     {
         $this->info('Installing Module');
 
-        $appFile = config_path('app.php');
+        $appFile = base_path('bootstrap/providers.php');
 
         // get the contents of the file
-        $appData = File::get($appFile);
+        $appData = file_get_contents($appFile);
 
-        // find the last occurrence of App\Amped
-        preg_match_all("/\\/\*[\s\S]*?\*\//", $appData, $matches);
-        if (sizeof($matches)) {
-            $position = null;
-            foreach ($matches[0] as $key => $value) {
-                if (is_numeric(strpos($value, '* Package Service Providers...'))) {
-                    $position = $key;
-                }
-            }
+        $search = "\n];";
+        $replace = "\n\t".'App\RefinedCMS\\'.$this->fullName.'\Providers\\'.Str::studly($this->name).'ServiceProvider::class,';
 
-            if ($position) {
-                $search = $matches[0][$position];
-                $replace = $search.PHP_EOL."\t\t".'App\RefinedCMS\\'.$this->fullName.'\Providers\\'.Str::studly($this->name).'ServiceProvider::class,';
+        $appData = str_replace($search, $replace, $appData);
+        $appData .= "\n];";
 
-                // add the service provider
-                $appData = str_replace($search, $replace, $appData);
-                File::put($appFile, $appData);
-            }
-        }
-
+        file_put_contents($appFile, $appData);
     }
 }
