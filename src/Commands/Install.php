@@ -678,7 +678,7 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         $appData = file_get_contents($appFile);
 
         $search = '->withExceptions(function (Exceptions $exceptions) {';
-        $replace = '->withExceptions(function (Exceptions $exceptions) {'."\n\t\t".'refinedErrorHandler()->register($exceptions)';
+        $replace = '->withExceptions(function (Exceptions $exceptions) {'."\n\t".'refinedErrorHandler()->register($exceptions);';
 
         $appData = str_replace($search, $replace, $appData);
 
