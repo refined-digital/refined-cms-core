@@ -255,7 +255,7 @@ class CoreController extends Controller
             }
         }
 
-        if ($this->canCreate) {
+        if (!$this->canCreate) {
             $config['buttons'] = array_filter($config['buttons'], function($button) {
                 return $button->name != 'Save & New';
             });
