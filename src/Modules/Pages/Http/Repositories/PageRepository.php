@@ -57,7 +57,7 @@ class PageRepository extends CoreRepository
     public function getTree()
     {
         $data = collect([]);
-        $holders = PageHolder::orderBy('position','asc')->get();
+        $holders = PageHolder::active(1)->orderBy('position','asc')->get();
 
         if ($holders && $holders->count()) {
             foreach ($holders as $pos => $holder) {
