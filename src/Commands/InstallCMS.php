@@ -40,6 +40,7 @@ class InstallCMS extends Install
         $this->regenerateKey();
         $this->createSymLink();
         $this->linkStorage();
+        $this->cleanUpMigrations();
         $this->setupDb();
         $this->copyTemplates();
         $this->removeWelcomeRoute();
@@ -49,7 +50,7 @@ class InstallCMS extends Install
         $this->addUser();
         $this->askCpanel();
         $this->publishConfigs();
-        $this->cleanUpMigrations();
+        $this->askNpm();
         $this->setupComplete();
     }
 }

@@ -116,12 +116,14 @@ class Install extends Command
             '(APP_URL=(.*?)\n)',
             '(LOG_CHANNEL=(.*?)\n)',
             '(SESSION_DRIVER=(.*?)\n)',
+            '(QUEUE_CONNECTION=(.*?)\n)',
         ];
         $replace = [
             "APP_NAME=\"".$siteName."\"\n",
             "APP_URL=".$siteUrl."\n",
             "LOG_CHANNEL=daily\n",
             "SESSION_DRIVER=file\n",
+            "QUEUE_CONNECTION=sync\n",
         ];
 
         $emailDomain = null;
@@ -530,6 +532,12 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
             unlink(base_path('.prettierrc'));
         }
         file_put_contents(base_path('.prettierrc'), file_get_contents($base.'/.prettierrc'));
+
+        // copy husky
+        if (is_dir(base_path('.husky'))) {
+            exec('rm -R '.base_path('.husky'));
+        }
+        exec('cp -R '.$base.'/.husky '.base_path('.husky'));
     }
 
     private function copy($files, $dir, $public)
@@ -577,6 +585,20 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         }
     }
 
+    public function askNpm()
+    {
+        $this->runCommands(['node -v > .nvmrc']);
+
+        $helper = $this->getHelper('question');
+
+        $question = new ConfirmationQuestion('Do you want to install npm?: ', false);
+        $answer = $helper->ask($this->input, $this->output, $question);
+
+        if ($answer) {
+            $this->runCommands(['npm install', 'npm run build']);
+        }
+    }
+
     public function publishConfigs()
     {
         Artisan::call('vendor:publish', [
@@ -601,7 +623,8 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
             'postcss-nested' => '^6.0.1',
             'postcss-preset-env' => '^9.5.9',
             'prettier' => '^3.2.5',
-            'vite' => '^5.2.1'
+            'vite' => '^5.2.1',
+            'husky' => '^9.0.11',
         ];
 
         foreach ($toDelete as $package) {
@@ -631,6 +654,9 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
             }
         }
 
+        // add husky related commands
+        $contents->scripts->prepare = 'husky';
+
         $search = [
             '\/'
         ];
@@ -647,10 +673,9 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
     protected function cleanUpMigrations()
     {
         $filesToDelete = [
-            '2014_10_12_000000_create_users_table',
-            '2014_10_12_100000_create_password_resets_table',
-            '2019_08_19_000000_create_failed_jobs_table',
-            '2019_12_14_000001_create_personal_access_tokens_table'
+            '0001_01_01_000000_create_users_table',
+            '0001_01_01_000001_create_cache_table',
+            '0001_01_01_000002_create_jobs_table',0
         ];
 
         $path = database_path('migrations');
@@ -684,4 +709,28 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
 
         file_put_contents($appFile, $appData);
     }
+
+    /**
+     * Run the given commands.
+     *
+     * @param  array  $commands
+     * @return void
+     */
+    protected function runCommands($commands)
+    {
+        $process = Process::fromShellCommandline(implode(' && ', $commands), null, null, null, null);
+
+        if ('\\' !== DIRECTORY_SEPARATOR && file_exists('/dev/tty') && is_readable('/dev/tty')) {
+            try {
+                $process->setTty(true);
+            } catch (RuntimeException $e) {
+                $this->output->writeln('  <bg=yellow;fg=black> WARN </> '.$e->getMessage().PHP_EOL);
+            }
+        }
+
+        $process->run(function ($type, $line) {
+            $this->output->write('    '.$line);
+        });
+    }
+
 }
