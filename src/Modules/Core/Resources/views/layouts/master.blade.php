@@ -19,8 +19,8 @@
                         @foreach($menu as $item)
                         <li class="app__nav-item{{ in_array($activeModule, $item->activeFor) ? ' app__nav-item--active' : '' }}">
                             <a href="{{ is_array($item->route) ? route('refined.'.$item->route[0], $item->route[1]) : route('refined.'.$item->route.'.index') }}">
-                                <i class="{{ $item->icon }}"></i>
-                                <span>{{ $item->name }}</span>
+                                <span class="app__nav-item--icon">{!! $item->icon !!}</span>
+                                <span class="app__nav-item--title">{{ $item->name }}</span>
                             </a>
                             @if (is_array($item->children) && sizeof($item->children) && in_array($activeModule, $item->activeFor))
                             <ul>
