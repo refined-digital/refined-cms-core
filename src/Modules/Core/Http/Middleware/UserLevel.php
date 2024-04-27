@@ -46,8 +46,6 @@ class UserLevel
             }
         }
 
-        //help()->trace(view()->getHints(),1);
-
         if (!$passes) {
             abort(403, 'Unauthorized action.');
         }

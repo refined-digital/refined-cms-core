@@ -1,8 +1,8 @@
 <div class="form">
-  {!! html()->form('POST', route('password.request'))->open() !!}
-    {!! html()->hidden('token', $token) !!}
+  {!! html()->form('POST', route('password.store'))->open() !!}
+    {!! html()->hidden('token', $request->route('token')) !!}
     <div class="form__row form__row--floating-labels{{ $errors->has('email') ? ' form__row--has-error' : '' }}">
-      {!! html()->email('email')->class('form__control')->id('form--email')->attribute('required', 'required') !!}
+      {!! html()->email('email')->class('form__control')->id('form--email')->attribute('required', 'required')->value(old('email', $request->email)) !!}
       {!! html()->label('Email')->class('form__label')->for('form--email') !!}
     </div>
 

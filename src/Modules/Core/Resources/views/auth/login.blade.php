@@ -1,6 +1,6 @@
 @extends('core::layouts.auth')
 
-@section('title', 'Reset Password')
+@section('title', 'Login')
 
 @section('template')
 <div class="auth auth__login">
@@ -9,8 +9,7 @@
       @include('core::auth.logo')
       @include('core::includes.errors')
 
-      <h3 class="login__header">Reset your password</h3>
-      @include('users::auth.includes.reset')
+      @include('core::auth.includes.login-form')
     </div><!-- / login -->
   </div><!-- / auth right -->
 </div><!-- / auth -->

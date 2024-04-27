@@ -86,6 +86,7 @@ class CMSServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/../Http/Routes/api.php');
         $this->loadRoutesFrom(__DIR__.'/../Http/Routes/web.php');
         $this->loadRoutesFrom(__DIR__.'/../Http/Routes/channels.php');
+        $this->loadRoutesFrom(__DIR__.'/../Http/Routes/auth.php');
 
         // load in the option for assets
         $this->publishes([
@@ -181,7 +182,7 @@ class CMSServiceProvider extends ServiceProvider
 
         $this->mergeConfigFrom(__DIR__.'/../Config/rich-editor.php', 'rich-editor');
         $this->mergeConfigFrom(__DIR__.'/../Config/searchable-models.php', 'searchable-models');
-        
+
         // add the custom url generator if multi tenancy
         if (help()->isMultiTenancy()) {
             $this->app->extend('url', function ($service, $app) {

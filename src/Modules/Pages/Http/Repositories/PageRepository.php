@@ -223,7 +223,6 @@ class PageRepository extends CoreRepository
 
     public function findByUri($uri)
     {
-        abort(500);
         // check if we have a placeholder enabled
         // todo: integrate this into the placeholder module
         $settings = settings()->get('pages');
@@ -551,7 +550,6 @@ class PageRepository extends CoreRepository
 
     public function setAsPage($type)
     {
-
         $settings = settings()->get('site-settings');
         $baseHref = pages()->getBaseHref();
 

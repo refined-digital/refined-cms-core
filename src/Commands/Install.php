@@ -596,12 +596,12 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         ];
 
         $toAdd = [
-            'laravel-vite-plugin' => '^1.0.2',
+            'laravel-vite-plugin' => '1.0.2',
             'postcss-discard-comments' => '^7.0.0',
             'postcss-nested' => '^6.0.1',
             'postcss-preset-env' => '^9.5.9',
             'prettier' => '^3.2.5',
-            'vite' => '^5.2.11',
+            'vite' => '^5.2.1'
         ];
 
         foreach ($toDelete as $package) {
@@ -618,7 +618,7 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
 
         $toAdd = [
             '@fancyapps/ui' => '^5.0.36',
-            'swiper' =>  '^11.1.1'
+            'swiper' => '^11.1.1'
         ];
 
         if (!isset($contents->dependencies)) {
