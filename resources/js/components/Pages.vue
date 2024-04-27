@@ -405,6 +405,9 @@
       },
 
       showDefaultTab(tab) {
+        if (tab.name === 'Content' && this.config.content && this.config.content.length < 1) {
+          return false;
+        }
         return true;
 
         /*
