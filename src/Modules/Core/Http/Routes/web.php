@@ -76,6 +76,16 @@ Route::middleware($baseMiddleware)
         }
     })
 ;
+// include the front end public routes
+Route::middleware($baseMiddleware)
+    ->group(function(){
+        $publicRouteAggregate = app(FrontEndPublicRouteAggregate::class);
+        foreach ($publicRouteAggregate->getRouteFiles() as $routeFile)
+        {
+            include($routeFile);
+        }
+    })
+;
 
 Route::middleware($baseMiddleware)
     ->group(function() {

@@ -157,6 +157,7 @@ class CMSServiceProvider extends ServiceProvider
         $this->app->singleton(RouteAggregate::class);
         $this->app->singleton(CustomModuleRouteAggregate::class);
         $this->app->singleton(PublicRouteAggregate::class);
+        $this->app->singleton(FrontEndPublicRouteAggregate::class);
         $this->app->singleton(ModuleAggregate::class);
         $this->app->singleton(PackageAggregate::class);
         $this->app->singleton(PaymentGatewayAggregate::class);
