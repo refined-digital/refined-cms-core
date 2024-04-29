@@ -24,6 +24,7 @@ use RefinedDigital\CMS\Modules\Core\Aggregates\CustomModuleRouteAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\PackageAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\PaymentGatewayAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\PublicRouteAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\FrontEndPublicRouteAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\RouteAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\ModuleAggregate;
 use RefinedDigital\CMS\Modules\Core\Routing\CustomUrlGenerator;
