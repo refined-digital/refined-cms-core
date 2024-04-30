@@ -51,7 +51,15 @@ trait IsArticle
         $paging->next = clone $link;
         $paging->previous = clone $link;
 
-        $data = static::whereActive(1)->orderBy($order, $orderDirection)->get();
+
+        $data = static::whereActive(1)->orderBy($order, $orderDirection);
+
+        if (method_exists($this, 'articleFilter')) {
+            $data = $this->articleFilter($data);
+        }
+
+        $data = $data->get();
+        
         if ($data && $data->count()) {
             // get the base
             $uri = request()->path();
