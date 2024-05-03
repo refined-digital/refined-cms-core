@@ -99,15 +99,11 @@ www
 
     // bootstrap
     $contents = file_get_contents(base_path('bootstrap/app.php'));
-    $search = '$app = new Illuminate\Foundation\Application(
-    $_ENV[\'APP_BASE_PATH\'] ?? dirname(__DIR__)
-);';
-    $replace = '$app = new Illuminate\Foundation\Application(
-    $_ENV[\'APP_BASE_PATH\'] ?? dirname(__DIR__)
-);
-
-// set the public path to this directory
-$app->usePublicPath($app->basePath(\'public_html\'));';
+    $search = 'Application::configure(basePath: dirname(__DIR__))';
+    $replace = 'Application::configure(basePath: dirname(__DIR__))
+    ->registered(function ($app) {
+        $app->usePublicPath($app->basePath(\'public_html\'));
+    })';
     $contents = str_replace($search, $replace, $contents);
     file_put_contents(base_path('bootstrap/app.php'), $contents);
   }
