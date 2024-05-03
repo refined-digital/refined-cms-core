@@ -37,6 +37,11 @@ class RefinedImage {
         if (help()->isMultiTenancy()) {
             $this->directory = storage_path('uploads/');
         }
+
+        $newFormat = config('pages.image.newFormat');
+        if (!$newFormat) {
+            $this->onlyUseOldFormat();
+        }
     }
 
     public function load($file)

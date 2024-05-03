@@ -59,7 +59,7 @@ trait IsArticle
         }
 
         $data = $data->get();
-        
+
         if ($data && $data->count()) {
             // get the base
             $uri = request()->path();

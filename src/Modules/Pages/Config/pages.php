@@ -65,12 +65,13 @@ return [
         ]
     ],
 
-    /*
-    // global image quality override, default by image() is 90
+
     'image' => [
-        'quality' => 90
+        // global image quality override, default by image() is 90
+        // 'quality' => 90,
+        'newFormat' => true,
     ],
-    */
+
 
     'content' => [
         [
