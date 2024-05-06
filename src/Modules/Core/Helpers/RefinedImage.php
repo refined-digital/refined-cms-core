@@ -286,6 +286,11 @@ class RefinedImage {
             return 'Failed to create image';
         }
 
+        $filePath = $this->directory.$this->file->file;
+        if (strpos($this->file->file, '.svg') && file_exists($filePath)) {
+            return file_get_contents($filePath);
+        }
+
         try {
             $html = '<picture>';
             if (!sizeof($this->dimensions)) {
