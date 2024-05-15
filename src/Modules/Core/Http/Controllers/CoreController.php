@@ -83,6 +83,17 @@ class CoreController extends Controller
     public function indexSetup($data) {
         $this->setup();
 
+        if (isset($this->table->canDuplicate) && $this->table->canDuplicate) {
+            $route = (object) [ 'route' => 'refined.'.$this->route.'.duplicate', 'name' => 'Duplicate', 'icon' => 'far fa-clone'];
+            if (isset($this->table->extraActions) && is_array($this->table->extraActions)) {
+                $this->table->extraActions[] = $route;
+            } else {
+                $this->table->extraActions = [
+                    $route
+                ];
+            }
+        }
+
         $config = $this->getConfig();
 
         // get the data listing
@@ -338,5 +349,25 @@ class CoreController extends Controller
     public function setButtons($buttons)
     {
         $this->buttons = $buttons;
+    }
+
+    public function duplicate($originalId)
+    {
+        $original = $this->model::find($originalId);
+
+        if (!isset($original->id)) {
+            return redirect()->back()->with('status', 'Failed to find the original')->with('fail', true);
+        }
+
+        $new = $original->replicate();
+        $new->active = false;
+
+        if ($new->name) {
+            $new->name .= ' - DUPLICATE';
+        }
+
+        $this->coreRepository->store($new->toArray());
+
+        return redirect()->back()->with('status', 'Successfully duplicated');
     }
 }

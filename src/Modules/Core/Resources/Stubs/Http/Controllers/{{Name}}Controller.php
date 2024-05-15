@@ -27,11 +27,15 @@ class {{Name}}Controller extends CoreController
             (object) [ 'name' => 'Name', 'field' => 'name', 'sortable' => true],
             (object) [ 'name' => 'Active', 'field' => 'active', 'type'=> 'select', 'options' => [1 => 'Yes', 0 => 'No'], 'sortable' => true, 'classes' => ['data-table__cell--active']],
         ];
+
         $table->routes = (object) [
             'edit'      => 'refined.{{name}}.edit',
             'destroy'   => 'refined.{{name}}.destroy'
         ];
+
         $table->sortable = true;
+
+        $table->canDuplicate = true;
 
         $this->table = $table;
     }

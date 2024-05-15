@@ -11,7 +11,8 @@ class ResourceRegistrar extends OriginalRegistrar {
      *
      * @var array
      */
-    protected $resourceDefaults = ['index', 'create', 'store', 'edit', 'update', 'destroy', 'position'];
+    protected $resourceDefaults = ['index', 'create', 'store', 'edit', 'update', 'destroy', 'position', 'duplicate'];
+
 
     /**
      * Add the position method for a resourceful route.
@@ -29,5 +30,14 @@ class ResourceRegistrar extends OriginalRegistrar {
         $action = $this->getResourceAction($name, $controller, 'position', $options);
 
         return $this->router->post($uri, $action);
+    }
+
+    protected function addResourceDuplicate($name, $base, $controller, $options)
+    {
+        $uri = $this->getResourceUri($name).'/{'.$base.'}/duplicate';
+
+        $action = $this->getResourceAction($name, $controller, 'duplicate', $options);
+
+        return $this->router->get($uri, $action);
     }
 }
