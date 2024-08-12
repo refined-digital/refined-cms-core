@@ -508,7 +508,6 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
             'views',
             'css',
             'js',
-            '.husky',
             'svg'
         ];
 
