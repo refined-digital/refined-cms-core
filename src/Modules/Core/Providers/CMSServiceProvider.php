@@ -139,6 +139,14 @@ class CMSServiceProvider extends ServiceProvider
         // load the responsecache middleware
         $router->aliasMiddleware('cacheResponse', CacheResponse::class);
         $router->aliasMiddleware('doNotCacheResponse', DoNotCacheResponse::class);
+
+        // add the custom blade directives
+        \Blade::directive('svg', function($expression) {
+            $search = ["'", '.svg'];
+            $replace = ['', ''];
+            $path = str_replace($search, $replace, $expression);
+            return file_get_contents(resource_path('svg/'.$path.'.svg'));
+        });
     }
 
     /**
