@@ -133,7 +133,7 @@
           form: {
             name: null,
             required: 0,
-            field_type: 1,
+            field_type: 3,
             note: null,
             options: []
           }

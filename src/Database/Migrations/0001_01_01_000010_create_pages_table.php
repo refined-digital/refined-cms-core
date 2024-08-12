@@ -30,6 +30,7 @@ class CreatePagesTable extends Migration
             $table->integer('banner')->nullable();
             $table->json('data')->nullable();
             $table->json('content')->nullable();
+            $table->json('settings')->nullable();
 
             $table->foreign('page_holder_id')->references('id')->on('page_holders')->onDelete('cascade');
         });

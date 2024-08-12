@@ -168,5 +168,8 @@ return [
                 ]
             ]
         ],
-    ]
+    ],
+
+    // used to add settings to each page
+    'page_settings' => [],
 ];

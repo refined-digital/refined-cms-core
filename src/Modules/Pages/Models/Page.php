@@ -28,7 +28,7 @@ class Page extends CoreModel implements Sortable
      */
     protected $fillable = [
         'page_holder_id', 'parent_id', 'active', 'hide_from_menu', 'protected',
-        'page_type', 'form_id', 'position', 'name', 'banner', 'data', 'content'
+        'page_type', 'form_id', 'position', 'name', 'banner', 'data', 'content', 'settings',
     ];
 
     protected $appends = [ 'banner_image', 'the_content' ];
@@ -46,6 +46,7 @@ class Page extends CoreModel implements Sortable
         'banner' => 'integer',
         'data' => 'object',
         'content' => 'object',
+        'settings' => 'object',
     ];
 
     public function getTheContentAttribute() {

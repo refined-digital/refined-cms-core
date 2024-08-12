@@ -25,7 +25,7 @@ class PageRepository extends CoreRepository
     // if the leaf has move holder, update the child's holder too
     public function moveChildren($id, $parent)
     {
-        $new = (int) $parent['newParent'];
+        $new = (int)$parent['newParent'];
 
         if ($parent['updated'] && $new < 0) {
             $children = Page::whereParentId($id)->get();
@@ -57,17 +57,17 @@ class PageRepository extends CoreRepository
     public function getTree()
     {
         $data = collect([]);
-        $holders = PageHolder::active(1)->orderBy('position','asc')->get();
+        $holders = PageHolder::active(1)->orderBy('position', 'asc')->get();
 
         if ($holders && $holders->count()) {
             foreach ($holders as $pos => $holder) {
 
-                $holder->type       = 'holder';
-                $holder->children   = [];
-                $holder->show       = $pos == 0; // if we are to show the sub pages
-                $holder->on         = $pos == 0; // if we are on the active item
-                $holder->active     = (int) $holder->active;
-                $holder->position   = (int) $holder->position;
+                $holder->type = 'holder';
+                $holder->children = [];
+                $holder->show = $pos == 0; // if we are to show the sub pages
+                $holder->on = $pos == 0; // if we are on the active item
+                $holder->active = (int)$holder->active;
+                $holder->position = (int)$holder->position;
 
                 // check for children
                 $children = $this->getBranch($holder->id, 0);
@@ -88,7 +88,7 @@ class PageRepository extends CoreRepository
         $data = collect([]);
 
         $with = $this->with;
-        $with['meta'] = function($q) {
+        $with['meta'] = function ($q) {
             $q->select('template_id', 'title', 'description', 'uri');
         };
 
@@ -96,8 +96,7 @@ class PageRepository extends CoreRepository
             ->wherePageHolderId($holderId)
             ->whereParentId($parentId)
             ->orderBy('position', 'asc')
-            ->get()
-        ;
+            ->get();
 
         if ($pages && $pages->count()) {
             foreach ($pages as $pos => $page) {
@@ -112,19 +111,20 @@ class PageRepository extends CoreRepository
 
     public function formatBranch($page, $holderId, $depth = 1)
     {
-        $page->type             = 'page';
-        $page->children         = [];
-        $page->show             = false; // if we are to show the sub pages
-        $page->on               = false; // if we are on the active item
-        $page->hide_from_menu   = (int) $page->hide_from_menu;
-        $page->active           = (int) $page->active;
-        $page->parent_holder_id = (int) $page->parent_holder_id;
-        $page->page_type        = (int) $page->page_type;
-        $page->parent_id        = (int) $page->parent_id;
-        $page->position         = (int) $page->position;
-        $page->protected        = (int) $page->protected;
-        $page->depth            = (int) $depth;
-        $page->content          = $page->the_content ?? [];
+        $page->type = 'page';
+        $page->children = [];
+        $page->show = false; // if we are to show the sub pages
+        $page->on = false; // if we are on the active item
+        $page->hide_from_menu = (int)$page->hide_from_menu;
+        $page->active = (int)$page->active;
+        $page->parent_holder_id = (int)$page->parent_holder_id;
+        $page->page_type = (int)$page->page_type;
+        $page->parent_id = (int)$page->parent_id;
+        $page->position = (int)$page->position;
+        $page->protected = (int)$page->protected;
+        $page->depth = (int)$depth;
+        $page->content = $page->the_content ?? [];
+        $page->settings = $this->formatPageSettings($page->settings);
 
         // if we have a parent id of 0 we need to update the holder id to be negative
         if ($page->parent_id === 0) {
@@ -134,7 +134,7 @@ class PageRepository extends CoreRepository
 
         // format the meta to streamline for only what we need
         $meta = new \stdClass();
-        $meta->template_id = (int) $page->meta->template_id;
+        $meta->template_id = (int)$page->meta->template_id;
         $meta->uri = $page->meta->uri;
         $meta->title = $page->meta->title;
         $meta->description = $page->meta->description;
@@ -154,16 +154,16 @@ class PageRepository extends CoreRepository
     public function getPageTemplates()
     {
         return Template::whereActive(1)
-                        ->orderBy('position')
-                        ->get();
+            ->orderBy('position')
+            ->get();
     }
 
 
     public function getContentTypes()
     {
         $data = PageContentType::whereActive(1)
-                            ->orderBy('position')
-                            ->get();
+            ->orderBy('position')
+            ->get();
 
         if ($data && $data->count()) {
             $items = [];
@@ -266,7 +266,7 @@ class PageRepository extends CoreRepository
             $tag = new \stdClass();
             $tag->name = $tagReference->name;
             $tag->type = $uriBits[$size - 1];
-            $tag->uri = $tag->type.'/'.$tagReference->uri;
+            $tag->uri = $tag->type . '/' . $tagReference->uri;
             $pageReference = $uriBits[$size - 2];
             $uriReference = Uri::whereUri($pageReference)->first();
 
@@ -286,7 +286,7 @@ class PageRepository extends CoreRepository
         $page = $class::with(['meta', 'meta.template'])->find($pageId);
         $base = class_basename($page);
         $page->type = $base;
-        $page->url = $baseHref.$uri;
+        $page->url = $baseHref . $uri;
 
 
         // if the page is a redirect page, set the session and redirect to the home page
@@ -302,7 +302,7 @@ class PageRepository extends CoreRepository
 
         // if the site is a single pager, only render the home page if its on the sitemap holder
         $isSinglePage = (isset($settings->is_single_page) && $settings->is_single_page->value) || env('IS_SINGLE_PAGE');
-        if ($isSinglePage && (int) $page->page_holder_id === 1) {
+        if ($isSinglePage && (int)$page->page_holder_id === 1) {
             // force the home page
             $uriReference = $this->setUriReference('/');
             $pageId = $uriReference->uriable_id;
@@ -315,8 +315,8 @@ class PageRepository extends CoreRepository
 
         if (isset($tag)) {
             $page->tag = $tag;
-            $page->tag->base = $baseHref.$uriReference->uri;
-            $page->base = $baseHref.$uriReference->uri;
+            $page->tag->base = $baseHref . $uriReference->uri;
+            $page->base = $baseHref . $uriReference->uri;
         }
 
         if ($base == 'Page') {
@@ -336,7 +336,7 @@ class PageRepository extends CoreRepository
             }
 
             // add it into page
-            $page->base = $baseHref.implode('/', $url);
+            $page->base = $baseHref . implode('/', $url);
         }
 
         // abort if the page happens to be a holder
@@ -355,7 +355,7 @@ class PageRepository extends CoreRepository
             abort(404);
         } else {
             // record exists, but does the view exist
-            $template = 'templates::'.$page->meta->template->source;
+            $template = 'templates::' . $page->meta->template->source;
             if (!view()->exists($template)) {
                 abort(404);
             }
@@ -389,19 +389,19 @@ class PageRepository extends CoreRepository
 
         // add in some classes
         $classes = [];
-        $classes[] = 'page__id--'.$page->id;
-        $classes[] = 'page__template--'.Str::slug($page->meta->template->name);
+        $classes[] = 'page__id--' . $page->id;
+        $classes[] = 'page__template--' . Str::slug($page->meta->template->name);
 
         // set some extra fun stuff to the page
         $head = pages()->getPageHeaders();
 
         if (isset($_GET) && sizeof($_GET)) {
-            $head[] = '<link rel="canonical" href="'.request()->url().'" />';
-        } elseif(request()->url() != $baseHref.$page->meta->uri) {
+            $head[] = '<link rel="canonical" href="' . request()->url() . '" />';
+        } elseif (request()->url() != $baseHref . $page->meta->uri) {
             // todo: fix this
             // $head[] = '<link rel="canonical" href="'.rtrim($baseHref.$page->meta->uri, '/').'/"/>';
-        } elseif(isset($page->is_single_page)) {
-            $head[] = '<link rel="canonical" href="'.rtrim($baseHref, '/').'/"/>';
+        } elseif (isset($page->is_single_page)) {
+            $head[] = '<link rel="canonical" href="' . rtrim($baseHref, '/') . '/"/>';
         }
 
         $page->title = (isset($page->meta->title) && $page->meta->title) ? $page->meta->title : $page->name;
@@ -411,11 +411,11 @@ class PageRepository extends CoreRepository
         // implode the classes into a string
         $page->classes = implode(' ', $classes);
 
-        // add in the settings
-        $page->settings = $settings;
-
         // add the depth, based on the url slugs
         $page->depth = sizeof($uriBits);
+
+        // format the page settings
+        $page->settings = $this->formatPageSettingsForFE($page->settings);
 
         // add search results, if using the search template
         if (isset($page->meta->template->name) && $page->meta->template->name === 'Search') {
@@ -431,8 +431,8 @@ class PageRepository extends CoreRepository
         if (!$uri || $uri == '/') {
             $homePageId = config('pages.home_page_override');
             $uriReference = Uri::whereUriableId($homePageId ?? 1)
-                                ->whereUriableType('RefinedDigital\CMS\Modules\Pages\Models\Page')
-                                ->first();
+                ->whereUriableType('RefinedDigital\CMS\Modules\Pages\Models\Page')
+                ->first();
         } else {
             $uriReference = Uri::whereUri($uri)->first();
         }
@@ -449,11 +449,10 @@ class PageRepository extends CoreRepository
     {
         $data = [];
         $pages = Page::with(['meta', 'meta.template'])
-                        ->whereActive(1)
-                        ->whereHideFromMenu(0)
-                        ->wherePageHolderId($holder)
-                        ->whereParentId($parent)
-        ;
+            ->whereActive(1)
+            ->whereHideFromMenu(0)
+            ->wherePageHolderId($holder)
+            ->whereParentId($parent);
 
         if ($skip) {
             $pages = $pages->skip($skip);
@@ -464,13 +463,13 @@ class PageRepository extends CoreRepository
         }
 
         $pages = $pages->order()
-                        ->get();
+            ->get();
 
         $total = sizeof($pages);
-        if($total) {
+        if ($total) {
             $i = 0;
             // if we are at top level, parent url needs to start out as empty
-            if($parent == 0) {
+            if ($parent == 0) {
                 $parentUrl = '';
             }
             // setting the url for the page
@@ -478,26 +477,26 @@ class PageRepository extends CoreRepository
 
             // set the base href
             // rtrim will remove the last / - i am doing this to force the / incase we set the config to have the /
-            $base = rtrim(help()->config('app.url'), '/').'/';
+            $base = rtrim(help()->config('app.url'), '/') . '/';
 
-            foreach($pages as $page) {
+            foreach ($pages as $page) {
                 $i++;
-                if($parent == 0) {
+                if ($parent == 0) {
                     $parentUrl = '';
                 }
 
                 // if we are at top level, we don't want the starting slash
-                if($parentUrl == '') {
+                if ($parentUrl == '') {
                     $separator = '';
                 }
 
                 // grab the url
                 $url = isset($page->meta->uri) ? $page->meta->uri : '';
-                $page->url = $base.$parentUrl.$separator.$url;
+                $page->url = $base . $parentUrl . $separator . $url;
                 $page->slug = $url;
                 // if we are a holder, just set the path as a '#'
-                if($page->page_type == '0') {
-                    $page->url = request()->getUri().'#';
+                if ($page->page_type == '0') {
+                    $page->url = request()->getUri() . '#';
                 }
 
                 // set the depth
@@ -505,20 +504,20 @@ class PageRepository extends CoreRepository
 
                 $classes = [];
                 $classes[] = 'nav__item';
-                $classes[] = 'nav__item--id-'.$page->id;
-                $classes[] = 'nav__item--'.$i;
-                $classes[] = 'nav__item--depth-'.$level;
-                if($i == 1) {
+                $classes[] = 'nav__item--id-' . $page->id;
+                $classes[] = 'nav__item--' . $i;
+                $classes[] = 'nav__item--depth-' . $level;
+                if ($i == 1) {
                     $classes[] = 'nav__item--first';
                 }
-                if($i == $total) {
+                if ($i == $total) {
                     $classes[] = 'nav__item--last';
                 }
                 // check if parents are also active
                 $bits = explode('/', str_replace($base, '', request()->url()));
 
                 // check if we have an active state
-                if(in_array($url, $bits)) {
+                if (in_array($url, $bits)) {
                     $classes[] = 'nav__item--active';
                 }
 
@@ -528,12 +527,12 @@ class PageRepository extends CoreRepository
                     $classes[] = 'nav__item--active';
                 }
 
-                if($level < $maxDepth) {
+                if ($level < $maxDepth) {
                     // check if we have children
-                    $pUrl = $parentUrl.$separator.$url;
+                    $pUrl = $parentUrl . $separator . $url;
                     $children = $this->getPagesForMenu($holder, $page->id, $maxDepth, $level + 1, $pUrl);
                     // only add children if we have any
-                    if(sizeof($children)) {
+                    if (sizeof($children)) {
                         $page->children = $children;
                         $classes[] = 'nav__item--has-children';
                     }
@@ -555,12 +554,12 @@ class PageRepository extends CoreRepository
 
         $page = new \stdClass();
         $page->type = $type;
-        $page->url = $baseHref.request()->path();
+        $page->url = $baseHref . request()->path();
         $page->name = $type;
 
         $classes = [];
-        $classes[] = 'page__id--'.Str::slug($type);
-        $classes[] = 'page__template--'.Str::slug($type);
+        $classes[] = 'page__id--' . Str::slug($type);
+        $classes[] = 'page__template--' . Str::slug($type);
 
         // set some extra fun stuff to the page
         $head = pages()->getPageHeaders();
@@ -585,9 +584,9 @@ class PageRepository extends CoreRepository
     public function getForXmlSitemap()
     {
         $data = [];
-        $holders = PageHolder::whereActive(1)->orderby('position','asc')->get();
-        if(sizeof($holders)) {
-            foreach($holders as $h) {
+        $holders = PageHolder::whereActive(1)->orderby('position', 'asc')->get();
+        if (sizeof($holders)) {
+            foreach ($holders as $h) {
                 $pages = $this->getPagesForXmlSitemap($h->id, 0);
                 foreach ($pages as $p) {
                     $data[] = $p;
@@ -601,10 +600,10 @@ class PageRepository extends CoreRepository
     public function getPagesForXmlSitemap($holderId, $parentId, $parentUrl = '/')
     {
         $data = Page::with('meta')
-                     ->whereActive(1)
-                     ->wherePageHolderId($holderId)
-                     ->whereParentId($parentId)
-                     ->get();
+            ->whereActive(1)
+            ->wherePageHolderId($holderId)
+            ->whereParentId($parentId)
+            ->get();
 
         $pages = [];
         $baseUrl = rtrim(config('app.url'), '/');
@@ -619,7 +618,7 @@ class PageRepository extends CoreRepository
             $s = sizeof($urls);
             $page->priority = $d->meta->uri === '/' ? '1.0' : $this->getXmlSitemapPriority($s);
 
-            $templateAddress = 'templates::'.$d->meta->template->source;
+            $templateAddress = 'templates::' . $d->meta->template->source;
             $children = $this->getPagesForXmlSitemap($holderId, $d->id, $url);
             try {
                 if (view()->exists($templateAddress)) {
@@ -636,7 +635,8 @@ class PageRepository extends CoreRepository
                         }
                     }
                 }
-            } catch(\Exception $e) {}
+            } catch (\Exception $e) {
+            }
 
             $page->children = $children;
             $pages[] = $page;
@@ -659,14 +659,15 @@ class PageRepository extends CoreRepository
             8 => '0.1',
         ];
 
-        return $depths[ $depth ] ?? '0.01';
+        return $depths[$depth] ?? '0.01';
 
     }
 
-    public function formatData($data) {
+    public function formatData($data)
+    {
         $data = parent::formatData($data);
         if ($data['content']) {
-            $data['content'] = array_map(function($block) {
+            $data['content'] = array_map(function ($block) {
                 $removeFields = ['description', 'id', 'key', 'width', 'height'];
                 foreach ($removeFields as $f) {
                     if (isset($block[$f])) {
@@ -675,7 +676,7 @@ class PageRepository extends CoreRepository
                 }
 
                 if (isset($block['fields'])) {
-                    $block['fields'] = array_map(function($item) use($removeFields) {
+                    $block['fields'] = array_map(function ($item) use ($removeFields) {
                         unset($item['page_content_type_id']);
 
                         if (isset($item['fields'])) {
@@ -689,7 +690,7 @@ class PageRepository extends CoreRepository
                         }
 
                         if (isset($item['content']) && is_array($item['content'])) {
-                            $item['content'] = array_map(function($content) {
+                            $item['content'] = array_map(function ($content) {
                                 $newContent = $content;
                                 foreach ($newContent as $key => $cont) {
                                     $newContent[$key] = $cont['content'];
@@ -720,7 +721,7 @@ class PageRepository extends CoreRepository
                 }
                 $newField = new \stdClass();
                 $newField->name = $field['name'];
-                $newField->template = 'templates.content.'.$field['template'];
+                $newField->template = 'templates.content.' . $field['template'];
                 $newField->content = $formattedContent;
                 $newContent[] = $newField;
             }
@@ -761,7 +762,7 @@ class PageRepository extends CoreRepository
                             }
                         }
 
-                        $vField = array_values(array_filter($field['fields'], function ($f) use($key) {
+                        $vField = array_values(array_filter($field['fields'], function ($f) use ($key) {
                             return $f['field'] == $key;
                         }));
 
@@ -854,13 +855,78 @@ class PageRepository extends CoreRepository
         $results = [];
 
         foreach ($array as $key => $value) {
-            if (is_array($value) && ! empty($value)) {
-                $results = array_merge($results, static::dot($value, $prepend.$key.'.'));
+            if (is_array($value) && !empty($value)) {
+                $results = array_merge($results, static::dot($value, $prepend . $key . '.'));
             } else {
-                $results[$prepend.$key] = $value;
+                $results[$prepend . $key] = $value;
             }
         }
 
         return $results;
+    }
+
+    public function formatPageSettings($settings)
+    {
+        $settingConfig = config('pages.page_settings');
+
+        if (!$settingConfig || $settingConfig && sizeof($settingConfig) < 1) {
+            return [];
+        }
+
+        $keyedSettings = $this->formatPageSettingsForFE($settings);
+
+        $config = [];
+        foreach ($settingConfig as $setting) {
+            $key = \Str::slug($setting['name']);
+            $newSetting = $setting;
+            $newSetting['content'] = isset($keyedSettings[$key])
+                ? $keyedSettings[$key]
+                : null;
+            $config[] = $newSetting;
+        }
+
+        return $config;
+    }
+
+    public function store($request, $extra = [])
+    {
+        $request = $this->formatPageSettingsForSave($request);
+        return parent::store($request, $extra);
+    }
+
+    public function update($id, $request, $extra = [])
+    {
+        $request = $this->formatPageSettingsForSave($request);
+        return parent::update($id, $request, $extra);
+    }
+
+    private function formatPageSettingsForSave($request)
+    {
+        if(is_array($request)) {
+            $data = $request;
+        } else {
+            $data = $request->all();
+        }
+
+        $data['settings'] = array_map(function($item) {
+            return [
+              'key' => \Str::slug($item['name']),
+              'value' => $item['content']
+            ];
+        }, $data['settings']);
+
+        return $data;
+    }
+
+    private function formatPageSettingsForFE($settings)
+    {
+        $keyedSettings = [];
+        if (is_array($settings) && sizeof($settings)) {
+            foreach ($settings as $item) {
+                $keyedSettings[$item->key] = $item->value;
+            }
+        }
+
+        return $keyedSettings;
     }
 }

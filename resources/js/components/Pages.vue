@@ -237,6 +237,10 @@
           </div><!-- / form -->
 
         </div>
+        <div class="pages__tab-pane" v-show="tab === 'settings'">
+          <h3>Page Settings</h3>
+          <rd-pages-settings :settings="page.settings"></rd-pages-settings>
+        </div>
 
         <div class="pages__tab-pane" v-show="tab === item.tab" v-if="!item.default" v-for="item in tabs">
             <h3>{{ item.name }}</h3>
@@ -378,6 +382,7 @@
         defaultTabs: [
           { tab: 'details', name: 'Details' },
           { tab: 'content', name: 'Content' },
+          { tab: 'settings', name: 'Settings' },
         ],
 
         tabs: [],
@@ -408,6 +413,11 @@
         if (tab.name === 'Content' && this.config.content && this.config.content.length < 1) {
           return false;
         }
+
+        if (tab.name === 'Settings') {
+          return this.page.settings && this.page.settings.length;
+        }
+
         return true;
 
         /*
