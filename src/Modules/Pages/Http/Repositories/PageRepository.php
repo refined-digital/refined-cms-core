@@ -877,7 +877,7 @@ class PageRepository extends CoreRepository
 
         $config = [];
         foreach ($settingConfig as $setting) {
-            $key = \Str::slug($setting['name']);
+            $key = Str::slug($setting['name'], '_');
             $newSetting = $setting;
             $newSetting['content'] = isset($keyedSettings[$key])
                 ? $keyedSettings[$key]
@@ -911,7 +911,7 @@ class PageRepository extends CoreRepository
         $data['settings'] = is_array($data['settings'])
             ? array_map(function($item) {
                 return [
-                  'key' => \Str::slug($item['name']),
+                  'key' => Str::slug($item['name'], '_'),
                   'value' => $item['content']
                 ];
             }, $data['settings'])
