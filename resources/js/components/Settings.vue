@@ -253,7 +253,6 @@
             validationData = document.createElement('ul')
         ;
 
-        if (this.content.length) {
           this.content.forEach(content => {
             if (content.required && (!check.test(content.content) || content.content == null)) {
               errors.push(1);
@@ -312,8 +311,6 @@
         }
 
       }
-
-    }
 
 
   }
