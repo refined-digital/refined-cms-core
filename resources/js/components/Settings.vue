@@ -202,7 +202,7 @@
       resetContentForm() {
         this.editor.form.name = null;
         this.editor.form.required = 0;
-        this.editor.form.field_type = 1;
+        this.editor.form.field_type = 3;
         this.editor.form.note = null;
         this.editor.form.options = [];
       },
