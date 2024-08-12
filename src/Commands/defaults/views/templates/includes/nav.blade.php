@@ -2,10 +2,10 @@
     {!! menu()->holder('pages')->get($page) !!}
     <a href="#" class="modal__trigger--button fade-in" data-type="menu">
         <span class="modal__trigger--menu">
-            @include('icons.bars')
+            @svg('bars')
         </span>
         <span class="modal__trigger--close">
-            @include('icons.close')
+            @svg('close')
         </span>
     </a>
 </div>

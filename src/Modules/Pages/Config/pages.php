@@ -168,6 +168,17 @@ return [
                 ]
             ]
         ],
+        [
+            'name' => 'Video Banner',
+            'template' => 'video-banner',
+            'fields' => [
+                [
+                    'name' => 'Vimeo Share Link',
+                    'page_content_type_id' => PageContentType::PLAIN->value,
+                ],
+                $heading,
+            ]
+        ],
     ],
 
     // used to add settings to each page

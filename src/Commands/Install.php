@@ -507,7 +507,9 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         $directories = [
             'views',
             'css',
-            'js'
+            'js',
+            '.husky',
+            'svg'
         ];
 
         foreach ($directories as $directory) {

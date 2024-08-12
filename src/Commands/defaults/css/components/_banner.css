@@ -2,7 +2,9 @@
   position: relative;
   overflow: hidden;
 
-  &__image, swiper-slide {
+  & __image,
+  swiper-slide,
+  & __video {
     position: relative;
     height: 100vh;
 
@@ -11,6 +13,42 @@
       height: 100vh;
       display: block;
       object-fit: cover;
+    }
+  }
+
+  & __video {
+    padding: 0 !important;
+    margin: 0;
+    font-size: 0;
+    overflow: hidden;
+    --videoRatio: calc(16 / 9);
+    width: 100%;
+    position: relative;
+    z-index: 3;
+    left: 0;
+    top: 0;
+    background: #000;
+    height: 100%;
+
+    iframe {
+      --w: 100vw;
+      --h: calc(var(--w) / var(--videoRatio));
+      padding: 0;
+      margin: 0;
+      position: relative;
+      height: var(--h);
+      width: var(--w);
+      top: calc(50% - (var(--h) / 2));
+      left: 0;
+    }
+
+    @media (max-aspect-ratio: 16/9) {
+      iframe {
+        --h: 100vh;
+        --w: calc(var(--h) * var(--videoRatio));
+        top: 0;
+        left: calc(50% - (var(--w) / 2));
+      }
     }
   }
 }

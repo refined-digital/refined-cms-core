@@ -14,7 +14,7 @@
                             <form action="{{ config('app.url') }}/search" method="get">
                                 <input type="text" name="q" value="{{ search()->getKeyword() }}" class="form__control"/>
                                 <button class="button">
-                                    @include('icons.search')
+                                    @svg('search')
                                 </button>
                             </form>
                         </div>
