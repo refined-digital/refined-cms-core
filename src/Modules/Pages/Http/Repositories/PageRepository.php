@@ -908,12 +908,15 @@ class PageRepository extends CoreRepository
             $data = $request->all();
         }
 
-        $data['settings'] = array_map(function($item) {
-            return [
-              'key' => \Str::slug($item['name']),
-              'value' => $item['content']
-            ];
-        }, $data['settings']);
+        $data['settings'] = is_array($data['settings'])
+            ? array_map(function($item) {
+                return [
+                  'key' => \Str::slug($item['name']),
+                  'value' => $item['content']
+                ];
+            }, $data['settings'])
+            : null
+        ;
 
         return $data;
     }
