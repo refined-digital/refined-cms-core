@@ -534,6 +534,11 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         }
         file_put_contents(base_path('.prettierrc'), file_get_contents($base.'/.prettierrc'));
 
+        if (file_exists(base_path('.php-cs-fixer.php'))) {
+            unlink(base_path('.php-cs-fixer.php'));
+        }
+        file_put_contents(base_path('.php-cs-fixer.php'), file_get_contents($base.'/.php-cs-fixer.php'));
+
         // copy husky
         if (is_dir(base_path('.husky'))) {
             exec('rm -R '.base_path('.husky'));

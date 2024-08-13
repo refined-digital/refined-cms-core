@@ -12,7 +12,8 @@
     "spatie/laravel-html": "^3.9",
     "spatie/laravel-responsecache": "^7.5",
     "spatie/laravel-sluggable": "^3.6",
-    "protonemedia/laravel-cross-eloquent-search": "^3.4"
+    "protonemedia/laravel-cross-eloquent-search": "^3.4",
+    "friendsofphp/php-cs-fixer": "^3.62"
   },
   "license": "MIT",
   "authors": [
