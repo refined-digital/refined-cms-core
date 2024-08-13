@@ -72,6 +72,12 @@
 
     if (hasSaveButton) {
       document.addEventListener('keydown', e => {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 's') {
+          e.preventDefault();
+          window.app.submitForm('save & new');
+          return;
+        }
+
         if ((e.ctrlKey || e.metaKey) && e.key === 's') {
           e.preventDefault();
           window.app.submitForm('save');
