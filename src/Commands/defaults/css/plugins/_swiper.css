@@ -20,7 +20,7 @@ swiper-container::part(button-next) {
 swiper-container::part(bullet),
 swiper-container::part(button-prev),
 swiper-container::part(button-next) {
-    transition: opacity 200ms linear;
+    transition: opacity var(--transition);
     &:hover {
         opacity: 1;
     }

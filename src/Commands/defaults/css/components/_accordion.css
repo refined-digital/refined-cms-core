@@ -1,0 +1,51 @@
+.accordion {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: opacity var(--transition);
+    &:hover {
+      opacity: 0.8;
+    }
+
+    svg {
+      height: 30px;
+    }
+  }
+
+  &__button {
+    &--open {
+      display: block;
+    }
+
+    &--close {
+      display: none;
+    }
+  }
+
+  &__content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 500ms;
+
+    > div {
+      overflow: hidden;
+    }
+  }
+
+  &__panel--open {
+    .accordion__button {
+      &--open {
+        display: none;
+      }
+
+      &--close {
+        display: block;
+      }
+    }
+
+    .accordion__content {
+      grid-template-rows: 1fr;
+    }
+  }
+}

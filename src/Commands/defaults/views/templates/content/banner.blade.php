@@ -3,13 +3,13 @@
         <div class="banner__image">
             {!!
                   format()->desktopMobileImages([
-                      'src' => $img->image->id,
-                      'width' => $img->image->width,
-                      'height' => $img->image->height
+                      'src' => $content->image->id,
+                      'width' => $content->image->width,
+                      'height' => $content->image->height
                   ],[
-                      'src' => $img->mobile_image->id,
-                      'width' => $img->mobile_image->width,
-                      'height' => $img->mobile_image->height
+                      'src' => $content->mobile_image->id,
+                      'width' => $content->mobile_image->width,
+                      'height' => $content->mobile_image->height
                   ])
             !!}
         </div>

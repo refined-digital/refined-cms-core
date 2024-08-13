@@ -8,8 +8,8 @@
 <section class="{{ implode(' ', $classes) }}">
     <div class="holder">
         <article>
-            @include('templates.includes.content.heading')
-            @include('templates.includes.content.text')
+            @include('templates.content.includes.heading')
+            @include('templates.content.includes.text')
         </article>
     </div>
 </section>

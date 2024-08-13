@@ -67,7 +67,7 @@ a {
 }
 
 a, .button, svg {
-  transition: all 200ms linear;
+  transition: all var(--transition);
 }
 
 @media (max-width: 500px) {

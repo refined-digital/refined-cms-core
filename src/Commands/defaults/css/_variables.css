@@ -31,4 +31,6 @@
     --header-height-mobile: 100px;
 
     --p-max-width: 65ch;
+
+    --transition: 200ms linear;
 }
