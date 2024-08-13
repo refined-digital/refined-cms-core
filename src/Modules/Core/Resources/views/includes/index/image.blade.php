@@ -11,6 +11,6 @@ if($value) {
 }
 @endphp
 
-@if ($img)
+@if (isset($img) && $img)
   <img src="{{ $img }}" height="80"/>
 @endif
