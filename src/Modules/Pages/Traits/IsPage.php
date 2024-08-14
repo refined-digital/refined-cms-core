@@ -71,7 +71,7 @@ trait IsPage
                     $template = $config['details_template_id'];
                 }
             } else {
-                if ($request['meta']['template_id']) {
+                if (isset($request['meta']['template_id']) && $request['meta']['template_id']) {
                     $template = $request['meta']['template_id'];
                 }
             }

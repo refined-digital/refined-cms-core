@@ -476,7 +476,7 @@
 
       initSort() {
         if (this.sortable == null) {
-          let elements = document.querySelectorAll('.tree__trunk--sortable');
+          let elements = document.querySelectorAll('.media-library .tree__trunk--sortable');
 
           let containers = [];
           if (elements.length) {
@@ -488,7 +488,7 @@
               direction: 'vertical'
             })
             .on('drop', (e) => {
-              let parent = document.querySelector('.tree__trunk[data-id="'+e.dataset.parent+'"');
+              let parent = document.querySelector('.media-library .tree__trunk[data-id="'+e.dataset.parent+'"');
               let newParent = e.closest('.tree__trunk');
               let children = [];
               let parentId = e.dataset.parent;

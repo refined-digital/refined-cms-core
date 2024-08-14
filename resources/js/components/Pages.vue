@@ -381,8 +381,8 @@
 
         defaultTabs: [
           { tab: 'details', name: 'Details' },
-          { tab: 'content', name: 'Content' },
           { tab: 'settings', name: 'Settings' },
+          { tab: 'content', name: 'Content' },
         ],
 
         tabs: [],
@@ -883,10 +883,14 @@
           method: 'PUT',
           data: {
             page: {
-              parent_id: item.parent_id,
-              page_holder_id: item.page_holder_id,
+              parent_id: Math.abs(parseInt(item.parent_id)),
+              page_holder_id: Math.abs(parseInt(item.page_holder_id)),
             },
-            parent: this.parent
+            parent: {
+              currentParent: Math.abs(parseInt(this.parent.currentParent)),
+              newParent: Math.abs(parseInt(this.parent.newParent)),
+              updated: this.parent.updated
+            }
           }
         };
 
@@ -991,7 +995,7 @@
               let parentId = e.dataset.parent;
 
               // check to see if the parent has updated
-              if (parent.dataset.id != newParent.dataset.id) {
+              if (parent?.dataset.id != newParent?.dataset.id) {
                 // we have a different parent, need to update
                 children = newParent.querySelectorAll(':scope > .tree__branch');
                 parentId = parseInt(newParent.dataset.id);
@@ -1002,7 +1006,10 @@
                   // only if the parent is a holder update it
                   if (parentId < 0) {
                     this.flatPages[e.dataset.id].page_holder_id = Math.abs(parentId);
+                    // reset the parent id to 0 if the holder is different
+                    this.flatPages[e.dataset.id].parent_id = 0;
                   }
+
                   // now update the leaf in the db
                   this.parent.updated = true;
                   this.parent.currentParent = parent.dataset.id;
@@ -1021,7 +1028,7 @@
                   ids.push(el.dataset.id);
                 });
 
-                this.reposition(ids, parentId);
+                 this.reposition(ids, parentId);
               }
 
             })

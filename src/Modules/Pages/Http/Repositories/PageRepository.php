@@ -666,7 +666,7 @@ class PageRepository extends CoreRepository
     public function formatData($data)
     {
         $data = parent::formatData($data);
-        if ($data['content']) {
+        if (isset($data['content']) && $data['content']) {
             $data['content'] = array_map(function ($block) {
                 $removeFields = ['description', 'id', 'key', 'width', 'height'];
                 foreach ($removeFields as $f) {
@@ -906,6 +906,10 @@ class PageRepository extends CoreRepository
             $data = $request;
         } else {
             $data = $request->all();
+        }
+
+        if (!isset($data['settings'])) {
+            return $data;
         }
 
         $data['settings'] = is_array($data['settings'])
