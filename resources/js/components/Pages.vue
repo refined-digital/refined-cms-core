@@ -239,7 +239,7 @@
         </div>
         <div class="pages__tab-pane" v-show="tab === 'settings'">
           <h3>Page Settings</h3>
-          <rd-pages-settings :settings="page.settings"></rd-pages-settings>
+          <rd-pages-settings :settings="page.settings" :page="page"></rd-pages-settings>
         </div>
 
         <div class="pages__tab-pane" v-show="tab === item.tab" v-if="!item.default" v-for="item in tabs">
