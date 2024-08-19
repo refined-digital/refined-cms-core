@@ -6298,6 +6298,7 @@ window.updateLinkType = function (event, id) {
   inputField.readOnly = false;
   urlLabel.innerText = 'Url';
   inputRow.classList.remove('rich-editor__link-row--no-padding');
+  console.log(element);
 
   switch (element.value) {
     case 'internal':
@@ -6315,6 +6316,11 @@ window.updateLinkType = function (event, id) {
 
     case 'email':
       urlLabel.innerText = 'Email Address';
+      inputRow.classList.add('rich-editor__link-row--no-padding');
+      break;
+
+    case 'phone':
+      urlLabel.innerText = 'Phone';
       inputRow.classList.add('rich-editor__link-row--no-padding');
       break;
   } // adjust the modal height
@@ -8111,7 +8117,7 @@ window.slugify = function (text) {
         label: 'Link Type',
         type: function type(field, prefix, lg) {
           var fieldId = "field-".concat(field.name, "-").concat(id);
-          return "\n            <div class=\"".concat(prefix, "input-row\" id=\"").concat(fieldId, "\">\n              <div class=\"").concat(prefix, "input-infos\">\n                <label for=\"").concat(fieldId, "-link-type\">\n                  <span>").concat(lg[field.label] ? lg[field.label] : field.label, "</span>\n                </label>\n              </div>\n              <div class=\"trumbowyg-input-html\">\n                <select id=\"").concat(fieldId, "-link-type\" name=\"").concat(field.name, "\" onchange=\"updateLinkType(event, '").concat(id, "')\">\n                  <option value=\"internal\"").concat(field.value === 'internal' ? ' selected="selected"' : '', ">Internal Page</option>\n                  <option value=\"external\"").concat(field.value === 'external' ? ' selected="selected"' : '', ">External Link</option>\n                  <option value=\"media\"").concat(field.value === 'media' ? ' selected="selected"' : '', ">File / Image</option>\n                  <option value=\"email\"").concat(field.value === 'email' ? ' selected="selected"' : '', ">Email</option>\n                </select>\n              </div>\n            </div>\n            <script>\n              $('#").concat(fieldId, "-link-type').trigger('change');\n            </script>\n          ");
+          return "\n            <div class=\"".concat(prefix, "input-row\" id=\"").concat(fieldId, "\">\n              <div class=\"").concat(prefix, "input-infos\">\n                <label for=\"").concat(fieldId, "-link-type\">\n                  <span>").concat(lg[field.label] ? lg[field.label] : field.label, "</span>\n                </label>\n              </div>\n              <div class=\"trumbowyg-input-html\">\n                <select id=\"").concat(fieldId, "-link-type\" name=\"").concat(field.name, "\" onchange=\"updateLinkType(event, '").concat(id, "')\">\n                  <option value=\"internal\"").concat(field.value === 'internal' ? ' selected="selected"' : '', ">Internal Page</option>\n                  <option value=\"external\"").concat(field.value === 'external' ? ' selected="selected"' : '', ">External Link</option>\n                  <option value=\"media\"").concat(field.value === 'media' ? ' selected="selected"' : '', ">File / Image</option>\n                  <option value=\"email\"").concat(field.value === 'email' ? ' selected="selected"' : '', ">Email</option>\n                  <option value=\"phone\"").concat(field.value === 'phone' ? ' selected="selected"' : '', ">Phone</option>\n                </select>\n              </div>\n            </div>\n            <script>\n              $('#").concat(fieldId, "-link-type').trigger('change');\n            </script>\n          ");
         }
       },
       url: {
@@ -8178,6 +8184,10 @@ window.slugify = function (text) {
       type = 'email';
     }
 
+    if (href.includes('tel:')) {
+      type = 'phone';
+    }
+
     if (href.includes('http://') || href.includes('https://')) {
       type = 'external';
     }
@@ -8241,6 +8251,10 @@ window.slugify = function (text) {
             url = url.replace('mailto:', '');
           }
 
+          if (url.startsWith('tel:')) {
+            url = url.replace('tel:', '');
+          }
+
           fields.url.value = url;
         }
 
@@ -8283,6 +8297,10 @@ window.slugify = function (text) {
             url = "mailto:".concat(url);
           }
 
+          if (values.linkType === 'phone' && !url.startsWith('tel:')) {
+            url = "tel:".concat(url.replace(/\s/g, ''));
+          }
+
           var link = $(['<a href="', url, '">', values.text || values.url, '</a>'].join(''));
 
           if (values.title) {
@@ -8302,7 +8320,6 @@ window.slugify = function (text) {
             switch (values.linkType) {
               case 'external':
               case 'media':
-                console.log('should be adding me a target');
                 link.attr('target', '_blank');
                 break;
             }

@@ -925,7 +925,7 @@ class PageRepository extends CoreRepository
         return $data;
     }
 
-    private function formatPageSettingsForFE($settings)
+    public function formatPageSettingsForFE($settings)
     {
         $keyedSettings = [];
         if (is_array($settings) && sizeof($settings)) {

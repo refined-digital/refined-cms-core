@@ -29,6 +29,7 @@
                   <option value="external"${field.value === 'external' ? ' selected="selected"' : ''}>External Link</option>
                   <option value="media"${field.value === 'media' ? ' selected="selected"' : ''}>File / Image</option>
                   <option value="email"${field.value === 'email' ? ' selected="selected"' : ''}>Email</option>
+                  <option value="phone"${field.value === 'phone' ? ' selected="selected"' : ''}>Phone</option>
                 </select>
               </div>
             </div>
@@ -170,6 +171,10 @@
       type = 'email';
     }
 
+    if (href.includes('tel:')) {
+      type = 'phone';
+    }
+
     if (href.includes('http://') || href.includes('https://')) {
       type = 'external';
     }
@@ -234,6 +239,9 @@
           if (url.startsWith('mailto:')) {
             url = url.replace('mailto:', '');
           }
+          if (url.startsWith('tel:')) {
+            url = url.replace('tel:', '');
+          }
           fields.url.value = url
         }
 
@@ -279,6 +287,10 @@
               url = `mailto:${url}`
             }
 
+            if (values.linkType === 'phone' && !url.startsWith('tel:')) {
+              url = `tel:${url.replace(/\s/g, '')}`
+            }
+
             const link = $(['<a href="', url, '">', values.text || values.url, '</a>'].join(''));
 
             if (values.title) {
@@ -298,7 +310,6 @@
               switch(values.linkType) {
                 case 'external':
                 case 'media':
-                  console.log('should be adding me a target');
                   link.attr('target', '_blank');
                   break;
               }
@@ -307,7 +318,6 @@
                 link.attr('target', values.target);
               }
             }
-
 
             // add no follow option for any external websites
             if (defaultOptions.type === 'simple') {

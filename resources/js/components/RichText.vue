@@ -73,6 +73,7 @@ window.updateLinkType = function(event, id) {
   inputField.readOnly = false;
   urlLabel.innerText = 'Url'
   inputRow.classList.remove('rich-editor__link-row--no-padding');
+  console.log(element);
 
   switch(element.value) {
     case 'internal':
@@ -87,6 +88,10 @@ window.updateLinkType = function(event, id) {
       break;
     case 'email':
       urlLabel.innerText = 'Email Address'
+      inputRow.classList.add('rich-editor__link-row--no-padding');
+      break;
+    case 'phone':
+      urlLabel.innerText = 'Phone'
       inputRow.classList.add('rich-editor__link-row--no-padding');
       break;
   }
