@@ -82,17 +82,41 @@ a, .button, svg {
 
 .holder {
   position: relative;
-  --count: 18;
-  display: grid;
-  grid-template-columns: repeat(var(--count), 1fr);
   color: var(--text-color);
+  padding: 0 20px;
+  width: 100%;
+  max-width: var(--holder-width);
+  margin-inline: auto;
 
-  &__body {
-    grid-column: 4/11;
+  @media (width > 1250px) {
+    padding: 0;
   }
 
-  @container (max-width: 1250px) {
-    padding: 0 20px;
+  &--small {
+    --holder-width: var(--holder-width-small);
+  }
+
+  &--large {
+    --holder-width: var(--holder-width-large);
+  }
+
+  &--grid {
+    --count: 12;
+    display: grid;
+    grid-template-columns: repeat(var(--count), 1fr);
+
+    &__body {
+      grid-column: 1/13;
+    }
+
+    @media (width > 1250px) {
+      padding: 0;
+      --count: 18;
+
+      &__body {
+        grid-column: 2/18
+      }
+    }
   }
 }
 

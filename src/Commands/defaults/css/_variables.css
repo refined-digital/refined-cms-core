@@ -19,6 +19,10 @@
     --heading-font-size: 35px;
     --print-font-size: 16px;
 
+    --holder-width: 1200px;
+    --holder-width-small: 800px;
+    --holder-width-large: 1600px;
+
     --mobile-menu-at: 900px;
 
     --opacity: 0.8;
