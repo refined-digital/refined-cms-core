@@ -47,12 +47,12 @@ h5 {
 h6 { }
 
 /* improve readability with max-width on paragraphs and lists */
-/* prevent orphans in supported browsers */
+/* prevent orphans in supported browsers
 p,
 li {
   max-width: var(--p-max-width, 65ch);
   text-wrap: pretty;
-}
+}*/
 
 a {
   color: var(--text-color);
@@ -81,21 +81,18 @@ a, .button, svg {
 
 
 .holder {
-  position:relative;
-  max-width: var(--holder-width);
-  margin:0 auto;
-  width: 100%;
+  position: relative;
+  --count: 18;
+  display: grid;
+  grid-template-columns: repeat(var(--count), 1fr);
+  color: var(--text-color);
+
+  &__body {
+    grid-column: 4/11;
+  }
 
   @container (max-width: 1250px) {
     padding: 0 20px;
-  }
-
-  &--small {
-    max-width: var(--holder-width-small);
-  }
-
-  &--large {
-    max-width: var(--holder-width-large);
   }
 }
 

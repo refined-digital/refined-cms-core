@@ -7,7 +7,7 @@
 @endphp
 <section class="{{ implode(' ', $classes) }}">
     <div class="holder">
-        <article>
+        <article class="holder__body">
             @include('templates.content.includes.heading')
             @include('templates.content.includes.text')
 

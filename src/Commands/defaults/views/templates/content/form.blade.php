@@ -6,15 +6,11 @@
     ];
 @endphp
 <section class="{{ implode(' ', $classes) }}">
-    <article>
+    <article class="holder__body">
         @include('templates.content.includes.heading')
-        <div>
-            @include('templates.content.includes.text')
-            <div>
-                @if (isset($content->form) && $content->form && function_exists('forms'))
-                    {!! forms()->load($content->form)->render() !!}
-                @endif
-            </div>
-        </div>
+        @include('templates.content.includes.text')
+        @if (isset($content->form) && $content->form && function_exists('forms'))
+            {!! forms()->load($content->form)->render() !!}
+        @endif
     </article>
 </section>
