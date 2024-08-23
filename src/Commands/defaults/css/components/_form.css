@@ -79,6 +79,20 @@
         }
       }
 
+      textarea.form__control + .form__label {
+        top: 25px;
+        translate: 0;
+        left: 15px;
+      }
+
+      textarea.form__control {
+        &:focus + .form__label,
+        &:not(:placeholder-shown) + .form__label {
+          top: -16px;
+          left: 0;
+        }
+      }
+
       & select.form__control {
         padding-left: 0;
       }
