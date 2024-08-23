@@ -90,7 +90,7 @@ class Format
         return $content;
     }
 
-    function desktopMobileImages($desktop = ['width' => 1920, 'height' => 1080, 'src' => ''], $mobile = ['width' => 800, 'height' => 1150, 'src' => ''])
+    function desktopMobileImages($desktop = ['width' => 1920, 'height' => 1080, 'src' => ''], $mobile = ['width' => 800, 'height' => 1150, 'src' => ''], $mobileAt = 640)
     {
         if (isset($desktop['src']) && !isset($mobile['src'])) {
             return image()
@@ -127,7 +127,7 @@ class Format
         foreach ($images as $index => $img) {
             $html .= '<source srcset="' . asset($img) . '"';
             if ($index == 0) {
-                $html .= ' media="(min-width: 640px)"';
+                $html .= ' media="(min-width: '.$mobileAt.'px)"';
             }
             $html .= '/>';
         }
