@@ -4,6 +4,7 @@ namespace RefinedDigital\CMS\Modules\Core\Helpers;
 
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\Encoders\AutoEncoder;
 use RefinedDigital\CMS\Modules\Media\Models\Media;
 use Str;
 
@@ -193,6 +194,7 @@ class RefinedImage {
 
             // now save it
             $ext = $extension ?? $this->extension;
+            $image->encode(new AutoEncoder(quality: $this->getQuality()));
             $image->save($this->directory.$fileName, $this->getQuality(), $ext);
         }
 
