@@ -294,7 +294,15 @@ class RefinedImage {
         }
 
         try {
-            $html = '<picture>';
+            $html = '<picture';
+            if (sizeof($this->attributes)) {
+                $attrs = '';
+                foreach ($this->attributes as $key => $value) {
+                    $attrs = ' '.$key.'="'.$value.'"';
+                }
+                $html .= $attrs;
+            }
+            $html .= '>';
             if (!sizeof($this->dimensions)) {
                 $image = $this->createImage($this->width, $this->height);
                 $baseImage = $image;
