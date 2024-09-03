@@ -99,23 +99,12 @@
     }
   }
 
-  &__row--captcha, &__row--buttons {
+  &__row--buttons {
     flex: 0 0 50%;
     align-self: center;
-  }
-
-  &__row--captcha {
-    text-align: left;
-    .g-recaptcha {
-      display: inline-block;
-    }
   }
 
   &__row--buttons {
     text-align: right;
   }
-}
-
-.grecaptcha-badge {
-  visibility: hidden;
 }

@@ -134,3 +134,7 @@ a, .button, svg {
 .required {
   color:var(--required-color);
 }
+
+.grecaptcha-badge {
+  visibility: hidden;
+}
