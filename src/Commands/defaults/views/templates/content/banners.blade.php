@@ -1,4 +1,7 @@
 @php
+    use RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate;
+    app(AssetAggregate::class)->addStyle('banner.css');
+
     $images = [];
     if (isset($content->images) && is_array($content->images) && sizeof($content->images)) {
       foreach ($content->images as $img) {

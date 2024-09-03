@@ -14,6 +14,7 @@ use RefinedDigital\CMS\Commands\CreateModule;
 use RefinedDigital\CMS\Commands\InstallCMS;
 use RefinedDigital\CMS\Commands\InstallDatabase;
 use RefinedDigital\CMS\Commands\InstallSymLink;
+use RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate;
 use RefinedDigital\CMS\Modules\Core\Exceptions\Handler;
 use RefinedDigital\CMS\Modules\Core\Exceptions\RegisterErrorViews;
 use RefinedDigital\CMS\Modules\Core\Http\Middleware\Admin;
@@ -170,6 +171,7 @@ class CMSServiceProvider extends ServiceProvider
         $this->app->singleton(ModuleAggregate::class);
         $this->app->singleton(PackageAggregate::class);
         $this->app->singleton(PaymentGatewayAggregate::class);
+        $this->app->singleton(AssetAggregate::class);
 
         // load in the modules
         $this->mergeConfigFrom(__DIR__.'/../../../../config/modules.php', 'modules');

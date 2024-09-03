@@ -624,6 +624,7 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         ];
 
         $toAdd = [
+            'glob' => '^11.0.0',
             'laravel-vite-plugin' => '1.0.2',
             'postcss-discard-comments' => '^7.0.0',
             'postcss-nested' => '^6.0.1',

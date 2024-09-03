@@ -1,4 +1,9 @@
 @php
+    use RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate;
+    app(AssetAggregate::class)
+        ->addStyle('accordion.css')
+        ->addScript('accordion.js');
+
     $classes = [
       'page__block',
       'page__block--content',
@@ -9,7 +14,7 @@
     <div class="holder">
         <article class="holder__body">
             @include('templates.content.includes.heading')
-            @include('templates.content.includes.text')
+            @include('templates.content.includes.content')
 
             <div class="accordion">
                 <div class="accordion__panel">

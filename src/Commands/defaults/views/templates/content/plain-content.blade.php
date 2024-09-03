@@ -10,7 +10,7 @@
         <article class="holder__body">
             @include('templates.content.includes.title')
             @include('templates.content.includes.heading')
-            @include('templates.content.includes.text')
+            @include('templates.content.includes.content')
             @include('templates.content.includes.link')
         </article>
     </div>
