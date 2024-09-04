@@ -5,8 +5,6 @@
     </div>
 </footer>
 
-@vite(['resources/js/main.js'])
-@vite(app(\RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate::class)->getScripts())
 @yield('scripts')
 </body>
 </html>

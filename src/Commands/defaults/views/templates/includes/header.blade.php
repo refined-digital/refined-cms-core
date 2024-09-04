@@ -25,9 +25,11 @@
 
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700&display=swap" rel="stylesheet">
     @vite(['resources/css/main.css'])
+    @vite(app(\RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate::class)->getStyles())
     @yield('styles')
 
-    @vite(app(\RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate::class)->getStyles())
+    @vite(['resources/js/main.js'])
+    @vite(app(\RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate::class)->getScripts())
 </head>
 
 <body{!! isset($page->classes) ? ' class="'.$page->classes.'"' : '' !!}>
