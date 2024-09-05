@@ -8,9 +8,11 @@ class AssetAggregate
     protected $styles = [];
     protected $scripts = [];
 
-    public function addStyle($file): void
+    public function addStyle($file): self
     {
         $this->styles[$file] = 'resources/css/components/'.$file;
+
+        return $this;
     }
 
     public function getStyles(): array
@@ -18,9 +20,11 @@ class AssetAggregate
         return $this->styles;
     }
 
-    public function addScript($file): void
+    public function addScript($file): self
     {
         $this->scripts[$file] = 'resources/js/components/'.$file;
+
+        return $this;
     }
 
     public function getScripts(): array

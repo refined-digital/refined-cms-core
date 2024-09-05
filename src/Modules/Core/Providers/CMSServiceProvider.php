@@ -147,11 +147,11 @@ class CMSServiceProvider extends ServiceProvider
             $replace = ['', ''];
             $path = str_replace($search, $replace, $expression);
             $path = 'svg/'.$path.'.svg';
-            try {
+            //try {
                 return file_get_contents(resource_path($path));
-            } catch (\Exception $e) {
-                return 'file not found: '. $path;
-            }
+            // } catch (\Exception $e) {
+            //     return 'file not found: '. $path;
+            // }
         });
     }
 
