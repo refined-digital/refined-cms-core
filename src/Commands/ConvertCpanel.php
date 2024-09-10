@@ -72,6 +72,7 @@ ssl/
 tmp/
 var/
 www    
+public_html/hot
     ';
 
     $ignore = file_get_contents(base_path('.gitignore'));
