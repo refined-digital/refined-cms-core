@@ -85,6 +85,14 @@
       h5 {
         font-size: $systemFontSize + 4px;
         margin: 0;
+        display: flex;
+        justify-content: space-between;
+        flex: 1;
+        align-items: center;
+
+        small {
+          margin-right: 10px;
+        }
       }
 
       aside {
@@ -121,6 +129,7 @@
       display: none;
     }
   }
+
 }
 
 .form__row.content-editor__form-row {

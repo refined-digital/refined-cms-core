@@ -167,12 +167,19 @@
                 :key="content.id"
               >
                 <div class="content-editor__item-header">
-                  <header @click="toggleContentBlockContent($event, index)">
-                    <div class="content-editor__item-toggle">
+                  <header>
+                    <div class="content-editor__item-toggle" @click="toggleContentBlockContent($event, index)">
                       <i class="fa fa-chevron-right"></i>
                       <i class="fa fa-chevron-down"></i>
                     </div>
-                    <h5>{{ content.name }}</h5>
+                    <h5>
+                      <span @click="toggleContentBlockContent($event, index)">
+                        {{ content.name }}
+                      </span>
+                      <small v-if="canShowAnchors" class="content-editor__anchor">
+                        Anchor: <span @click="selectAndCopy">#{{ anchorPrefix+index }}</span>
+                      </small>
+                    </h5>
                   </header>
                   <aside class="content-editor__item-sort">
                     <i class="fa fa-sort" v-if="page.content && page.content.length > 1"></i>
@@ -1384,8 +1391,59 @@
       clone(data) {
         return JSON.parse(JSON.stringify(data));
       },
+
+      selectAndCopy(event) {
+        const target = event.target;
+
+        // Select the content of the target element
+        const textToCopy = target.innerText || target.textContent;
+        console.log(textToCopy);
+
+        // Use the modern Clipboard API to copy the text
+        navigator.clipboard.writeText(textToCopy)
+          .then(() => {
+            alert('Text copied to clipboard');
+          })
+          .catch(err => {
+            console.error('Failed to copy text: ', err);
+            alert('Failed to copy text');
+          });
+      }
+
+    },
+
+    computed: {
+      canShowAnchors() {
+        if (!this.config) {
+          return false;
+        }
+
+        if (!this.config.show_page_anchors) {
+          return false;
+        }
+
+        if (!this.config.show_page_anchors.enabled) {
+          return false;
+        }
+
+        return true;
+      },
+
+      anchorPrefix() {
+        if (!this.config) {
+          return ''
+        }
+
+        if (!this.config.show_page_anchors) {
+          return '';
+        }
+
+        if (!this.config.show_page_anchors.class) {
+          return '';
+        }
+
+        return this.config.show_page_anchors.class;
+      }
     }
-
-
   }
 </script>

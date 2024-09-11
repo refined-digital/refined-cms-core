@@ -65,6 +65,10 @@ return [
         ]
     ],
 
+    'show_page_anchors' => [
+        'enabled' => false,
+        'class' => 'page__block--',
+    ],
 
     'image' => [
         // global image quality override, default by image() is 90
