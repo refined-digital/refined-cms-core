@@ -1,6 +1,6 @@
 @php
-  $search = ['[colour]', '[/colour]'];
-  $replace = ['', ''];
+  $search = ['[colour]', '[/colour]', '|'];
+  $replace = ['', '', ''];
 
   $name = $d->{$field->field};
 

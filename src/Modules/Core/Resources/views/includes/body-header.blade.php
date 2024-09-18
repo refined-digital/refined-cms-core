@@ -2,8 +2,8 @@
     if (!isset($showHeader)) {
         $showHeader = true;
     }
-    $search = ['[colour]','[/colour]'];
-    $replace = ['', ''];
+    $search = ['[colour]','[/colour]', '|'];
+    $replace = ['', '', ''];
 ?>
 @if(isset($routeEnd) && ($routeEnd == 'index' || $routeEnd == 'fields'))
     @if($showHeader)
