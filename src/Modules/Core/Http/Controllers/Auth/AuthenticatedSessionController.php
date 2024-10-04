@@ -34,6 +34,10 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        if (auth()->user()->user_level_id === 3 && config('auth.login_redirect')) {
+            return redirect()->to(config('auth.login_redirect'));
+        }
+
         return redirect()->intended(route($this->home, absolute: false));
     }
 
