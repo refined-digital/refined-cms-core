@@ -255,6 +255,15 @@ class PageRepository extends CoreRepository
             $uri = end($uriBits);
         }
 
+        $redirects = config('pages.redirects');
+        if (isset($redirects['members'][$uri]) && auth()->check() && auth()->user()->user_level_id > 2) {
+            return redirect($redirects['members'][$uri]);
+        }
+
+        if (isset($redirects['guests'][$uri]) && !auth()->check()) {
+            return redirect($redirects['guests'][$uri]);
+        }
+
         $uriReference = $this->setUriReference($uri);
         $pageId = $uriReference->uriable_id;
         $class = $uriReference->uriable_type;
