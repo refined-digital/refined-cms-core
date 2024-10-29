@@ -237,7 +237,7 @@ class Help {
 
     public function getVideoShareLink($link, $autoPlay, $attrs)
     {
-        if (is_numeric(strpos($link, 'youtube'))) {
+        if (is_numeric(strpos($link, 'youtu'))) {
             return $this->getYoutubeEmbedLink($link, $autoPlay);
         } else if (is_numeric(strpos($link, 'vimeo'))) {
             return $this->getVimeoEmbedLink($link, $attrs);
