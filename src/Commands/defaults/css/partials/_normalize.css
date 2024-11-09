@@ -224,6 +224,18 @@ dd {
   }
 }
 
+nav ul,
+nav ol {
+  list-style: none;
+}
+
+nav ul,
+nav ol,
+nav li {
+  margin: 0;
+  padding: 0;
+}
+
 header,
 footer,
 main,
