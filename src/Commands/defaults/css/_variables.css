@@ -6,6 +6,7 @@
     --body-color: #ffffff;
     --html-color: #ffffff;
     --text-color: #6f6259;
+    --link-color: var(--main-color-1);
     --required-color: #c00;
 
     --border-color: #d6d6d6;

@@ -1,70 +1,31 @@
 /* system */
-html {
-  background-color: var(--html-color);
-  overflow-x: hidden;
-
-  @media print {
-    background: #fff;
-  }
-}
-
 body {
-  padding: var(--header-height) 0 0;
-  @media (max-width: var(--mobile-menu-at)) {
-    padding-top: var(--header-height-mobile);
-  }
+  padding: 0;
 }
 
-body, button, input, select, textarea {
-  font-family: var(--font);
-  line-height: var(--line-height);
-  font-size: var(--font-size);
-  color: var(--text-color);
-  -webkit-font-smoothing: antialiased;
-}
 /* end system */
 
 /* type */
 h1, h2, h3, h4, h5, h6 {
   font-weight: normal;
-  text-wrap: balance;
 }
 h1 {
-  font-size: 48px;
+  font-size: 2.25rem;
 }
 h2 {
-  font-size: 24px;
+  font-size: 2rem;
 }
 h3 {
-  font-size: 21px;
+  font-size: 1.25rem;
 }
 h4 {
-  font-size: 18px;
+  font-size: 1rem;
 }
 h5 {
-  font-size: 14px;
+  font-size: 0.75rem;
 }
 h6 { }
 
-/* improve readability with max-width on paragraphs and lists */
-/* prevent orphans in supported browsers
-p,
-li {
-  max-width: var(--p-max-width, 65ch);
-  text-wrap: pretty;
-}*/
-
-a {
-  color: var(--text-color);
-  text-decoration: none;
-  &:hover {
-    color: var(--main-color-2);
-  }
-  @media (max-width: 500px) {
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  }
-}
 
 a, .button, svg {
   transition: all var(--transition);
@@ -83,7 +44,7 @@ a, .button, svg {
 .holder {
   position: relative;
   color: var(--text-color);
-  padding: 0 20px;
+  padding-inline: 1.25rem;
   width: 100%;
   max-width: var(--holder-width);
   margin-inline: auto;
