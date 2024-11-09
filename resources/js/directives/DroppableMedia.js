@@ -25,7 +25,7 @@ const dragLeave = (e) => {
   return false;
 }
 
-const drop = (e) => {
+const drop = (e, vnode) => {
   if(e.preventDefault) {
     e.preventDefault();
   }
@@ -57,13 +57,13 @@ Vue.directive('droppable-media', {
     el.addEventListener('dragenter', dragOver);
     el.addEventListener('dragover', dragOver);
     el.addEventListener('dragleave', dragLeave);
-    el.addEventListener('drop', drop);
+    el.addEventListener('drop', (e) => drop(e, vnode));
   },
 
-  unbind: function(el) {
+  unbind: function(el, binding, vnode) {
     el.removeEventListener('dragenter', dragOver);
     el.removeEventListener('dragover', dragOver);
     el.removeEventListener('dragleave', dragLeave);
-    el.removeEventListener('drop', drop);
+    el.removeEventListener('drop', (e) => drop(e, vnode));
   }
 });

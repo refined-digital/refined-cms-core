@@ -2,7 +2,7 @@ import Vue from 'vue'
 
 const dragStart = (e, el) => {
   e.target.classList.add('media__file--on-drag-start');
-  e.dataTransfer.setData('media', e.target.dataset.id);
+  e.dataTransfer.setData('media', e.target.closest('.media__file').dataset.id);
   const ctr = el.cloneNode(true);
   e.dataTransfer.setDragImage(ctr, 0, 0);
   document.getElementById('app').classList.add('media-file-dragging');
