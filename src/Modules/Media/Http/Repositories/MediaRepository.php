@@ -3,8 +3,8 @@
 namespace RefinedDigital\CMS\Modules\Media\Http\Repositories;
 
 use RefinedDigital\CMS\Modules\Core\Http\Repositories\CoreRepository;
-use RefinedDigital\CMS\Modules\Media\Models\MediaCategory;
 use RefinedDigital\CMS\Modules\Media\Models\Media;
+use RefinedDigital\CMS\Modules\Media\Models\MediaCategory;
 use Str;
 
 class MediaRepository extends CoreRepository
@@ -12,7 +12,6 @@ class MediaRepository extends CoreRepository
     protected $mediaModel = null;
 
     protected $with = [];
-
 
     public function findCategory($id)
     {
@@ -29,19 +28,19 @@ class MediaRepository extends CoreRepository
 
     public function getTree()
     {
-        $data = collect([]);
+        $data = collect();
         $holders = MediaCategory::whereParentId(0)
-                            ->orderBy('position','asc')
-                            ->get();
+            ->orderBy('position', 'asc')
+            ->get();
 
         if ($holders && $holders->count()) {
             foreach ($holders as $pos => $holder) {
 
-                $holder->type       = 'holder';
-                $holder->children   = [];
-                $holder->files      = [];
-                $holder->show       = $pos == 0; // if we are to show the sub pages
-                $holder->on         = $pos == 0; // if we are on the active item
+                $holder->type = 'holder';
+                $holder->children = [];
+                $holder->files = [];
+                $holder->show = $pos == 0; // if we are to show the sub pages
+                $holder->on = $pos == 0; // if we are on the active item
 
                 // check for children
                 $children = $this->getBranch($holder->id);
@@ -65,16 +64,14 @@ class MediaRepository extends CoreRepository
         }
     }
 
-
     public function getBranch($parentId = 0)
     {
-        $data = collect([]);
+        $data = collect();
 
         $categories = MediaCategory::with($this->with)
             ->whereParentId($parentId)
             ->orderBy('position', 'asc')
-            ->get()
-        ;
+            ->get();
 
         if ($categories && $categories->count()) {
             foreach ($categories as $pos => $category) {
@@ -90,17 +87,17 @@ class MediaRepository extends CoreRepository
     public function getCategoryFiles($categoryId = 0)
     {
         return Media::whereMediaCategoryId($categoryId)
-                            ->orderBy('position', 'asc')
-                            ->get();
+            ->orderBy('position', 'asc')
+            ->get();
     }
 
     public function formatBranch($category)
     {
-        $category->type     = 'holder';
+        $category->type = 'holder';
         $category->children = [];
-        $category->files    = [];
-        $category->show     = false; // if we are to show the sub pages
-        $category->on       = false; // if we are on the active item
+        $category->files = [];
+        $category->show = false; // if we are to show the sub pages
+        $category->on = false; // if we are on the active item
 
         // check for children
         $children = $this->getBranch($category->id);
@@ -119,8 +116,8 @@ class MediaRepository extends CoreRepository
 
     public function getCategoryLeaf()
     {
-        $model = new \RefinedDigital\CMS\Modules\Media\Models\MediaCategory();
-        $leaf = new \stdClass();
+        $model = new \RefinedDigital\CMS\Modules\Media\Models\MediaCategory;
+        $leaf = new \stdClass;
 
         $attributes = $model->getFillable();
         foreach ($attributes as $value) {
@@ -140,8 +137,8 @@ class MediaRepository extends CoreRepository
 
     public function getMediaLeaf()
     {
-        $model = new \RefinedDigital\CMS\Modules\Media\Models\Media();
-        $leaf = new \stdClass();
+        $model = new \RefinedDigital\CMS\Modules\Media\Models\Media;
+        $leaf = new \stdClass;
 
         $attributes = $model->getFillable();
         foreach ($attributes as $value) {
@@ -157,7 +154,6 @@ class MediaRepository extends CoreRepository
         return $leaf;
     }
 
-
     public function uploadFile($request)
     {
         $file = $request->file('file');
@@ -167,12 +163,12 @@ class MediaRepository extends CoreRepository
 
         $fileDetails = [
             'media_category_id' => $request->get('media_category_id'),
-            'active'            => 1,
-            'name'              => $title,
-            'mime'              => $file->getClientMimeType(),
-            'file'              => $fileName,
-            'alt'               => '',
-            'description'       => '',
+            'active' => 1,
+            'name' => $title,
+            'mime' => $file->getClientMimeType(),
+            'file' => $fileName,
+            'alt' => '',
+            'description' => '',
         ];
 
         // create the file
@@ -182,7 +178,7 @@ class MediaRepository extends CoreRepository
             try {
 
                 $path = 'app/public/uploads';
-                $uploadDirectory = 'public/uploads';
+                $uploadDirectory = 'uploads';
                 if (help()->isMultiTenancy()) {
                     $path = 'uploads';
                     $uploadDirectory = 'uploads';
@@ -193,14 +189,14 @@ class MediaRepository extends CoreRepository
                 $directory = $directory.'/'.$newFile->id;
 
                 // create the file directory
-                if (!is_dir($directory)) {
+                if (! is_dir($directory)) {
                     mkdir($directory, 0755, true);
                 }
 
                 $uploadDirectory .= '/'.$newFile->id;
 
                 // store  the file
-                $file->storeAs($uploadDirectory, $fileName);
+                $file->storeAs($uploadDirectory, $fileName, 'public');
 
                 // need to have a local copy and a copy on hydrogen, so store locally as
                 // the storeAs will store on hydrogen
@@ -214,7 +210,7 @@ class MediaRepository extends CoreRepository
 
                 return $newFile;
 
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 \Log::info($e->getMessage());
                 \Log::info($e->getFile());
                 \Log::info($e->getLine());
@@ -252,7 +248,6 @@ class MediaRepository extends CoreRepository
 
         }
     }
-
 
     public function getByIds($ids = [])
     {
