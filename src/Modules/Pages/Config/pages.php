@@ -28,11 +28,6 @@ $link = [
     'page_content_type_id' => PageContentType::LINK->value,
 ];
 
-$linkTitle = [
-    'name' => 'Link Title',
-    'field' => 'link_title',
-    'page_content_type_id' => PageContentType::PLAIN->value,
-];
 
 $icon = [
     'name' => 'Icon',

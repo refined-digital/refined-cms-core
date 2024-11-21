@@ -143,7 +143,7 @@
             <rd-content-blocks
               :config="config"
               :page="page"
-              :canShowAnchors="canShowAnchors"
+              :can-show-anchors="canShowAnchors"
               :key="`page__id--${page.id}`"
               name="content"
             />

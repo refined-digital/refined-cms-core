@@ -156,4 +156,57 @@ class Format
         // If not a string or decoding fails, return the original data
         return $data;
     }
+
+    public function linkAttributes($value)
+    {
+        $link = new \stdClass();
+
+        switch ($value->type) {
+            case 'phone':
+                $url = help()->encodePhoneStr($value->url);
+                break;
+            case 'email':
+                $url = help()->encodeEmailStr($value->url);
+                break;
+            case 'file':
+                $url = $value->file->url ? help()->checkLink($value->file->url) : null;
+                break;
+            default:
+                $url = help()->checkLink($value->url);
+                break;
+        }
+
+        $link->link = $url;
+        $link->title = $value->title;
+
+        $externalLinks = ['external', 'file'];
+
+        $attributes = [];
+        $classes = [];
+
+        if ($value->id) {
+            $attributes[] = 'id="'.$value->id.'"';
+        }
+
+        if ($value->title) {
+            $attributes[] = 'title="'.$value->title.'"';
+        }
+
+        if ($value->classes) {
+            $classes[] = $value->classes;
+        }
+
+        if (in_array($value->type, $externalLinks)) {
+            $attributes[] = 'target="_blank"';
+        }
+
+        if ($value->type === 'external') {
+            $attributes[] = 'rel="nofollow"';
+        }
+
+        $link->attributes = implode(' ', $attributes);
+        $link->classes = $classes;
+
+        return $link;
+    }
 }

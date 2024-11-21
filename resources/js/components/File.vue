@@ -5,7 +5,7 @@
       <div class="form__file-name">
         <strong class="form__file--title" v-if="file.name">{{ file.name }}</strong> <span v-if="file.name">/</span>
         <span class="form__file--size" v-if="file.size">{{ file.size }} / </span>
-        <a :href="file.link.original" v-if="file.link.original" class="form__file--link">View File</a>
+        <a :href="file.link.original" v-if="file.link.original" target="_blank" class="form__file--link">View File</a>
       </div>
       <aside>
         <a href="" @click.prevent.stop="loadModal" class="button button--green button--small">Browse</a>

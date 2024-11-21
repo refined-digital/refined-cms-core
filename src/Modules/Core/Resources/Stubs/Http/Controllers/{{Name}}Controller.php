@@ -5,7 +5,7 @@ namespace App\RefinedCMS\{{FullName}}\Http\Controllers;
 use RefinedDigital\CMS\Modules\Core\Http\Controllers\CoreController;
 use RefinedDigital\CMS\Modules\Core\Http\Repositories\CoreRepository;
 use App\RefinedCMS\{{FullName}}\Http\Requests\{{Name}}Request;
-use App\RefinedCMS\{{FullName}}\Models\{{Name}}
+use App\RefinedCMS\{{FullName}}\Models\{{Name}};
 
 class {{Name}}Controller extends CoreController
 {

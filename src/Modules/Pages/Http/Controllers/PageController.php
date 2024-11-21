@@ -58,8 +58,8 @@ class PageController extends CoreController
      */
     public function store(Request $request)
     {
-        try {
             $item = $this->pageRepository->store($request->input('page'));
+        try {
         } catch (\Exception $e) {
             return response()->json([
                 'success' => 0,
@@ -82,8 +82,8 @@ class PageController extends CoreController
      */
     public function update(Request $request, $id)
     {
-        try {
             $item = $this->pageRepository->update($id, $request->input('page'));
+        try {
 
             if ($request->has('parent')) {
                 $this->pageRepository->moveChildren($id, $request->input('parent'));

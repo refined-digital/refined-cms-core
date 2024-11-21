@@ -686,6 +686,8 @@ class PageRepository extends CoreRepository
 
                 if (isset($block['fields'])) {
                     $block['fields'] = array_map(function ($item) use ($removeFields) {
+                        $contentType = $item['page_content_type_id'];
+
                         unset($item['page_content_type_id']);
 
                         if (isset($item['fields'])) {
@@ -698,7 +700,7 @@ class PageRepository extends CoreRepository
                             }
                         }
 
-                        if (isset($item['content']) && is_array($item['content'])) {
+                        if (isset($item['content']) && is_array($item['content']) && $contentType !== PageContentTypeEnum::LINK->value) {
                             $item['content'] = array_map(function ($content) {
                                 $newContent = $content;
                                 foreach ($newContent as $key => $cont) {
@@ -748,7 +750,7 @@ class PageRepository extends CoreRepository
         $newFields = new \stdClass();
         foreach ($fields as $field) {
             $content = $field['content'];
-            if (!is_array($content) && Str::contains($content, $settingKey) && !in_array($content, $settingKeys)) {
+            if ($field['page_content_type_id'] !== PageContentTypeEnum::LINK->value && !is_array($content) && Str::contains($content, $settingKey) && !in_array($content, $settingKeys)) {
                 $settingKeys[] = $content;
             }
             if ($field['page_content_type_id'] == PageContentTypeEnum::REPEATABLE->value) {

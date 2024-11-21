@@ -5,7 +5,7 @@
   $siteUrl = help()->getSiteUrl();
   $publicUrl = help()->getPublicUrl();
 @endphp
-        <div id="app" class="app__holder app__module--{{ $module }}" :class="{ 'app--has-media' : media.active, 'app--has-media' : media.showModal, 'app--has-sitemap' : sitemap.active }">
+        <div id="app" class="app__holder app__module--{{ $module }}" :class="{ 'app--has-media' : media.active, 'app--has-media' : media.showModal, 'app--has-sitemap' : sitemap.active, 'app--has-link' : link.active }">
 
             <div class="loader" v-show="loading"><div class="spinner"></div></div>
 

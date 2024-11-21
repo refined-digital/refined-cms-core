@@ -109,6 +109,9 @@ window.app = new Vue({
     	  model: null,
         fieldId: null,
     	},
+      link: {
+        active: false,
+      },
       linkAttributes: {},
     	form: {
         action: 1,
