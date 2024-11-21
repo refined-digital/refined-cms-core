@@ -14,7 +14,7 @@ class Create{{Name}}Table extends Migration
     {
         //
         Schema::create('{{SnakeNames}}', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->timestamps();
             $table->softDeletes();
             $table->boolean('active')->default(1);

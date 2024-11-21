@@ -12,6 +12,7 @@ class CoreModel extends Model
     use SortableTrait, EditFormFieldsTrait, ClearResponseCacheTrait;
 
     protected $appends = [];
+    protected $casts = [];
 
     protected $excerptLength = 200;
     protected $excerptType = 'character';
@@ -126,6 +127,20 @@ class CoreModel extends Model
         }
 
         return $excerpt;
+    }
+
+    public function addToAppends($data)
+    {
+        if (property_exists($this, 'appends')) {
+            $this->appends = array_merge($this->appends, $data);
+        }
+    }
+
+    public function addToCasts($data)
+    {
+        if (property_exists($this, 'casts')) {
+            $this->casts = array_merge($this->casts, $data);
+        }
     }
 
 }

@@ -34,6 +34,7 @@ import SelectAsTags from './components/SelectAsTags';
 import ProductVariations from './components/ProductVariations';
 import FormEmail from './components/FormEmail';
 import ColourPicker from './components/ColourPicker';
+import ContentBlocks from './components/ContentBlocks';
 
 window.eventBus = new Vue({});
 
@@ -76,6 +77,7 @@ Vue.component('rd-form-options', FormOptions);
 Vue.component('rd-form-repeatable', FormRepeatable);
 Vue.component('rd-product-variations', ProductVariations);
 Vue.component('rd-colour-picker', ColourPicker);
+Vue.component('rd-content-blocks', ContentBlocks);
 Vue.component('Icon', Icon);
 
 

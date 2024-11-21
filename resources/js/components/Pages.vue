@@ -140,65 +140,13 @@
           </header>
 
           <div class="pages__content-editor">
-
-            <div class="content-editor__header" v-if="config.content">
-              <div class="content-editor__buttons">
-                <template v-for="content of config.content">
-                  <button class="button button--small button--green" :class="{ 'button--has-note' : content.description }" @click.prevent.stop="loadContentBlock(content)">
-                    <span class="button__text">
-                      {{ content.name }}
-                    </span>
-                    <span class="content-editor__button-note" v-if="content.description">
-                      <span class="fa fa-question-circle"></span>
-                      <span class="content-editor__button--content" v-html="content.description"></span>
-                    </span>
-                  </button>
-                </template>
-              </div>
-            </div><!-- / content editor controls -->
-
-            <div class="content-editor__data form form__horz" v-sortable-content-item>
-              <div
-                class="content-editor__item"
-                :class="{ 'open' : index === 0}"
-                v-for="(content, index) of page.content"
-                :data-index="index"
-                :data-id="content.id"
-                :key="content.id"
-              >
-                <div class="content-editor__item-header">
-                  <header>
-                    <div class="content-editor__item-toggle" @click="toggleContentBlockContent($event, index)">
-                      <i class="fa fa-chevron-right"></i>
-                      <i class="fa fa-chevron-down"></i>
-                    </div>
-                    <h5>
-                      <span @click="toggleContentBlockContent($event, index)">
-                        {{ content.name }}
-                      </span>
-                      <small v-if="canShowAnchors" class="content-editor__anchor">
-                        Anchor: <span @click="selectAndCopy">#{{ anchorPrefix+index }}</span>
-                      </small>
-                    </h5>
-                  </header>
-                  <aside class="content-editor__item-sort">
-                    <i class="fa fa-sort" v-if="page.content && page.content.length > 1"></i>
-                    <i class="fa fa-times" @click="removeContentBlock(index)"></i>
-                  </aside>
-                </div>
-                <div class="content-editor__item-content" :style="{ display: index === 0 ? 'block' : 'none' }">
-                  <div class="form form__horz">
-                    <div
-                        class="content-editor__form-row form__row form__row--inline-label"
-                        v-for="field of content.fields"
-                    >
-                      <label :for="`form--content-${field.id}`" class="form__label">{{field.name}}</label>
-                      <rd-content-editor-field :item="field" :key="`${content.id}_${field.id}`"></rd-content-editor-field>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <rd-content-blocks
+              :config="config"
+              :page="page"
+              :canShowAnchors="canShowAnchors"
+              :key="`page__id--${page.id}`"
+              name="content"
+            />
           </div><!-- content editor -->
         </div>
         <div class="pages__tab-pane" v-show="tab === 'meta'">
@@ -291,11 +239,19 @@
   import _ from 'lodash';
   import Vue from 'vue';
 
+  import { PagesImageNoteMixin } from  '../mixins/PagesImageNote.js';
+  import { PagesRepeatableMixin } from  '../mixins/PagesRepeatable.js';
+
   export default {
 
     name: 'Pages',
 
     props: [ 'siteUrl', 'publicUrl', 'config', 'modules' ],
+
+    mixins: [
+      PagesImageNoteMixin,
+      PagesRepeatableMixin
+    ],
 
     created () {
       // get pages
@@ -393,10 +349,6 @@
         ],
 
         tabs: [],
-
-        pageContentAsArray: [
-          9
-        ]
       }
     },
 
@@ -426,21 +378,6 @@
         }
 
         return true;
-
-        /*
-        if (this.$root.user.user_level_id < 2) {
-          return true;
-        }
-
-
-        let show = true;
-
-        if (tab.name === 'Content' && this.page.content && this.page.content.length < 1) {
-          show = false;
-        }
-
-        return show;
-         */
       },
 
       showTab(tab) {
@@ -776,26 +713,6 @@
       },
 
 
-      // gets the banner dimensions
-      getImageNote(fieldConfig) {
-        const config = fieldConfig;
-        let width = config.internal.width;
-        let height = config.internal.height;
-
-        if (this.page.id === 1) {
-          width = config.home.width;
-          height = config.home.height;
-        }
-
-        if (typeof config.depths !== 'undefined' && config.depths[this.page.depth]) {
-          width = config.depths[this.page.depth].width;
-          height = config.depths[this.page.depth].height;
-        }
-
-        return `Image will be resized to <strong>fit within ${width}px wide x ${height}px tall</strong>
-        <br/>If you are having trouble with images, <a href="https://www.iloveimg.com/photo-editor" target="_blank">visit this page</a> to create your image.`;
-      },
-
       // find the page in the parent and remove
       findAndRemove(pages, item) {
         if (pages.length) {
@@ -1087,78 +1004,6 @@
       ///////////////////////////////
 
 
-      ////////////////////////////////
-      //// content editor
-      ///////////////////////////////
-      loadContentBlock(content) {
-        const newContent = _.cloneDeep(content);
-        newContent.fields.forEach(field => {
-          if (!field.content) {
-            field.content = field.page_content_type_id === 9 ? [] : ''
-          }
-          if (!field.id) {
-            field.id = `-${_.kebabCase(field.name)}-id-${Date.now()}`
-          }
-          if (!field.key) {
-            field.key = `-${_.kebabCase(field.name)}-key-${Date.now()}`
-          }
-        })
-        if (!newContent.id) {
-          newContent.id = `id-${Date.now()}`
-        }
-        if (!newContent.key) {
-          newContent.key = `key-${Date.now()}`
-        }
-
-        this.page.content.push(newContent);
-      },
-
-      removeContentBlock(index) {
-        swal({
-          title: 'Are you sure?',
-          icon: 'warning',
-          buttons: true,
-          dangerMode: true,
-        }).then(value => {
-          if (value) {
-            this.page.content.splice(index, 1);
-          }
-        });
-      },
-
-      // todo: remove the jquery from here
-      toggleContentBlockContent(event) {
-        const klass = 'content-editor__item';
-        const element = $(event.target).closest(`.${klass}`);
-        if (element) {
-          const block = element.find('.content-editor__item-content');
-
-          if (!element.hasClass('open')) {
-            block.slideDown(200, function () {
-              element.addClass('open')
-            })
-          } else {
-            block.slideUp(200, function () {
-              element.removeClass('open')
-            })
-          }
-        }
-      },
-
-      reorderContentBlocks(order) {
-        const contentLookup = _.keyBy(this.page.content, 'id');
-        const newOrder = order.map(item => {
-          return contentLookup[item.id];
-        })
-
-        Vue.set(this.page, 'content', newOrder);
-      },
-
-
-      ////////////////////////////////
-      //// end content editor
-      ///////////////////////////////
-
       showBanner() {
         let show = false;
 
@@ -1219,83 +1064,6 @@
           }
           this.tabs.push(tab);
         }
-      },
-
-      addRepeatable(data, fields) {
-
-        let row = {};
-        if (fields.length) {
-          fields.forEach((field, index) => {
-
-            let note = this.getRepeatableFieldNote(field);
-            let d = {
-              page_content_type_id: field.page_content_type_id,
-              content: this.pageContentAsArray.includes(field.page_content_type_id) ? [] : '',
-              key: this.getRepeatableFieldIndex(field, index),
-              note,
-              id: `-${_.kebabCase(field.name)}-id-${Date.now()}`,
-              show: true
-            };
-            if (typeof field.options !== 'undefined') {
-              d.options = field.options;
-            }
-            if (typeof field.width !== 'undefined') {
-              d.width = field.width;
-            }
-            if (typeof field.height !== 'undefined') {
-              d.height = field.height;
-            }
-
-            row[field.field] = d;
-          });
-        }
-
-        data.push(row)
-      },
-
-      removeRepeatable(data, index) {
-        if (typeof data !== 'undefined') {
-          swal({
-            title: 'Are you sure?',
-            icon: 'warning',
-            buttons: true,
-            dangerMode: true,
-          })
-          .then((value) => {
-            if (value) {
-              data.splice(index, 1);
-            }
-          });
-        }
-      },
-
-      getRepeatableFieldIndex(field, index) {
-        return `${this.page.id ? this.page.id : 'new'}-${field.field}-${field.page_content_type_id}-${field.id ? `${field.id}-` : ''}${index}`;
-      },
-
-      getRepeatableFieldNote(field) {
-        let note = '';
-        if (field.field === 'image' && field.config) {
-          note = this.getImageNote(field.config);
-        } else if (field.note) {
-          note = field.note;
-        }
-
-        return note;
-      },
-
-      getRepeatableConfigField(fields, index) {
-        let configField = null;
-
-        if (Array.isArray(fields)) {
-          fields.forEach(field => {
-            if (field.field == index) {
-              configField = field;
-            }
-          });
-        }
-
-        return configField;
       },
 
       resetPageData() {

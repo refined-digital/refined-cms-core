@@ -24,7 +24,11 @@ trait EditFormFieldsTrait
         if (method_exists($this, 'setFormFields')) {
             $fields = $this->setFormFields();
         } else {
-            $fields = $this->formFields;
+            if (method_exists($this, 'formFields')) {
+                $fields = $this->formFields();
+            } else {
+                $fields = $this->formFields;
+            }
         }
 
         if (isset($this->isPage) && $this->isPage) {

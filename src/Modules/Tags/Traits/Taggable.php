@@ -29,6 +29,7 @@ trait Taggable
                 // first remove the tags
                 $model->syncTags([]);
 
+
                 // now add the tags
                 foreach (request()->get('modelTags') as $type => $tags) {
                     $tags = array_filter(explode(',', $tags));

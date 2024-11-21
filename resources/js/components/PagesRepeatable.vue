@@ -109,7 +109,7 @@
       getParent(name = 'Pages') {
         let parent = this.$parent;
         while(typeof parent !== 'undefined'){
-          if (parent.$options.name === name) {
+          if (parent.hasOwnProperty('addRepeatable')) {
             return parent;
           } else {
             parent = parent.$parent;

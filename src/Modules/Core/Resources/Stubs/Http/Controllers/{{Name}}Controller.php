@@ -5,10 +5,11 @@ namespace App\RefinedCMS\{{FullName}}\Http\Controllers;
 use RefinedDigital\CMS\Modules\Core\Http\Controllers\CoreController;
 use RefinedDigital\CMS\Modules\Core\Http\Repositories\CoreRepository;
 use App\RefinedCMS\{{FullName}}\Http\Requests\{{Name}}Request;
+use App\RefinedCMS\{{FullName}}\Models\{{Name}}
 
 class {{Name}}Controller extends CoreController
 {
-    protected $model = 'App\RefinedCMS\{{FullName}}\Models\{{Name}}';
+    protected $model = {{Name}}::class;
     protected $prefix = '{{names}}::';
     protected $route = '{{name}}';
     protected $heading = '{{ReadableName}}';
@@ -29,8 +30,8 @@ class {{Name}}Controller extends CoreController
         ];
 
         $table->routes = (object) [
-            'edit'      => 'refined.{{name}}.edit',
-            'destroy'   => 'refined.{{name}}.destroy'
+            'edit'      => 'refined.'.$this->route.'.edit',
+            'destroy'   => 'refined.'.$this->route.'.destroy'
         ];
 
         $table->sortable = true;

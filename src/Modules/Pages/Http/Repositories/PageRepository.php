@@ -10,6 +10,7 @@ use RefinedDigital\CMS\Modules\Pages\Models\PageContentType;
 use RefinedDigital\CMS\Modules\Pages\Models\PageHolder;
 use RefinedDigital\CMS\Modules\Pages\Models\Template;
 use RefinedDigital\CMS\Modules\Core\Enums\PageContentType as PageContentTypeEnum;
+use RefinedDigital\CMS\Modules\Pages\Traits\HasContentBlocks;
 use Str;
 use Illuminate\Support\Arr;
 
@@ -328,7 +329,7 @@ class PageRepository extends CoreRepository
             $page->base = $baseHref . $uriReference->uri;
         }
 
-        if ($base == 'Page') {
+        if (in_array(HasContentBlocks::class, class_uses_recursive($page::class))) {
             $page->content = $this->formatPageContentForFrontend($page->the_content);
             unset($page->the_content);
         }
@@ -407,8 +408,7 @@ class PageRepository extends CoreRepository
         if (isset($_GET) && sizeof($_GET)) {
             $head[] = '<link rel="canonical" href="' . request()->url() . '" />';
         } elseif (request()->url() != $baseHref . $page->meta->uri) {
-            // todo: fix this
-            // $head[] = '<link rel="canonical" href="'.rtrim($baseHref.$page->meta->uri, '/').'/"/>';
+            $head[] = '<link rel="canonical" href="'.rtrim($baseHref.$page->meta->uri, '/').'/"/>';
         } elseif (isset($page->is_single_page)) {
             $head[] = '<link rel="canonical" href="' . rtrim($baseHref, '/') . '/"/>';
         }

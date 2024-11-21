@@ -25,7 +25,7 @@
 
     created () {
       this.placeholder = `Select ${this.field.label ? this.field.label : this.setType.replace(/-/gi,' ')}`;
-      this.fieldName = `modelTags[${this.field.name.replace('data__', '')}`;
+      this.fieldName = `modelTags[${this.field.name.replace('data__', '')}]`;
       if (this.asSelect) {
         this.fieldName = this.field.name;
       }

@@ -1,6 +1,5 @@
 @foreach($data->getFormFields() as $tab)
     <div class="tab__pane" v-show="tab == '{{ Str::slug($tab->name) }}'">
-
         @if (isset($tab->sections))
             @if (isset($tab->sections->left))
                 <div class="tab__groups">
@@ -20,6 +19,15 @@
                     </div><!-- / tab right -->
                 </div>
             @endif
+
+            @if (isset($tab->sections->bottom) && sizeof($tab->sections->bottom->blocks))
+                <div class="tab__bottom">
+                    @foreach($tab->sections->bottom->blocks as $group)
+                        @include('core::form.blocks')
+                    @endforeach
+                </div>
+            @endif
+
         @elseif (isset($tab->blocks))
             @foreach($tab->blocks as $group)
                 @include('core::form.blocks')
