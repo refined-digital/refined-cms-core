@@ -5,9 +5,9 @@
 
     <div class="link__type link__type--with-button">
       <div class="link__file form__file-name">
-        <strong class="form__file--title" v-if="linkModel.text">{{ linkModel.text }}</strong>
-        <span v-if="linkModel.text"> / </span>
-        <a :href="linkModel.type === 'file' ? linkModel.file.url : linkModel.url" target="_blank" class="form__file--link" v-if="linkModel.url">View Link</a>
+        <strong class="form__file--title" v-if="linkModel && linkModel.text">{{ linkModel.text }}</strong>
+        <span v-if="linkModel && linkModel.text"> / </span>
+        <a :href="linkModel && linkModel.type === 'file' ? linkModel.file.url : linkModel.url" target="_blank" class="form__file--link" v-if="linkModel && linkModel.url">View Link</a>
       </div>
 
       <aside>
@@ -216,7 +216,8 @@
             if (typeof value === 'string' && value.length) {
               value = JSON.parse(value);
             }
-            if (typeof value !== 'object') {
+
+            if (typeof value !== 'object' || !value) {
               this.modal = _.cloneDeep(this.modal);
             } else {
               this.modal = value;

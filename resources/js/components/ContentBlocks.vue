@@ -50,6 +50,7 @@
             <div
               class="content-editor__form-row form__row form__row--inline-label"
               v-for="field of content.fields"
+              v-show="canShow(field, content)"
             >
               <label :for="`form--content-${field.id}`" class="form__label">{{field.name}}</label>
               <rd-content-editor-field :item="field" :key="`${content.id}_${field.id}`"></rd-content-editor-field>
@@ -162,6 +163,26 @@ export default {
 
       Vue.set(this.page, this.name, newOrder);
     },
+
+    canShow(field, content) {
+
+      if (!field.showOn) {
+        return true;
+      }
+
+      const keys = field.showOn.split(':');
+      // find the corrosponding field
+      const altField = content.fields.find(item => {
+        const key = _.snakeCase(item.name)
+        return key === keys.at(0)
+      })
+
+      if (altField) {
+        return altField.content == keys.at(1);
+      }
+      
+      return true;
+    }
   }
 }
 
