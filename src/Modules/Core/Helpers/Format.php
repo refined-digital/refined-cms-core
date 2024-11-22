@@ -192,16 +192,20 @@ class Format
             $attributes[] = 'title="'.$value->title.'"';
         }
 
-        if ($value->classes) {
-            $classes[] = $value->classes;
-        }
-
         if (in_array($value->type, $externalLinks)) {
             $attributes[] = 'target="_blank"';
         }
 
         if ($value->type === 'external') {
             $attributes[] = 'rel="nofollow"';
+        }
+
+        if ($value->classes) {
+            $classes[] = $value->classes;
+        }
+
+        if ($value->type === 'anchor') {
+            $classes[] = 'scroll-to';
         }
 
         $link->attributes = implode(' ', $attributes);

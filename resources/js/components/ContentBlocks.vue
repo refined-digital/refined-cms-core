@@ -180,7 +180,7 @@ export default {
       if (altField) {
         return altField.content == keys.at(1);
       }
-      
+
       return true;
     }
   }

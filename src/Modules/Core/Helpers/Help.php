@@ -142,11 +142,15 @@ class Help {
         return '<a href="'.$emailHex.'"' . ( $classes ? ' class="'.$classes.'"' : '') . '>'.$text.'</a>';
     }
 
-    public function encodeEmailStr($email)
+    public function encodeEmailStr($email, $withMailTo = true)
     {
         $emailHex = '';
         for($i=0; $i<strlen($email); $i++){
             $emailHex .= '&#'.hexdec(bin2hex($email[$i])).';';
+        }
+
+        if (!$withMailTo) {
+            return $emailHex;
         }
 
         return $this->mailtoHex.$emailHex;
