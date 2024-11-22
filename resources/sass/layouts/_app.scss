@@ -177,13 +177,17 @@
     }
   }
 
-  &--has-media, &--has-sitemap {
+  &--has-media, &--has-sitemap, &--has-link {
     z-index: 1001;
   }
 
-  &__module--media.app--has-media {
+  &__module--media.app--has-media, .app--has-link {
     .app__right {
       z-index: 3;
     }
   }
+}
+
+.app--has-link .app__right {
+  z-index: 3;
 }
