@@ -177,7 +177,7 @@ class Format
         }
 
         $link->link = $url;
-        $link->title = $value->title;
+        $link->title = $value->text;
 
         $externalLinks = ['external', 'file'];
 
