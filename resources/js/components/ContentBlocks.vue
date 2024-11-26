@@ -93,6 +93,12 @@ export default {
     this.data = this.page[this.name];
   },
 
+  created() {
+    eventBus.$on('pages.sortable.content-item.dragend', data => {
+      this.reorderContentBlocks(data);
+    })
+  },
+
   methods: {
     loadContentBlock(content) {
       const newContent = _.cloneDeep(content);

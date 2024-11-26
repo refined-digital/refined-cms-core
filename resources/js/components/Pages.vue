@@ -258,10 +258,6 @@
       this.$root.loading = true;
       this.setupModules();
 
-      eventBus.$on('pages.sortable.content-item.dragend', data => {
-        this.reorderContentBlocks(data);
-      })
-
       axios
         .get(`${window.siteUrl}/refined/pages/get-tree`)
         .then(r => {
