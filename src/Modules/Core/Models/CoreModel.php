@@ -100,7 +100,12 @@ class CoreModel extends Model
 
     public function getExcerptAttribute()
     {
-        $content = strip_tags($this->content);
+        $data = $this->content;
+        if (isset($this->text) && isset($this->content)) {
+            $data = $this->text;
+        }
+
+        $content = strip_tags($data);
         $search = ['&nbsp;', '’'];
         $replace = [' ', "'"];
         $content = str_replace($search, $replace, $content);
