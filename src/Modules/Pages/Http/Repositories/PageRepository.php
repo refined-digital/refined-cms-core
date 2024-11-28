@@ -759,7 +759,7 @@ class PageRepository extends CoreRepository
                     $newRow = new \stdClass();
                     foreach ($row as $key => $value) {
                         $vContent = $value['content'];
-                        if (!is_array($vContent) && Str::contains($vContent, $settingKey) && !in_array($vContent, $settingKeys)) {
+                        if (is_string($vContent) && Str::contains($vContent, $settingKey) && !in_array($vContent, $settingKeys)) {
                             $settingKeys[] = $vContent;
                         }
 

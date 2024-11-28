@@ -60,7 +60,7 @@
       </div>
     </div>
 
-    <textarea :name="name" :value="JSON.stringify(data)" style="display:none"></textarea>
+    <textarea :name="name" :value="JSON.stringify(data)" style="display: none"></textarea>
   </div>
 </template>
 
@@ -167,7 +167,8 @@ export default {
         return contentLookup[item.id];
       })
 
-      Vue.set(this.page, this.name, newOrder);
+      this.data = newOrder;
+      Vue.set(this.page, this.name, this.data);
     },
 
     canShow(field, content) {
