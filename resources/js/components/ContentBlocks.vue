@@ -76,7 +76,7 @@ import { PagesRepeatableMixin } from  '../mixins/PagesRepeatable.js';
 export default {
   name: 'rd-content-blocks',
 
-  props: [ 'config', 'page', 'name', 'canShowAnchors' ],
+  props: [ 'config', 'page', 'name' ],
 
   mixins: [
     PagesImageNoteMixin,
@@ -97,6 +97,40 @@ export default {
     eventBus.$on('pages.sortable.content-item.dragend', data => {
       this.reorderContentBlocks(data);
     })
+  },
+
+  computed: {
+    canShowAnchors() {
+      if (!this.config) {
+        return false;
+      }
+
+      if (!this.config.show_page_anchors) {
+        return false;
+      }
+
+      if (!this.config.show_page_anchors.enabled) {
+        return false;
+      }
+
+      return true;
+    },
+
+    anchorPrefix() {
+      if (!this.config) {
+        return ''
+      }
+
+      if (!this.config.show_page_anchors) {
+        return '';
+      }
+
+      if (!this.config.show_page_anchors.class) {
+        return '';
+      }
+
+      return this.config.show_page_anchors.class;
+    }
   },
 
   methods: {
@@ -189,6 +223,23 @@ export default {
       }
 
       return true;
+    },
+
+    selectAndCopy(event) {
+      const target = event.target;
+
+      // Select the content of the target element
+      const textToCopy = target.innerText || target.textContent;
+
+      // Use the modern Clipboard API to copy the text
+      navigator.clipboard.writeText(textToCopy)
+        .then(() => {
+          alert('Text copied to clipboard');
+        })
+        .catch(err => {
+          console.error('Failed to copy text: ', err);
+          alert('Failed to copy text');
+        });
     }
   }
 }

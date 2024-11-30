@@ -1,7 +1,7 @@
 <template>
     <div class="form__horz-group">
       <template v-if="item.page_content_type_id === 1">
-        <rd-rich-text :name="item.name" :id="'form--content-'+item.id" v-model="item.content" :content="item.content" :key="item.key"></rd-rich-text>
+        <rd-rich-text :id="'form--content-'+item.id" v-model="item.content" :content="item.content" :key="item.key"></rd-rich-text>
       </template>
 
       <template v-if="item.page_content_type_id === 2">

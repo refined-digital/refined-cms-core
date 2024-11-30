@@ -1161,7 +1161,6 @@
 
         // Select the content of the target element
         const textToCopy = target.innerText || target.textContent;
-        console.log(textToCopy);
 
         // Use the modern Clipboard API to copy the text
         navigator.clipboard.writeText(textToCopy)
@@ -1175,39 +1174,5 @@
       }
 
     },
-
-    computed: {
-      canShowAnchors() {
-        if (!this.config) {
-          return false;
-        }
-
-        if (!this.config.show_page_anchors) {
-          return false;
-        }
-
-        if (!this.config.show_page_anchors.enabled) {
-          return false;
-        }
-
-        return true;
-      },
-
-      anchorPrefix() {
-        if (!this.config) {
-          return ''
-        }
-
-        if (!this.config.show_page_anchors) {
-          return '';
-        }
-
-        if (!this.config.show_page_anchors.class) {
-          return '';
-        }
-
-        return this.config.show_page_anchors.class;
-      }
-    }
   }
 </script>
