@@ -6,16 +6,18 @@ use RefinedDigital\CMS\Modules\Core\Enums\PageContentType;
 
 trait HasContentBlocks
 {
+    protected function initializeHasContentBlocks()
+    {
+        $this->addToAppends([
+            'the_content'
+        ]);
+    }
     public function getTheContentAttribute() {
         $data = $this->content;
         if (is_string($data)) {
             $data = json_decode($data);
         }
         $setup = pages()->formatConfigContent(config('pages.content'));
-
-        $this->addToAppends([
-            'the_content'
-        ]);
 
         $setupLookup = [];
         $setupLookupByName = [];
@@ -26,6 +28,7 @@ trait HasContentBlocks
             }
         }
 
+        // help()->trace($data, true);
         $formattedData = [];
         if ($data && sizeof($data)) {
             foreach ($data as $field) {
@@ -112,6 +115,37 @@ trait HasContentBlocks
                 }
 
                 $formattedData[] = $newField;
+
+            }
+        }
+
+        // todo: fix this, shouldn't need to do the additional loop
+        foreach ($formattedData as $key => $block) {
+            if (!isset($block['fields'])) {
+                continue;
+            }
+
+            foreach ($block['fields'] as $fieldKey => $field) {
+                if (!isset($field['page_content_type_id']) || $field['page_content_type_id'] !== PageContentType::REPEATABLE->value) {
+                    continue;
+                }
+
+                foreach ($field as $contentKey => $content) {
+                    if ($contentKey !== 'content') {
+                        continue;
+                    }
+
+                    foreach ($content as $contentBlockKey => $contentBlock) {
+                        foreach ($contentBlock as $cFieldKey => $cField) {
+
+                            if (isset($cField['content']->content)) {
+                                $cField['content'] = $cField['content']->content;
+                                $formattedData[$key]['fields'][$fieldKey][$contentKey][$contentBlockKey][$cFieldKey] = $cField;
+                            }
+                        }
+                    }
+
+                }
             }
         }
 
