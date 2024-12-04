@@ -18,58 +18,55 @@
 
     <div class="rd-link form__horz sitemap" :class="active ? 'sitemap--active' : ''">
       <div class="sitemap__inner">
-        <div class="form__group">
-          <div class="form__row">
-            <label class="form__label" :for="`form--link-text-${elementId}`">Link Text</label>
-            <input type="text" class="form__control" name="link_text" :id="`form--link-text-${elementId}`" v-model="modal.text"/>
-          </div>
-
-          <div class="form__row">
-            <label class="form__label" :for="`form--link-type-${elementId}`">Link Type</label>
-            <select class="form__control" name="link_type" :id="`form--link-type-${elementId}`" v-model="modal.type">
-              <option value="internal">Internal Page</option>
-              <option value="external">External Link</option>
-              <option value="file">File / Image</option>
-              <option value="email">Email</option>
-              <option value="phone">Phone</option>
-              <option value="anchor">Anchor</option>
-            </select>
-          </div>
-
-          <div class="form__row">
-            <label class="form__label" :for="`form--link-url-${elementId}`">{{ urlLabel }}</label>
-            <div class="link__type" :class="classList">
-              <input :type="modal.type === 'file' ? 'hidden' : 'text'" class="form__control" name="link_url" :id="`form--link-url-${elementId}`" v-model="modal.url"/>
-
-
-              <div class="link__file form__file-name" v-if="modal.type === 'file'">
-                <strong class="form__file--title" v-if="modal.file.name">{{ modal.file.name }}</strong>
-                <span v-if="modal.file.name"> / </span>
-                <a :href="modal.file.url" v-if="modal.file.url" target="_blank" class="form__file--link">View File</a>
-              </div>
-
-              <aside v-if="hasButton.includes(modal.type)">
-                <a href="" @click.prevent.stop="loadModal" class="button button--green button--small">Browse</a>
-                <a href="" @click.prevent.stop="clearFile" class="button button--red button--small" v-if="modal.type === 'file'">Clear File</a>
-              </aside>
-
-              <div class="form__note" v-if="modal.type === 'external'">Must start with <code>http://</code> or <code>https://</code></div>
+        <div class="sitemap__fields">
+          <div class="form__group">
+            <div class="form__row" v-show="!isSimple">
+              <label class="form__label" :for="`form--link-text-${elementId}`">Link Text</label>
+              <input type="text" class="form__control" name="link_text" :id="`form--link-text-${elementId}`" v-model="modal.text"/>
             </div>
-          </div>
 
-          <div class="form__row">
-            <label class="form__label" :for="`form--link-title-${elementId}`">Element Title</label>
-            <input type="text" class="form__control" name="link_title" :id="`form--link-title-${elementId}`" v-model="modal.title"/>
-          </div>
+            <div class="form__row">
+              <label class="form__label" :for="`form--link-type-${elementId}`">Link Type</label>
+              <select class="form__control" name="link_type" :id="`form--link-type-${elementId}`" v-model="modal.type">
+                <option :value="item.value" v-for="item in options" :key="item.label">{{ item.label }}</option>
+              </select>
+            </div>
 
-          <div class="form__row">
-            <label class="form__label" :for="`form--link-id-${elementId}`">Element ID</label>
-            <input type="text" class="form__control" name="link_id" :id="`form--link-id-${elementId}`" v-model="modal.id"/>
-          </div>
+            <div class="form__row">
+              <label class="form__label" :for="`form--link-url-${elementId}`">{{ urlLabel }}</label>
+              <div class="link__type" :class="classList">
+                <input :type="modal.type === 'file' ? 'hidden' : 'text'" class="form__control" name="link_url" :id="`form--link-url-${elementId}`" v-model="modal.url"/>
 
-          <div class="form__row">
-            <label class="form__label" :for="`form--link-classes-${elementId}`">Element Classes</label>
-            <input type="text" class="form__control" name="link_classes" :id="`form--link-classes-${elementId}`" v-model="modal.classes"/>
+
+                <div class="link__file form__file-name" v-if="modal.type === 'file'">
+                  <strong class="form__file--title" v-if="modal.file.name">{{ modal.file.name }}</strong>
+                  <span v-if="modal.file.name"> / </span>
+                  <a :href="modal.file.url" v-if="modal.file.url" target="_blank" class="form__file--link">View File</a>
+                </div>
+
+                <aside v-if="hasButton.includes(modal.type)">
+                  <a href="" @click.prevent.stop="loadModal" class="button button--green button--small">Browse</a>
+                  <a href="" @click.prevent.stop="clearFile" class="button button--red button--small" v-if="modal.type === 'file'">Clear File</a>
+                </aside>
+
+                <div class="form__note" v-if="modal.type === 'external'">Must start with <code>http://</code> or <code>https://</code></div>
+              </div>
+            </div>
+
+            <div class="form__row" v-show="!isSimple">
+              <label class="form__label" :for="`form--link-title-${elementId}`">Element Title</label>
+              <input type="text" class="form__control" name="link_title" :id="`form--link-title-${elementId}`" v-model="modal.title"/>
+            </div>
+
+            <div class="form__row" v-show="!isSimple">
+              <label class="form__label" :for="`form--link-id-${elementId}`">Element ID</label>
+              <input type="text" class="form__control" name="link_id" :id="`form--link-id-${elementId}`" v-model="modal.id"/>
+            </div>
+
+            <div class="form__row" v-show="!isSimple">
+              <label class="form__label" :for="`form--link-classes-${elementId}`">Element Classes</label>
+              <input type="text" class="form__control" name="link_classes" :id="`form--link-classes-${elementId}`" v-model="modal.classes"/>
+            </div>
           </div>
         </div>
 
@@ -86,7 +83,7 @@
 <script>
     export default {
 
-        props: ['name', 'id', 'value'],
+        props: ['name', 'id', 'value', 'settings'],
 
         data() {
             return {
@@ -150,19 +147,56 @@
 
             return '';
           },
+
+          isSimple() {
+            if (!this.settings) {
+              return false;
+            }
+
+            if (this.settings.simple) {
+              return true;
+            }
+
+            return false;
+          },
+
+          options() {
+
+            const items = [
+              { value: 'internal', label: 'Internal Page' },
+              { value: 'external', label: 'External Link' },
+            ];
+
+            const items2 = [
+              { value: 'file', label: 'File / Image' },
+              { value: 'email', label: 'Email' },
+              { value: 'phone', label: 'Phone' },
+              { value: 'anchor', label: 'Anchor' },
+            ];
+
+            const options = [
+              ...items
+            ];
+
+            if (!this.isSimple) {
+              options.push(...items2);
+            }
+
+            return options;
+          }
         },
 
-        methods:  {
+      methods: {
 
-          clearLink() {
-            this.link = null;
-            this.linkModel.text = null;
-            this.linkModel.type = 'internal';
-            this.linkModel.url = null;
-            this.linkModel.id = null;
-            this.linkModel.title = null;
-            this.linkModel.classes = null;
-            this.linkModel.file.name = null;
+        clearLink() {
+          this.link = null;
+          this.linkModel.text = null;
+          this.linkModel.type = 'internal';
+          this.linkModel.url = null;
+          this.linkModel.id = null;
+          this.linkModel.title = null;
+          this.linkModel.classes = null;
+          this.linkModel.file.name = null;
             this.linkModel.file.url = null;
           },
 
@@ -214,7 +248,12 @@
           loadLink() {
             let value = this.value;
             if (typeof value === 'string' && value.length) {
-              value = JSON.parse(value);
+              try {
+                value = JSON.parse(value);
+              } catch (e) {
+                console.warn(e.message);
+                value = _.cloneDeep(this.modal);
+              }
             }
 
             if (typeof value !== 'object' || !value) {
@@ -228,11 +267,17 @@
           },
 
           save() {
-            const check = this.modal.url && this.modal.text;
-            if (!check) {
+            const fieldsToCheck = [this.modal.url];
+            if (!this.isSimple) {
+              fieldsToCheck.push(this.modal.text);
+            }
+
+            const check = fieldsToCheck.filter(item => !!item);
+
+            if (check.length !== fieldsToCheck.length) {
 
               let msg = 'The following fields are required: ';
-              if (!this.modal.text) msg += "\n - Link Text";
+              if (!this.modal.text && !this.isSimple) msg += "\n - Link Text";
               if (!this.modal.url) msg += "\n - URL";
               alert(msg);
 
@@ -281,8 +326,13 @@
   max-height: 492px;
 }
 
+.rd-link .sitemap__fields {
+  min-height: 402px;
+}
+
 .rd-link .form__row {
   flex: 0 0 100%;
 }
+
 
 </style>
