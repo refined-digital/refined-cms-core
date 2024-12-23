@@ -90,7 +90,45 @@ export default {
   },
 
   mounted() {
-    this.data = this.page[this.name];
+    const data = this.page[this.name];
+    const contentBlockLookup = {};
+    this.config.content.forEach((item) => {
+      contentBlockLookup[item.name] = item;
+    })
+
+    this.data = data.map(block => {
+      const item = contentBlockLookup[block.name];
+      if (item) {
+        const fields = _.cloneDeep(block.fields);
+        block.fields = item.fields.map(field => {
+          const intField = fields.find(itm => itm.name === field.name);
+          if (intField) {
+            field.id = intField.id;
+            field.key = intField.key;
+            field.content = intField.content;
+          } else {
+            if (!field.content) {
+              field.content = field.page_content_type_id === 9 ? [] : ''
+            }
+
+            if (!field.id) {
+              field.id = `-${_.kebabCase(field.name)}-id-${Date.now()}`
+            }
+
+            if (!field.key) {
+              field.key = `-${_.kebabCase(field.name)}-key-${Date.now()}`
+            }
+          }
+
+          return field;
+        });
+
+        return block;
+
+      }
+    })
+
+    this.data = data;
   },
 
   created() {
