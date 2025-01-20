@@ -192,6 +192,10 @@
               content: ' / ';
             }
           }
+
+          &--control {
+            display: none;
+          }
         }
       }
     }
@@ -206,7 +210,20 @@
           margin: 0;
           flex: 0 0 100%;
           border-width: 1px 1px 0;
-          max-height: 100px;
+          max-height: 102px;
+          display: flex;
+          gap: 5px;
+
+          &--control {
+            flex: 0 0 30px;
+            padding-top: 5px;
+            text-align: center;
+          }
+
+          &--item {
+            flex: 1;
+          }
+
 
           &:last-child {
             border-bottom-width: 1px;
@@ -226,7 +243,8 @@
             .media__file {
               &-thumb {
                 flex: 0 0 100px;
-                border-right: 1px solid #e5e5e5;
+                border: solid #e5e5e5;
+                border-width: 0 1px;
 
                 &-image {
                   border: 5px solid #fff;

@@ -11,7 +11,17 @@ class ResourceRegistrar extends OriginalRegistrar {
      *
      * @var array
      */
-    protected $resourceDefaults = ['index', 'create', 'store', 'edit', 'update', 'destroy', 'position', 'duplicate'];
+    protected $resourceDefaults = [
+        'index',
+        'create',
+        'store',
+        'edit',
+        'update',
+        'destroy',
+        'bulk',
+        'position',
+        'duplicate'
+    ];
 
 
     /**
@@ -39,5 +49,14 @@ class ResourceRegistrar extends OriginalRegistrar {
         $action = $this->getResourceAction($name, $controller, 'duplicate', $options);
 
         return $this->router->get($uri, $action);
+    }
+
+    protected function addResourceBulk($name, $base, $controller, $options)
+    {
+        $uri = $this->getResourceUri($name).'/bulk';
+
+        $action = $this->getResourceAction($name, $controller, 'bulk', $options);
+
+        return $this->router->post($uri, $action);
     }
 }

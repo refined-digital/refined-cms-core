@@ -85,11 +85,11 @@ window.app = new Vue({
     el: '#app',
 
     data: {
-    	tab: 'content',
+    	tab: window.tab || 'content',
     	loading: false,
     	siteUrl: false,
     	publicUrl: false,
-      richEditor: {},
+        richEditor: {},
     	user: {},
     	content: {
     	  name: null,
@@ -109,26 +109,28 @@ window.app = new Vue({
     	  model: null,
         fieldId: null,
     	},
-      link: {
+        link: {
         active: false,
       },
-      linkAttributes: {},
+        linkAttributes: {},
     	form: {
-        action: 1,
-        typeId: 1,
-        receipt: 0,
-        reply: 0,
-        labelPosition: 1,
-        field: {
-          type: 0,
-          showOptionsFor: [
-              '3','4','5'
-          ],
-          showDataFor: [
-              '19'
-          ]
-        },
-    	}
+            action: 1,
+            typeId: 1,
+            receipt: 0,
+            reply: 0,
+            labelPosition: 1,
+            field: {
+              type: 0,
+              showOptionsFor: [
+                  '3','4','5'
+              ],
+              showDataFor: [
+                  '19'
+              ]
+            },
+    	},
+        bulk: [],
+        bulkAction: false,
     },
 
     methods: {
@@ -163,6 +165,25 @@ window.app = new Vue({
       clone(data) {
         return JSON.parse(JSON.stringify(data));
       },
+
+        handleBulk(e) {
+          const form = e.target.closest('form');
+          if (form && this.bulkAction) {
+              swal({
+                  title: 'Are you sure?',
+                  icon: 'warning',
+                  buttons: true,
+                  dangerMode: true,
+              })
+              .then((value) => {
+                  if (value) {
+                      form.submit();
+                  } else {
+                      this.bulkAction = false;
+                  }
+              })
+          }
+        }
     }
 });
 

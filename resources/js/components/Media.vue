@@ -49,6 +49,11 @@
               <span>|</span>
               <a href="" class="button button--red button--small" @click.prevent.stop="close">Close</a>
             </template>
+
+            <template v-if="bulk.length && !show.buttons.controls && $root.media.display === 'list'">
+              <span>|</span>
+              <a href="" class="button button--red button--small" @click.prevent.stop="bulkDelete">Delete</a>
+            </template>
           </aside>
         </div><!-- / header -->
 
@@ -156,10 +161,18 @@
                   v-for="file of category.files"
                   v-draggable-media
                   :data-id="file.id"
-                  @click="mediaLoad(file)"
                   v-if="type === file.type || type === '*' || (type === 'Image' && file.type === 'Video')"
                 >
-                  <rd-media-file :file="file" :site-url="siteUrl"></rd-media-file>
+
+                  <div class="media__file--control">
+                      <div class="form__checkbox form__checkbox--no-input">
+                          <input type="checkbox" v-model="bulk" :id="`item--${file.id}`" name="bulk[]" :value="file.id"/>
+                          <label :for="`item--${file.id}`"></label>
+                      </div>
+                  </div>
+                  <div class="media__file--item" @click="mediaLoad(file)">
+                    <rd-media-file :file="file" :site-url="siteUrl"></rd-media-file>
+                  </div>
                 </div>
 
               </div><!-- / files -->
@@ -308,6 +321,7 @@
         tree: {},
         files: {},
         searchableFiles: [],
+        bulk: [],
 
         leaf: {
           category: {},
@@ -1078,6 +1092,63 @@
                     icon: 'error'
                   });
                 }
+              })
+              .catch(e => {
+                console.log(e);
+                this.$root.loading = false;
+                swal({
+                  title: 'Something went wrong',
+                  text: e.message,
+                  icon: 'error'
+                });
+              })
+            ;
+          }
+        })
+        ;
+      },
+
+      bulkDelete() {
+        swal({
+          title: 'Are you sure?',
+          icon: 'warning',
+          buttons: true,
+          dangerMode: true,
+        })
+        .then((value) => {
+          if (value) {
+            this.$root.loading = true;
+            axios
+              .post(`${window.siteUrl}/refined/media/bulk`, {
+                ids: this.bulk,
+              })
+              .then(r => {
+                this.$root.loading = false;
+                if (r.data.success) {
+                  // find the items
+                  const items = this.bulk.map(id => {
+                    return this.files[id] || null
+                  }).filter(item => !!item);
+
+                  if (items.length) {
+                    items.forEach(item => {
+                      // find the page and splice from parent
+                      this.mediaFindAndRemove(this.categories, item);
+                    })
+                  }
+
+                  this.loadFiles();
+                  this.bulk = [];
+
+                } else {
+                  swal({
+                    title: 'Something went wrong',
+                    text: r.data.msg,
+                    icon: 'error'
+                  });
+                }
+
+
               })
               .catch(e => {
                 console.log(e);

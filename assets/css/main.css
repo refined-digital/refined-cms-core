@@ -69,6 +69,10 @@ a, input[type=submit], button, .button, .data-table__cell, .tree li i, .tree li 
   transition: all 200ms linear;
 }
 
+.hidden {
+  display: none;
+}
+
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
 *, *:before, *:after {
   box-sizing: border-box;
@@ -912,11 +916,11 @@ code {
 .form__checkbox input {
   display: none;
 }
-.form__checkbox input:checked ~ label:before {
+.form__checkbox input:checked ~ label:before, .form__checkbox.checked label:before {
   background: #707cd2;
   border-color: #707cd2;
 }
-.form__checkbox input:checked ~ label:after {
+.form__checkbox input:checked ~ label:after, .form__checkbox.checked label:after {
   opacity: 1;
   top: 2px;
 }
@@ -1183,6 +1187,30 @@ textarea.form__control {
 .block__header h3 {
   margin: 0;
 }
+.block__controls {
+  margin: 0 0 10px;
+  min-height: 36px;
+}
+.block__controls > div, .block__controls form {
+  display: inline-block;
+}
+.block__controls > div span {
+  display: inline-block;
+  margin: 0 5px;
+}
+.block__controls form input {
+  display: none;
+}
+.block__controls .hidden {
+  display: none;
+}
+.block__controls .sort-button {
+  min-height: 36px;
+  display: inline-flex;
+}
+.block__controls .sort-button a {
+  margin-block: auto;
+}
 
 .search {
   display: flex;
@@ -1274,6 +1302,12 @@ textarea.form__control {
 .data-table__cell--sort {
   width: 10px;
   cursor: n-resize;
+}
+.data-table__cell--bulk {
+  width: 10px;
+}
+.data-table__cell--bulk .form__checkbox {
+  margin-top: 4px;
 }
 .data-table__cell--date-time {
   text-align: right;
@@ -1901,6 +1935,9 @@ textarea.form__control {
 .media__files--thumb .media__file-type span:after {
   content: " / ";
 }
+.media__files--thumb .media__file--control {
+  display: none;
+}
 .media__files--list img {
   max-width: 100px;
 }
@@ -1908,7 +1945,17 @@ textarea.form__control {
   margin: 0;
   flex: 0 0 100%;
   border-width: 1px 1px 0;
-  max-height: 100px;
+  max-height: 102px;
+  display: flex;
+  gap: 5px;
+}
+.media__files--list .media__file--control {
+  flex: 0 0 30px;
+  padding-top: 5px;
+  text-align: center;
+}
+.media__files--list .media__file--item {
+  flex: 1;
 }
 .media__files--list .media__file:last-child {
   border-bottom-width: 1px;
@@ -1925,7 +1972,8 @@ textarea.form__control {
 }
 .media__files--list .media__file figure .media__file-thumb {
   flex: 0 0 100px;
-  border-right: 1px solid #e5e5e5;
+  border: solid #e5e5e5;
+  border-width: 0 1px;
 }
 .media__files--list .media__file figure .media__file-thumb-image {
   border: 5px solid #fff;

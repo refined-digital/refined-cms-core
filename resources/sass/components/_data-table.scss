@@ -76,6 +76,13 @@
       cursor: n-resize;
     }
 
+    &--bulk {
+      width: 10px;
+      .form__checkbox {
+        margin-top: 4px;
+      }
+    }
+
     &--date-time {
       text-align: right;
       width: 226px;

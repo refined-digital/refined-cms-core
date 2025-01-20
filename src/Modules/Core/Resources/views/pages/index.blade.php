@@ -10,15 +10,43 @@
 
         @if ($data->count())
             @if (isset($tableSettings->fields))
-                @if ($sortable && $showEnableSorting)
-                    <p class="text--right">
-                        @if (request()->has('perPage') && request()->get('perPage') == 'all')
-                            <a href="{{ $routes->index }}" class="text--red">Cancel Sorting</a>
-                        @else
-                            <a href="{{ $routes->index }}?perPage=all">Enable Sorting</a>
-                        @endif
-                    </p>
-                @endif
+                <div class="block__controls text--right">
+                    @if (isset($routes->bulk))
+                        <div :class="bulk.length ? '' : 'hidden'">
+                            <form method="post" action="{{ $routes->bulk }}">
+                                {{ csrf_field() }}
+                                {{ method_field('POST') }}
+
+                                @foreach($data as $d)
+                                    <input type="checkbox" v-model="bulk" name="bulk[]" value="{{ $d->id }}" id="item--{{ $d->id }}"/>
+                                @endforeach
+
+                                <select name="type" class="form__control" @change="handleBulk" v-model="bulkAction">
+                                    <option :value="false">Select</option>
+                                    <option value="Activate">Activate</option>
+                                    <option value="Deactivate">Deactivate</option>
+                                    @if ($canDelete)
+                                    <option name="Delete">Delete</option>
+                                    @endif
+                                </select>
+                            </form>
+
+                            @if ($sortable && $showEnableSorting)
+                                <span> | </span>
+                            @endif
+                        </div>
+                    @endif
+
+                    @if ($sortable && $showEnableSorting)
+                        <div class="sort-button">
+                            @if (request()->has('perPage') && request()->get('perPage') == 'all')
+                                <a href="{{ $routes->index }}" class="button button--small button--red">Cancel Sorting</a>
+                            @else
+                                <a href="{{ $routes->index }}?perPage=all" class="button button--small button--green">Enable Sorting</a>
+                            @endif
+                        </div>
+                   @endif
+                </div>
 
                 <div class="data-table">
                   @if (isset($tableSettings->note) && $tableSettings->note)
@@ -30,6 +58,9 @@
                         <tr>
                             @if ($sort)
                                 <th class="data-table__cell data-table__cell--sort"></th>
+                            @endif
+                            @if(isset($routes->bulk))
+                            <th class="data-table__cell data-table__cell--bulk"></th>
                             @endif
                             @foreach($tableSettings->fields as $field)
                                 <th class="data-table__cell{{ isset($field->classes) ? ' '.implode(' ', $field->classes) : '' }}">{!! help()->getTableLink($field) !!}</th>
@@ -43,6 +74,15 @@
                             <tr data-id="{{ $d->id }}">
                                 @if ($sort)
                                     <td class="data-table__cell data-table__cell--sort"><i class="fa fa-sort"></i></td>
+                                @endif
+                                @if (isset($routes->bulk))
+                                <td class="data-table__cell data-table__cell--bulk">
+                                    <div class="form__checkbox form__checkbox--no-input" :class="
+                                        bulk.includes('{{ $d->id }}') ? 'checked' : ''
+                                    ">
+                                        <label for="item--{{ $d->id }}"></label>
+                                    </div>
+                                </td>
                                 @endif
                                 @foreach($tableSettings->fields as $field)
                                     <td class="data-table__cell{{ isset($field->classes) ? ' '.implode(' ', $field->classes) : '' }}">
