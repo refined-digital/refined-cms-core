@@ -100,6 +100,69 @@ class CoreRepository
 
     }
 
+    public function bulkDestroy($ids)
+    {
+        $model = $this->model;
+        if (is_array($ids)) {
+            $model::whereIn('id', $ids)->delete();
+
+            // log
+            activity()
+                ->causedBy(auth()->check() ? auth()->user()->id : null)
+                ->withProperties(['Deleted bulk items' => $ids])
+                ->log('An item was deleted');
+
+            // send back a note to say all good
+            return true;
+        }
+
+        // return false as we failed
+        return false;
+
+    }
+
+    public function bulkActivate($ids)
+    {
+        $model = $this->model;
+        if (is_array($ids)) {
+            $model::whereIn('id', $ids)->update(['active' => true]);
+
+            // log
+            activity()
+                ->causedBy(auth()->check() ? auth()->user()->id : null)
+                ->withProperties(['Activated bulk items' => $ids])
+                ->log('Items were activated');
+
+            // send back a note to say all good
+            return true;
+        }
+
+        // return false as we failed
+        return false;
+
+    }
+
+    public function bulkDeactivate($ids)
+    {
+        $model = $this->model;
+        if (is_array($ids)) {
+            $model::whereIn('id', $ids)->update(['active' => false]);
+
+            // log
+            activity()
+                ->causedBy(auth()->check() ? auth()->user()->id : null)
+                ->withProperties(['Deactivated bulk items' => $ids])
+                ->log('Items were deactivated');
+
+            // send back a note to say all good
+            return true;
+        }
+
+        // return false as we failed
+        return false;
+
+    }
+
     public function update($id, $request, $extra = [])
     {
         $model = $this->model;

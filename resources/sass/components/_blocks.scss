@@ -13,4 +13,35 @@
       margin: 0;
     }
   }
+
+  &__controls {
+    margin: 0 0 10px;
+    min-height: 36px;
+
+    & > div, form {
+      display: inline-block;
+    }
+
+    & > div span {
+      display: inline-block;
+      margin: 0 5px;
+    }
+
+    form input {
+       display: none;
+    }
+
+    .hidden {
+       display: none;
+    }
+
+    .sort-button {
+      min-height: 36px;
+      display: inline-flex;
+
+      a {
+        margin-block: auto;
+      }
+    }
+  }
 }

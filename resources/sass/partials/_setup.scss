@@ -25,3 +25,7 @@ a, input[type="submit"], button, .button, .data-table__cell, .tree li i, .tree l
 .pages__tab, .content-editor__field .fa-times, .media-uploader__dropzone,
 .media-uploader__header aside i, .media__toggle i, .data-table__cell--options-plus i,
 .data-table__cell--options-delete i, .rich-editor__icon, .content-editor__item-header i { transition:all 200ms linear; }
+
+.hidden {
+  display: none;
+}

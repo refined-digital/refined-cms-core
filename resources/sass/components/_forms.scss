@@ -280,18 +280,18 @@
 
     input {
       display: none;
-      &:checked ~ label {
-        &:before {
-          background: color(main-color-1);
-          border-color: color(main-color-1);
-        }
-        &:after {
-          opacity: 1;
-          top: 2px;
-        }
-      }
     }
 
+    input:checked ~ label, &.checked label {
+      &:before {
+        background: color(main-color-1);
+        border-color: color(main-color-1);
+      }
+      &:after {
+        opacity: 1;
+        top: 2px;
+      }
+    }
   }
 
   &__forgotten {

@@ -50,6 +50,7 @@ class CoreController extends Controller
                     $this->routes->update = 'refined.'.$this->route.'.update';
                     $this->routes->sort = route('refined.'.$this->route.'.position', $route);
                     $this->routes->index = route('refined.'.$this->route.'.index', $route);
+                    $this->routes->bulk = route('refined.'.$this->route.'.bulk', $route);
                 } else {
                     $this->routes->search = route('refined.'.$this->route.'.index');
                     $this->routes->create = route('refined.'.$this->route.'.create');
@@ -57,6 +58,7 @@ class CoreController extends Controller
                     $this->routes->update = 'refined.'.$this->route.'.update';
                     $this->routes->sort = route('refined.'.$this->route.'.position');
                     $this->routes->index = route('refined.'.$this->route.'.index');
+                    $this->routes->bulk = route('refined.'.$this->route.'.bulk');
                 }
             }
         }
@@ -204,12 +206,23 @@ class CoreController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    public function bulk(Request $request)
+    {
+        if ($request->type === 'Activate' && $this->coreRepository->bulkActivate($request->get('bulk'))) {
+            return back()->with('status', 'Items deleted activated');
+        }
+
+        if ($request->type === 'Deactivate' && $this->coreRepository->bulkDeactivate($request->get('bulk'))) {
+            return back()->with('status', 'Items deactivated successfully');
+        }
+
+        if ($request->type === 'Delete' && $this->coreRepository->bulkDestroy($request->get('bulk'))) {
+            return back()->with('status', 'Items deleted successfully');
+        }
+
+        return back()->with('status', 'Failed to complete action')->with('fail', 1);
+    }
+
     public function destroy($id)
     {
         if ($this->coreRepository->destroy($id)) {
