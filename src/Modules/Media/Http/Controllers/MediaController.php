@@ -110,6 +110,21 @@ class MediaController extends CoreController
         ]);
     }
 
+    public function bulk(Request $request)
+    {
+        $this->mediaRepository->setModel($this->model);
+        if ($this->mediaRepository->bulkDestroy($request->get('ids'))) {
+            return response()->json([
+                'success' => 1,
+            ]);
+        }
+
+        return response()->json([
+            'success' => 0,
+            'msg'   => 'Failed to delete'
+        ]);
+    }
+
     /**
      * Store the specified resource in storage.
      *

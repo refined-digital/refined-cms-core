@@ -50,6 +50,7 @@ class ResourceRegistrar extends OriginalRegistrar {
 
         return $this->router->get($uri, $action);
     }
+
     protected function addResourceBulk($name, $base, $controller, $options)
     {
         $uri = $this->getResourceUri($name).'/bulk';

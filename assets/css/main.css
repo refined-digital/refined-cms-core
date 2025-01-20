@@ -1935,6 +1935,9 @@ textarea.form__control {
 .media__files--thumb .media__file-type span:after {
   content: " / ";
 }
+.media__files--thumb .media__file--control {
+  display: none;
+}
 .media__files--list img {
   max-width: 100px;
 }
@@ -1942,7 +1945,17 @@ textarea.form__control {
   margin: 0;
   flex: 0 0 100%;
   border-width: 1px 1px 0;
-  max-height: 100px;
+  max-height: 102px;
+  display: flex;
+  gap: 5px;
+}
+.media__files--list .media__file--control {
+  flex: 0 0 30px;
+  padding-top: 5px;
+  text-align: center;
+}
+.media__files--list .media__file--item {
+  flex: 1;
 }
 .media__files--list .media__file:last-child {
   border-bottom-width: 1px;
@@ -1959,7 +1972,8 @@ textarea.form__control {
 }
 .media__files--list .media__file figure .media__file-thumb {
   flex: 0 0 100px;
-  border-right: 1px solid #e5e5e5;
+  border: solid #e5e5e5;
+  border-width: 0 1px;
 }
 .media__files--list .media__file figure .media__file-thumb-image {
   border: 5px solid #fff;

@@ -3878,6 +3878,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: {
@@ -3928,6 +3941,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       tree: {},
       files: {},
       searchableFiles: [],
+      bulk: [],
       leaf: {
         category: {},
         media: {}
@@ -4624,8 +4638,61 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         }
       });
     },
-    mediaFindAndRemove: function mediaFindAndRemove(items, item) {
+    bulkDelete: function bulkDelete() {
       var _this13 = this;
+
+      swal({
+        title: 'Are you sure?',
+        icon: 'warning',
+        buttons: true,
+        dangerMode: true
+      }).then(function (value) {
+        if (value) {
+          _this13.$root.loading = true;
+          axios.post("".concat(window.siteUrl, "/refined/media/bulk"), {
+            ids: _this13.bulk
+          }).then(function (r) {
+            _this13.$root.loading = false;
+
+            if (r.data.success) {
+              // find the items
+              var items = _this13.bulk.map(function (id) {
+                return _this13.files[id] || null;
+              }).filter(function (item) {
+                return !!item;
+              });
+
+              if (items.length) {
+                items.forEach(function (item) {
+                  // find the page and splice from parent
+                  _this13.mediaFindAndRemove(_this13.categories, item);
+                });
+              }
+
+              _this13.loadFiles();
+
+              _this13.bulk = [];
+            } else {
+              swal({
+                title: 'Something went wrong',
+                text: r.data.msg,
+                icon: 'error'
+              });
+            }
+          })["catch"](function (e) {
+            console.log(e);
+            _this13.$root.loading = false;
+            swal({
+              title: 'Something went wrong',
+              text: e.message,
+              icon: 'error'
+            });
+          });
+        }
+      });
+    },
+    mediaFindAndRemove: function mediaFindAndRemove(items, item) {
+      var _this14 = this;
 
       if (items.length) {
         items.forEach(function (category) {
@@ -4633,13 +4700,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             category.files.forEach(function (file, index) {
               if (file.id === item.id) {
                 category.files.splice(index, 1);
-                delete _this13.files[item.id];
+                delete _this14.files[item.id];
               }
             });
           }
 
           if (category.children.length) {
-            _this13.mediaFindAndRemove(category.children, item);
+            _this14.mediaFindAndRemove(category.children, item);
           }
         });
       }
@@ -90834,6 +90901,30 @@ var render = function () {
                       ),
                     ]
                   : _vm._e(),
+                _vm._v(" "),
+                _vm.bulk.length &&
+                !_vm.show.buttons.controls &&
+                _vm.$root.media.display === "list"
+                  ? [
+                      _c("span", [_vm._v("|")]),
+                      _vm._v(" "),
+                      _c(
+                        "a",
+                        {
+                          staticClass: "button button--red button--small",
+                          attrs: { href: "" },
+                          on: {
+                            click: function ($event) {
+                              $event.preventDefault()
+                              $event.stopPropagation()
+                              return _vm.bulkDelete.apply(null, arguments)
+                            },
+                          },
+                        },
+                        [_vm._v("Delete")]
+                      ),
+                    ]
+                  : _vm._e(),
               ],
               2
             ),
@@ -91318,18 +91409,92 @@ var render = function () {
                               ],
                               staticClass: "media__file",
                               attrs: { "data-id": file.id },
-                              on: {
-                                click: function ($event) {
-                                  return _vm.mediaLoad(file)
-                                },
-                              },
                             },
                             [
-                              _c("rd-media-file", {
-                                attrs: { file: file, "site-url": _vm.siteUrl },
-                              }),
-                            ],
-                            1
+                              _c(
+                                "div",
+                                { staticClass: "media__file--control" },
+                                [
+                                  _c(
+                                    "div",
+                                    {
+                                      staticClass:
+                                        "form__checkbox form__checkbox--no-input",
+                                    },
+                                    [
+                                      _c("input", {
+                                        directives: [
+                                          {
+                                            name: "model",
+                                            rawName: "v-model",
+                                            value: _vm.bulk,
+                                            expression: "bulk",
+                                          },
+                                        ],
+                                        attrs: {
+                                          type: "checkbox",
+                                          id: "item--" + file.id,
+                                          name: "bulk[]",
+                                        },
+                                        domProps: {
+                                          value: file.id,
+                                          checked: Array.isArray(_vm.bulk)
+                                            ? _vm._i(_vm.bulk, file.id) > -1
+                                            : _vm.bulk,
+                                        },
+                                        on: {
+                                          change: function ($event) {
+                                            var $$a = _vm.bulk,
+                                              $$el = $event.target,
+                                              $$c = $$el.checked ? true : false
+                                            if (Array.isArray($$a)) {
+                                              var $$v = file.id,
+                                                $$i = _vm._i($$a, $$v)
+                                              if ($$el.checked) {
+                                                $$i < 0 &&
+                                                  (_vm.bulk = $$a.concat([$$v]))
+                                              } else {
+                                                $$i > -1 &&
+                                                  (_vm.bulk = $$a
+                                                    .slice(0, $$i)
+                                                    .concat($$a.slice($$i + 1)))
+                                              }
+                                            } else {
+                                              _vm.bulk = $$c
+                                            }
+                                          },
+                                        },
+                                      }),
+                                      _vm._v(" "),
+                                      _c("label", {
+                                        attrs: { for: "item--" + file.id },
+                                      }),
+                                    ]
+                                  ),
+                                ]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "div",
+                                {
+                                  staticClass: "media__file--item",
+                                  on: {
+                                    click: function ($event) {
+                                      return _vm.mediaLoad(file)
+                                    },
+                                  },
+                                },
+                                [
+                                  _c("rd-media-file", {
+                                    attrs: {
+                                      file: file,
+                                      "site-url": _vm.siteUrl,
+                                    },
+                                  }),
+                                ],
+                                1
+                              ),
+                            ]
                           )
                         : _vm._e()
                     }),

@@ -26,6 +26,11 @@ Route::namespace('CMS\Modules\Media\Http\Controllers')
                 'uses' => 'MediaController@updateParent',
             ]);
 
+            Route::post('bulk', [
+                'as' => 'bulk',
+                'uses' => 'MediaController@bulk',
+            ]);
+
             Route::put('{id}', [
                 'as' => 'update',
                 'uses' => 'MediaController@update',
@@ -35,6 +40,7 @@ Route::namespace('CMS\Modules\Media\Http\Controllers')
                 'as' => 'show',
                 'uses' => 'MediaController@show',
             ]);
+
 
             Route::delete('{id}', [
                 'as' => 'destroy',
