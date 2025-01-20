@@ -85,7 +85,7 @@ window.app = new Vue({
     el: '#app',
 
     data: {
-    	tab: 'content',
+    	tab: window.tab || 'content',
     	loading: false,
     	siteUrl: false,
     	publicUrl: false,

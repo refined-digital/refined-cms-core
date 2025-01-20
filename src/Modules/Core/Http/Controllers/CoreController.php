@@ -158,6 +158,10 @@ class CoreController extends Controller
 
         $route = $this->getReturnRoute($item->id, $request->get('action'));
 
+        if ($request->tab !== 'meta-data') {
+            session()->flash('tab', $request->tab);
+        }
+
         return redirect($route)->with('status', 'Successfully created');
     }
 
@@ -187,6 +191,10 @@ class CoreController extends Controller
         $this->coreRepository->update($id, $request);
 
         $route = $this->getReturnRoute($id, $request->get('action'));
+
+        if ($request->tab !== 'meta-data') {
+            session()->flash('tab', $request->tab);
+        }
 
         return redirect($route)->with('status', 'Successfully updated');
     }
