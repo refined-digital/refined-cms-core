@@ -90,7 +90,51 @@ export default {
   },
 
   mounted() {
-    this.data = this.page[this.name];
+    const data = this.page[this.name];
+    const contentBlockLookup = {};
+    this.config.content.forEach((item) => {
+      contentBlockLookup[item.name] = item;
+    })
+
+    this.data = data.map(block => {
+      const item = contentBlockLookup[block.name];
+      if (item) {
+        const fieldsLookup = {};
+        const itemFields = [];
+        item.fields.forEach((field, index) => {
+          fieldsLookup[field.name] = {
+            index,
+            field,
+          };
+          itemFields.push(field.name);
+        })
+        
+        const blockFields = block.fields.map(item => item.name);
+
+
+        const missingFields = _.difference(itemFields, blockFields);
+        if (missingFields.length) {
+          missingFields.forEach(key => {
+            const itemToInsert = fieldsLookup[key];
+            if (itemToInsert) {
+              const uniq = this.uniqueId(10);
+              const newField = {
+                ..._.cloneDeep(itemToInsert.field),
+                content: itemToInsert.field.page_content_type_id === 9 ? [] : '',
+                id: `-${_.kebabCase(itemToInsert.field.name)}-id-${uniq}`,
+                key: `-${_.kebabCase(itemToInsert.field.name)}-key-${uniq}`
+              }
+              block.fields.splice(itemToInsert.index, 0, newField);
+            }
+          })
+        }
+
+      }
+
+      return block;
+    })
+
+    this.data = data;
   },
 
   created() {
@@ -240,6 +284,18 @@ export default {
           console.error('Failed to copy text: ', err);
           alert('Failed to copy text');
         });
+    },
+
+    uniqueId(length) {
+      let result = '';
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      const charactersLength = characters.length;
+      let counter = 0;
+      while (counter < length) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        counter += 1;
+      }
+      return result;
     }
   }
 }
