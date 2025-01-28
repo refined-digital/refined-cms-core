@@ -2140,6 +2140,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _mixins_PagesImageNote_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../mixins/PagesImageNote.js */ "./resources/js/mixins/PagesImageNote.js");
 /* harmony import */ var _mixins_PagesRepeatable_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../mixins/PagesRepeatable.js */ "./resources/js/mixins/PagesRepeatable.js");
 /* provided dependency */ var $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+//
+//
 //
 //
 //
@@ -2222,13 +2230,106 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   mounted: function mounted() {
-    this.data = this.page[this.name];
-  },
-  created: function created() {
     var _this = this;
 
+    var data = this.page[this.name];
+    var contentBlockLookup = {};
+    this.config.content.forEach(function (item) {
+      contentBlockLookup[item.name] = item;
+    });
+    this.data = data.map(function (block) {
+      var item = contentBlockLookup[block.name];
+
+      if (item) {
+        var fieldsLookup = {};
+        var itemFields = [];
+        item.fields.forEach(function (field, index) {
+          fieldsLookup[field.name] = {
+            index: index,
+            field: field
+          };
+          itemFields.push(field.name);
+        });
+        console.group(block.name);
+        console.group('block');
+        console.log(block);
+        var blockFields = [];
+        block.fields.map(function (item) {
+          console.log(item.name, item, fieldsLookup[item.name]);
+          blockFields.push(item.name);
+        });
+        console.groupEnd();
+        console.group('item');
+        console.log(item);
+        item.fields.map(function (item) {
+          return console.log(item);
+        });
+        console.groupEnd();
+
+        var missingFields = lodash__WEBPACK_IMPORTED_MODULE_2___default().difference(itemFields, blockFields);
+
+        if (missingFields.length) {
+          missingFields.forEach(function (key) {
+            var itemToInsert = fieldsLookup[key];
+
+            if (itemToInsert) {
+              var uniq = _this.uniqueId(10);
+
+              var newField = _objectSpread(_objectSpread({}, lodash__WEBPACK_IMPORTED_MODULE_2___default().cloneDeep(itemToInsert.field)), {}, {
+                content: itemToInsert.field.page_content_type_id === 9 ? [] : '',
+                id: "-".concat(lodash__WEBPACK_IMPORTED_MODULE_2___default().kebabCase(itemToInsert.field.name), "-id-").concat(uniq),
+                key: "-".concat(lodash__WEBPACK_IMPORTED_MODULE_2___default().kebabCase(itemToInsert.field.name), "-key-").concat(uniq)
+              });
+
+              block.fields.splice(itemToInsert.index, 0, newField);
+            }
+          });
+        }
+
+        console.log('field lookup', fieldsLookup);
+        console.log('missing fields', missingFields);
+        console.groupEnd();
+      }
+
+      return block;
+
+      if (item) {
+        var fields = lodash__WEBPACK_IMPORTED_MODULE_2___default().cloneDeep(block.fields);
+
+        console.log(fields);
+        block.fields = item.fields.map(function (field) {
+          var intField = fields.find(function (itm) {
+            return itm.name === field.name;
+          });
+
+          if (intField) {// field.content = intField.content;
+          }
+
+          if (!field.content) {
+            field.content = field.page_content_type_id === 9 ? [] : '';
+          }
+
+          var uniq = _this.uniqueId(10);
+
+          field.id = "-".concat(lodash__WEBPACK_IMPORTED_MODULE_2___default().kebabCase(field.name), "-id-").concat(uniq);
+          field.key = "-".concat(lodash__WEBPACK_IMPORTED_MODULE_2___default().kebabCase(field.name), "-key-").concat(uniq);
+
+          if (field.name === 'Heading') {
+            console.log(field);
+          }
+
+          return field;
+        });
+        return block;
+      }
+    });
+    this.data = data;
+  },
+  created: function created() {
+    var _this2 = this;
+
     eventBus.$on('pages.sortable.content-item.dragend', function (data) {
-      _this.reorderContentBlocks(data);
+      _this2.reorderContentBlocks(data);
     });
   },
   computed: {
@@ -2272,13 +2373,8 @@ __webpack_require__.r(__webpack_exports__);
           field.content = field.page_content_type_id === 9 ? [] : '';
         }
 
-        if (!field.id) {
-          field.id = "-".concat(lodash__WEBPACK_IMPORTED_MODULE_2___default().kebabCase(field.name), "-id-").concat(Date.now());
-        }
-
-        if (!field.key) {
-          field.key = "-".concat(lodash__WEBPACK_IMPORTED_MODULE_2___default().kebabCase(field.name), "-key-").concat(Date.now());
-        }
+        field.id = "-".concat(lodash__WEBPACK_IMPORTED_MODULE_2___default().kebabCase(field.name), "-id-").concat(Date.now());
+        field.key = "-".concat(lodash__WEBPACK_IMPORTED_MODULE_2___default().kebabCase(field.name), "-key-").concat(Date.now());
       });
 
       if (!newContent.id) {
@@ -2293,7 +2389,7 @@ __webpack_require__.r(__webpack_exports__);
       vue__WEBPACK_IMPORTED_MODULE_5__["default"].set(this.page, this.name, this.data);
     },
     removeContentBlock: function removeContentBlock(index) {
-      var _this2 = this;
+      var _this3 = this;
 
       sweetalert__WEBPACK_IMPORTED_MODULE_0___default()({
         title: 'Are you sure?',
@@ -2302,9 +2398,9 @@ __webpack_require__.r(__webpack_exports__);
         dangerMode: true
       }).then(function (value) {
         if (value) {
-          _this2.data.splice(index, 1);
+          _this3.data.splice(index, 1);
 
-          vue__WEBPACK_IMPORTED_MODULE_5__["default"].set(_this2.page, _this2.name, _this2.data);
+          vue__WEBPACK_IMPORTED_MODULE_5__["default"].set(_this3.page, _this3.name, _this3.data);
         }
       });
     },
@@ -2366,6 +2462,19 @@ __webpack_require__.r(__webpack_exports__);
         console.error('Failed to copy text: ', err);
         alert('Failed to copy text');
       });
+    },
+    uniqueId: function uniqueId(length) {
+      var result = '';
+      var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      var charactersLength = characters.length;
+      var counter = 0;
+
+      while (counter < length) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        counter += 1;
+      }
+
+      return result;
     }
   }
 });
@@ -2383,6 +2492,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+//
+//
 //
 //
 //
@@ -8169,7 +8280,7 @@ vue__WEBPACK_IMPORTED_MODULE_27__["default"].component('Icon', _components_Icon_
 window.app = new vue__WEBPACK_IMPORTED_MODULE_27__["default"]({
   el: '#app',
   data: {
-    tab: 'content',
+    tab: window.tab || 'content',
     loading: false,
     siteUrl: false,
     publicUrl: false,
@@ -88532,7 +88643,7 @@ var render = function () {
         return _c(
           "div",
           {
-            key: content.id,
+            key: content.id + "_" + Date.now(),
             staticClass: "content-editor__item",
             class: { open: index === 0 },
             attrs: { "data-index": index, "data-id": content.id },
@@ -88625,6 +88736,7 @@ var render = function () {
                             expression: "canShow(field, content)",
                           },
                         ],
+                        key: content.id + "_" + field.id + "_" + Date.now(),
                         staticClass:
                           "content-editor__form-row form__row form__row--inline-label",
                       },
@@ -88639,7 +88751,7 @@ var render = function () {
                         ),
                         _vm._v(" "),
                         _c("rd-content-editor-field", {
-                          key: content.id + "_" + field.id,
+                          key: content.id + "_" + field.id + "_" + Date.now(),
                           attrs: { item: field },
                         }),
                       ],
@@ -88657,10 +88769,12 @@ var render = function () {
     ),
     _vm._v(" "),
     _c("textarea", {
-      staticStyle: { display: "none" },
+      staticStyle: { width: "100%", height: "900px" },
       attrs: { name: _vm.name },
       domProps: { value: JSON.stringify(_vm.data) },
     }),
+    _vm._v(" "),
+    _c("pre", [_vm._v(_vm._s(_vm.data))]),
   ])
 }
 var staticRenderFns = []
@@ -88690,10 +88804,12 @@ var render = function () {
     "div",
     { staticClass: "form__horz-group" },
     [
+      _c("pre", [_vm._v(_vm._s(_vm.item.key))]),
+      _vm._v(" "),
       _vm.item.page_content_type_id === 1
         ? [
             _c("rd-rich-text", {
-              key: _vm.item.key,
+              key: "rich_" + _vm.item.key + "_" + Date.now(),
               attrs: {
                 id: "form--content-" + _vm.item.id,
                 content: _vm.item.content,
@@ -88720,6 +88836,7 @@ var render = function () {
                   expression: "item.content",
                 },
               ],
+              key: "text_" + _vm.item.key + "_" + Date.now(),
               staticClass: "form__control",
               attrs: {
                 id: "form--content-" + _vm.item.id,
@@ -88750,6 +88867,7 @@ var render = function () {
                       expression: "item.content",
                     },
                   ],
+                  key: "plain_" + _vm.item.key + "_" + Date.now(),
                   staticClass: "form__control",
                   attrs: {
                     id: "form--content-" + _vm.item.id,
@@ -88799,6 +88917,7 @@ var render = function () {
                       expression: "item.content",
                     },
                   ],
+                  key: "plain_" + _vm.item.key + "_" + Date.now(),
                   staticClass: "form__control",
                   attrs: {
                     id: "form--content-" + _vm.item.id,
@@ -88824,6 +88943,7 @@ var render = function () {
                       expression: "item.content",
                     },
                   ],
+                  key: "plain_" + _vm.item.key + "_" + Date.now(),
                   staticClass: "form__control",
                   attrs: {
                     id: "form--content-" + _vm.item.id,
@@ -88869,6 +88989,7 @@ var render = function () {
       _vm.item.page_content_type_id === 5
         ? [
             _c("rd-file", {
+              key: "file_" + _vm.item.key + "_" + Date.now(),
               attrs: {
                 value: _vm.item.content,
                 id: _vm.item.id,
@@ -88898,6 +89019,7 @@ var render = function () {
                     expression: "item.content",
                   },
                 ],
+                key: "select_" + _vm.item.key + "_" + Date.now(),
                 staticClass: "form__control",
                 attrs: {
                   required: "required",
@@ -88934,6 +89056,7 @@ var render = function () {
       _vm.item.page_content_type_id === 7
         ? [
             _c("rd-link", {
+              key: "link_" + _vm.item.key + "_" + Date.now(),
               attrs: { value: _vm.item.content },
               model: {
                 value: _vm.item.content,
@@ -88948,38 +89071,16 @@ var render = function () {
       _vm._v(" "),
       _vm.item.page_content_type_id === 8
         ? [
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.item.content,
-                  expression: "item.content",
-                },
-              ],
-              staticClass: "form__control",
-              attrs: {
-                type: "number",
-                inputmode: "decimal",
-                required: "required",
-              },
-              domProps: { value: _vm.item.content },
-              on: {
-                input: function ($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.$set(_vm.item, "content", $event.target.value)
-                },
-              },
-            }),
+            _vm._v(
+              '=`number_${item.key}_${Date.now()}` inputmode="decimal" required="required" class="form__control">\n  '
+            ),
           ]
         : _vm._e(),
       _vm._v(" "),
       _vm.item.page_content_type_id === 9
         ? [
             _c("rd-pages-repeatable", {
-              key: _vm.item.key,
+              key: "repeatable_" + _vm.item.key + "_" + Date.now(),
               attrs: {
                 item: _vm.item,
                 data: _vm.item.content,
@@ -89001,6 +89102,7 @@ var render = function () {
                   expression: "item.content",
                 },
               ],
+              key: "color_" + _vm.item.key + "_" + Date.now(),
               staticClass: "form__control--color",
               attrs: { type: "color" },
               domProps: { value: _vm.item.content },

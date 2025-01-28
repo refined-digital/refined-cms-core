@@ -23,7 +23,7 @@
         v-for="(content, index) of data"
         :data-index="index"
         :data-id="content.id"
-        :key="content.id"
+        :key="`${content.id}_${Date.now()}`"
       >
         <div class="content-editor__item-header">
           <header>
@@ -51,16 +51,18 @@
               class="content-editor__form-row form__row form__row--inline-label"
               v-for="field of content.fields"
               v-show="canShow(field, content)"
+              :key="`${content.id}_${field.id}_${Date.now()}`"
             >
               <label :for="`form--content-${field.id}`" class="form__label">{{field.name}}</label>
-              <rd-content-editor-field :item="field" :key="`${content.id}_${field.id}`"></rd-content-editor-field>
+              <rd-content-editor-field :item="field" :key="`${content.id}_${field.id}_${Date.now()}`"></rd-content-editor-field>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <textarea :name="name" :value="JSON.stringify(data)" style="display: none"></textarea>
+    <textarea :name="name" :value="JSON.stringify(data)" style="width: 100%; height: 900px;"></textarea>
+    <pre>{{data}}</pre>
   </div>
 </template>
 
@@ -99,25 +101,69 @@ export default {
     this.data = data.map(block => {
       const item = contentBlockLookup[block.name];
       if (item) {
+        const fieldsLookup = {};
+        const itemFields = [];
+        item.fields.forEach((field, index) => {
+          fieldsLookup[field.name] = {
+            index,
+            field,
+          };
+          itemFields.push(field.name);
+        })
+        console.group(block.name);
+        console.group('block');
+        console.log(block);
+        const blockFields = [];
+        block.fields.map(item => {
+          console.log(item.name, item, fieldsLookup[item.name]);
+          blockFields.push(item.name);
+        });
+        console.groupEnd();
+        console.group('item');
+        console.log(item);
+        item.fields.map(item => console.log(item));
+        console.groupEnd();
+        const missingFields = _.difference(itemFields, blockFields);
+        if (missingFields.length) {
+          missingFields.forEach(key => {
+            const itemToInsert = fieldsLookup[key];
+            if (itemToInsert) {
+              const uniq = this.uniqueId(10);
+              const newField = {
+                ..._.cloneDeep(itemToInsert.field),
+                content: itemToInsert.field.page_content_type_id === 9 ? [] : '',
+                id: `-${_.kebabCase(itemToInsert.field.name)}-id-${uniq}`,
+                key: `-${_.kebabCase(itemToInsert.field.name)}-key-${uniq}`
+              }
+              block.fields.splice(itemToInsert.index, 0, newField);
+            }
+          })
+        }
+        console.log('field lookup', fieldsLookup);
+        console.log('missing fields', missingFields);
+        console.groupEnd();
+      }
+      return block;
+      if (item) {
         const fields = _.cloneDeep(block.fields);
+        console.log(fields);
         block.fields = item.fields.map(field => {
           const intField = fields.find(itm => itm.name === field.name);
+
           if (intField) {
-            field.id = intField.id;
-            field.key = intField.key;
-            field.content = intField.content;
-          } else {
-            if (!field.content) {
-              field.content = field.page_content_type_id === 9 ? [] : ''
-            }
+            // field.content = intField.content;
+          }
 
-            if (!field.id) {
-              field.id = `-${_.kebabCase(field.name)}-id-${Date.now()}`
-            }
+          if (!field.content) {
+            field.content = field.page_content_type_id === 9 ? [] : ''
+          }
 
-            if (!field.key) {
-              field.key = `-${_.kebabCase(field.name)}-key-${Date.now()}`
-            }
+          const uniq = this.uniqueId(10);
+          field.id = `-${_.kebabCase(field.name)}-id-${uniq}`
+          field.key = `-${_.kebabCase(field.name)}-key-${uniq}`
+
+          if (field.name === 'Heading') {
+            console.log(field);
           }
 
           return field;
@@ -179,13 +225,9 @@ export default {
           field.content = field.page_content_type_id === 9 ? [] : ''
         }
 
-        if (!field.id) {
-          field.id = `-${_.kebabCase(field.name)}-id-${Date.now()}`
-        }
+        field.id = `-${_.kebabCase(field.name)}-id-${Date.now()}`
 
-        if (!field.key) {
-          field.key = `-${_.kebabCase(field.name)}-key-${Date.now()}`
-        }
+        field.key = `-${_.kebabCase(field.name)}-key-${Date.now()}`
       })
 
       if (!newContent.id) {
@@ -278,6 +320,18 @@ export default {
           console.error('Failed to copy text: ', err);
           alert('Failed to copy text');
         });
+    },
+
+    uniqueId(length) {
+      let result = '';
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      const charactersLength = characters.length;
+      let counter = 0;
+      while (counter < length) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        counter += 1;
+      }
+      return result;
     }
   }
 }

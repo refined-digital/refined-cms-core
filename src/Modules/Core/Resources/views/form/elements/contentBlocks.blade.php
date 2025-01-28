@@ -21,3 +21,5 @@
   :canShowAnchors="false"
 />
 
+{{ help()->trace($page) }}
+
