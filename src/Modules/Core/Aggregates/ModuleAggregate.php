@@ -30,9 +30,22 @@ class ModuleAggregate
             'children'          => isset($config['children']) && is_array($config['children']) ? $config['children'] : [],
         ]));
 
+        $order = $config['order'];
+        if (isset($this->routeFiles[$order])) {
+            $suffix = 1;
+            while (isset($this->routeFiles[$order .'.'. $suffix])) {
+                $suffix++;
+            }
+            $order = $order.'.'.$suffix;
+        }
 
-        $this->routeFiles[$config['order']] = $data;
-        foreach ($data->children as $index => $child) {
+        $orderOverride = config('refined-menu.order');
+        if (isset($orderOverride[$config['name']]) && $orderOverride[$config['name']]) {
+            $order = $orderOverride[$config['name']];
+        }
+
+        $this->routeFiles[$order] = $data;
+        foreach ($data->children as $child) {
             if (gettype($child->route) == 'array' && is_array($child->route) && isset($child->route[1]) && gettype($child->route[1]) == 'object') {
                 $child->route[1] = (array) $child->route[1];
             }
@@ -63,7 +76,9 @@ class ModuleAggregate
     public function getMenuItems()
     {
         $routes = $this->routeFiles;
+
         ksort($routes);
+
         return $routes;
     }
 

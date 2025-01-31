@@ -23,6 +23,8 @@ class MenuComposer
 
             $routeAggregate = app(ModuleAggregate::class);
             $menu = $routeAggregate->getMenuItems();
+            // help()->trace($menu);
+            // exit();
             $user = auth()->user();
 
             if (sizeof($menu)) {

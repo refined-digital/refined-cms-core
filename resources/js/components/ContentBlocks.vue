@@ -108,7 +108,7 @@ export default {
           };
           itemFields.push(field.name);
         })
-        
+
         const blockFields = block.fields.map(item => item.name);
 
 
