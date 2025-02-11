@@ -191,13 +191,24 @@
       &:nth-child(2n+2) {
         margin-right: 0;
       }
+
+      @media only screen and (max-width: 660px) {
+        flex: 0 0 100%;
+        margin: 0 0 20px 0;
+      }
     }
 
     &--3 .form__row {
       flex: 0 0 32%;
       margin-right: 2%;
+
       &:nth-child(3n+3) {
         margin-right: 0;
+      }
+
+      @media only screen and (max-width: 660px) {
+        flex: 0 0 100%;
+        margin: 0 0 20px 0;
       }
     }
 
@@ -325,6 +336,17 @@
 
       &__note {
         margin-top: 8px;
+      }
+
+      @media only screen and (max-width: 660px) {
+        &__row {
+          flex-wrap: wrap;
+          gap: 5px;
+        }
+
+        &__label {
+          flex: 0 0 100%;
+        }
       }
     }
   }

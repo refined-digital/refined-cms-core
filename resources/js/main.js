@@ -131,6 +131,7 @@ window.app = new Vue({
     	},
         bulk: [],
         bulkAction: false,
+        mobileMenuActive: false,
     },
 
     methods: {

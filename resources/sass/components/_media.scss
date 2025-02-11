@@ -170,8 +170,28 @@
   }
 
   &__files {
+    --count: 6;
     position: relative;
     flex: 1;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(var(--count), minmax(0, 1fr));
+
+    @media only screen and (max-width: 1125px) {
+      --count: 5;
+    }
+    @media only screen and (max-width: 970px) {
+      --count: 4;
+    }
+    @media only screen and (max-width: 600px) {
+      --count: 3;
+    }
+    @media only screen and (max-width: 480px) {
+      --count: 2;
+    }
+    @media only screen and (max-width: 350px) {
+      --count: 1;
+    }
 
     &--thumb {
       font-size: 0;
@@ -179,13 +199,7 @@
       .media {
         &__file {
           display: inline-block;
-          margin: 0 2% 25px 0;
-          width: 15%;
           padding: 5px;
-
-          &:nth-child(6n + 6) {
-            margin-right: 0;
-          }
 
           &-type {
             span:after {
@@ -201,6 +215,8 @@
     }
 
     &--list {
+      display: block;
+
       img {
         max-width: 100px;
       }
@@ -259,11 +275,18 @@
               &-title {
                 text-align: left;
                 margin-left: 20px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
               }
 
               &-type,
               &-size {
                 flex: 0 0 100px;
+
+                @media only screen and (max-width: 745px) {
+                  display: none;
+                }
               }
             }
 
@@ -331,12 +354,19 @@
     display: flex;
     justify-content: space-between;
 
+    @media only screen and (max-width: 660px) {
+      flex-wrap: wrap;
+    }
+
     &-thumbnail {
       flex: 0 0 45%;
       border: 1px solid #e5e5e5;
       background: #f7f7f7;
       padding: 5px;
       position: relative;
+      @media only screen and (max-width: 660px) {
+        flex: 0 0 100%;
+      }
 
       i {
         font-size: 280px;
@@ -346,6 +376,10 @@
 
     &-details {
       flex: 0 0 53%;
+      @media only screen and (max-width: 660px) {
+        flex: 0 0 100%;
+        margin-top: 20px;
+      }
     }
   }
 

@@ -7,12 +7,28 @@
   background: url(/vendor/refined/core/img/login-background.jpg) no-repeat center center / cover;
 
   &__right {
-    width: 400px;
+    max-width: 400px;
+    width: 100%;
     height: 100%;
     position: fixed;
     right: 0;
     top: 0;
     background: #fff;
     padding: 30px;
+  }
+
+  @media only screen and (max-width: 400px) {
+    .form__row--remember {
+      flex-wrap: wrap;
+
+      * {
+        flex: 0 0 100%;
+      }
+
+      .form__forgotten {
+        text-align: left;
+        margin-top: 10px;
+      }
+    }
   }
 }

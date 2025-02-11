@@ -30,11 +30,19 @@
   &__groups {
     display: flex;
     justify-content: space-between;
+
+    @media only screen and (max-width: 870px) {
+      flex-wrap: wrap;
+    }
   }
 
   &__left {
     flex: 0 0 70%;
     margin-right: 25px;
+    @media only screen and (max-width: 870px) {
+      flex: 0 0 100%;
+      margin: 0 0 25px;
+    }
   }
 
   &__right {

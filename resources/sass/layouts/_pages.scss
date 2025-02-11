@@ -4,11 +4,47 @@
   background: #fff;
   flex: 1;
 
+  .app__trigger {
+    display: none;
+    flex: 0 0 45px;
+    border-right: 1px solid #e5e5e5;
+    padding: 10px;
+    @media only screen and (max-width: 830px) {
+      display: block;
+    }
+  }
+
   &__tree {
     flex: 0 0 20%;
     padding: 20px;
     overflow: auto;
     border-right: 1px solid #e5e5e5;
+    position: relative;
+
+    @media only screen and (max-width: 830px) {
+      position: absolute;
+      left: -300px;
+      width: 300px;
+      background-color: #fff;
+      height: calc(100vh - 60px);
+      z-index: 300;
+      transition: left 200ms linear;
+    }
+
+    &--active {
+      left: 0;
+    }
+
+    .app__trigger {
+      text-align: right;
+      padding: 0;
+      border: 0;
+      margin-bottom: 10px;
+
+      svg {
+        height: 20px;
+      }
+    }
   }
 
   &__content {
@@ -35,6 +71,11 @@
     align-items: center;
     flex: 0 0 68px;
 
+    @media only screen and (max-width: 520px) {
+      flex-wrap: wrap;
+      flex: 0 0 94px;
+    }
+
     &, h3 {
       color: #fff;
     }
@@ -55,6 +96,10 @@
     aside {
       flex: 0 0 341px;
       text-align: right;
+      @media only screen and (max-width: 520px) {
+        flex: 0 0 100%;
+        margin-top: 10px;
+      }
     }
   }
 

@@ -9,7 +9,7 @@
 
             <div class="loader" v-show="loading"><div class="spinner"></div></div>
 
-            <div class="app__left">
+            <div class="app__left" :class="mobileMenuActive ? ' app__left--active' : ''">
                 <figure class="app__logo">
                     <a href="{{ $siteUrl }}/refined"><img src="{{ refined_asset('vendor/refined/core/img/logos/admin-small-logo.png') }}"/></a>
                 </figure>
@@ -47,6 +47,10 @@
                     </ul>
                     @endif
                 </nav>
+                <footer class="app__nav-mobile">
+                    <a href="{{ $publicUrl }}" target="_blank">View Website</a>
+                    <a href="{{ route('logout') }}">Logout</a>
+                </footer>
             </div><!-- / app left -->
             <div class="app__right">
                 <header class="app__header">
@@ -58,6 +62,10 @@
                         <span> | </span>
                         <a href="{{ route('logout') }}">Logout</a>
                     </div>
+
+                    <aside class="app__trigger" @click="mobileMenuActive = !mobileMenuActive">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M0 88C0 74.7 10.7 64 24 64l400 0c13.3 0 24 10.7 24 24s-10.7 24-24 24L24 112C10.7 112 0 101.3 0 88zM0 248c0-13.3 10.7-24 24-24l400 0c13.3 0 24 10.7 24 24s-10.7 24-24 24L24 272c-13.3 0-24-10.7-24-24zM448 408c0 13.3-10.7 24-24 24L24 432c-13.3 0-24-10.7-24-24s10.7-24 24-24l400 0c13.3 0 24 10.7 24 24z"/></svg>
+                    </aside>
                 </header>
                 <div class="app__body">
                     @include('core::includes.body-header')

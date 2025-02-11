@@ -1,6 +1,10 @@
 .block {
   background: #fff;
   padding: 25px;
+  @media only screen and (max-width: 800px) {
+    max-width: calc(100vw - 50px);
+    overflow: auto;
+  }
 
   & + & {
     margin-top: 30px;
