@@ -61,7 +61,13 @@ if (forms.length) {
 
     try {
       const response = await fetch(url, options);
-      return await response.json();
+
+      if (response.status === 200) {
+        return await response.json();
+      } else {
+        throw new Error(response.statusText);
+      }
+
 
     } catch (error) {
       console.error('Fetch error:', error);
@@ -84,15 +90,24 @@ if (forms.length) {
 
   const submit = async (form, button) => {
     const formUrl = form.getAttribute('action');
+    let response;
 
     try {
-      const response = await sendRequest(
+      response = await sendRequest(
           formUrl,
           form,
       );
 
       formIsNotLoading(button);
 
+
+    } catch (e) {
+      console.warn(e);
+      alert('There was an error submitting the form, please try again later');
+      formIsNotLoading(button);
+    }
+
+    if (response) {
       if (response.url) {
         window.location.href = response.url;
       }
@@ -114,12 +129,6 @@ if (forms.length) {
         }
 
       }
-
-
-    } catch (e) {
-      console.warn(e);
-      alert('There was an error submitting the form, please try again later');
-      formIsNotLoading(button);
     }
   }
 
