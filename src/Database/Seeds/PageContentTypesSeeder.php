@@ -25,6 +25,8 @@ class PageContentTypesSeeder extends Seeder
             'Link',
             'Number',
             'Repeatable',
+            'Password',
+            'Colour',
         ];
 
         foreach ($levels as $pos => $level) {

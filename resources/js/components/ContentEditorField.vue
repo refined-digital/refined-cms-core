@@ -60,6 +60,10 @@
       </template>
 
       <template v-if="item.page_content_type_id === 10">
+        <input type="password" v-model="item.content" class="form__control--color">
+      </template>
+
+      <template v-if="item.page_content_type_id === 11">
         <input type="color" v-model="item.content" class="form__control--color">
       </template>
 

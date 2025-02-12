@@ -22,4 +22,8 @@ enum PageContentType: int
 
     case REPEATABLE = 9;
 
+    case PASSWORD = 10;
+
+    case COLOUR = 11;
+
 }

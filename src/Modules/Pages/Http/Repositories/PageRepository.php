@@ -3,6 +3,7 @@
 namespace RefinedDigital\CMS\Modules\Pages\Http\Repositories;
 
 use RefinedDigital\CMS\Modules\Core\Aggregates\PackageAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\SitemapXMLAggregate;
 use RefinedDigital\CMS\Modules\Core\Models\Uri;
 use RefinedDigital\CMS\Modules\Core\Http\Repositories\CoreRepository;
 use RefinedDigital\CMS\Modules\Pages\Models\Page;
@@ -593,12 +594,40 @@ class PageRepository extends CoreRepository
     public function getForXmlSitemap()
     {
         $data = [];
-        $holders = PageHolder::whereActive(1)->orderby('position', 'asc')->get();
+        $holders = PageHolder::whereActive(1)
+            // exclude hidden pages, we do this as they are orphan pages and not good for seo
+            ->where('id', '!=', 3)
+            ->orderby('position', 'asc')
+            ->get();
+
         if (sizeof($holders)) {
             foreach ($holders as $h) {
                 $pages = $this->getPagesForXmlSitemap($h->id, 0);
                 foreach ($pages as $p) {
                     $data[] = $p;
+                }
+            }
+        }
+
+        // check for any services that need xml
+        $modules = app(SitemapXMLAggregate::class)->get();
+        if (sizeof($modules)) {
+            $baseUrl = rtrim(config('app.url'), '/');
+            foreach ($modules as $module) {
+                $pages = $module['model']::with('meta')->whereActive(1)->get();
+                $parentUrl = $module['baseUrl'];
+
+                foreach ($pages as $d) {
+                    $url = $d->meta->uri;
+                    $urls = [$baseUrl, str_replace('/', '', $parentUrl), str_replace('/', '', $url)];
+                    $urls = array_filter($urls);
+                    $page = new \stdClass();
+                    $page->url = implode('/', $urls);
+                    $page->date = $d->updated_at->toAtomString();
+                    $s = sizeof($urls);
+                    $page->priority = $d->meta->uri === '/' ? '1.0' : $this->getXmlSitemapPriority($s);
+
+                    $data[] = $page;
                 }
             }
         }
@@ -619,7 +648,13 @@ class PageRepository extends CoreRepository
         foreach ($data as $d) {
             $url = $d->meta->uri;
             $urls = [$baseUrl, str_replace('/', '', $parentUrl), str_replace('/', '', $url)];
+
+            if (in_array('sitemap.xml', $urls)) {
+                $index = array_search('sitemap.xml', $urls);
+                unset($urls[$index]);
+            }
             $urls = array_filter($urls);
+
             $page = new \stdClass();
             $page->url = implode('/', $urls);
             $page->date = $d->updated_at->toAtomString();
@@ -627,25 +662,7 @@ class PageRepository extends CoreRepository
             $s = sizeof($urls);
             $page->priority = $d->meta->uri === '/' ? '1.0' : $this->getXmlSitemapPriority($s);
 
-            $templateAddress = 'templates::' . $d->meta->template->source;
             $children = $this->getPagesForXmlSitemap($holderId, $d->id, $url);
-            try {
-                if (view()->exists($templateAddress)) {
-                    $d->content = $this->formatPageContentForFrontend($d->the_content);
-                    $view = view()
-                        ->make($templateAddress)
-                        ->with('page', $d)
-                        ->with('xmlUrl', $page->url)
-                        ->renderSections();
-                    if (isset($view['xml-sitemap'])) {
-                        $xmlChildren = json_decode($view['xml-sitemap']);
-                        if (sizeof($xmlChildren)) {
-                            $children = array_merge($children, $xmlChildren);
-                        }
-                    }
-                }
-            } catch (\Exception $e) {
-            }
 
             $page->children = $children;
             $pages[] = $page;
