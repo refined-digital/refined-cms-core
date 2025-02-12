@@ -90,7 +90,7 @@ class Format
         return $content;
     }
 
-    function desktopMobileImages($desktop = ['width' => 1920, 'height' => 1080, 'src' => ''], $mobile = ['width' => 800, 'height' => 1150, 'src' => ''], $mobileAt = 640)
+    function desktopMobileImages($desktop = ['width' => 1920, 'height' => 1080, 'src' => ''], $mobile = ['width' => 800, 'height' => 1150, 'src' => ''], $alt = '', $mobileAt = 640)
     {
         if (isset($desktop['src']) && !isset($mobile['src'])) {
             return image()
@@ -131,7 +131,16 @@ class Format
             }
             $html .= '/>';
         }
-        $html .= '<img src="' . asset($images[0]) . '" loading="lazy"/>';
+
+        $attributes = [
+            'src' => asset($images[0]),
+            'loading' => 'lazy',
+        ];
+        if ($alt) {
+            $attributes['alt'] = $alt;
+        }
+
+        $html .= '<img '.core()->arrayToAttr($attributes).'/>';
         $html .= '</picture>';
 
         return $html;

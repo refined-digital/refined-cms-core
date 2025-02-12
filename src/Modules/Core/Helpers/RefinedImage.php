@@ -323,7 +323,19 @@ class RefinedImage {
                 }
             }
 
-            $html .= PHP_EOL."\t".'<img src="'.asset($baseImage).'"'.($this->isLazy ? ' loading="lazy"' : '').'/>';
+            $attributes = [
+                'src' => asset($baseImage),
+            ];
+
+            if ($this->isLazy) {
+                $attributes['loading'] = 'lazy';
+            }
+
+            if ($this->file->alt) {
+                $attributes['alt'] = $this->file->alt;
+            }
+
+            $html .= PHP_EOL."\t".'<img '.core()->arrayToAttr($attributes).'/>';
             $html .= PHP_EOL.'</picture>';
 
             return $html;
