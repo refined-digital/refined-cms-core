@@ -409,9 +409,9 @@ class PageRepository extends CoreRepository
         if (isset($_GET) && sizeof($_GET)) {
             $head[] = '<link rel="canonical" href="' . request()->url() . '" />';
         } elseif (request()->url() != $baseHref . $page->meta->uri) {
-            $head[] = '<link rel="canonical" href="'.rtrim($baseHref.$page->meta->uri, '/').'/"/>';
+            $head[] = '<link rel="canonical" href="'.rtrim($baseHref.$page->meta->uri, '/').'"/>';
         } elseif (isset($page->is_single_page)) {
-            $head[] = '<link rel="canonical" href="' . rtrim($baseHref, '/') . '/"/>';
+            $head[] = '<link rel="canonical" href="' . rtrim($baseHref, '/') . '"/>';
         }
 
         $page->title = (isset($page->meta->title) && $page->meta->title) ? $page->meta->title : $page->name;
@@ -638,6 +638,7 @@ class PageRepository extends CoreRepository
     {
         $data = Page::with('meta')
             ->whereActive(1)
+            ->whereHideFromSitemap(0)
             ->wherePageHolderId($holderId)
             ->whereParentId($parentId)
             ->get();

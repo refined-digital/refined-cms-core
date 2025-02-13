@@ -94,6 +94,18 @@
             </div><!-- / form row -->
 
           <template v-if="page.id > 1 || page.newPage">
+
+            <div class="form__row form__row--inline-label">
+              <label for="form--hide-from-menu" class="form__label">Show in Sitemap.xml</label>
+              <div class="form__horz-group">
+                <select id="form--hide-from-menu" v-model="page.hide_from_sitemap" required="required" class="form__control">
+                  <option :value="1">No</option>
+                  <option :value="0">Yes</option>
+                </select>
+                <div class="form__note">Do you want the page to be shown in the sitemap.xml?</div>
+              </div>
+            </div><!-- / form row -->
+
             <div class="form__row form__row--inline-label">
               <label for="form--page-type" class="form__label">Page Type</label>
               <div class="form__horz-group">

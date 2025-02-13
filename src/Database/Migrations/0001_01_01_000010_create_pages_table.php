@@ -22,6 +22,7 @@ class CreatePagesTable extends Migration
             $table->integer('parent_id');
             $table->boolean('active')->default(1);
             $table->boolean('hide_from_menu')->default(0);
+            $table->boolean('hide_from_sitemap')->default(0);
             $table->boolean('protected')->default(0);
             $table->boolean('page_type')->default(1);
             $table->integer('form_id')->nullable();
