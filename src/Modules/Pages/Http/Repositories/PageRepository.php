@@ -615,10 +615,11 @@ class PageRepository extends CoreRepository
             $baseUrl = rtrim(config('app.url'), '/');
             foreach ($modules as $module) {
                 $pages = $module['model']::with('meta')->whereActive(1)->get();
+                $parentUrl = $module['baseUrl'];
 
                 foreach ($pages as $d) {
                     $url = $d->meta->uri;
-                    $urls = [$baseUrl, str_replace('/', '', $url)];
+                    $urls = [$baseUrl, str_replace('/', '', $parentUrl), str_replace('/', '', $url)];
                     $urls = array_filter($urls);
                     $page = new \stdClass();
                     $page->url = implode('/', $urls);
@@ -647,7 +648,7 @@ class PageRepository extends CoreRepository
         $baseUrl = rtrim(config('app.url'), '/');
         foreach ($data as $d) {
             $url = $d->meta->uri;
-            $urls = [$baseUrl, str_replace('/', '', $url)];
+            $urls = [$baseUrl, str_replace('/', '', $parentUrl), str_replace('/', '', $url)];
 
             if (in_array('sitemap.xml', $urls)) {
                 $index = array_search('sitemap.xml', $urls);
