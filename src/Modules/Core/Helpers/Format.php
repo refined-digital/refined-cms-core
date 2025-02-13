@@ -5,6 +5,7 @@ namespace RefinedDigital\CMS\Modules\Core\Helpers;
 use Illuminate\Support\Traits\Macroable;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Http\Request;
+use RefinedDigital\CMS\Modules\Media\Models\Media;
 use Str;
 
 class Format
@@ -90,7 +91,7 @@ class Format
         return $content;
     }
 
-    function desktopMobileImages($desktop = ['width' => 1920, 'height' => 1080, 'src' => ''], $mobile = ['width' => 800, 'height' => 1150, 'src' => ''], $alt = '', $mobileAt = 640)
+    function desktopMobileImages($desktop = ['width' => 1920, 'height' => 1080, 'src' => ''], $mobile = ['width' => 800, 'height' => 1150, 'src' => ''], $mobileAt = 640)
     {
         if (isset($desktop['src']) && !isset($mobile['src'])) {
             return image()
@@ -136,8 +137,10 @@ class Format
             'src' => asset($images[0]),
             'loading' => 'lazy',
         ];
-        if ($alt) {
-            $attributes['alt'] = $alt;
+
+        $img = Media::find($desktop['src']);
+        if (isset($img->alt) && $img->alt) {
+            $attributes['alt'] = $img->alt;
         }
 
         $html .= '<img '.core()->arrayToAttr($attributes).'/>';
