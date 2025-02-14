@@ -2,35 +2,49 @@
 
 namespace RefinedDigital\CMS\Modules\Core\Helpers;
 
-use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\Encoders\AutoEncoder;
+use Intervention\Image\ImageManager;
 use RefinedDigital\CMS\Modules\Media\Models\Media;
 use Str;
 
-class RefinedImage {
-
+class RefinedImage
+{
     protected $file = null;
+
     private $path = '/storage/uploads/';
 
     protected $width = null;
+
     protected $height = null;
+
     protected $type = null;
+
     protected $force = null;
+
     protected $returnType = 'string'; // object | image | string
+
     protected $quality = 90;
+
     protected $isLazy = true;
+
     protected $useNewFormat = true;
 
+    protected $cacheSeconds = 60 * 24 * 7;
+
     protected $directory = '';
+
     protected $extension = '';
+
     protected $originalExtension = '';
+
     protected $originalFileName = '';
+
     protected $attributes = [];
+
     protected $newTypes = ['webp', 'avif'];
 
     protected $dimensions = [];
-
 
     public function __construct()
     {
@@ -40,7 +54,7 @@ class RefinedImage {
         }
 
         $newFormat = config('pages.image.newFormat');
-        if (!$newFormat) {
+        if (! $newFormat) {
             $this->onlyUseOldFormat();
         }
     }
@@ -48,9 +62,8 @@ class RefinedImage {
     public function load($file)
     {
         if (is_numeric($file)) {
-
             // go and get the file from the DB
-            $file = Media::find($file);
+            $file = \Cache::remember('media-'.$file, $this->cacheSeconds, fn() => Media::find($file));
             if (isset($file->id)) {
                 $this->file = $file;
             }
@@ -76,7 +89,8 @@ class RefinedImage {
         return $this;
     }
 
-    public function dimensions(array $dimensions) {
+    public function dimensions(array $dimensions)
+    {
         if (is_array($dimensions)) {
             $this->dimensions = $dimensions;
         }
@@ -89,6 +103,7 @@ class RefinedImage {
         if (is_numeric($width)) {
             $this->width = $width;
         }
+
         return $this;
     }
 
@@ -97,42 +112,49 @@ class RefinedImage {
         if (is_numeric($height)) {
             $this->height = $height;
         }
+
         return $this;
     }
 
     public function fill()
     {
         $this->type = 'fill';
+
         return $this;
     }
 
     public function fit()
     {
         $this->type = 'fit';
+
         return $this;
     }
 
     public function onlyUseOldFormat()
     {
         $this->useNewFormat = false;
+
         return $this;
     }
 
     public function format($format)
     {
         $this->extension = $format;
+
         return $this;
     }
 
     public function lazy($lazy = true)
     {
         $this->isLazy = $lazy;
+
         return $this;
     }
 
     public function quality($quality = 90)
     {
         $this->quality = (float) $quality;
+
         return $this;
     }
 
@@ -148,12 +170,13 @@ class RefinedImage {
     public function returnType($type = 'string')
     {
         $this->returnType = $type;
+
         return $this;
     }
 
     public function attributes(array $attributes)
     {
-        if (is_array($attributes) && sizeof($attributes)) {
+        if (is_array($attributes) && count($attributes)) {
             $this->attributes = $attributes;
         }
 
@@ -162,7 +185,7 @@ class RefinedImage {
 
     public function createImage($width, $height, $fileName = false, $extension = false)
     {
-        if (!$this->file) {
+        if (! $this->file) {
             return null;
         }
 
@@ -171,23 +194,23 @@ class RefinedImage {
         $fileName = $this->buildFileName($fileName, $width, $height, $extension);
 
         // only create if we are forcing, or the file doesn't already exist
-        if(!file_exists($this->directory.$fileName) || $this->force) {
+        if (! file_exists($this->directory.$fileName) || $this->force) {
             // load the image
-            $manager = new ImageManager(new Driver());
+            $manager = new ImageManager(new Driver);
             $image = $manager->read($this->directory.$this->file->file);
 
-            if($this->type && $width && $height) {
-                if($this->type == 'fit') {
+            if ($this->type && $width && $height) {
+                if ($this->type == 'fit') {
                     $image->cover(width: $width, height: $height);
-                } elseif($this->type == 'fill') {
+                } elseif ($this->type == 'fill') {
                     $image->pad(width: $width, height: $height);
                 }
             } else {
-                if($width && $height) {
+                if ($width && $height) {
                     $image->scaleDown(width: $width, height: $height);
-                } elseif($width && !$height) {
+                } elseif ($width && ! $height) {
                     $image->scaleDown(width: $width);
-                } elseif(!$width && $height) {
+                } elseif (! $width && $height) {
                     $image->scaleDown(height: $height);
                 }
             }
@@ -207,20 +230,20 @@ class RefinedImage {
             $this->format('avif');
         }
 
-      try {
-        // only process if we do have a file
-        if (isset($this->file->id) && $this->file->type == 'Image') {
-            $this->createImage($this->width, $this->height, $fileName);
-            $fileName = $this->buildFileName($fileName, $this->width, $this->height);
+        try {
+            // only process if we do have a file
+            if (isset($this->file->id) && $this->file->type == 'Image') {
+                $this->createImage($this->width, $this->height, $fileName);
+                $fileName = $this->buildFileName($fileName, $this->width, $this->height);
 
-            // return the image
-            $dimensions = getimagesize($this->directory.$fileName);
+                // return the image
+                $dimensions = getimagesize($this->directory.$fileName);
 
-            switch($this->returnType) {
-                case 'image':
-                case 'img':
-                    $img = '<img src="'.asset($this->path.$fileName).'"';
-                        if (sizeof($this->attributes)) {
+                switch ($this->returnType) {
+                    case 'image':
+                    case 'img':
+                        $img = '<img src="'.asset($this->path.$fileName).'"';
+                        if (count($this->attributes)) {
                             $attrs = '';
                             foreach ($this->attributes as $key => $value) {
                                 $attrs = ' '.$key.'="'.$value.'"';
@@ -230,29 +253,29 @@ class RefinedImage {
                         if ($this->isLazy) {
                             $img .= ' loading="lazy"';
                         }
-                    $img .= '/>';
-                    break;
-                case 'object':
-                    $img = new \stdClass();
-                    $img->alt = $this->file->alt;
-                    $img->width = isset($dimensions[0]) ? $dimensions[0] : null;
-                    $img->height = isset($dimensions[1]) ? $dimensions[1] : null;
-                    $img->attributes = $this->attributes;
-                    $img->src = $this->path.$fileName;
-                    break;
-                case 'string':
-                default:
-                    $img = $this->path.$fileName;
-                    break;
+                        $img .= '/>';
+                        break;
+                    case 'object':
+                        $img = new \stdClass;
+                        $img->alt = $this->file->alt;
+                        $img->width = isset($dimensions[0]) ? $dimensions[0] : null;
+                        $img->height = isset($dimensions[1]) ? $dimensions[1] : null;
+                        $img->attributes = $this->attributes;
+                        $img->src = $this->path.$fileName;
+                        break;
+                    case 'string':
+                    default:
+                        $img = $this->path.$fileName;
+                        break;
+                }
+
+                return $img;
+
             }
 
-            return $img;
-
+        } catch (\Exception $error) {
+            return $error->getMessage();
         }
-
-      } catch (\Exception $error) {
-        return $error->getMessage();
-      }
     }
 
     public function get()
@@ -263,6 +286,7 @@ class RefinedImage {
                 return file_get_contents($filePath);
             } else {
                 $this->returnType = 'image';
+
                 return $this->save();
             }
         } catch (\Exception $error) {
@@ -273,18 +297,20 @@ class RefinedImage {
     public function string()
     {
         $this->returnType = 'string';
+
         return $this->save();
     }
 
     public function object()
     {
         $this->returnType = 'object';
+
         return $this->save();
     }
 
     public function pictureHtml()
     {
-        if (!$this->file) {
+        if (! $this->file) {
             return 'Failed to create image';
         }
 
@@ -295,7 +321,7 @@ class RefinedImage {
 
         try {
             $html = '<picture';
-            if (sizeof($this->attributes)) {
+            if (count($this->attributes)) {
                 $attrs = '';
                 foreach ($this->attributes as $key => $value) {
                     $attrs = ' '.$key.'="'.$value.'"';
@@ -303,7 +329,7 @@ class RefinedImage {
                 $html .= $attrs;
             }
             $html .= '>';
-            if (!sizeof($this->dimensions)) {
+            if (! count($this->dimensions)) {
                 $image = $this->createImage($this->width, $this->height);
                 $baseImage = $image;
                 $html .= $this->buildSourceHtml($image);
@@ -350,6 +376,7 @@ class RefinedImage {
         $this->force = true;
         $image = $this->createImage($this->width, $this->height, false, $this->originalExtension);
         $this->force = false;
+
         return $this->buildSourceHtml($image);
     }
 
@@ -379,15 +406,15 @@ class RefinedImage {
     {
         $name = [];
 
-        if (!$width) {
+        if (! $width) {
             $width = $this->width;
         }
-        if (!$height) {
+        if (! $height) {
             $height = $this->height;
         }
 
         // add the filename
-        if($fileName) {
+        if ($fileName) {
             $name[] = $fileName;
         } else {
             $name[] = $this->originalFileName;
@@ -399,12 +426,12 @@ class RefinedImage {
         }
 
         // if only width, add it
-        if ($width && !$height) {
+        if ($width && ! $height) {
             $name[] = 'w'.$width;
         }
 
         // if only height, add it
-        if (!$width && $height) {
+        if (! $width && $height) {
             $name[] = 'h'.$height;
         }
 
@@ -443,5 +470,4 @@ class RefinedImage {
 
         return $quality;
     }
-
 }

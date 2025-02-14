@@ -11,6 +11,7 @@ use Str;
 class SettingRepository extends CoreRepository
 {
     protected $settingModel = null;
+    protected $cacheSeconds = 60;
 
     public function __construct()
     {
@@ -21,9 +22,13 @@ class SettingRepository extends CoreRepository
     {
         // get all the data based on the model
         if ($this->settingModel) {
-            $items = $this->model::whereModel($this->settingModel)
-                                    ->orderBy('position')
-                                    ->get();
+
+            $items = \Cache::remember(\Str::slug('settings-all-'.$this->settingModel), $this->cacheSeconds, function() {
+                return $this->model::whereModel($this->settingModel)
+                    ->orderBy('position')
+                    ->get();
+            });
+
             $data = collect();
 
             if ($items && $items->count()) {
@@ -49,9 +54,11 @@ class SettingRepository extends CoreRepository
 
     public function get($model)
     {
-        $items = $this->model::whereModel($model)
-                        ->orderBy('position', 'asc')
-                        ->get();
+        $items = \Cache::remember(\Str::slug('settings-'.$model), $this->cacheSeconds, function() use ($model) {
+            return $this->model::whereModel($model)
+                ->orderBy('position', 'asc')
+                ->get();
+        });
 
         $typeData = PageContentType::all();
         $types = [];
@@ -120,6 +127,10 @@ class SettingRepository extends CoreRepository
         // first delete the settings for the model
         $this->model::whereModel($model)
                     ->delete();
+
+        // clear the cache
+        \Cache::forget('settings-'.$model);
+        \Cache::forget('settings-all-'.$model);
 
         // now add in the content
         $data = $request->all();
