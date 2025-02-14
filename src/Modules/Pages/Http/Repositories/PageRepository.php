@@ -225,6 +225,7 @@ class PageRepository extends CoreRepository
 
     public function findByUri($uri)
     {
+        $initialUri = $uri;
         // check if we have a placeholder enabled
         // todo: integrate this into the placeholder module
         $settings = settings()->get('pages');
@@ -372,7 +373,6 @@ class PageRepository extends CoreRepository
             }
         }
 
-        // todo: add permissions
 
         // check if we need to do a listing
         $packages = app(PackageAggregate::class);
@@ -393,11 +393,6 @@ class PageRepository extends CoreRepository
             }
         }
 
-        // link in the social media, if it exists
-        if ($packages->hasPackage('SocialMedia')) {
-            $page->socialMedia = socialMedia()->getForFront();
-        }
-
         // add in some classes
         $classes = [];
         $classes[] = 'page__id--' . $page->id;
@@ -408,8 +403,8 @@ class PageRepository extends CoreRepository
 
         if (isset($_GET) && sizeof($_GET)) {
             $head[] = '<link rel="canonical" href="' . request()->url() . '" />';
-        } elseif (request()->url() != $baseHref . $page->meta->uri) {
-            $head[] = '<link rel="canonical" href="'.rtrim($baseHref.$page->meta->uri, '/').'"/>';
+        } elseif (isset($page->page_url) && $page->page_url !== $initialUri) {
+            $head[] = '<link rel="canonical" href="'.rtrim($baseHref.$page->page_url, '/').'"/>';
         } elseif (isset($page->is_single_page)) {
             $head[] = '<link rel="canonical" href="' . rtrim($baseHref, '/') . '"/>';
         }
@@ -619,7 +614,7 @@ class PageRepository extends CoreRepository
 
                 foreach ($pages as $d) {
                     $url = $d->meta->uri;
-                    $urls = [$baseUrl, str_replace('/', '', $url)];
+                    $urls = [$baseUrl, str_replace('/', '', $parentUrl), str_replace('/', '', $url)];
                     $urls = array_filter($urls);
                     $page = new \stdClass();
                     $page->url = implode('/', $urls);
@@ -648,7 +643,7 @@ class PageRepository extends CoreRepository
         $baseUrl = rtrim(config('app.url'), '/');
         foreach ($data as $d) {
             $url = $d->meta->uri;
-            $urls = [$baseUrl, str_replace('/', '', $url)];
+            $urls = [$baseUrl, str_replace('/', '', $parentUrl), str_replace('/', '', $url)];
 
             if (in_array('sitemap.xml', $urls)) {
                 $index = array_search('sitemap.xml', $urls);

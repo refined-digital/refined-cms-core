@@ -2,6 +2,7 @@
 
 namespace RefinedDigital\CMS\Modules\Pages\Traits;
 
+use RefinedDigital\CMS\Modules\Core\Aggregates\CustomModuleAggregate;
 use RefinedDigital\CMS\Modules\Core\Models\Uri;
 use RefinedDigital\CMS\Modules\Pages\Scopes\IsPageScope;
 use Str;
@@ -116,24 +117,10 @@ trait IsPage
             }
         });
 
-        /*
-        static::getModel()->deleted(function($model) {
-
-           if($model->implementsSoftDeletes()) {
-                // do the soft deleting
-                //$model->meta->delete();
-                if ($model->content) {
-                    $model->content()->delete();
-                }
-            } else {
-                // do the hard deleting
-                //$model->meta->forceDelete();
-                if ($model->content) {
-                    $model->content()->forceDelete();
-                }
-            }
-        });*/
-
+        static::retrieved(function($model) {
+           $model->append('page_url');
+           $model->append('page_urls');
+        });
     }
 
 
@@ -161,5 +148,44 @@ trait IsPage
         }
 
         return null;
+    }
+
+    public function getPageUrlsAttribute()
+    {
+        if (!isset($this->parent_id)) {
+            $urls = [];
+            // check if it is a module and has a base page
+            $basePage = app(CustomModuleAggregate::class)->getSitemapBasePage(self::class);
+            if ($basePage) {
+                $urls[] = $basePage;
+            }
+
+            $urls[] = $this->meta->uri;
+
+            return $urls;
+        }
+
+        // recursivly grab the uris
+        $max = 10;
+        $parentId = $this->parent_id;
+        $urls = [
+            $this->meta->uri,
+        ];
+
+        while ($parentId > 0) {
+            $parent = self::with('meta')->find($parentId);
+            if ($parent && $parent->id) {
+                $parentId = $parent->parent_id;
+                $urls[] = $parent->meta->uri;
+            }
+        }
+
+        // reverse the array
+        return array_reverse($urls);
+    }
+
+    public function getPageUrlAttribute()
+    {
+        return implode('/', $this->page_urls);
     }
 }

@@ -5,14 +5,14 @@ namespace RefinedDigital\CMS\Modules\Core\Aggregates;
 class CustomModuleAggregate
 {
 
-    protected $modules = [];
+    protected $sitemap = [];
 
     public function add(
         string $name,
         string $routes,
         array $menuConfig,
-        ?string $sitemapModel,
-        ?string $sitemapBasePage,
+        ?string $model,
+        ?string $basePage,
     )
     {
         app(CustomModuleRouteAggregate::class)
@@ -21,9 +21,16 @@ class CustomModuleAggregate
         app(ModuleAggregate::class)
             ->addMenuItem($menuConfig);
 
-        if (isset($sitemapModel)) {
+        if (isset($model)) {
             app(SitemapXMLAggregate::class)
-                ->add($name, $sitemapModel, $sitemapBasePage);
+                ->add($name, $model, $basePage);
+
+            $this->sitemap[$model] = $basePage;
         }
+    }
+
+    public function getSitemapBasePage(string $name)
+    {
+        return $this->sitemap[$name] ?? null;
     }
 }
