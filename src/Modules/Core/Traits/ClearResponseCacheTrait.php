@@ -2,22 +2,22 @@
 
 namespace RefinedDigital\CMS\Modules\Core\Traits;
 
-use Spatie\ResponseCache\Facades\ResponseCache;
+use Silber\PageCache\Cache;
 
 trait ClearResponseCacheTrait
 {
     public static function bootClearResponseCacheTrait()
     {
         self::created(function () {
-            ResponseCache::clear();
+            $cache = app(Cache::class)->clear();
         });
 
         self::updated(function () {
-            ResponseCache::clear();
+            $cache = app(Cache::class)->clear();
         });
 
         self::deleted(function () {
-            ResponseCache::clear();
+            $cache = app(Cache::class)->clear();
         });
     }
 }

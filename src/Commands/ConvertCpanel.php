@@ -73,6 +73,7 @@ tmp/
 var/
 www    
 public_html/hot
+public_html/page-cache
     ';
 
     $ignore = file_get_contents(base_path('.gitignore'));

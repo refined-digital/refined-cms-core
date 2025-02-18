@@ -60,6 +60,7 @@ class Install extends Command
         $this->setupDb();
         $this->copyTemplates();
         $this->updatePackageJson();
+        $this->setCache();
         $this->askCpanel();
         $this->publishConfigs();
         $this->addUser();
@@ -179,12 +180,6 @@ class Install extends Command
         $file = file_get_contents(app()->environmentFilePath());
         $file = preg_replace($search, $replace, $file);
 
-        // add in the cache settings
-        $file .= "
-RESPONSE_CACHE_ENABLED=false
-RESPONSE_CACHE_HEADER_NAME=\"".Str::slug($siteName)."\"
-RESPONSE_CACHE_DRIVER=file
-RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         file_put_contents(app()->environmentFilePath(), $file);
 
 
@@ -715,6 +710,43 @@ RESPONSE_CACHE_LIFETIME=".(60 * 60 * 24 * 7);
         $appData = str_replace($search, $replace, $appData);
 
         file_put_contents($appFile, $appData);
+    }
+
+    protected function setCache()
+    {
+        $this->output->writeln('<info>Updating gitignore to ignore cache</info>');
+
+        $ignore = '
+public/page-cache
+    ';
+
+        $ignore = file_get_contents(base_path('.gitignore'));
+        file_put_contents(base_path('.gitignore'), $ignore . $ignore);
+
+        $this->output->writeln('<info>Writing to .htaccess</info>');
+
+        $contents = file_get_contents(public_path('.htaccess'));
+        $search = [
+            'RewriteEngine On',
+            '# Send Requests To Front Controller...',
+        ];
+
+        $replace = [
+            "RewriteEngine On
+            
+RedirectMatch 301 ^/page-cache/(.*)\.html$ /$1",
+            "RewriteCond %{REQUEST_URI} ^/?$
+    RewriteCond %{DOCUMENT_ROOT}/public_html/page-cache/pc__index__pc.html -f
+    RewriteRule .? page-cache/pc__index__pc.html [L]
+    RewriteCond %{DOCUMENT_ROOT}/public_html/page-cache%{REQUEST_URI}.html -f
+    RewriteRule . page-cache%{REQUEST_URI}.html [L]
+
+    # Send Requests To Front Controller...",
+        ];
+
+
+        file_put_contents(public_path('.htaccess'), str_replace($search, $replace, $contents));
+
     }
 
     /**
