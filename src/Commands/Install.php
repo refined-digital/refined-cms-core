@@ -733,12 +733,12 @@ public/page-cache
 
         $replace = [
             "RewriteEngine On
-            
-RedirectMatch 301 ^/page-cache/(.*)\.html$ /$1",
+
+RedirectMatch 404 ^/page-cache",
             "RewriteCond %{REQUEST_URI} ^/?$
-    RewriteCond %{DOCUMENT_ROOT}/public_html/page-cache/pc__index__pc.html -f
+    RewriteCond %{DOCUMENT_ROOT}/page-cache/pc__index__pc.html -f
     RewriteRule .? page-cache/pc__index__pc.html [L]
-    RewriteCond %{DOCUMENT_ROOT}/public_html/page-cache%{REQUEST_URI}.html -f
+    RewriteCond %{DOCUMENT_ROOT}/page-cache%{REQUEST_URI}.html -f
     RewriteRule . page-cache%{REQUEST_URI}.html [L]
 
     # Send Requests To Front Controller...",
