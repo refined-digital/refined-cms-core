@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Route;
 
 $baseMiddleware = [
     'web',
-    'cacheResponse',
 ];
 
 if (!help()->isMultiTenancy()) {
