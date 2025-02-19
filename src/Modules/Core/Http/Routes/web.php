@@ -14,11 +14,12 @@ $baseMiddleware = [
     'cacheResponse',
 ];
 
-$adminMiddleware = array_merge([
+$adminMiddleware = [
+    'web',
     'auth',
     'userLevel',
     'admin'
-], $baseMiddleware);
+];
 
 if (help()->isMultiTenancy()) {
     $baseMiddleware = array_merge($baseMiddleware, [
@@ -104,13 +105,13 @@ Route::middleware($baseMiddleware)
     })
 ;
 
+Route::middleware(['web'])
+    ->namespace('RefinedDigital\CMS\Modules\Pages\Http\Controllers')
+    ->get('sitemap.xml',   ['uses' => 'PageController@xmlSitemap']);
+
 Route::middleware($baseMiddleware)
     ->namespace('RefinedDigital\CMS\Modules\Pages\Http\Controllers')
     ->group(function() {
-
-        // generates the xml sitemap
-        Route::get('sitemap.xml',   ['uses' => 'PageController@xmlSitemap']);
-
         // the catch all
         Route::fallback('PageController@render');
     })
