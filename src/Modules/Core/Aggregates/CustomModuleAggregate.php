@@ -13,10 +13,16 @@ class CustomModuleAggregate
         array $menuConfig,
         ?string $model,
         ?string $basePage,
+        ?bool $custom = true
     )
     {
-        app(CustomModuleRouteAggregate::class)
-            ->addRouteFile($name, $routes);
+        if ($custom) {
+            app(CustomModuleRouteAggregate::class)
+                ->addRouteFile($name, $routes);
+        } else {
+            app(RouteAggregate::class)
+                ->addRouteFile($name, $routes);
+        }
 
         app(ModuleAggregate::class)
             ->addMenuItem($menuConfig);
