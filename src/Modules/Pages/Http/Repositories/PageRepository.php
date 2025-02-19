@@ -200,6 +200,7 @@ class PageRepository extends CoreRepository
         $leaf->name = 'New Page';
         $leaf->active = 1;
         $leaf->hide_from_menu = 0;
+        $leaf->hide_from_sitemap = 0;
         $leaf->page_type = 1;
         $leaf->protected = 0;
         $leaf->children = [];
