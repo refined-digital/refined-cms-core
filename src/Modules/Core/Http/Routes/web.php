@@ -34,6 +34,7 @@ if (help()->isMultiTenancy()) {
     $prefix = '{tenant}/refined';
     $adminMiddleware[] = InitializeTenancyByPath::class;
 }
+
 Route::middleware($adminMiddleware)
     ->as('refined.')
     ->prefix($prefix)
@@ -106,8 +107,7 @@ Route::middleware($baseMiddleware)
 ;
 
 Route::middleware(['web'])
-    ->namespace('RefinedDigital\CMS\Modules\Pages\Http\Controllers')
-    ->get('sitemap.xml',   ['uses' => 'PageController@xmlSitemap']);
+    ->get('sitemap.xml',   ['uses' => 'RefinedDigital\CMS\Modules\Pages\Http\Controllers\PageController@xmlSitemap']);
 
 Route::middleware($baseMiddleware)
     ->namespace('RefinedDigital\CMS\Modules\Pages\Http\Controllers')
