@@ -468,7 +468,7 @@ class PageRepository extends CoreRepository
             $pages = $pages->limit($limit);
         }
 
-        $pages = \Cache::remember('pages-get-for-menu', 10, fn() => $pages->order()->get());
+        $pages = \Cache::remember('pages-get-for-menu-'.$holder, 10, fn() => $pages->order()->get());
 
         $total = sizeof($pages);
         if ($total) {
