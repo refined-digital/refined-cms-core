@@ -736,9 +736,9 @@ public/page-cache
 
 RedirectMatch 404 ^/page-cache",
             "RewriteCond %{REQUEST_URI} ^/?$
-    RewriteCond %{DOCUMENT_ROOT}/page-cache/pc__index__pc.html -f
+    RewriteCond %{DOCUMENT_ROOT}/storage/app/private/page-cache/pc__index__pc.html -f
     RewriteRule .? page-cache/pc__index__pc.html [L]
-    RewriteCond %{DOCUMENT_ROOT}/page-cache%{REQUEST_URI}.html -f
+    RewriteCond %{DOCUMENT_ROOT}/storage/app/private/page-cache%{REQUEST_URI}.html -f
     RewriteRule . page-cache%{REQUEST_URI}.html [L]
 
     # Send Requests To Front Controller...",
