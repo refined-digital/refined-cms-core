@@ -172,7 +172,6 @@
   &__files {
     --count: 6;
     position: relative;
-    flex: 1;
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(var(--count), minmax(0, 1fr));

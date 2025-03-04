@@ -34,7 +34,6 @@ use RefinedDigital\CMS\Modules\Core\Routing\CustomUrlGenerator;
 
 use Validator;
 use Silber\PageCache\Middleware\CacheResponse;
-use Silber\PageCache\Cache;
 
 
 class CMSServiceProvider extends ServiceProvider
@@ -141,7 +140,6 @@ class CMSServiceProvider extends ServiceProvider
 
         // load the responsecache middleware
         $router->aliasMiddleware('cacheResponse', CacheResponse::class);
-        $this->app[Cache::class]->setCachePath(storage_path('/app/private/page-cache'));
 
         // add the custom blade directives
         \Blade::directive('svg', function($expression) {
