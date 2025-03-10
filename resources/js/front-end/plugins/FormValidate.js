@@ -66,8 +66,6 @@ export class FormValidate {
               break;
           }
 
-          console.log(field.type, field.value, check, check.test(field.value));
-
           if (field.type === 'email') {
             error = !validator.validate(field.value);
           } else if (!check.test(field.value)) {
