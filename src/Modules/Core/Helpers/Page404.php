@@ -3,6 +3,7 @@
 namespace RefinedDigital\CMS\Modules\Core\Helpers;
 
 use Illuminate\Http\Response;
+use RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate;
 use RefinedDigital\CMS\Modules\Core\Traits\HasSettings;
 use RefinedDigital\CMS\Modules\Pages\Aggregates\PageAggregate;
 use RefinedDigital\CMS\Modules\Pages\Models\Page;
@@ -25,5 +26,6 @@ class Page404 {
         $this->head = implode("\n\t\t", $head);
         $this->classes = 'page__error--'.$statusCode;
         $this->settings = settings()->get('pages');
+        $this->assetAggregate = app(AssetAggregate::class);
     }
 }

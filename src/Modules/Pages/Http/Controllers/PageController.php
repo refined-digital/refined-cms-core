@@ -282,9 +282,6 @@ class PageController extends CoreController
         $view = view('templates::'.$page->meta->template->source)
                     ->with(compact('page'))->render();
 
-
-        session()->forget('loaded_forms');
-
         // return the view
         return $view;
     }

@@ -21,12 +21,20 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700&display=swap" rel="stylesheet">
-    @vite(['resources/css/main.css'])
-    @vite(app(\RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate::class)->getStyles())
-    @yield('styles')
+    @vite([
+        'resources/css/main.css',
+        ...$page->assetAggregate->getStyles()
+    ])
 
-    @vite(['resources/js/main.js'])
-    @vite(app(\RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate::class)->getScripts())
+    @yield('styles')
+    {!! $page->assetAggregate->getModuleStyles() !!}
+
+    @vite([
+        'resources/js/main.js',
+        ...$page->assetAggregate->getScripts()
+    ])
+
+    {!! $page->assetAggregate->getModuleScripts() !!}
 </head>
 
 <body{!! isset($page->classes) ? ' class="'.$page->classes.'"' : '' !!}>

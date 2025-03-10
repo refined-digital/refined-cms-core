@@ -2,6 +2,8 @@
 
 namespace RefinedDigital\CMS\Modules\Pages\Http\Repositories;
 
+use RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\ModuleAssetAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\PackageAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\SitemapXMLAggregate;
 use RefinedDigital\CMS\Modules\Core\Models\Uri;
@@ -371,6 +373,26 @@ class PageRepository extends CoreRepository
             $template = 'templates::' . $page->meta->template->source;
             if (!view()->exists($template)) {
                 abort(404);
+            }
+        }
+
+        $page->assetAggregate = app(AssetAggregate::class);
+
+        // todo: find a better way to do this
+        // ie don't render the page to see if it has a form
+        if (function_exists('forms')) {
+            $content = view('templates::'.$page->meta->template->source)->with(compact('page'))->render();
+            $hasForm = Str::contains($content, '<form');
+            if ($hasForm) {
+                $page->assetAggregate
+                    ->addModuleStyle(asset('vendor/refined/form-builder/css/form.css'))
+                    ->addModuleScript('form-builder', asset('vendor/refined/core/js/FormBuilder.js'), ['defer'])
+                ;
+
+                $hasRecaptcha = Str::contains($content, '_captcha');
+                if ($hasRecaptcha) {
+                    $page->assetAggregate->addModuleScript('recaptcha', '//www.google.com/recaptcha/api.js?render='.env('RECAPTCHA_SITE_KEY'), ['async', 'defer']);
+                }
             }
         }
 

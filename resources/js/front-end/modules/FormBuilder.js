@@ -40,6 +40,7 @@ if (ccField.length) {
 const forms = Array.from(document.querySelectorAll('form')).filter(form =>
     form.className.match(/\bform--\d+\b/)
 );
+
 if (forms.length) {
   const sendRequest = async (url, formElement , method = 'POST') => {
     const headers = {
