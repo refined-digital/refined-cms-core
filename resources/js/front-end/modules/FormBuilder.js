@@ -41,19 +41,113 @@ const forms = Array.from(document.querySelectorAll('form')).filter(form =>
     form.className.match(/\bform--\d+\b/)
 );
 
-if (forms.length) {
-  const sendRequest = async (url, formElement , method = 'POST') => {
-    const headers = {
-      'Accept': 'application/json',
-      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+class ApiClient {
+  constructor() {
+    this.defaultHeaders = {
+      Accept: 'application/json',
     };
+    this.errors = [];
+  }
 
+  async request(url, options = {}) {
+    this.errors = [];
+
+    const config = {
+      method: options.method || 'GET',
+      headers: { ...this.defaultHeaders, ...options.headers },
+      credentials: 'include',
+      body: options.body ?? undefined,
+    };
+    let response = await fetch(url, config);
+
+    if (response.status === 419 && !options.isRetryRequest) {
+      await this.refreshToken();
+
+      // Ensure the CSRF token is included in subsequent requests
+      const csrfToken = this.getToken();
+
+      if (csrfToken) {
+        if (!options.headers) {
+          options.headers = {};
+        }
+
+        options.headers['X-XSRF-TOKEN'] = decodeURIComponent(csrfToken);
+      }
+
+      options.isRetryRequest = true;
+
+      return this.request(url, options);
+    }
+
+    if (response.status === 422) {
+      const data = await response.json();
+      this.errors = [];
+
+      for (let key in data.errors) {
+        const error = data.errors[key];
+        if (key === 'htime') {
+          continue;
+        }
+        error.forEach(err => this.errors.push(err));
+      }
+
+      this.alert();
+      return false;
+    }
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+
+    return await response.json();
+  }
+
+  getToken() {
+    const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  async refreshToken() {
+    // Refresh CSRF token and retry request
+    await fetch(`/sanctum/csrf-cookie`);
+  }
+
+  async checkForToken() {
+    const token = this.getToken();
+    if (!token) {
+      await this.refreshToken();
+    }
+  }
+
+  alert() {
+    if (this.errors.length) {
+      let msg = 'The following fields are required: ';
+      this.errors.forEach(error => {
+        let err = ' field is required.';
+
+        error = error.replace(err, '');
+
+        if (error.startsWith('The')) {
+          error = error.substring(4, error.length);
+        }
+
+        msg += "\n - "+error;
+      });
+
+      alert(msg);
+    }
+  }
+}
+
+if (forms.length) {
+  const client = new ApiClient();
+  client.checkForToken();
+
+  const sendRequest = async (url, formElement , method = 'POST') => {
     const body = new FormData(formElement);
 
     const options = {
       method,
-      headers,
-      credentials: 'same-origin'
     };
 
     if (body) {
@@ -61,15 +155,7 @@ if (forms.length) {
     }
 
     try {
-      const response = await fetch(url, options);
-
-      if (response.status === 200) {
-        return await response.json();
-      } else {
-        throw new Error(response.statusText);
-      }
-
-
+      return await client.request(url, options);
     } catch (error) {
       console.error('Fetch error:', error);
       throw error;
@@ -100,7 +186,6 @@ if (forms.length) {
       );
 
       formIsNotLoading(button);
-
 
     } catch (e) {
       console.warn(e);
@@ -134,6 +219,7 @@ if (forms.length) {
   }
 
   forms.forEach(form => {
+
     const validate = new window.FormValidate();
     const tokenField = form.querySelector('input[name="_captcha"]');
 

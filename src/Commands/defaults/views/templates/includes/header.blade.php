@@ -18,8 +18,6 @@
     <meta name="apple-mobile-web-app-title" content="{{ config('app.name') }}l" />
     <link rel="manifest" href="{{ asset('/site.webmanifest') }}" />
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700&display=swap" rel="stylesheet">
     @vite([
         'resources/css/main.css',
