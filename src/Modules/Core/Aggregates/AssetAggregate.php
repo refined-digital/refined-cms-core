@@ -64,7 +64,9 @@ class AssetAggregate
     {
         return join(PHP_EOL, array_map(function ($script) {
             $attributes = $script['attributes'] ?? [];
-            $attributes['src'] = $this->formatParameters($script['src']);
+            $attributes['src'] = \Str::contains($script['src'], 'recaptcha/api.js')
+                ? $script['src']
+                : $this->formatParameters($script['src']);
             return '<script'.help()->arrToAttr($attributes).'></script>';
         }, $this->moduleScripts));
     }
