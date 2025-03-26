@@ -33,6 +33,23 @@ trait HasContentBlocks
 
                             $data = $field['content'];
 
+                            if ((int) $field['page_content_type_id'] === PageContentType::REPEATABLE->value) {
+                                if (is_array($data) && sizeof($data)) {
+                                    $data = array_map(function($item) {
+                                        $fieldData = new \stdClass();
+
+                                        foreach ($item as $key => $value) {
+                                            $fieldData->{$key} = $value['content'] ?? null;
+                                        }
+
+                                        return $fieldData;
+                                    }, $data);
+                                } else {
+                                    $data = [];
+                                }
+                            }
+
+
                             $createData = [
                                 'position' => $index,
                                 'contentable_id' => $model->id,
@@ -52,14 +69,14 @@ trait HasContentBlocks
         });
     }
 
-    protected function initializeHasContentBlocks()
+    protected function initializeHasContentBlocks(): void
     {
         $this->addToAppends([
             'content'
         ]);
     }
 
-    public function getContentAttribute()
+    public function getContentAttribute(): string | array
     {
         $content = Content::select(['content_class', 'field', 'data', 'position'])
             ->whereContentableId($this->id)
@@ -90,7 +107,7 @@ trait HasContentBlocks
         return $this->formatForFE($data);
     }
 
-    private function formatForAdmin($data)
+    private function formatForAdmin($data): array
     {
         $content = [];
 
@@ -112,6 +129,36 @@ trait HasContentBlocks
                         function_exists('forms')
                     ) {
                         $item['fields'][$key]['options'] = forms()->getForSelect('content forms');
+                    }
+
+                    if ($pageContentTypeId === PageContentType::REPEATABLE->value) {
+                        $lookup = [];
+                        foreach ($field['fields'] as $f) {
+                            $lookup[$f['field']] = $f;
+                        }
+
+                        $item['fields'][$key]['content'] = array_map(function ($item) use ($lookup) {
+                            $newContent = $lookup;
+                            foreach ($item as $key => $value) {
+                                if (!isset($newContent[$key])) {
+                                    continue;
+                                }
+                                $newContent[$key]['content'] = $value;
+                            }
+
+                            return $newContent;
+                        }, $item['fields'][$key]['content']);
+
+                        $item['fields'][$key]['content'] = array_map(function ($item) {
+                            foreach ($item as $key => $value) {
+                                $item[$key]['show'] =  true;
+                                if (!isset($item[$key]['content'])) {
+                                    $item[$key]['content'] = '';
+                                }
+                                unset($item[$key]['field']);
+                            }
+                            return $item;
+                        }, $item['fields'][$key]['content']);
                     }
                 }
 
@@ -156,7 +203,7 @@ trait HasContentBlocks
         return $html;
     }
 
-    private function formatContent($fields, $content, $admin = false)
+    private function formatContent($fields, $content, $admin = false): object
     {
         $data = new \stdClass();
 

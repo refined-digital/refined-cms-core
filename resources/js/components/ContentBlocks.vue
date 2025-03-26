@@ -149,6 +149,24 @@ export default {
         if (!field.key) {
           field.key = `-${_.kebabCase(field.name)}-key-${this.uniqueId(10)}`
         }
+
+        if (field.page_content_type_id === 9 && Array.isArray(field.content)) {
+          field.content = field.content.map(item => {
+            for (const key in item) {
+              const localItem = item[key];
+
+              if (!localItem.id) {
+                localItem.id = `-${_.kebabCase(localItem.name)}-id-${this.uniqueId(10)}`
+              }
+
+              if (!localItem.key) {
+                localItem.key = `-${_.kebabCase(localItem.name)}-key-${this.uniqueId(10)}`
+              }
+            }
+
+            return item;
+          })
+        }
       })
 
       if (!content.id) {
