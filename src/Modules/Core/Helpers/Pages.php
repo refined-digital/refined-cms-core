@@ -13,34 +13,6 @@ class Pages {
     {
         $config = config('pages');
 
-        // check if we have the pages banners module
-        $pageBannerConfig = config('page-banners');
-        if ($pageBannerConfig) {
-            // check if we need to enable / disable the page banner
-            if (
-                isset($pageBannerConfig['home']['active']) && $pageBannerConfig['home']['active'] &&
-                isset($pageBannerConfig['home']['replace_banner']) && $pageBannerConfig['home']['replace_banner']
-            ) {
-                $config['banner']['home']['active'] = false;
-            }
-            if (
-                isset($pageBannerConfig['internal']['active']) && $pageBannerConfig['internal']['active'] &&
-                isset($pageBannerConfig['internal']['replace_banner']) && $pageBannerConfig['internal']['replace_banner']
-            ) {
-                $config['banner']['internal']['active'] = false;
-            }
-        }
-
-
-        // sort the content buttons by the name
-        usort($config['content'], function($a, $b) {
-            return strcmp($a['name'], $b['name']);
-        });
-
-        $config['content'] = $this->formatConfigContent($config['content']);
-
-        // help()->trace($config['content'], true);
-
         return $config;
     }
 
@@ -141,46 +113,6 @@ class Pages {
         return Page::find($pageId)->meta->uri;
     }
 
-    public function formatConfigContent($config)
-    {
-        $formContent = [];
-        if (function_exists('forms')) {
-            $formContent = forms()->getForSelect('content forms');
-        }
-
-        return array_map(function($content) use ($formContent) {
-            if (isset($content['fields']) && is_array($content['fields']) && sizeof($content['fields'])) {
-                $content['fields'] = array_map(function($field) use ($formContent) {
-                    if (isset($field['options']) && $field['options'] == 'forms') {
-                        $field['options'] = $formContent;
-                    }
-
-                    if (isset($field['options']) && !is_array($field['options']) && gettype($field['options']) === 'string') {
-                        $class = new $field['options']();
-                        if (method_exists($class, 'getForConfigSelect')) {
-                            $field['options'] = $class->getForConfigSelect();
-                        } else {
-                            $field['options'] = [];
-                        }
-                    }
-
-                    if (isset($field['options']) && is_array($field['options']) && sizeof($field['options']) && gettype($field['options'][0]) === 'string') {
-                        $class = new $field['options'][0]();
-                        if (method_exists($class, $field['options'][1])) {
-                            $field['options'] = $class->{$field['options'][1]}();
-                        } else {
-                            $field['options'] = [];
-                        }
-                    }
-
-                    return $field;
-                }, $content['fields']);
-            }
-
-            return $content;
-        }, $config);
-    }
-
     public function getPageListing()
     {
         $pages = Page::with(['meta','meta.template'])
@@ -190,12 +122,6 @@ class Pages {
             ->whereParentId(0)
             ->orderby('position','asc')
             ->get();
-
-        $repo = new PageRepository();
-        foreach ($pages as $page) {
-            $page->content = $repo->formatPageContentForFrontend($page->the_content);
-            unset($page->the_content);
-        }
 
         return $pages;
     }

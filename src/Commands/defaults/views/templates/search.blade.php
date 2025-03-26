@@ -2,7 +2,7 @@
 
 @section('template')
 
-    @include('templates.includes.content')
+    {!! $page->content !!}
 
     @if (isset($page->search))
         <section class="page__block page__block--search page__block--light">

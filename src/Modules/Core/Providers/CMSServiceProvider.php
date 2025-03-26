@@ -10,11 +10,13 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Foundation\AliasLoader;
 use RefinedDigital\CMS\Commands\ConvertCpanel;
+use RefinedDigital\CMS\Commands\CreateContentBlock;
 use RefinedDigital\CMS\Commands\CreateModule;
 use RefinedDigital\CMS\Commands\InstallCMS;
 use RefinedDigital\CMS\Commands\InstallDatabase;
 use RefinedDigital\CMS\Commands\InstallSymLink;
 use RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\ContentAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\CustomModuleAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\SitemapXMLAggregate;
 use RefinedDigital\CMS\Modules\Core\Exceptions\Handler;
@@ -100,6 +102,7 @@ class CMSServiceProvider extends ServiceProvider
 
             $this->commands([
                 CreateModule::class,
+                CreateContentBlock::class,
             ]);
 
             $publicPathDir = explode('/', public_path());
@@ -147,11 +150,7 @@ class CMSServiceProvider extends ServiceProvider
             $replace = ['', ''];
             $path = str_replace($search, $replace, $expression);
             $path = 'svg/'.$path.'.svg';
-            //try {
-                return file_get_contents(resource_path($path));
-            // } catch (\Exception $e) {
-            //     return 'file not found: '. $path;
-            // }
+            return file_get_contents(resource_path($path));
         });
     }
 
@@ -179,6 +178,7 @@ class CMSServiceProvider extends ServiceProvider
         $this->app->singleton(AssetAggregate::class);
         $this->app->singleton(CustomModuleAggregate::class);
         $this->app->singleton(SitemapXMLAggregate::class);
+        $this->app->singleton(ContentAggregate::class);
 
         // load in the modules
         $this->mergeConfigFrom(__DIR__.'/../../../../config/modules.php', 'modules');

@@ -1,9 +1,7 @@
 @php
-    $classes = [
-      'page__block',
-      'page__block--full-width-image',
+    $classes = array_merge($classes, [
       'page__block--no-padding',
-    ];
+    ]);
 @endphp
 @if (isset($content->image) && $content->image)
     <section class="{{ implode(' ', $classes) }}">

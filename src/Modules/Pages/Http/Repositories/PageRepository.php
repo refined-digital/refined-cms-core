@@ -127,7 +127,6 @@ class PageRepository extends CoreRepository
         $page->position = (int)$page->position;
         $page->protected = (int)$page->protected;
         $page->depth = (int)$depth;
-        $page->content = $page->the_content ?? [];
         $page->settings = $this->formatPageSettings($page->settings);
 
         // if we have a parent id of 0 we need to update the holder id to be negative
@@ -332,11 +331,6 @@ class PageRepository extends CoreRepository
             $page->tag = $tag;
             $page->tag->base = $baseHref . $uriReference->uri;
             $page->base = $baseHref . $uriReference->uri;
-        }
-
-        if (in_array(HasContentBlocks::class, class_uses_recursive($page::class))) {
-            $page->content = $this->formatPageContentForFrontend($page->the_content);
-            unset($page->the_content);
         }
 
         // if we are on a blog article, add in the base href for searching
@@ -705,170 +699,6 @@ class PageRepository extends CoreRepository
 
         return $depths[$depth] ?? '0.01';
 
-    }
-
-    public function formatData($data)
-    {
-        $data = parent::formatData($data);
-        if (isset($data['content']) && $data['content']) {
-            $data['content'] = array_map(function ($block) {
-                $removeFields = ['description', 'id', 'key', 'width', 'height'];
-                foreach ($removeFields as $f) {
-                    if (isset($block[$f])) {
-                        unset($block[$f]);
-                    }
-                }
-
-                if (isset($block['fields'])) {
-                    $block['fields'] = array_map(function ($item) use ($removeFields) {
-                        $contentType = $item['page_content_type_id'];
-
-                        unset($item['page_content_type_id']);
-
-                        if (isset($item['fields'])) {
-                            unset($item['fields']);
-                        }
-
-                        foreach ($removeFields as $f) {
-                            if (isset($item[$f])) {
-                                unset($item[$f]);
-                            }
-                        }
-
-                        if (isset($item['content']) && is_array($item['content']) && $contentType !== PageContentTypeEnum::LINK->value) {
-                            $item['content'] = array_map(function ($content) {
-                                $newContent = $content;
-                                foreach ($newContent as $key => $cont) {
-                                    $newContent[$key] = $cont['content'];
-                                }
-                                return $newContent;
-                            }, $item['content']);
-                        }
-
-                        return $item;
-                    }, $block['fields']);
-                }
-
-                return $block;
-            }, $data['content']);
-        }
-
-        return $data;
-    }
-
-    public function formatPageContentForFrontend($content)
-    {
-        $newContent = [];
-        if (sizeof($content)) {
-            foreach ($content as $field) {
-                $formattedContent = $this->formatPageContentFields($field['fields']);
-                if (isset($field['apiResource']) && $field['apiResource']) {
-                    $formattedContent = (new $field['apiResource']($field));
-                }
-                $newField = new \stdClass();
-                $newField->name = $field['name'];
-                $newField->template = 'templates.content.' . $field['template'];
-                $newField->content = $formattedContent;
-                $newContent[] = $newField;
-            }
-        }
-
-        return $newContent;
-    }
-
-    private function formatPageContentFields($fields)
-    {
-        $settingKeys = [];
-        $settingKey = '[settings:';
-        $isApi = isset(request()->route()->getAction()['prefix']) && request()->route()->getAction()['prefix'] === 'api';
-
-        $newFields = new \stdClass();
-        foreach ($fields as $field) {
-            $content = $field['content'];
-            if ($field['page_content_type_id'] !== PageContentTypeEnum::LINK->value && !is_array($content) && Str::contains($content, $settingKey) && !in_array($content, $settingKeys)) {
-                $settingKeys[] = $content;
-            }
-            if ($field['page_content_type_id'] == PageContentTypeEnum::REPEATABLE->value) {
-                $repeatableContent = [];
-                foreach ($content as $row) {
-                    $newRow = new \stdClass();
-                    foreach ($row as $key => $value) {
-                        $vContent = $value['content'];
-                        if (is_string($vContent) && Str::contains($vContent, $settingKey) && !in_array($vContent, $settingKeys)) {
-                            $settingKeys[] = $vContent;
-                        }
-
-                        if (is_array($vContent)) {
-                            foreach ($vContent as $c) {
-                                foreach ($c as $d) {
-                                    if (Str::contains($d->content, $settingKey) && !in_array($d->content, $settingKeys)) {
-                                        $settingKeys[] = $d->content;
-                                    }
-                                }
-                            }
-                        }
-
-                        $vField = array_values(array_filter($field['fields'], function ($f) use ($key) {
-                            return $f['field'] == $key;
-                        }));
-
-                        if (sizeof($vField) && isset($vField[0]['page_content_type_id']) && $vField[0]['page_content_type_id'] == PageContentTypeEnum::IMAGE->value) {
-                            $img = new \stdClass();
-                            $img->id = $vContent;
-                            $img->width = $vField[0]['width'] ?? null;
-                            $img->height = $vField[0]['height'] ?? null;
-                            $vContent = $img;
-                        }
-
-                        if ($isApi) {
-                            $newRow->{$key} = new \stdClass();
-                            $newRow->{$key}->content = $vContent;
-                            $newRow->{$key}->type = $vField[0]['page_content_type_id'] ?? PageContentTypeEnum::PLAIN->value;
-                        } else {
-                            $newRow->{$key} = $vContent;
-                        }
-
-                    }
-                    $repeatableContent[] = $newRow;
-                }
-
-                $content = $repeatableContent;
-            }
-            if ($field['page_content_type_id'] == PageContentTypeEnum::IMAGE->value) {
-                $imageId = $content;
-                $content = new \stdClass();
-                $content->id = $imageId;
-                $content->width = $field['width'] ?? null;
-                $content->height = $field['height'] ?? null;
-            }
-
-            $key = Str::slug($field['name'], '_');
-
-            // if the content is being requested from the api, attach the content type id to the content as well
-            if ($isApi) {
-                $newFields->{$key} = new \stdClass();
-                $newFields->{$key}->content = $content;
-                $newFields->{$key}->type = $field['page_content_type_id'];
-            } else {
-                $newFields->{$key} = $content;
-            }
-        }
-
-        if (sizeof($settingKeys)) {
-            $values = settings()->getByKeyCodes($settingKeys);
-            $newFieldsAsArray = json_decode(json_encode($newFields), true);
-            $flattened = Arr::dot($newFieldsAsArray);
-            foreach ($flattened as $key => $value) {
-                if (in_array($value, $settingKeys) && isset($values[$value])) {
-                    $flattened[$key] = $values[$value];
-                }
-            }
-            $newFieldsAsArray = Arr::undot($flattened);
-            // convert back to object
-            $newFields = json_decode(json_encode($newFieldsAsArray));
-        }
-
-        return $newFields;
     }
 
     public function getForSelect($order = false, $orderDir = 'asc')

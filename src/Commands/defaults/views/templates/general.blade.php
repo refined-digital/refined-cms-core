@@ -2,7 +2,7 @@
 
 @section('template')
 
-    @include('templates.includes.content')
+    {!! $page->content !!}
 
 @stop
 

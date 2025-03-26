@@ -1,7 +1,3 @@
-@php
-    use RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate;
-    app(AssetAggregate::class)->addStyle('banner.css');
-@endphp
 @if(isset($content->image) && $content->image->id)
     <section class="banner">
         <div class="banner__image">

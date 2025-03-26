@@ -142,17 +142,8 @@
               <div class="form__note">Which form do you want to display on this page?</div>
             </div>
           </div><!-- / form row -->
-
-          <div class="form__row form__row--inline-label" v-if="showBanner()">
-            <label for="form--menu-text" class="form__label">Banner Image</label>
-            <div class="form__horz-group">
-              <rd-image v-model="page.banner" fieldName="banner" :key="page.id"></rd-image>
-              <div class="form__note" v-html="getImageNote(config.banner)"></div>
-            </div>
-          </div><!-- / form row -->
-
-
         </div><!-- / form -->
+
         </div><!-- / details -->
         <div class="pages__tab-pane" v-show="tab === 'content'">
           <header class="pages__tab-pane-header">
@@ -163,8 +154,8 @@
             <rd-content-blocks
               :config="config"
               :page="page"
-              :can-show-anchors="canShowAnchors"
               :key="`page__id--${page.id}`"
+              :content="content"
               name="content"
             />
           </div><!-- content editor -->
@@ -266,7 +257,7 @@
 
     name: 'Pages',
 
-    props: [ 'siteUrl', 'publicUrl', 'config', 'modules' ],
+    props: [ 'siteUrl', 'publicUrl', 'config', 'modules', 'content' ],
 
     mixins: [
       PagesImageNoteMixin,
@@ -1021,28 +1012,6 @@
       //// end page
       ///////////////////////////////
 
-
-      showBanner() {
-        let show = false;
-
-        if (this.page.id == 1 && this.config.banner.home.active) {
-          show = true;
-        }
-
-        if (this.page.id != 1 && this.config.banner.internal.active) {
-          show = true;
-        }
-
-        if (show && typeof this.config.hide_on_pages !== 'undefined' && this.config.hide_on_pages.includes(this.page.id)) {
-          show = false;
-        }
-
-        if (!show && typeof this.config.show_on_pages !== 'undefined' && this.config.show_on_pages.includes(this.page.id)) {
-          show = true;
-        }
-
-        return show;
-      },
 
       ////////////////////////////////
       //// page modules

@@ -1,20 +1,13 @@
 @php
-    use RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate;
-    app(AssetAggregate::class)
-        ->addStyle('accordion.css')
-        ->addScript('accordion.js');
-
-    $classes = [
-      'page__block',
-      'page__block--content',
+    $classes = array_merge($classes, [
       'page__block--bg-'.((isset($content->background_colour) && $content->background_colour) ? $content->background_colour : 'white'),
-    ];
+    ]);
 @endphp
 <section class="{{ implode(' ', $classes) }}">
     <div class="holder">
         <article class="holder__body">
-            @include('templates.content.includes.heading')
-            @include('templates.content.includes.content')
+            @include('content-templates::includes.heading')
+            @include('content-templates::includes.content')
 
             <div class="accordion">
                 <div class="accordion__panel">

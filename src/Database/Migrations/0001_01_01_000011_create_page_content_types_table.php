@@ -15,7 +15,7 @@ class CreatePageContentTypesTable extends Migration
     {
         Schema::create('page_content_types', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            $table->increments('id');
+            $table->id();
             $table->timestamps();
             $table->softDeletes();
             $table->boolean('active')->default(1);

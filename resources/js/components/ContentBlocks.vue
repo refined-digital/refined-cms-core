@@ -1,15 +1,15 @@
 <template>
   <div>
-    <div class="content-editor__header" v-if="config.content">
+    <div class="content-editor__header" v-if="content">
       <div class="content-editor__buttons">
-        <template v-for="content of config.content">
-          <button class="button button--small button--green" :class="{ 'button--has-note' : content.description }" @click.prevent.stop="loadContentBlock(content)">
+        <template v-for="item of content">
+          <button class="button button--small button--green" :class="{ 'button--has-note' : item.description }" @click.prevent.stop="loadContentBlock(item)">
               <span class="button__text">
-                {{ content.name }}
+                {{ item.name }}
               </span>
-              <span class="content-editor__button-note" v-if="content.description">
+              <span class="content-editor__button-note" v-if="item.description">
                 <span class="fa fa-question-circle"></span>
-                <span class="content-editor__button--content" v-html="content.description"></span>
+                <span class="content-editor__button--content" v-html="item.description"></span>
               </span>
           </button>
         </template>
@@ -60,7 +60,7 @@
       </div>
     </div>
 
-    <textarea :name="name" :value="JSON.stringify(data)" style="display: none"></textarea>
+    <textarea :name="name" :value="JSON.stringify(data)" style="display: none;"></textarea>
   </div>
 </template>
 
@@ -76,7 +76,7 @@ import { PagesRepeatableMixin } from  '../mixins/PagesRepeatable.js';
 export default {
   name: 'rd-content-blocks',
 
-  props: [ 'config', 'page', 'name' ],
+  props: [ 'config', 'page', 'name', 'content' ],
 
   mixins: [
     PagesImageNoteMixin,
@@ -91,50 +91,8 @@ export default {
 
   mounted() {
     const data = this.page[this.name];
-    const contentBlockLookup = {};
-    this.config.content.forEach((item) => {
-      contentBlockLookup[item.name] = item;
-    })
 
-    this.data = data.map(block => {
-      const item = contentBlockLookup[block.name];
-      if (item) {
-        const fieldsLookup = {};
-        const itemFields = [];
-        item.fields.forEach((field, index) => {
-          fieldsLookup[field.name] = {
-            index,
-            field,
-          };
-          itemFields.push(field.name);
-        })
-
-        const blockFields = block.fields.map(item => item.name);
-
-
-        const missingFields = _.difference(itemFields, blockFields);
-        if (missingFields.length) {
-          missingFields.forEach(key => {
-            const itemToInsert = fieldsLookup[key];
-            if (itemToInsert) {
-              const uniq = this.uniqueId(10);
-              const newField = {
-                ..._.cloneDeep(itemToInsert.field),
-                content: itemToInsert.field.page_content_type_id === 9 ? [] : '',
-                id: `-${_.kebabCase(itemToInsert.field.name)}-id-${uniq}`,
-                key: `-${_.kebabCase(itemToInsert.field.name)}-key-${uniq}`
-              }
-              block.fields.splice(itemToInsert.index, 0, newField);
-            }
-          })
-        }
-
-      }
-
-      return block;
-    })
-
-    this.data = data;
+    this.data = data.map(item => this.formatContent(item));
   },
 
   created() {
@@ -178,31 +136,37 @@ export default {
   },
 
   methods: {
-    loadContentBlock(content) {
-      const newContent = _.cloneDeep(content);
-      newContent.fields.forEach(field => {
+    formatContent(content) {
+      content.fields.forEach(field => {
         if (!field.content) {
           field.content = field.page_content_type_id === 9 ? [] : ''
         }
 
         if (!field.id) {
-          field.id = `-${_.kebabCase(field.name)}-id-${Date.now()}`
+          field.id = `-${_.kebabCase(field.name)}-id-${this.uniqueId(10)}`
         }
 
         if (!field.key) {
-          field.key = `-${_.kebabCase(field.name)}-key-${Date.now()}`
+          field.key = `-${_.kebabCase(field.name)}-key-${this.uniqueId(10)}`
         }
       })
 
-      if (!newContent.id) {
-        newContent.id = `id-${Date.now()}`
+      if (!content.id) {
+        content.id = `id-${this.uniqueId(10)}`
       }
 
-      if (!newContent.key) {
-        newContent.key = `key-${Date.now()}`
+      if (!content.key) {
+        content.key = `key-${this.uniqueId(10)}`
       }
 
-      this.data.push(newContent);
+      return content;
+    },
+
+    loadContentBlock(content) {
+      const newContent = _.cloneDeep(content);
+      const formattedContent = this.formatContent(content);
+
+      this.data.push(formattedContent);
       Vue.set(this.page, this.name, this.data);
     },
 

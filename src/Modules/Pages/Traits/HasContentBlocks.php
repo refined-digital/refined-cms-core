@@ -2,153 +2,188 @@
 
 namespace RefinedDigital\CMS\Modules\Pages\Traits;
 
+use Illuminate\Http\Request;
+use RefinedDigital\CMS\Modules\Content\Models\Content;
 use RefinedDigital\CMS\Modules\Core\Enums\PageContentType;
 
 trait HasContentBlocks
 {
+    public static function bootHasContentBlocks(): void
+    {
+        static::saved(function ($model) {
+
+            // first delete all content that matches the class and the id
+            Content::whereContentableType($model::class)
+                ->whereContentableId($model->id)
+                ->delete();
+
+            // now loop over the data and create the content
+            $content = request()->has('page')
+                ? request()->input('page.content')
+                // todo: module contents
+                : [];
+
+            if ($content && is_array($content) && sizeof($content)) {
+                foreach ($content as $index => $type) {
+                    if (isset($type['fields']) && is_array($type['fields']) && sizeof($type['fields'])) {
+                        foreach ($type['fields'] as $field) {
+                            if (!isset($field['content'])) {
+                                continue;
+                            }
+
+                            $data = $field['content'];
+
+                            $createData = [
+                                'position' => $index,
+                                'contentable_id' => $model->id,
+                                'contentable_type' => $model::class,
+                                'content_class' => $type['class'],
+                                'field' => $field['name'],
+                                'data' => [
+                                    'content' => $data
+                                ]
+                            ];
+
+                            Content::create($createData);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     protected function initializeHasContentBlocks()
     {
         $this->addToAppends([
-            'the_content'
+            'content'
         ]);
     }
-    public function getTheContentAttribute() {
-        $data = $this->content;
-        if (is_string($data)) {
-            $data = json_decode($data);
-        }
-        $setup = pages()->formatConfigContent(config('pages.content'));
 
-        $setupLookup = [];
-        $setupLookupByName = [];
-        if ($setup && sizeof($setup)) {
-            foreach ($setup as $field) {
-                $setupLookup[$field['template']] = $field;
-                $setupLookupByName[$field['name']] = $field;
-            }
-        }
+    public function getContentAttribute()
+    {
+        $content = Content::select(['content_class', 'field', 'data', 'position'])
+            ->whereContentableId($this->id)
+            ->whereContentableType(self::class)
+            ->orderBy('position')
+            ->orderBy('content_class')
+            ->get();
 
-        // help()->trace($data, true);
-        $formattedData = [];
-        if ($data && sizeof($data)) {
-            foreach ($data as $field) {
-                if (isset($field->template)) {
-                    $lookup = $setupLookup;
-                    $lookupKey = $field->template;
-                } else {
-                    $lookup = $setupLookupByName;
-                    $lookupKey = $field->name;
-                }
-
-                if (!isset($lookup[$lookupKey])) {
-                    continue;
-                }
-
-                $newField = $lookup[$lookupKey];
-                $newField['id'] = uniqid();
-                $newField['key'] = uniqid();
-                if (isset($newField['fields'], $field->fields) && sizeof($newField['fields']) && sizeof($field->fields)) {
-                    $newField['fields'] = array_map(function($item) use ($field) {
-                        $block = array_values(array_filter($field->fields, function ($nBlock) use($item) {
-                            return $nBlock->name == $item['name'];
-                        }));
-
-                        if (sizeof($block)) {
-                            $item['content'] = $block[0]->content ?? '';
-                        }
-
-                        if (!isset($item['content'])) {
-                            $item['content'] = $item['page_content_type_id'] == PageContentType::REPEATABLE->value ? [] : '';
-                        }
-
-                        if ($item['page_content_type_id'] == PageContentType::REPEATABLE->value && is_array($item['content'])) {
-                            $item['content'] = array_map(function($content) use ($item) {
-                                $newContent = [];
-                                // add any new fields that might be missing to the content object
-                                foreach ($item['fields'] as $field) {
-                                    $fKey = $field['field'] ?? \Str::snake($field['name']);
-                                    if (!isset($content->{$fKey})) {
-                                        $content->{$fKey} = null;
-                                    }
-                                }
-
-                                foreach ($content as $key => $value) {
-                                    $contentField = array_values(array_filter($item['fields'], function ($cField) use ($key) {
-                                        $cKey = $cField['field'] ?? \Str::snake($cField['name']);
-                                        return $cKey === $key;
-                                    }));
-
-                                    $newContentField = [
-                                        'page_content_type_id' => PageContentType::RICH->value,
-                                        'key' => uniqid(),
-                                        'id' => uniqid(),
-                                        'content' => $value,
-                                        'show' => true
-                                    ];
-
-                                    if (sizeof($contentField)) {
-                                        $newContentField['page_content_type_id'] = $contentField[0]['page_content_type_id'] ?? PageContentType::RICH->value;
-                                        if ($newContentField['page_content_type_id'] === PageContentType::SELECT->value && isset($contentField[0]['options'])) {
-                                            $newContentField['options'] = $contentField[0]['options'];
-                                        }
-                                    }
-
-                                    $newContent[$key] = $newContentField;
-                                }
-
-                                return $newContent;
-
-                            }, $item['content']);
-                            if (isset($item['fields']) && is_array($item['fields'])) {
-                                $item['fields'] = array_map(function($field) {
-                                    $field['id'] = uniqid();
-                                    $field['key'] = uniqid();
-                                    return $field;
-                                }, $item['fields']);
-                            }
-                        }
-
-                        $item['id'] = uniqid();
-                        $item['key'] = uniqid();
-                        return $item;
-                    }, $newField['fields']);
-                }
-
-                $formattedData[] = $newField;
-
-            }
-        }
-
-        // todo: fix this, shouldn't need to do the additional loop
-        foreach ($formattedData as $key => $block) {
-            if (!isset($block['fields'])) {
-                continue;
+        $data = [];
+        foreach ($content as $item) {
+            $key = $item->content_class;
+            $key2 = $item->position;
+            if (!isset($data[$key])){
+                $data[$key] = [];
             }
 
-            foreach ($block['fields'] as $fieldKey => $field) {
-                if (!isset($field['page_content_type_id']) || $field['page_content_type_id'] !== PageContentType::REPEATABLE->value) {
-                    continue;
-                }
-
-                foreach ($field as $contentKey => $content) {
-                    if ($contentKey !== 'content') {
-                        continue;
-                    }
-
-                    foreach ($content as $contentBlockKey => $contentBlock) {
-                        foreach ($contentBlock as $cFieldKey => $cField) {
-
-                            if (isset($cField['content']->content)) {
-                                $cField['content'] = $cField['content']->content;
-                                $formattedData[$key]['fields'][$fieldKey][$contentKey][$contentBlockKey][$cFieldKey] = $cField;
-                            }
-                        }
-                    }
-
-                }
+            if (!isset($data[$key][$key2])) {
+                $data[$key][$key2] = [];
             }
+
+            $data[$key][$key2][] = $item;
         }
 
-        return $formattedData;
+        if (\Str::contains(request()->route()->getName(), 'refined.')) {
+            return $this->formatForAdmin($data);
+        }
+
+        return $this->formatForFE($data);
     }
+
+    private function formatForAdmin($data)
+    {
+        $content = [];
+
+        foreach ($data as $type => $blocks) {
+            $class = new $type();
+            foreach ($blocks as $index => $fields) {
+                $item = $class->getForConfig($type);
+
+                $formattedContent = $this->formatContent($class->getFields(), $fields, true);
+
+                foreach ($item['fields'] as $key => $field) {
+                    $item['fields'][$key]['content'] = $formattedContent->{$field['field']} ?? null;
+                    $pageContentTypeId = (int) $field['page_content_type_id'];
+
+                    if (
+                        $pageContentTypeId === PageContentType::SELECT->value &&
+                        isset($field['options']) &&
+                        $field['options'] === 'forms' &&
+                        function_exists('forms')
+                    ) {
+                        $item['fields'][$key]['options'] = forms()->getForSelect('content forms');
+                    }
+                }
+
+                $content[] = $item;
+            }
+        }
+
+        return $content;
+
+    }
+
+    private function formatForFE($data): string
+    {
+        $html = '';
+        $index = 0;
+        foreach ($data as $type => $blocks) {
+            $class = new $type();
+            foreach ($blocks as $fields) {
+                $content = $this->formatContent($class->getFields(), $fields);
+                $template = $class->getTemplate();
+
+                if (view()->exists($template)) {
+                    $classes = [
+                        'page__block',
+                        'page__block--'.\Str::kebab($class->getName()),
+                    ];
+                    $html .= view()
+                        ->make($template)
+                        ->with(compact('index'))
+                        ->with(compact('classes'))
+                        ->with('content', $content);
+                } else {
+                    $html .= '<p style="color:#f00">Template "'.$template.'" does not exist</p>';
+                }
+
+                $index ++;
+
+            }
+
+        }
+
+        return $html;
+    }
+
+    private function formatContent($fields, $content, $admin = false)
+    {
+        $data = new \stdClass();
+
+        foreach ($content as $field) {
+            $key = \Str::snake($field->field);
+            $data->{$key} = $field->data['content'] ?? null;
+        }
+
+        foreach ($fields as $field) {
+            $key = \Str::snake($field['field']);
+
+            if (!isset($data->{$key})) {
+                $data->{$key} = null;
+            }
+
+            $pageContentTypeId = (int) $field['page_content_type_id'];
+
+            if ($pageContentTypeId === PageContentType::IMAGE->value && !$admin) {
+                $value = new \stdClass();
+                $value->width = $field['width'] ?? null;
+                $value->height = $field['height'] ?? null;
+                $value->id = $data->{$key};
+                $data->{$key} = $value;
+            }
+        }
+
+        return $data;
+    }
+
 }

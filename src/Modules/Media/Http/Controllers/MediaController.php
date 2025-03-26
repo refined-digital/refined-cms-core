@@ -10,7 +10,7 @@ use RefinedDigital\CMS\Modules\Media\Http\Requests\MediaCategoryRequest;
 class MediaController extends CoreController
 {
     protected $model = 'RefinedDigital\CMS\Modules\Media\Models\Media';
-    protected $categoryModel = 'RefinedDigital\CMS\Modules\Media\Models\MediaCategory';
+    protected $categoryModel = 'RefinedDigital\CMS\Modules\Media\Models\ContentField';
     protected $prefix = 'media::';
     protected $route = 'media';
     protected $heading = 'Media';

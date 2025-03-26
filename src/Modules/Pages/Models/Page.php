@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use RefinedDigital\CMS\Modules\Core\Models\CoreModel;
 use RefinedDigital\CMS\Modules\Core\Traits\ClearResponseCacheTrait;
 use RefinedDigital\CMS\Modules\Core\Traits\HasSettings;
-use RefinedDigital\CMS\Modules\Pages\Traits\ContentBySource;
 use RefinedDigital\CMS\Modules\Pages\Traits\HasContentBlocks;
 use RefinedDigital\CMS\Modules\Pages\Traits\IsPage;
 use RefinedDigital\CMS\Modules\Pages\Traits\SortablePageTrait;
@@ -19,7 +18,6 @@ class Page extends CoreModel implements Sortable
     use IsPage;
     use SortablePageTrait;
     use ClearResponseCacheTrait;
-    use ContentBySource;
     use HasSettings;
     use HasContentBlocks;
 
@@ -41,7 +39,6 @@ class Page extends CoreModel implements Sortable
         'name',
         'banner',
         'data',
-        'content',
         'settings',
     ];
 
@@ -60,7 +57,6 @@ class Page extends CoreModel implements Sortable
         'form_id' => 'integer',
         'banner' => 'integer',
         'data' => 'object',
-        'content' => 'object',
         'settings' => 'object',
     ];
 

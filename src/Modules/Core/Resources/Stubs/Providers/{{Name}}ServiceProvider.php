@@ -45,8 +45,8 @@ class {{Name}}ServiceProvider extends ServiceProvider
                 name: '{{name}}',
                 routes: __DIR__.'/../Http/routes.php',
                 menuConfig: $config,
-                sitemapModel: {{Model}}::class,
-                sitemapBasePage: '{{name}}'
+                model: {{Name}}::class,
+                basePage: '{{name}}'
             );
     }
 }
