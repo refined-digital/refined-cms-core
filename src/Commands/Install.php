@@ -560,6 +560,21 @@ class Install extends Command
 
     }
 
+    private function copyContentBlocks($files, $dir, $public)
+    {
+        $this->output->writeln('<info>Copying Content Blocks</info>');
+
+        $from = base_path('vendor/refineddigital/cms/src/Commands/defaults/app/RefinedCMS/Content');
+        $to = app_path('RefinedCMS');
+
+        if (!is_dir($to)) {
+            mkdir($to);
+        }
+
+
+        exec('cp -R '.$from.' '.$to);
+    }
+
     public function updateGitIgnore()
     {
         $content = '
