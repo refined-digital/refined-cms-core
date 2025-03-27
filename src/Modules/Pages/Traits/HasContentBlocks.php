@@ -20,8 +20,11 @@ trait HasContentBlocks
             // now loop over the data and create the content
             $content = request()->has('page')
                 ? request()->input('page.content')
-                // todo: module contents
-                : [];
+                : request()->input('content');
+
+            if (\Str::isJson($content) && gettype($content) === 'string') {
+                $content = json_decode($content, true);
+            }
 
             if ($content && is_array($content) && sizeof($content)) {
                 foreach ($content as $index => $type) {
@@ -113,7 +116,7 @@ trait HasContentBlocks
 
         foreach ($data as $type => $blocks) {
             $class = new $type();
-            foreach ($blocks as $index => $fields) {
+            foreach ($blocks as $fields) {
                 $item = $class->getForConfig($type);
 
                 $formattedContent = $this->formatContent($class->getFields(), $fields, true);
@@ -227,6 +230,32 @@ trait HasContentBlocks
                 $value->height = $field['height'] ?? null;
                 $value->id = $data->{$key};
                 $data->{$key} = $value;
+            }
+
+            if ($pageContentTypeId === PageContentType::REPEATABLE->value && !$admin) {
+                $value = $data->{$key};
+                $lookup = [];
+
+                foreach ($field['fields'] as $fd) {
+                    $lookup[$fd['field']] = $fd;
+                }
+
+                if (is_array($value) && sizeof($value)) {
+                    foreach ($value as $index => $valueFields) {
+                        foreach ($valueFields as $k => $v) {
+                            $lookupField = $lookup[$k];
+                            if ((int) $lookupField['page_content_type_id'] === PageContentType::IMAGE->value) {
+                                $itemValue = new \stdClass();
+                                $itemValue->id = $v;
+                                $itemValue->width = $lookupField['width'] ?? null;
+                                $itemValue->height = $lookupField['height'] ?? null;
+                                $value[$index][$k] = $itemValue;
+                            }
+                        }
+                    }
+
+                    $data->{$key} = array_map(fn ($item) => (object) $item, $value);
+                }
             }
         }
 

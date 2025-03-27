@@ -67,11 +67,10 @@
 <script>
 import swal from 'sweetalert';
 import Vue from 'vue';
-import naturalSort from 'javascript-natural-sort';
 import _ from 'lodash';
 
-import { PagesImageNoteMixin } from  '../mixins/PagesImageNote.js';
-import { PagesRepeatableMixin } from  '../mixins/PagesRepeatable.js';
+import {PagesImageNoteMixin} from '../mixins/PagesImageNote.js';
+import {PagesRepeatableMixin} from '../mixins/PagesRepeatable.js';
 
 export default {
   name: 'rd-content-blocks',
@@ -223,11 +222,11 @@ export default {
 
     reorderContentBlocks(order) {
       const contentLookup = _.keyBy(this.data, 'id');
-      const newOrder = order.map(item => {
-        return contentLookup[item.id];
-      })
 
-      this.data = newOrder;
+      this.data = order.map(item => {
+        return contentLookup[item.id];
+      });
+
       Vue.set(this.page, this.name, this.data);
     },
 

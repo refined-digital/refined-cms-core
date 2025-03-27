@@ -64,7 +64,9 @@ class BaseContent
     {
         $fields = array_filter($this->fields());
 
-        return $this->formatFields($fields);
+        $fields = $this->formatFields($fields);
+
+        return $fields;
     }
 
     private function formatFields(array $fields)
@@ -74,6 +76,15 @@ class BaseContent
                 ...$field,
                 'field' => \Str::snake($field['name']),
             ];
+
+            if (
+                (int) $data['page_content_type_id'] === PageContentType::SELECT->value &&
+                isset($data['options']) &&
+                $data['options'] === 'forms' &&
+                function_exists('forms')
+            ) {
+                $data['options'] = forms()->getForSelect('content forms');
+            }
 
             if (isset($field['fields'])) {
                 $data['fields'] = $this->formatFields($field['fields']);

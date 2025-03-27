@@ -35,11 +35,16 @@ class ContentAggregate
 
     public function getForConfig(): array
     {
-        return $this->modules->map(function($module) {
-            $item = new $module();
+        $fields = $this->modules
+            ->map(function($module) {
+                $item = new $module();
 
-            return $item->getForConfig($module);
-        })->toArray();
+                return $item->getForConfig($module);
+            })
+            ->sortBy('name')
+            ->toArray();
+
+        return array_values($fields);
     }
 
     public function getNewFields(): array
