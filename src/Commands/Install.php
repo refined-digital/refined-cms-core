@@ -560,7 +560,7 @@ class Install extends Command
 
     }
 
-    public function copyContentBlocks($files, $dir, $public)
+    public function copyContentBlocks()
     {
         $this->output->writeln('<info>Copying Content Blocks</info>');
 
