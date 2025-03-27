@@ -571,8 +571,20 @@ class Install extends Command
             mkdir($to);
         }
 
-
         exec('cp -R '.$from.' '.$to);
+
+        $appFile = base_path('bootstrap/providers.php');
+
+        // get the contents of the file
+        $appData = file_get_contents($appFile);
+
+        $search = "\n];";
+        $replace = "\n\t".'App\RefinedCMS\Content\Providers\ContentServiceProvider::class,';
+
+        $appData = str_replace($search, $replace, $appData);
+        $appData .= "\n];";
+
+        file_put_contents($appFile, $appData);
     }
 
     public function updateGitIgnore()
