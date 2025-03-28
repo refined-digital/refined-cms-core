@@ -36,11 +36,11 @@ trait EditFormFieldsTrait
                 'name' => 'Meta Data',
                 'fields' => [
                     [
-                        [ 'label' => 'URL', 'name' => 'meta[uri]', 'type' => 'url'],
+                        ['label' => 'URL', 'name' => 'meta[uri]', 'type' => 'url'],
                     ],
                     [
-                        [ 'label' => 'Page Title', 'name' => 'meta[title]', 'type' => 'Title', 'note' => 'This area appears in the title of the browser<br/>A maximum of 70 characters is allowed<br/><img src="'.asset('vendor/refined/core/img/ui/meta-title.png').'"/>'],
-                        [ 'label' => 'Meta Description', 'name' => 'meta[description]', 'type' => 'textarea', 'note' => 'This area is used to describe the business to search engines<br>A maximum of <code>160</code> characters is allowed' ],
+                        ['label' => 'Page Title', 'name' => 'meta[title]', 'type' => 'Title', 'note' => 'This area appears in the title of the browser<br/>A maximum of 70 characters is allowed<br/><img src="' . asset('vendor/refined/core/img/ui/meta-title.png') . '"/>'],
+                        ['label' => 'Meta Description', 'name' => 'meta[description]', 'type' => 'textarea', 'note' => 'This area is used to describe the business to search engines<br>A maximum of <code>160</code> characters is allowed'],
                     ]
                 ]
             ];
@@ -62,6 +62,10 @@ trait EditFormFieldsTrait
             $newFields[] = $field;
         }
 
+        if ($this->imageDimensions) {
+            $newFields = $this->injectImageDimensions($newFields);
+        }
+
         return json_decode(json_encode($newFields));
     }
 
@@ -72,7 +76,7 @@ trait EditFormFieldsTrait
             if (is_array($configFields) && sizeof($configFields)) {
                 foreach ($configFields as $name => $data) {
                     $key = $this->findFieldKey($fields, $name);
-                    $field =  Arr::get($fields, $key);
+                    $field = Arr::get($fields, $key);
                     if ($field) {
                         $newField = array_merge($field, $data);
                         Arr::set($fields, $key, $newField);
@@ -103,7 +107,7 @@ trait EditFormFieldsTrait
 
             foreach ($config['extra_fields'] as $field) {
                 // update the field names
-                $field['name'] = 'data__'.$field['name'];
+                $field['name'] = 'data__' . $field['name'];
                 if (isset($field['section'])) {
 
                     if ($field['section']['type'] == 'tab') {
@@ -129,7 +133,7 @@ trait EditFormFieldsTrait
                         }
 
                         if ($field['section']['type'] == 'section') {
-                            $f['fields'] = [[ $f['fields'] ]];
+                            $f['fields'] = [[$f['fields']]];
                             $sections[] = $f;
                         }
 
@@ -162,7 +166,7 @@ trait EditFormFieldsTrait
                 // find the location in the field tabs
                 if (isset($type)) {
                     foreach ($fields as $key => $field) {
-                        if (isset($field['name']) && strtolower($field['name']) == strtolower($tab['insert'.$type])) {
+                        if (isset($field['name']) && strtolower($field['name']) == strtolower($tab['insert' . $type])) {
                             if ($type == 'Before') {
                                 $position = $key - 1;
                                 if ($position == -1) {
@@ -209,7 +213,7 @@ trait EditFormFieldsTrait
 
                     if (isset($type)) {
                         foreach ($dots as $path => $value) {
-                            if (isset($replace['insert'.$type]) && preg_match($regex, $path) && strtolower($replace['insert'.$type]) == strtolower($value)) {
+                            if (isset($replace['insert' . $type]) && preg_match($regex, $path) && strtolower($replace['insert' . $type]) == strtolower($value)) {
                                 $bit = $path;
                                 break;
                             }
@@ -235,7 +239,8 @@ trait EditFormFieldsTrait
     {
         // go back up two steps in the array
         $bit = explode('.', $bit);
-        array_pop($bit);array_pop($bit);
+        array_pop($bit);
+        array_pop($bit);
         $bit = implode('.', $bit);
 
         // grab the data for the given child
@@ -245,13 +250,13 @@ trait EditFormFieldsTrait
         $newBlocks = [];
         if (is_array($data) && sizeof($data)) {
             foreach ($data as $d) {
-                if ($type == 'Before' && strtolower($d['name']) == strtolower($replace['insert'.$type])) {
+                if ($type == 'Before' && strtolower($d['name']) == strtolower($replace['insert' . $type])) {
                     $newBlocks[] = $replace;
                 }
 
                 $newBlocks[] = $d;
 
-                if ($type == 'After' && strtolower($d['name']) == strtolower($replace['insert'.$type])) {
+                if ($type == 'After' && strtolower($d['name']) == strtolower($replace['insert' . $type])) {
                     $newBlocks[] = $replace;
                 }
             }
@@ -281,7 +286,8 @@ trait EditFormFieldsTrait
         if ($haveSections) {
             // go back up two steps in the array
             $haveSections = explode('.', $haveSections);
-            array_pop($haveSections);array_pop($haveSections);
+            array_pop($haveSections);
+            array_pop($haveSections);
             $haveSections = implode('.', $haveSections);
 
             // grab the data for the given child
@@ -311,4 +317,19 @@ trait EditFormFieldsTrait
         return array();
     }
 
+    private function injectImageDimensions(&$fields)
+    {
+        foreach ($fields as &$field) {
+            if (is_array($field)) {
+                $this->injectImageDimensions($field);
+            }
+
+            if (isset($field['type']) && $field['type'] === 'image' && isset($this->imageDimensions[$field['name']])) {
+                $dimensions = $this->imageDimensions[$field['name']];
+                $field['imageNote'] = 'Image will be resized to <strong>fit <em>within</em> '.$dimensions['width'].'px wide x '.$dimensions['height'].'px high</strong>';
+            }
+        }
+
+        return $fields;
+    }
 }
