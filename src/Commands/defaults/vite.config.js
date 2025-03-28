@@ -41,7 +41,7 @@ export default defineConfig({
     plugins: [
         laravel({
             input: inputs,
-            refresh: true,
+            refresh: ['resources/views/**', 'app/RefinedCMS/**'],
             publicDirectory: 'public',
             buildDirectory: 'build'
         }),
