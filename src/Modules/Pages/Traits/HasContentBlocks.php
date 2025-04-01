@@ -191,6 +191,7 @@ trait HasContentBlocks
                         ->make($template)
                         ->with(compact('index'))
                         ->with(compact('classes'))
+                        ->with('page', $this)
                         ->with('content', $content);
                 } else {
                     $html .= '<p style="color:#f00">Template "'.$template.'" does not exist</p>';
