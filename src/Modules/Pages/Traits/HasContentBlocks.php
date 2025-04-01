@@ -85,13 +85,12 @@ trait HasContentBlocks
             ->whereContentableId($this->id)
             ->whereContentableType(self::class)
             ->orderBy('position')
-            ->orderBy('content_class')
             ->get();
 
         $data = [];
         foreach ($content as $item) {
-            $key = $item->content_class;
-            $key2 = $item->position;
+            $key = $item->position;
+            $key2 = $item->content_class;
             if (!isset($data[$key])){
                 $data[$key] = [];
             }
@@ -114,9 +113,9 @@ trait HasContentBlocks
     {
         $content = [];
 
-        foreach ($data as $type => $blocks) {
-            $class = new $type();
-            foreach ($blocks as $fields) {
+        foreach ($data as $position => $blocks) {
+            foreach ($blocks as $type => $fields) {
+                $class = new $type();
                 $item = $class->getForConfig($type);
 
                 $formattedContent = $this->formatContent($class->getFields(), $fields, true);
@@ -177,9 +176,9 @@ trait HasContentBlocks
     {
         $html = '';
         $index = 0;
-        foreach ($data as $type => $blocks) {
-            $class = new $type();
-            foreach ($blocks as $fields) {
+        foreach ($data as $position => $blocks) {
+            foreach ($blocks as $type => $fields) {
+                $class = new $type();
                 $content = $this->formatContent($class->getFields(), $fields);
                 $template = $class->getTemplate();
 
