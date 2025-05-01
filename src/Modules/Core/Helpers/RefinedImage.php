@@ -40,6 +40,8 @@ class RefinedImage
 
     protected $originalFileName = '';
 
+    protected $originalFile = '';
+
     protected $attributes = [];
 
     protected $newTypes = ['webp', 'avif'];
@@ -75,8 +77,10 @@ class RefinedImage
         if (class_basename($file) == 'Media') {
             $this->directory .= $file->id.'/';
             $this->path .= $file->id.'/';
-            $this->extension = pathinfo($this->directory.$file->file, PATHINFO_EXTENSION);
-            $this->originalExtension = pathinfo($this->directory.$file->file, PATHINFO_EXTENSION);
+            $this->originalFile = 'storage/uploads/'.$file->id.'/'.$file->file;
+            $extension = pathinfo($this->directory.$file->file, PATHINFO_EXTENSION);
+            $this->extension = $extension;
+            $this->originalExtension = $extension;
             $this->originalFileName = str_replace('.'.$this->extension, '', $file->file);
 
             // add the alt text into the attributes
@@ -189,6 +193,10 @@ class RefinedImage
             return null;
         }
 
+        if ($this->isWebp()) {
+            return $this->originalFile;
+        }
+
         $width = (int) $width;
         $height = (int) $height;
         $fileName = $this->buildFileName($fileName, $width, $height, $extension);
@@ -233,8 +241,8 @@ class RefinedImage
         $ext = $extension ?? $this->extension;
 
         // return early for webp
-        if ($ext === 'webp') {
-            return $this->path.$fileName;
+        if ($this->isWebp()) {
+            return $this->originalFile;
         }
 
         try {
@@ -336,7 +344,8 @@ class RefinedImage
                 $html .= $attrs;
             }
             $html .= '>';
-            if (! count($this->dimensions)) {
+
+            if (!count($this->dimensions)) {
                 $image = $this->createImage($this->width, $this->height);
                 $baseImage = $image;
                 $html .= $this->buildSourceHtml($image);
@@ -476,5 +485,10 @@ class RefinedImage
         }
 
         return $quality;
+    }
+
+    private function isWebp()
+    {
+        return $this->originalExtension === 'webp';
     }
 }
