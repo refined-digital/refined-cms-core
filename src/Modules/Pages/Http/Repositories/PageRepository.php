@@ -758,6 +758,11 @@ class PageRepository extends CoreRepository
             $newSetting['content'] = isset($keyedSettings[$key])
                 ? $keyedSettings[$key]
                 : null;
+
+            if ($newSetting['options'] === 'forms' && function_exists('forms')) {
+                $newSetting['options'] = forms()->getForSelect('content forms');
+            }
+            
             $config[] = $newSetting;
         }
 
