@@ -189,6 +189,13 @@ class RefinedImage
             return null;
         }
 
+        $ext = $extension ?? $this->extension;
+
+        // return early for webp
+        if ($ext === 'webp') {
+            return $this->path.$fileName;
+        }
+
         $width = (int) $width;
         $height = (int) $height;
         $fileName = $this->buildFileName($fileName, $width, $height, $extension);
@@ -216,7 +223,6 @@ class RefinedImage
             }
 
             // now save it
-            $ext = $extension ?? $this->extension;
             $image->encode(new AutoEncoder(quality: $this->getQuality()));
             $image->save($this->directory.$fileName, $this->getQuality(), $ext);
         }
