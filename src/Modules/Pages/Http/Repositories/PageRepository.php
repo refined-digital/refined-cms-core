@@ -354,10 +354,11 @@ class PageRepository extends CoreRepository
         }
 
         // is the page active?
-        // todo: show page is particular user level
-        if (!$page->active) {
-            abort(404);
+        $abort = !$page->active;
+        if (auth()->check() && auth()->user()->user_level_id < 3) {
+            $abort = false;
         }
+        if ($abort) {
 
         // check if the template exists
         if (!isset($page->meta->template)) {
