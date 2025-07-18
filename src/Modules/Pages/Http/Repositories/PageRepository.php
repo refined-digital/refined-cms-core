@@ -356,10 +356,6 @@ class PageRepository extends CoreRepository
         // is the page active?
         $abort = !$page->active;
         if (auth()->check() && auth()->user()->user_level_id < 3) {
-            $abort = false;
-        }
-
-        if ($abort) {
             abort(404);
         }
 
