@@ -358,7 +358,10 @@ class PageRepository extends CoreRepository
         if (auth()->check() && auth()->user()->user_level_id < 3) {
             $abort = false;
         }
+
         if ($abort) {
+            abort(404);
+        }
 
         // check if the template exists
         if (!isset($page->meta->template)) {
