@@ -142,7 +142,7 @@ class CreateContentBlock extends Command
     {
         $this->info('Installing Module');
 
-        $appFile = app_path('RefinedCMS/content/Providers/ContentServiceProvider.php');
+        $appFile = app_path('RefinedCMS/Content/Providers/ContentServiceProvider.php');
 
         // get the contents of the file
         $appData = file_get_contents($appFile);
