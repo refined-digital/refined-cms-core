@@ -8,19 +8,19 @@ use File;
 
 class CreateContentBlock extends Command
 {
-  /**
-   * The name and signature of the console command.
-   *
-   * @var string
-   */
-  protected $signature = 'make:content-block {name}';
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'make:content-block {name}';
 
-  /**
-   * The console command description.
-   *
-   * @var string
-   */
-  protected $description = 'Creates a Content Block';
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Creates a Content Block';
 
     protected string $appPath = '';
     protected string $names = '';
@@ -31,11 +31,11 @@ class CreateContentBlock extends Command
     protected array $replace = [];
 
 
-   /**
-   * Execute the console command.
-   *
-   * @return mixed
-   */
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
     public function handle()
     {
         $this->init();
@@ -62,6 +62,7 @@ class CreateContentBlock extends Command
         $this->names = \Str::studly($this->readableName);
         $this->nameWords = \Str::headline($this->readableName);
         $this->nameKebab = \Str::kebab($this->readableName);
+        $this->nameCamel = \Str::camel($this->readableName);
 
         // check if there is the refined directory
         if (!is_dir($this->appPath)) {
@@ -76,12 +77,14 @@ class CreateContentBlock extends Command
             '{{Name}}',
             '{{NameWords}}',
             '{{nameKebab}}',
+            '{{nameCamel}}',
         ];
 
         $this->replace = [
             $this->names,
             $this->nameWords,
-            $this->nameKebab
+            $this->nameKebab,
+            $this->nameCamel,
         ];
 
     }
