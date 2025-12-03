@@ -217,6 +217,7 @@ class Format
         }
 
         if ($value->type === 'anchor') {
+            $link->link = $value->url;
             $classes[] = 'scroll-to';
         }
 
