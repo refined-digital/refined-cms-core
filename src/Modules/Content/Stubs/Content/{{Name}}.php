@@ -13,7 +13,7 @@ class {{Name}} extends BaseContent implements ContentInterface
 
     public function __construct()
     {
-        app(AssetAggregate::class)->addStyle('{{nameCamel}}.css');
+        app(AssetAggregate::class)->addStyle('{{nameKebab}}.css');
     }
 
     public function fields(): array
