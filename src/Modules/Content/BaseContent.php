@@ -7,13 +7,19 @@ use RefinedDigital\CMS\Modules\Core\Enums\PageContentType;
 
 class BaseContent
 {
-    public function getField(string $name): array|null
+    public function getField(string $name, array $attributes = []): array|null
     {
         $agg = app(ContentAggregate::class);
         $fields = $agg->getNewFields();
 
         if (isset($fields[$name])) {
-            return $fields[$name];
+            $field = $fields[$name];
+
+            if ($attributes) {
+                $field = array_merge($field, $attributes);
+            }
+
+            return $field;
         }
 
         return null;
