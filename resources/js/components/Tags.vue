@@ -45,7 +45,9 @@
         } else if (this.asSelect) {
           const valuesAsArray = this.values.split(this.delimiter).filter(item => !!item).map(id => parseInt(id))
           const values = this.options
-              .filter(option => valuesAsArray.includes(option.id))
+              .filter(option => {
+                return valuesAsArray.includes(option.id) || valuesAsArray.includes(parseInt(option.id))
+              })
           this.value = values.map(v => v);
         } else {
           this.tags = this.values[this.setType];
