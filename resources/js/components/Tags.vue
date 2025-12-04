@@ -43,7 +43,7 @@
             this.value.push(tag);
           });
         } else if (this.asSelect) {
-          const valuesAsArray = this.values.split(this.delimiter).map(id => parseInt(id))
+          const valuesAsArray = this.values.split(this.delimiter).filter(item => !!item).map(id => parseInt(id))
           const values = this.options
               .filter(option => valuesAsArray.includes(option.id))
           this.value = values.map(v => v);
@@ -121,7 +121,7 @@
             if (self.valueType && self.valueType === 'id') {
               const valueAsArray = value.split(self.delimiter);
               const valueIds = self.options
-                  .filter(option => valueAsArray.includes(option.name))
+                  .filter(option => valueAsArray.includes(option.id))
                   .map(option => option.id)
               self.tags = valueIds.join(self.delimiter);
             } else {
