@@ -12,7 +12,7 @@
 
     @if ($link->link)
         <div class="content-link">
-            <a href="{{ $link->link }}"{!! $link->attributes ? ' '.$link->attributes : '' !!}{!! $classes ? ' class="'.implode(' ', $classes).'"' : '' !!}>{{ $link->title }}</a>
+            <a href="{!! $link->link !!}"{!! $link->attributes ? ' '.$link->attributes : '' !!}{!! $classes ? ' class="'.implode(' ', $classes).'"' : '' !!}>{{ $link->title }}</a>
         </div>
     @endif
 @endif
