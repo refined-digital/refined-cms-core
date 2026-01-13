@@ -118,6 +118,7 @@ class Install extends Command
             '(LOG_CHANNEL=(.*?)\n)',
             '(SESSION_DRIVER=(.*?)\n)',
             '(QUEUE_CONNECTION=(.*?)\n)',
+            '(FILESYSTEM_DISK=(.*?)\n)',
         ];
         $replace = [
             "APP_NAME=\"".$siteName."\"\n",
@@ -125,6 +126,7 @@ class Install extends Command
             "LOG_CHANNEL=daily\n",
             "SESSION_DRIVER=file\n",
             "QUEUE_CONNECTION=sync\n",
+            "FILESYSTEM_DISK=public\n",
         ];
 
         $emailDomain = null;
@@ -774,6 +776,29 @@ RedirectMatch 404 ^/page-cache",
 
         file_put_contents(public_path('.htaccess'), str_replace($search, $replace, $contents));
 
+    }
+
+    protected function updateFileStorage()
+    {
+        $this->output->writeln('<info>Updating filesystem</info>');
+
+        $file = config_path('filesystem.php');
+
+        $filesystem = file_get_contents($file);
+
+        $search = [
+            "'root' => storage_path('app/public'),",
+            "'url' => env('APP_URL').'/storage',"
+        ];
+
+        $replace = [
+            "'root' => storage_path('app/public/uploads'),",
+            "'url' => env('APP_URL').'/storage/uploads',"
+        ];
+
+        $data = str_replace($search, $replace, $filesystem);
+
+        file_put_contents($file, $data);
     }
 
     /**

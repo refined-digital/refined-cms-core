@@ -51,6 +51,7 @@ class InstallCMS extends Install
         $this->addUser();
         $this->askCpanel();
         $this->publishConfigs();
+        $this->updateFileStorage();
         $this->askNpm();
         $this->setupComplete();
     }

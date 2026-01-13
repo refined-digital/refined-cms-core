@@ -22,6 +22,7 @@ return [
         // global image quality override, default by image() is 90
         // 'quality' => 90,
         'newFormat' => true,
+        'disk' => env('FILESYSTEM_DISK', 'public'),
     ],
 
     // used to add settings to each page
