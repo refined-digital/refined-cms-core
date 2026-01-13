@@ -11,7 +11,6 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 $baseMiddleware = [
     'web',
-    'cacheResponse',
 ];
 
 $adminMiddleware = [

@@ -141,9 +141,6 @@ class CMSServiceProvider extends ServiceProvider
         $router->aliasMiddleware('userLevel', UserLevel::class);
         $router->aliasMiddleware('admin', Admin::class);
 
-        // load the responsecache middleware
-        $router->aliasMiddleware('cacheResponse', CacheResponse::class);
-
         // add the custom blade directives
         \Blade::directive('svg', function($expression) {
             $search = ["'", '.svg'];
