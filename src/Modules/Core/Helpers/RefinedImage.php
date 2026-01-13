@@ -6,13 +6,12 @@ use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\Encoders\AutoEncoder;
 use Intervention\Image\ImageManager;
 use RefinedDigital\CMS\Modules\Media\Models\Media;
-use Str;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class RefinedImage
 {
     protected $file = null;
-
-    private $path = '/storage/uploads/';
 
     protected $width = null;
 
@@ -32,8 +31,6 @@ class RefinedImage
 
     protected $cacheSeconds = 60 * 24 * 7;
 
-    protected $directory = '';
-
     protected $extension = '';
 
     protected $originalExtension = '';
@@ -42,43 +39,44 @@ class RefinedImage
 
     protected $originalFile = '';
 
+    protected $directory = '';
+
     protected $attributes = [];
 
     protected $newTypes = ['webp', 'avif'];
 
     protected $dimensions = [];
 
+    protected $disk = 'local';
+
     public function __construct()
     {
-        $this->directory = storage_path('app/public/uploads/');
-        if (help()->isMultiTenancy()) {
-            $this->directory = storage_path('uploads/');
-        }
-
         $newFormat = config('pages.image.newFormat');
         if (! $newFormat) {
             $this->onlyUseOldFormat();
         }
     }
 
+    private function getFileWithDirectory(string $file)
+    {
+        return $this->directory . DIRECTORY_SEPARATOR . $file;
+    }
+
     public function load($file)
     {
-        if (is_numeric($file)) {
-            // go and get the file from the DB
-            $file = \Cache::remember('media-'.$file, $this->cacheSeconds, fn() => Media::find($file));
-            if (isset($file->id)) {
-                $this->file = $file;
-            }
+        $this->disk = config('pages.image.disk');
 
-        } else if (class_basename($file) == 'Media') {
+        // go and get the file from the DB
+        $file = \Cache::remember('media-'.$file, $this->cacheSeconds, fn() => Media::find($file));
+        if (isset($file->id)) {
             $this->file = $file;
         }
 
-        if (class_basename($file) == 'Media') {
-            $this->directory .= $file->id.'/';
-            $this->path .= $file->id.'/';
-            $this->originalFile = 'storage/uploads/'.$file->id.'/'.$file->file;
-            $extension = pathinfo($this->directory.$file->file, PATHINFO_EXTENSION);
+        if (is_a($file, Media::class)) {
+            $this->directory = $file->id;
+            $this->originalFile = $this->getFileWithDirectory($file->file);
+
+            $extension = pathinfo(Storage::disk($this->disk)->path($this->originalFile), PATHINFO_EXTENSION);
             $this->extension = $extension;
             $this->originalExtension = $extension;
             $this->originalFileName = str_replace('.'.$this->extension, '', $file->file);
@@ -88,7 +86,6 @@ class RefinedImage
                 $this->attributes['alt'] = $this->file->alt;
             }
         }
-
 
         return $this;
     }
@@ -200,12 +197,15 @@ class RefinedImage
         $width = (int) $width;
         $height = (int) $height;
         $fileName = $this->buildFileName($fileName, $width, $height, $extension);
+        $fileExists = Storage::disk($this->disk)->exists($this->getFileWithDirectory($fileName));
 
         // only create if we are forcing, or the file doesn't already exist
-        if (! file_exists($this->directory.$fileName) || $this->force) {
+        if (! $fileExists || $this->force) {
+            $fileContents = Storage::disk($this->disk)->get($this->originalFile);
+
             // load the image
             $manager = new ImageManager(new Driver);
-            $image = $manager->read($this->directory.$this->file->file);
+            $image = $manager->read($fileContents);
 
             if ($this->type && $width && $height) {
                 if ($this->type == 'fit') {
@@ -225,11 +225,11 @@ class RefinedImage
 
             // now save it
             $ext = $extension ?? $this->extension;
-            $image->encode(new AutoEncoder(quality: $this->getQuality()));
-            $image->save($this->directory.$fileName, $this->getQuality(), $ext);
+            $encodedImage = $image->encode(new AutoEncoder(quality: $this->getQuality()));
+            Storage::disk($this->disk)->put($this->getFileWithDirectory($fileName), $encodedImage);
         }
 
-        return $this->path.$fileName;
+        return Storage::disk($this->disk)->url($this->getFileWithDirectory($fileName));
     }
 
     public function save($fileName = false)
@@ -252,12 +252,13 @@ class RefinedImage
                 $fileName = $this->buildFileName($fileName, $this->width, $this->height);
 
                 // return the image
-                $dimensions = getimagesize($this->directory.$fileName);
+                $dimensions = getimagesize(Storage::disk($this->disk)->path($this->getFileWithDirectory($fileName)));
+                $src = Storage::disk($this->disk)->url($this->getFileWithDirectory($fileName));
 
                 switch ($this->returnType) {
                     case 'image':
                     case 'img':
-                        $img = '<img src="'.asset($this->path.$fileName).'"';
+                        $img = '<img src="'.asset($src).'"';
                         if (count($this->attributes)) {
                             $attrs = '';
                             foreach ($this->attributes as $key => $value) {
@@ -276,11 +277,11 @@ class RefinedImage
                         $img->width = isset($dimensions[0]) ? $dimensions[0] : null;
                         $img->height = isset($dimensions[1]) ? $dimensions[1] : null;
                         $img->attributes = $this->attributes;
-                        $img->src = $this->path.$fileName;
+                        $img->src = $src;
                         break;
                     case 'string':
                     default:
-                        $img = $this->path.$fileName;
+                        $img = $src;
                         break;
                 }
 
@@ -296,12 +297,10 @@ class RefinedImage
     public function get()
     {
         try {
-            $filePath = $this->directory.$this->file->file;
-            if (strpos($this->file->file, '.svg') && file_exists($filePath)) {
-                return file_get_contents($filePath);
+            if ($this->extension === 'svg') {
+                return Storage::disk($this->disk)->get($this->originalFile);
             } else {
                 $this->returnType = 'image';
-
                 return $this->save();
             }
         } catch (\Exception $error) {
