@@ -193,7 +193,8 @@ class RefinedImage
         }
 
         if ($this->isWebp()) {
-            return $this->originalFile;
+            $cacheKey = Str::slug($this->disk.':'.$this->originalFile);
+            return Cache::flexible($cacheKey.'-url', [$this->cacheSecondsLow, $this->cacheSecondsHigh], fn () => Storage::disk($this->disk)->url($this->originalFile));
         }
 
         $width = (int) $width;
@@ -248,7 +249,8 @@ class RefinedImage
 
         // return early for webp
         if ($this->isWebp()) {
-            return $this->originalFile;
+            $cacheKey = Str::slug($this->disk.':'.$this->originalFile);
+            return Cache::flexible($cacheKey.'-url', [$this->cacheSecondsLow, $this->cacheSecondsHigh], fn () => Storage::disk($this->disk)->url($this->originalFile));
         }
 
         try {
