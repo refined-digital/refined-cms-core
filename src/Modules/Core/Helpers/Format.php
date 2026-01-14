@@ -181,7 +181,13 @@ class Format
                 $url = help()->encodeEmailStr($value->url);
                 break;
             case 'file':
-                $url = isset($value?->file['url']) && $value?->file['url'] ? help()->checkLink($value->file['url']) : null;
+                $url = null;
+                if ($value->url) {
+                    $file = files()->load($value->url);
+                    if ($file && $file->url()) {
+                        $url = $file->url();
+                    }
+                }
                 break;
             default:
                 $url = help()->checkLink($value->url);

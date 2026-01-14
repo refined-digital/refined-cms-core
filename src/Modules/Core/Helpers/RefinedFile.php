@@ -2,22 +2,32 @@
 
 namespace RefinedDigital\CMS\Modules\Core\Helpers;
 
+use Illuminate\Support\Facades\Storage;
 use RefinedDigital\CMS\Modules\Media\Models\Media;
 
 class RefinedFile {
 
     protected $file;
+    protected $disk = 'local';
+    protected $originalFile = null;
 
     public function load($fileId)
     {
+        $this->disk = config('pages.image.disk');
+
         $this->file = Media::find($fileId);
+
+        $this->directory = $this->file->id;
+
+        $this->originalFile = $this->getFileWithDirectory($this->file->file);
+
         return $this;
     }
 
     public function link()
     {
         if ($this->file) {
-            return $this->file->link->original;
+            return Storage::disk($this->disk)->url($this->originalFile);
         }
 
         return null;
@@ -31,10 +41,7 @@ class RefinedFile {
     public function path()
     {
         if ($this->file) {
-            $url = $this->file->link->original;
-            $base = $this->file->link->basePath;
-            $path = str_replace($base, '', $url);
-            return public_path($path);
+            return Storage::disk($this->disk)->path($this->originalFile);
         }
 
         return null;
@@ -43,9 +50,7 @@ class RefinedFile {
     public function storagePath()
     {
         if ($this->file) {
-            $url = $this->file->link->original;
-            $base = $this->file->link->basePath;
-            return '/'.ltrim(str_replace($base, '', $url), '/');
+            return Storage::disk($this->disk)->path($this->originalFile);
         }
 
         return null;
@@ -58,6 +63,11 @@ class RefinedFile {
 
     public function getData()
     {
-        return file_get_contents($this->path());
+        return Storage::disk($this->disk)->get($this->originalFile);
+    }
+
+    private function getFileWithDirectory(string $file)
+    {
+        return $this->directory . DIRECTORY_SEPARATOR . $file;
     }
 }
