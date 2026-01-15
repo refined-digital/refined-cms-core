@@ -59,28 +59,26 @@ class RefinedImage
         }
     }
 
-    private function getFileWithDirectory(string $file)
-    {
-        return $this->directory . DIRECTORY_SEPARATOR . $file;
-    }
-
     public function load($file)
     {
         $this->disk = config('pages.image.disk');
 
         // go and get the file from the DB
-        $file = \Cache::remember('media-'.$file, $this->cacheSecondsHigh, fn() => Media::find($file));
+        $file = \Cache::flexible(
+            'media-'.$file,
+            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+            fn() => Media::find($file))
+        ;
         if (isset($file->id)) {
             $this->file = $file;
         }
 
         if (is_a($file, Media::class)) {
             $this->directory = $file->id;
-            $this->originalFile = $this->getFileWithDirectory($file->file);
+            $this->originalFile = $file->getFileWithDirectory();
 
-            $extension = pathinfo(Storage::disk($this->disk)->path($this->originalFile), PATHINFO_EXTENSION);
-            $this->extension = $extension;
-            $this->originalExtension = $extension;
+            $this->extension = $this->file->extension;
+            $this->originalExtension = $this->extension;
             $this->originalFileName = str_replace('.'.$this->extension, '', $file->file);
 
             // add the alt text into the attributes
@@ -200,15 +198,19 @@ class RefinedImage
         $width = (int) $width;
         $height = (int) $height;
         $fileName = $this->buildFileName($fileName, $width, $height, $extension);
-        $fileNameAndDirectory = $this->getFileWithDirectory($fileName);
+        $fileNameAndDirectory = $this->file->getFileWithDirectory($fileName);
 
-        $cacheKey = Str::slug($this->disk.':'.$fileNameAndDirectory);
+        $cacheKey = $this->getCacheKey($fileNameAndDirectory);
 
-        $fileExists = Cache::flexible($cacheKey.'-exists', [$this->cacheSecondsLow, $this->cacheSecondsHigh], fn () => Storage::disk($this->disk)->exists($fileNameAndDirectory));
+        $fileExists = Cache::flexible(
+            $cacheKey.'-exists',
+            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+            fn () => Storage::disk($this->disk)->exists($fileNameAndDirectory))
+        ;
 
         // only create if we are forcing, or the file doesn't already exist
         if (!$fileExists || $this->force) {
-            $fileContents = Storage::disk($this->disk)->get($this->originalFile);
+            $fileContents = $this->getFileContents();
 
             // load the image
             $manager = new ImageManager(new Driver);
@@ -233,10 +235,13 @@ class RefinedImage
             // now save it
             $ext = $extension ?? $this->extension;
             $encodedImage = $image->encode(new AutoEncoder(quality: $this->getQuality()));
-            Storage::disk($this->disk)->put($this->getFileWithDirectory($fileName), $encodedImage);
+            Storage::disk($this->disk)->put($this->file->getFileWithDirectory($fileName), $encodedImage);
         }
 
-        return Cache::flexible($cacheKey.'-url', [$this->cacheSecondsLow, $this->cacheSecondsHigh], fn () => Storage::disk($this->disk)->url($fileNameAndDirectory));
+        return Cache::flexible(
+            $cacheKey.'-url',
+            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+            fn () => Storage::disk($this->disk)->url($fileNameAndDirectory));
     }
 
     public function save($fileName = false)
@@ -258,7 +263,7 @@ class RefinedImage
             if (isset($this->file->id) && $this->file->type == 'Image') {
                 $this->createImage($this->width, $this->height, $fileName);
                 $fileName = $this->buildFileName($fileName, $this->width, $this->height);
-                $fileNameAndDirectory = $this->getFileWithDirectory($fileName);
+                $fileNameAndDirectory = $this->file->getFileWithDirectory($fileName);
 
                 $cacheKey = Str::slug($this->disk.':'.$fileNameAndDirectory);
 
@@ -310,11 +315,8 @@ class RefinedImage
     public function get()
     {
         try {
-            if ($this->extension === 'svg') {
-                $cacheKey = Str::slug($this->disk.':'.$this->originalFile);
-
-                $fileContents = Cache::flexible($cacheKey.'-file-source', [$this->cacheSecondsLow, $this->cacheSecondsHigh], fn () => Storage::disk($this->disk)->get($this->originalFile));
-                return $fileContents;
+            if ($this->isSVG()) {
+                return $this->getFileContents();
             } else {
                 $this->returnType = 'image';
                 return $this->save();
@@ -326,6 +328,13 @@ class RefinedImage
 
     public function string()
     {
+        if ($this->isSVG()) {
+            return Cache::flexible(
+                $this->getCacheKey().'-url',
+                [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+                fn () => Storage::disk($this->disk)->url($this->originalFile));
+        }
+
         $this->returnType = 'string';
 
         return $this->save();
@@ -344,9 +353,8 @@ class RefinedImage
             return 'Failed to create image';
         }
 
-        $filePath = $this->directory.$this->file->file;
-        if (strpos($this->file->file, '.svg') && file_exists($filePath)) {
-            return file_get_contents($filePath);
+        if ($this->isSVG()) {
+            return $this->getFileContents();
         }
 
         try {
@@ -483,6 +491,7 @@ class RefinedImage
         $ext = $extension ?: $this->extension;
         $name .= '.'.$ext;
 
+
         // return the file name
         return $name;
     }
@@ -505,5 +514,30 @@ class RefinedImage
     private function isWebp()
     {
         return $this->originalExtension === 'webp';
+    }
+
+    private function isSVG()
+    {
+        return $this->originalExtension === 'svg';
+    }
+
+    private function getFileContents()
+    {
+        $fileContents = Cache::flexible(
+            $this->getCacheKey().'-file-source',
+            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+            fn () => Storage::disk($this->disk)->get($this->originalFile)
+        );
+
+        return $fileContents;
+    }
+
+    private function getCacheKey($name = '')
+    {
+        if (!$name) {
+            $name = $this->originalFileName;
+        }
+
+        return Str::slug($this->disk.'-'.$name);
     }
 }

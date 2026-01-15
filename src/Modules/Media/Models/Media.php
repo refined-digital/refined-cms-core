@@ -2,6 +2,8 @@
 
 namespace RefinedDigital\CMS\Modules\Media\Models;
 
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use RefinedDigital\CMS\Modules\Core\Models\CoreModel;
 use RefinedDigital\CMS\Modules\Media\Traits\SortableMediaTrait;
 use Spatie\EloquentSortable\Sortable;
@@ -10,6 +12,9 @@ use File;
 
 class Media extends CoreModel implements Sortable {
     use SortableMediaTrait, SoftDeletes;
+
+    protected $cacheSecondsHigh = 60 * 24 * 7;
+    protected $cacheSecondsLow = 60 * 24;
 
     /**
      * The attributes that are mass assignable.
@@ -37,10 +42,10 @@ class Media extends CoreModel implements Sortable {
     ];
 
     protected $casts = [
-      'id' => 'integer',
-      'active' => 'integer',
-      'position' => 'integer',
-      'media_category_id' => 'integer',
+        'id' => 'integer',
+        'active' => 'integer',
+        'position' => 'integer',
+        'media_category_id' => 'integer',
     ];
 
     protected $videoTypes = [
@@ -50,17 +55,12 @@ class Media extends CoreModel implements Sortable {
     protected $table = 'media';
 
     public function getLinkAttribute() {
-        $publicDir = $this->getPublicDir($this->id);
-        $thumb     = $this->file;
-
-        if ($this->type == 'Image') {
-            // generate the thumbnail
-            image()->load($this)->width(500)->save();
-        }
-
         $link           = new \stdClass();
-        $link->thumb    = asset($publicDir . $thumb);
-        $link->original = asset($publicDir . $this->file);
+        $link->thumb    = $this->type === 'Image'
+            ? image()->load($this->id)->width(500)->string()
+            : null
+        ;
+        $link->original = $this->getFileUrl();
         $link->basePath = pages()->getBaseHref();
 
         return $link;
@@ -77,29 +77,74 @@ class Media extends CoreModel implements Sortable {
     }
 
     public function getSizeAttribute() {
-        $path = $this->getBasePath();
-        if (!file_exists($path)) {
-          return null;
+        $exists = $this->exists();
+
+        if (!$this->exists()) {
+            return null;
         }
 
-        return help()->formatBytes(File::size($path));
+        try {
+            return Cache::flexible(
+                'media-file-'.$this->id.'-file-size',
+                [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+                fn () => help()->formatBytes(File::size($this->getFilePath())))
+                ;
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     public function getExtensionAttribute() {
         return $this->getFileExtension();
     }
 
-    private function getFileExtension() {
-        $path = $this->getBasePath();
-
-        return pathinfo($path, PATHINFO_EXTENSION);
+    private function getFilePath()
+    {
+        return Cache::flexible(
+            'media-file-'.$this->id.'-path',
+            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+            fn () => Storage::disk($this->getDisk())->path($this->getFileWithDirectory()))
+            ;
     }
 
-    private function getPublicDir() {
-        return 'storage/uploads/' . $this->id . '/';
+    private function getFileExtension()
+    {
+        return Cache::flexible(
+            'media-file-'.$this->id.'-extension',
+            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+            fn () => pathinfo($this->getFilePath(), PATHINFO_EXTENSION))
+            ;
     }
 
-    private function getBasePath() {
-        return storage_path('app/public/uploads/' . $this->id . '/' . $this->file);
+    private function getFileUrl()
+    {
+        return Cache::flexible(
+            'media-file-'.$this->id.'-url',
+            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+            fn () => Storage::disk($this->getDisk())->url($this->file))
+            ;
+    }
+
+    private function getDisk()
+    {
+        return config('pages.image.disk');
+    }
+
+    public function getFileWithDirectory(string $name = '')
+    {
+        if (!$name) {
+            $name = $this->file;
+        }
+
+        return $this->id . DIRECTORY_SEPARATOR . $name;
+    }
+
+    private function exists()
+    {
+        return Cache::flexible(
+            'media-file-'.$this->id.'-exitst',
+            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+            fn () => Storage::disk($this->disk)->exists($this->getFileWithDirectory()))
+            ;
     }
 }
