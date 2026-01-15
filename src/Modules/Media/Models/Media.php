@@ -77,8 +77,6 @@ class Media extends CoreModel implements Sortable {
     }
 
     public function getSizeAttribute() {
-        $exists = $this->exists();
-
         if (!$this->exists()) {
             return null;
         }
@@ -88,46 +86,18 @@ class Media extends CoreModel implements Sortable {
                 'media-file-'.$this->id.'-file-size',
                 [$this->cacheSecondsLow, $this->cacheSecondsHigh],
                 fn () => help()->formatBytes(File::size($this->getFilePath())))
-                ;
+            ;
         } catch (\Exception $e) {
             return null;
         }
     }
 
     public function getExtensionAttribute() {
-        return $this->getFileExtension();
-    }
-
-    private function getFilePath()
-    {
-        return Cache::flexible(
-            'media-file-'.$this->id.'-path',
-            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
-            fn () => Storage::disk($this->getDisk())->path($this->getFileWithDirectory()))
-            ;
-    }
-
-    private function getFileExtension()
-    {
         return Cache::flexible(
             'media-file-'.$this->id.'-extension',
             [$this->cacheSecondsLow, $this->cacheSecondsHigh],
             fn () => pathinfo($this->getFilePath(), PATHINFO_EXTENSION))
-            ;
-    }
-
-    private function getFileUrl()
-    {
-        return Cache::flexible(
-            'media-file-'.$this->id.'-url',
-            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
-            fn () => Storage::disk($this->getDisk())->url($this->file))
-            ;
-    }
-
-    private function getDisk()
-    {
-        return config('pages.image.disk');
+        ;
     }
 
     public function getFileWithDirectory(string $name = '')
@@ -139,12 +109,35 @@ class Media extends CoreModel implements Sortable {
         return $this->id . DIRECTORY_SEPARATOR . $name;
     }
 
+    private function getFilePath()
+    {
+        return Cache::flexible(
+            'media-file-'.$this->id.'-path',
+            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+            fn () => Storage::disk($this->getDisk())->path($this->getFileWithDirectory()))
+        ;
+    }
+
+    private function getFileUrl()
+    {
+        return Cache::flexible(
+            'media-file-'.$this->id.'-url',
+            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+            fn () => Storage::disk($this->getDisk())->url($this->file))
+        ;
+    }
+
+    private function getDisk()
+    {
+        return config('pages.image.disk');
+    }
+
     private function exists()
     {
         return Cache::flexible(
             'media-file-'.$this->id.'-exitst',
             [$this->cacheSecondsLow, $this->cacheSecondsHigh],
             fn () => Storage::disk($this->disk)->exists($this->getFileWithDirectory()))
-            ;
+        ;
     }
 }

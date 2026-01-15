@@ -190,9 +190,8 @@ class RefinedImage
             return null;
         }
 
-        if ($this->isWebp()) {
-            $cacheKey = Str::slug($this->disk.':'.$this->originalFile);
-            return Cache::flexible($cacheKey.'-url', [$this->cacheSecondsLow, $this->cacheSecondsHigh], fn () => Storage::disk($this->disk)->url($this->originalFile));
+        if ($this->isWebp() || $this->isSVG()) {
+            return $this->getOriginalImageUrl();
         }
 
         $width = (int) $width;
@@ -233,7 +232,6 @@ class RefinedImage
             }
 
             // now save it
-            $ext = $extension ?? $this->extension;
             $encodedImage = $image->encode(new AutoEncoder(quality: $this->getQuality()));
             Storage::disk($this->disk)->put($this->file->getFileWithDirectory($fileName), $encodedImage);
         }
@@ -250,12 +248,9 @@ class RefinedImage
             $this->format('avif');
         }
 
-        $ext = $extension ?? $this->extension;
-
         // return early for webp
-        if ($this->isWebp()) {
-            $cacheKey = Str::slug($this->disk.':'.$this->originalFile);
-            return Cache::flexible($cacheKey.'-url', [$this->cacheSecondsLow, $this->cacheSecondsHigh], fn () => Storage::disk($this->disk)->url($this->originalFile));
+        if ($this->isWebp() || $this->isSVG()) {
+            return $this->getOriginalImageUrl();
         }
 
         try {
@@ -267,11 +262,17 @@ class RefinedImage
 
                 $cacheKey = Str::slug($this->disk.':'.$fileNameAndDirectory);
 
-                $fileContents = Cache::flexible($cacheKey.'-contents', [$this->cacheSecondsLow, $this->cacheSecondsHigh], fn () => Storage::disk($this->disk)->path($fileNameAndDirectory));
+                $fileContents = Cache::flexible($cacheKey.'-contents',
+                    [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+                    fn () => Storage::disk($this->disk)->path($fileNameAndDirectory)
+                );
 
                 // return the image
-                $dimensions = getimagesize($fileContents);
-                $src = Cache::flexible($cacheKey.'-src', [$this->cacheSecondsLow, $this->cacheSecondsHigh], fn () => Storage::disk($this->disk)->url($fileNameAndDirectory));
+                $src = Cache::flexible(
+                    $cacheKey.'-src',
+                    [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+                    fn () => Storage::disk($this->disk)->url($fileNameAndDirectory))
+                ;
 
                 switch ($this->returnType) {
                     case 'image':
@@ -290,10 +291,12 @@ class RefinedImage
                         $img .= '/>';
                         break;
                     case 'object':
+                        $dimensions = getimagesize($fileContents);
+
                         $img = new \stdClass;
                         $img->alt = $this->file->alt;
-                        $img->width = isset($dimensions[0]) ? $dimensions[0] : null;
-                        $img->height = isset($dimensions[1]) ? $dimensions[1] : null;
+                        $img->width = $dimensions[0] ?? null;
+                        $img->height = $dimensions[1] ?? null;
                         $img->attributes = $this->attributes;
                         $img->src = $src;
                         break;
@@ -329,10 +332,7 @@ class RefinedImage
     public function string()
     {
         if ($this->isSVG()) {
-            return Cache::flexible(
-                $this->getCacheKey().'-url',
-                [$this->cacheSecondsLow, $this->cacheSecondsHigh],
-                fn () => Storage::disk($this->disk)->url($this->originalFile));
+            return $this->getOriginalImageUrl();
         }
 
         $this->returnType = 'string';
@@ -530,6 +530,17 @@ class RefinedImage
         );
 
         return $fileContents;
+    }
+
+    private function getOriginalImageUrl()
+    {
+        $cacheKey = Str::slug($this->disk.'-'.$this->originalFile);
+
+        return Cache::flexible(
+            $cacheKey.'-url',
+            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
+            fn () => Storage::disk($this->disk)->url($this->originalFile))
+        ;
     }
 
     private function getCacheKey($name = '')
