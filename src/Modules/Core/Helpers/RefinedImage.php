@@ -523,13 +523,7 @@ class RefinedImage
 
     private function getFileContents()
     {
-        $fileContents = Cache::flexible(
-            $this->getCacheKey().'-file-source',
-            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
-            fn () => Storage::disk($this->disk)->get($this->originalFile)
-        );
-
-        return $fileContents;
+        return Storage::disk($this->disk)->get($this->originalFile);
     }
 
     private function getOriginalImageUrl()
