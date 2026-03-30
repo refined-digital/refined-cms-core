@@ -44,6 +44,7 @@
             <a href="" class="button button--red button--small" @click.prevent.stop="cancelPage">Cancel</a>
           </template>
           <template v-if="page.id > 1">
+            <span> | </span>
             <a href="" class="button button--red button--small" @click.prevent.stop="deletePage">Delete</a>
           </template>
         </aside>
