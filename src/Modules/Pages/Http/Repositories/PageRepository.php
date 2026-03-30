@@ -2,6 +2,7 @@
 
 namespace RefinedDigital\CMS\Modules\Pages\Http\Repositories;
 
+use RefinedDigital\CMS\Modules\Content\Models\Content;
 use RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\ModuleAssetAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\PackageAggregate;
@@ -820,5 +821,36 @@ class PageRepository extends CoreRepository
         }
 
         return $keyedSettings;
+    }
+
+    public function duplicate($id)
+    {
+        $original = Page::with(['meta', 'content'])->find($id);
+
+        if (!$original) {
+            throw new \Exception('Page not found');
+        }
+
+        // Create new page with duplicated attributes
+        $duplicate = $original->replicate();
+        $duplicate->name = $original->name . ' - Duplicate';
+        $duplicate->active = $original->active;
+        $duplicate->save();
+
+        // Duplicate content blocks
+        if ($original->content && $original->content->count()) {
+            foreach ($original->content as $contentBlock) {
+                Content::create([
+                    'contentable_id' => $duplicate->id,
+                    'contentable_type' => $contentBlock->contentable_type,
+                    'content_class' => $contentBlock->content_class,
+                    'position' => $contentBlock->position,
+                    'data' => $contentBlock->data,
+                    'field' => $contentBlock->field,
+                ]);
+            }
+        }
+
+        return $duplicate;
     }
 }

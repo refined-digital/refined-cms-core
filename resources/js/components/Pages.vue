@@ -37,6 +37,7 @@
             <a href="" class="button button--grey button--small" @click.prevent.stop="viewPage">View</a>
             <span> | </span>
             <a href="" class="button button--grey button--small" @click.prevent.stop="addPage">Add a Page</a>
+            <a href="" class="button button--grey button--small" @click.prevent.stop="duplicatePage">Duplicate</a>
           </template>
           <template v-if="page.newPage">
             <a href="" class="button button--red button--small" @click.prevent.stop="cancelPage">Cancel</a>
@@ -626,6 +627,55 @@
             ;
           }
         })
+        ;
+      },
+
+      // duplicate the page
+      duplicatePage() {
+        this.$root.loading = true;
+
+        axios
+          .post(`${window.siteUrl}/refined/pages/${this.page.id}/duplicate`)
+          .then(r => {
+            this.$root.loading = false;
+
+            if (r.data.success) {
+              // Add the duplicated page to the tree
+              this.flatPages[r.data.leaf.id] = r.data.leaf;
+
+              if (typeof this.flatPages[this.page.parent_id] != 'undefined') {
+                this.flatPages[this.page.parent_id].children.push(r.data.leaf);
+              }
+
+              // Load the duplicated page
+              this.loadPage(this.flatPages[r.data.leaf.id]);
+              this.findFolder();
+
+              // Reload the parents list
+              this.resetParents();
+
+              swal({
+                title: 'Success',
+                text: 'Page has been successfully duplicated',
+                icon: 'success'
+              });
+            } else {
+              swal({
+                title: 'Something went wrong',
+                text: r.data.msg,
+                icon: 'error'
+              });
+            }
+          })
+          .catch(e => {
+            console.log(e);
+            this.$root.loading = false;
+            swal({
+              title: 'Something went wrong',
+              text: e.message,
+              icon: 'error'
+            });
+          })
         ;
       },
 

@@ -305,4 +305,29 @@ class PageController extends CoreController
         ;
 
     }
+
+    /**
+     * Duplicate the specified resource
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function duplicate($id)
+    {
+        try {
+            $duplicate = $this->pageRepository->duplicate($id);
+            $leaf = $this->pageRepository->find($duplicate->id);
+
+            return response()->json([
+                'success' => 1,
+                'leaf' => $leaf,
+                'message' => 'Page duplicated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => 0,
+                'msg' => $e->getMessage()
+            ]);
+        }
+    }
 }

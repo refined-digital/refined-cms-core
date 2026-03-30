@@ -17,6 +17,11 @@ Route::namespace('CMS\Modules\Pages\Http\Controllers')
             'uses' => 'PageController@updateParent',
         ]);
 
+        Route::post('pages/{id}/duplicate', [
+            'as' => 'pages.duplicate',
+            'uses' => 'PageController@duplicate',
+        ]);
+
         Route::resource('pages', 'PageController');
     })
 ;
