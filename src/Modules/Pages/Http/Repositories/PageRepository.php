@@ -825,23 +825,47 @@ class PageRepository extends CoreRepository
 
     public function duplicate($id)
     {
-        $original = Page::with(['meta'])->find($id);
+        $original = Page::find($id);
 
         if (!$original) {
             throw new \Exception('Page not found');
         }
 
+        // Get original meta data before replicating
+        $originalMeta = Uri::where('uriable_id', $id)
+            ->where('uriable_type', 'RefinedDigital\CMS\Modules\Pages\Models\Page')
+            ->first();
+
         // Create new page with duplicated attributes
         $duplicate = $original->replicate();
         $duplicate->name = $original->name . ' - Duplicate';
         $duplicate->active = $original->active;
+
+        // Unset the meta relationship to prevent the IsPage trait from updating the original URI
+        unset($duplicate->meta);
+
         $duplicate->save();
 
-        // Duplicate the URI
-        if ($original->meta) {
+        // Create new URI for the duplicated page
+        if ($originalMeta) {
+            $newUri = Str::slug($duplicate->name);
+
+            // Ensure unique URI
+            $counter = 1;
+            $originalUri = $newUri;
+            while (Uri::whereUri($newUri)->exists()) {
+                $newUri = $originalUri . '-' . $counter;
+                $counter++;
+            }
+
             Uri::create([
-                ...$original->meta->toArray(),
+                'uri' => $newUri,
                 'uriable_id' => $duplicate->id,
+                'uriable_type' => 'RefinedDigital\CMS\Modules\Pages\Models\Page',
+                'title' => $originalMeta->title,
+                'description' => $originalMeta->description,
+                'template_id' => $originalMeta->template_id,
+                'name' => $duplicate->name,
             ]);
         }
 
