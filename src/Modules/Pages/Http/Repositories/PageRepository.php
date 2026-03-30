@@ -825,7 +825,7 @@ class PageRepository extends CoreRepository
 
     public function duplicate($id)
     {
-        $original = Page::with(['meta', 'content'])->find($id);
+        $original = Page::with(['meta'])->find($id);
 
         if (!$original) {
             throw new \Exception('Page not found');
