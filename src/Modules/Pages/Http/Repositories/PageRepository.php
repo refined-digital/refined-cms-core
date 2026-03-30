@@ -838,8 +838,11 @@ class PageRepository extends CoreRepository
         $duplicate->save();
 
         // Duplicate content blocks
-        if ($original->content && $original->content->count()) {
-            foreach ($original->content as $contentBlock) {
+        $content = Content::where('contentable_id', $original->id)
+            ->where('contentable_type', $original->getMorphClass())
+            ->get();
+        if ($content && $content->count()) {
+            foreach ($content as $contentBlock) {
                 Content::create([
                     'contentable_id' => $duplicate->id,
                     'contentable_type' => $contentBlock->contentable_type,

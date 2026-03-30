@@ -37,6 +37,7 @@
             <a href="" class="button button--grey button--small" @click.prevent.stop="viewPage">View</a>
             <span> | </span>
             <a href="" class="button button--grey button--small" @click.prevent.stop="addPage">Add a Page</a>
+            <span> | </span>
             <a href="" class="button button--grey button--small" @click.prevent.stop="duplicatePage">Duplicate</a>
           </template>
           <template v-if="page.newPage">
