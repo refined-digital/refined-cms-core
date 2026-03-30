@@ -837,6 +837,14 @@ class PageRepository extends CoreRepository
         $duplicate->active = $original->active;
         $duplicate->save();
 
+        // Duplicate the URI
+        if ($original->meta) {
+            Uri::create([
+                ...$original->meta->toArray(),
+                'uriable_id' => $duplicate->id,
+            ]);
+        }
+
         // Duplicate content blocks
         $content = Content::where('contentable_id', $original->id)
             ->where('contentable_type', $original->getMorphClass())
