@@ -176,36 +176,18 @@ class MediaRepository extends CoreRepository
 
         if (isset($newFile->id)) {
             try {
+                $uploadDirectory = (string) $newFile->id;
 
-                $path = 'app/public/uploads';
-                $uploadDirectory = 'uploads';
                 if (help()->isMultiTenancy()) {
-                    $path = 'uploads';
-                    $uploadDirectory = 'uploads';
-                }
-                $directory = storage_path($path);
+                    $directory = storage_path('uploads/' . $newFile->id);
 
-                // create the file directory
-                $directory = $directory.'/'.$newFile->id;
-
-                // create the file directory
-                if (! is_dir($directory)) {
-                    mkdir($directory, 0755, true);
-                }
-
-                $uploadDirectory .= '/'.$newFile->id;
-
-                // store  the file
-                $file->storeAs($uploadDirectory, $fileName, 'public');
-
-                // need to have a local copy and a copy on hydrogen, so store locally as
-                // the storeAs will store on hydrogen
-                if (config('filesystems.default') === 'shopify_hydrogen') {
-                    // todo: find a better way than using sessions
-                    if (session()->has('shopify_hydrogen') && session()->get('shopify_hydrogen')) {
-                        $newFile->external_id = session()->get('shopify_hydrogen');
-                        $newFile->save();
+                    if (! is_dir($directory)) {
+                        mkdir($directory, 0755, true);
                     }
+
+                    $file->storeAs('uploads/' . $uploadDirectory, $fileName, 'local');
+                } else {
+                    \Storage::disk(config('pages.image.disk'))->putFileAs($uploadDirectory, $file, $fileName);
                 }
 
                 return $newFile;
