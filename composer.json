@@ -6,7 +6,7 @@
     "laravel/framework": "^13.0",
     "laravel/ui": "^4.5",
     "laravel/sanctum": "^4.0",
-    "barryvdh/laravel-debugbar": "^3.13",
+    "fruitcake/laravel-debugbar": "^4.2",
     "intervention/image": "^3.6",
     "spatie/eloquent-sortable": "^4.2",
     "spatie/laravel-activitylog": "^4.8",
