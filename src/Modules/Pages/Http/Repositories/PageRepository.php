@@ -500,7 +500,9 @@ class PageRepository extends CoreRepository
             $pages = $queryBuilder();
         }
 
-        if ($pages && $pages->count()) {
+        $total = $pages ? $pages->count() : 0;
+
+        if ($total) {
             $i = 0;
             // if we are at top level, parent url needs to start out as empty
             if ($parent == 0) {
@@ -809,8 +811,8 @@ class PageRepository extends CoreRepository
         $data['settings'] = is_array($data['settings'])
             ? array_map(function($item) {
                 return [
-                  'key' => Str::slug($item['name'], '_'),
-                  'value' => $item['content']
+                    'key' => Str::slug($item['name'], '_'),
+                    'value' => $item['content']
                 ];
             }, $data['settings'])
             : null

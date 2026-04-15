@@ -61,11 +61,18 @@ class SettingRepository extends CoreRepository
 
     public function get($model)
     {
-        $items = \Cache::remember(\Str::slug('settings-'.$model), $this->cacheSeconds, function() use ($model) {
-            return $this->model::whereModel($model)
-                ->orderBy('position', 'asc')
-                ->get();
-        });
+        $queryBuilder = fn() => $this->model::whereModel($model)
+            ->orderBy('position', 'asc')
+            ->get();
+
+        $cacheKey = \Str::slug('settings-'.$model);
+        $items = \Cache::remember($cacheKey, $this->cacheSeconds, $queryBuilder);
+
+        // If incomplete object, clear cache and re-fetch
+        if (!$items || !is_countable($items)) {
+            \Cache::forget($cacheKey);
+            $items = $queryBuilder();
+        }
 
         $typeData = PageContentType::all();
         $types = [];
@@ -86,8 +93,8 @@ class SettingRepository extends CoreRepository
                 $key = Str::slug($item->name, '_');
 
                 if (($item->value->page_content_type_id == PageContentTypeEnum::IMAGE->value || $item->value->page_content_type_id == PageContentTypeEnum::FILE->value)){
-                  $media[] = $item->value->content;
-                  $mediaKeys[] = $key;
+                    $media[] = $item->value->content;
+                    $mediaKeys[] = $key;
                 }
 
                 $d = new \stdClass();
@@ -133,7 +140,7 @@ class SettingRepository extends CoreRepository
     {
         // first delete the settings for the model
         $this->model::whereModel($model)
-                    ->delete();
+            ->delete();
 
         // clear the cache
         \Cache::forget('settings-'.$model);
