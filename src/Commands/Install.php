@@ -34,8 +34,10 @@ class Install extends Command
     protected $dbName = null;
     protected $dbUser = null;
     protected $dbPass = null;
+    protected $dbPort = null;
     protected $userAdded = false;
     protected $siteName = null;
+    protected $isDdev = false;
 
     /**
      * Create a new command instance.
@@ -192,6 +194,9 @@ class Install extends Command
     {
         $helper = $this->getHelper('question');
 
+        // Detect DDEV
+        $this->isDdev = $this->detectDdev();
+
         $databaseName = Str::slug('refined '.$this->siteName, '_');
 
         // database
@@ -226,6 +231,22 @@ class Install extends Command
             return $answer;
         });
         $dbPassword = $helper->ask($this->input, $this->output, $question);
+
+        // Ask for port if DDEV is detected
+        if ($this->isDdev) {
+            $this->output->writeln('<info>DDEV detected!</info>');
+            $question = new Question('Database Port?: ', '3306');
+            $question->setValidator(function ($answer) {
+                if(strlen($answer) < 1) {
+                    throw new RuntimeException('Database port is required');
+                }
+                if(!is_numeric($answer)) {
+                    throw new RuntimeException('Database port must be numeric');
+                }
+                return $answer;
+            });
+            $this->dbPort = $helper->ask($this->input, $this->output, $question);
+        }
 
         if ($output) {
             $this->output->writeln('<info>Writing db config</info>');
@@ -296,12 +317,50 @@ class Install extends Command
 
         $question = new ConfirmationQuestion('Does the database already exist? ', false);
 
-        if($helper->ask($this->input, $this->output, $question)) {
+        $dbExists = $helper->ask($this->input, $this->output, $question);
+
+        // For DDEV, check if database actually exists when user says it doesn't
+        if (!$dbExists && $this->isDdev) {
+            $actuallyExists = $this->checkDatabaseExists();
+            if ($actuallyExists) {
+                $this->output->writeln('<info>Database already exists, skipping creation...</info>');
+                $dbExists = true;
+            }
+        }
+
+        if($dbExists) {
+            // run migrations
+            $this->output->writeln('<info>Run the migrations</info>');
+            $newConfig = config()->get('database.connections.mysql');
+            $newConfig['username'] = $this->dbUser;
+            $newConfig['password'] = $this->dbPass;
+            $newConfig['database'] = $this->dbName;
+            config()->set('database.connections.temp', $newConfig);
+
+            Artisan::call('migrate:install', [
+                '--database' => 'temp'
+            ]);
+
+            $this->output->writeln('<info>Migrating the database</info>');
+            Artisan::call('migrate', [
+                '--path' => 'vendor/refineddigital/cms/src/Database/Migrations',
+                '--database' => 'temp',
+                '--force' => 1,
+            ]);
+
+            $this->output->writeln('<info>Seeding the database</info>');
+            Artisan::call('db:seed', [
+                '--class' => '\\RefinedDigital\\CMS\\Database\\Seeds\\RefinedDatabaseSeeder',
+                '--database' => 'temp',
+                '--force' => 1
+            ]);
             return;
         }
 
         $this->output->writeln('<info>Installing the Database</info>');
-        $db = new PDO('mysql:host='.env('DB_HOST').';', $this->dbUser, $this->dbPass);
+        $host = $this->isDdev ? '127.0.0.1' : env('DB_HOST');
+        $host .= ($this->isDdev && $this->dbPort ? ':' . $this->dbPort : '');
+        $db = new PDO('mysql:host='.$host.';', $this->dbUser, $this->dbPass);
         $db->exec('CREATE DATABASE `'.$this->dbName.'`;');
 
         // run migrations
@@ -402,7 +461,9 @@ class Install extends Command
             case 'Admin': $userLevelId = 2; break;
         }
 
-        $db = new PDO('mysql:host='.env('DB_HOST').';', $this->dbUser, $this->dbPass);
+        $host = $this->isDdev ? '127.0.0.1' : env('DB_HOST');
+        $host .= ($this->isDdev && $this->dbPort ? ':' . $this->dbPort : '');
+        $db = new PDO('mysql:host='.$host.';', $this->dbUser, $this->dbPass);
         $db->exec('USE '.$this->dbName);
 
         // run migrations
@@ -782,7 +843,7 @@ RedirectMatch 404 ^/page-cache",
     {
         $this->output->writeln('<info>Updating filesystem</info>');
 
-        $file = config_path('filesystem.php');
+        $file = config_path('filesystems.php');
 
         $filesystem = file_get_contents($file);
 
@@ -822,6 +883,48 @@ RedirectMatch 404 ^/page-cache",
         $process->run(function ($type, $line) {
             $this->output->write('    '.$line);
         });
+    }
+
+    /**
+     * Detect if DDEV is installed on the project
+     *
+     * @return bool
+     */
+    protected function detectDdev()
+    {
+        // Check if .ddev directory exists
+        if (is_dir(base_path('.ddev'))) {
+            return true;
+        }
+
+        // Check if .ddev/config.yaml exists
+        if (file_exists(base_path('.ddev/config.yaml'))) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if database exists
+     *
+     * @return bool
+     */
+    protected function checkDatabaseExists()
+    {
+        try {
+            $host = $this->isDdev ? '127.0.0.1' : env('DB_HOST');
+            $host .= ($this->isDdev && $this->dbPort ? ':' . $this->dbPort : '');
+            $db = new PDO('mysql:host='.$host.';', $this->dbUser, $this->dbPass);
+
+            // Query to check if database exists
+            $stmt = $db->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '".$this->dbName."'");
+            $result = $stmt->fetch();
+
+            return $result !== false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
 }
