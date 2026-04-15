@@ -489,10 +489,18 @@ class PageRepository extends CoreRepository
             $pages = $pages->limit($limit);
         }
 
-        $pages = \Cache::remember('pages-get-for-menu-'.$holder.'-'.$parent, 10, fn() => $pages->order()->get());
+        $queryBuilder = fn() => $pages->order()->get();
 
-        $total = sizeof($pages);
-        if ($total) {
+        $cacheKey = 'pages-get-for-menu-'.$holder.'-'.$parent;
+        $pages = \Cache::remember($cacheKey, 10, $queryBuilder);
+
+        // If incomplete object, clear cache and re-fetch
+        if (!$pages || !is_countable($pages)) {
+            \Cache::forget($cacheKey);
+            $pages = $queryBuilder();
+        }
+
+        if ($pages && $pages->count()) {
             $i = 0;
             // if we are at top level, parent url needs to start out as empty
             if ($parent == 0) {

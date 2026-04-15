@@ -23,11 +23,18 @@ class SettingRepository extends CoreRepository
         // get all the data based on the model
         if ($this->settingModel) {
 
-            $items = \Cache::remember(\Str::slug('settings-all-'.$this->settingModel), $this->cacheSeconds, function() {
-                return $this->model::whereModel($this->settingModel)
-                    ->orderBy('position')
-                    ->get();
-            });
+            $queryBuilder = fn() => $this->model::whereModel($this->settingModel)
+                ->orderBy('position')
+                ->get();
+
+            $cacheKey = \Str::slug('settings-all-'.$this->settingModel);
+            $items = \Cache::remember($cacheKey, $this->cacheSeconds, $queryBuilder);
+
+            // If incomplete object, clear cache and re-fetch
+            if (!$items || !is_countable($items)) {
+                \Cache::forget($cacheKey);
+                $items = $queryBuilder();
+            }
 
             $data = collect();
 
