@@ -69,8 +69,8 @@
 
       <template v-if="item.page_content_type_id === 12 && item.options">
         <rd-select-as-tags
+          v-model="item.content"
           :field="item"
-          :values="item.content"
           :choices="item.options"
         ></rd-select-as-tags>
       </template>

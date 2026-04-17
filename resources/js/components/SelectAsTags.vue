@@ -9,11 +9,11 @@
 
   export default {
 
-    props: [ 'field', 'values', 'choices' ],
+    props: [ 'field', 'values', 'choices', 'value' ],
 
     data() {
       return {
-        value : [],
+        internalValue : [],
         tags: '',
         placeholder: 'Select',
         options: [],
@@ -30,13 +30,14 @@
       }
 
       // add the initial tags
-      if (typeof this.values != 'undefined') {
-        if (Array.isArray(this.values)) {
-          this.values.forEach(tag => {
-            this.value.push(tag);
+      const initialValue = this.value || this.values;
+      if (typeof initialValue != 'undefined') {
+        if (Array.isArray(initialValue)) {
+          initialValue.forEach(tag => {
+            this.internalValue.push(tag);
           });
         } else {
-          this.tags = this.values;
+          this.tags = initialValue;
         }
       }
     },
@@ -46,12 +47,15 @@
     },
 
     watch: {
-      value(val) {
+      internalValue(val) {
         let v = [];
         val.forEach(i => {
           v.push(i.name);
         });
         this.tags = v.join(',');
+      },
+      tags(val) {
+        this.$emit('input', val);
       }
     },
 
