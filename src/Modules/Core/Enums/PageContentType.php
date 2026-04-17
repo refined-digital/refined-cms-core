@@ -26,4 +26,6 @@ enum PageContentType: int
 
     case COLOUR = 11;
 
+    case MULTISELECT = 12;
+
 }

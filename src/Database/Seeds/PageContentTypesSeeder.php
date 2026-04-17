@@ -27,6 +27,7 @@ class PageContentTypesSeeder extends Seeder
             'Repeatable',
             'Password',
             'Colour',
+            'Multi Select',
         ];
 
         foreach ($levels as $pos => $level) {

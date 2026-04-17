@@ -67,6 +67,14 @@
         <input type="color" v-model="item.content" class="form__control--color">
       </template>
 
+      <template v-if="item.page_content_type_id === 12 && item.options">
+        <rd-select-as-tags
+          :field="item"
+          :values="item.content"
+          :choices="item.options"
+        ></rd-select-as-tags>
+      </template>
+
       <div class="form__note" v-if="item.note && item.page_content_type_id !== 9" v-html="item.note"></div>
     </div>
 
