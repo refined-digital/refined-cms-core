@@ -64,11 +64,8 @@ class RefinedImage
         $this->disk = config('pages.image.disk');
 
         // go and get the file from the DB
-        $file = \Cache::flexible(
-            'media-'.$file,
-            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
-            fn() => Media::find($file))
-        ;
+        $file = Media::find($file);
+
         if (isset($file->id)) {
             $this->file = $file;
         }
@@ -199,13 +196,7 @@ class RefinedImage
         $fileName = $this->buildFileName($fileName, $width, $height, $extension);
         $fileNameAndDirectory = $this->file->getFileWithDirectory($fileName);
 
-        $cacheKey = $this->getCacheKey($fileNameAndDirectory);
-
-        $fileExists = Cache::flexible(
-            $cacheKey.'-exists',
-            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
-            fn () => Storage::disk($this->disk)->exists($fileNameAndDirectory))
-        ;
+        $fileExists = Storage::disk($this->disk)->exists($fileNameAndDirectory);
 
         // only create if we are forcing, or the file doesn't already exist
         if (!$fileExists || $this->force) {
@@ -236,10 +227,7 @@ class RefinedImage
             Storage::disk($this->disk)->put($this->file->getFileWithDirectory($fileName), $encodedImage);
         }
 
-        return Cache::flexible(
-            $cacheKey.'-url',
-            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
-            fn () => Storage::disk($this->disk)->url($fileNameAndDirectory));
+        return Storage::disk($this->disk)->url($fileNameAndDirectory);
     }
 
     public function save($fileName = false)
@@ -260,19 +248,10 @@ class RefinedImage
                 $fileName = $this->buildFileName($fileName, $this->width, $this->height);
                 $fileNameAndDirectory = $this->file->getFileWithDirectory($fileName);
 
-                $cacheKey = Str::slug($this->disk.':'.$fileNameAndDirectory);
-
-                $fileContents = Cache::flexible($cacheKey.'-contents',
-                    [$this->cacheSecondsLow, $this->cacheSecondsHigh],
-                    fn () => Storage::disk($this->disk)->path($fileNameAndDirectory)
-                );
+                $fileContents = Storage::disk($this->disk)->path($fileNameAndDirectory);
 
                 // return the image
-                $src = Cache::flexible(
-                    $cacheKey.'-src',
-                    [$this->cacheSecondsLow, $this->cacheSecondsHigh],
-                    fn () => Storage::disk($this->disk)->url($fileNameAndDirectory))
-                ;
+                $src = Storage::disk($this->disk)->url($fileNameAndDirectory);
 
                 switch ($this->returnType) {
                     case 'image':
@@ -528,13 +507,7 @@ class RefinedImage
 
     private function getOriginalImageUrl()
     {
-        $cacheKey = Str::slug($this->disk.'-'.$this->originalFile);
-
-        return Cache::flexible(
-            $cacheKey.'-url',
-            [$this->cacheSecondsLow, $this->cacheSecondsHigh],
-            fn () => Storage::disk($this->disk)->url($this->originalFile))
-        ;
+        return Storage::disk($this->disk)->url($this->originalFile);
     }
 
     private function getCacheKey($name = '')
