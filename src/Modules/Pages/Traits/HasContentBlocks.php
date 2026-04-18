@@ -28,7 +28,9 @@ trait HasContentBlocks
 
             if ($content && is_array($content) && sizeof($content)) {
                 foreach ($content as $index => $type) {
-                    if (isset($type['fields']) && is_array($type['fields']) && sizeof($type['fields'])) {
+                    $hasFields = isset($type['fields']) && is_array($type['fields']) && sizeof($type['fields']);
+
+                    if ($hasFields) {
                         foreach ($type['fields'] as $field) {
                             if (!isset($field['content'])) {
                                 continue;
@@ -66,6 +68,16 @@ trait HasContentBlocks
 
                             Content::create($createData);
                         }
+                    } else {
+                        // No fields - save a marker record for this content block
+                        Content::create([
+                            'position' => $index,
+                            'contentable_id' => $model->id,
+                            'contentable_type' => $model::class,
+                            'content_class' => $type['class'],
+                            'field' => '_marker',
+                            'data' => []
+                        ]);
                     }
                 }
             }
