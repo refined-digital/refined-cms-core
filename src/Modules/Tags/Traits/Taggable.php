@@ -46,7 +46,7 @@ trait Taggable
 
         });
 
-        static::getModel()->deleted(function($model) {
+        static::deleted(function($model) {
 
             if(!$model->implementsTagSoftDeletes()) {
                 // remove tags if we are force deleting
