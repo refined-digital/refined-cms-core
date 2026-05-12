@@ -87,8 +87,28 @@ trait HasContentBlocks
     protected function initializeHasContentBlocks(): void
     {
         $this->addToAppends([
-            'content'
+            'content',
+            'content_blocks',
         ]);
+    }
+
+    public function getContentBlocksAttribute(): array
+    {
+        return Content::select(['content_class'])
+            ->whereContentableId($this->id)
+            ->whereContentableType(self::class)
+            ->get()
+            ->map(function ($content) {
+                if (!$content->content_class) {
+                    return null;
+                }
+                $class = new $content->content_class();
+                return $class->getName();
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
     }
 
     public function getContentAttribute(): string | array
