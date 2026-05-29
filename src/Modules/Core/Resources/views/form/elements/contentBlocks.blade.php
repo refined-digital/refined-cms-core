@@ -19,6 +19,6 @@
   :content="{{ json_encode($content) }}"
   :page="{{ json_encode($page) }}"
   name="{{ $field->name }}"
-  :canShowAnchors="false"
+  :config="{{ json_encode(config('pages')) }}"
 />
 
