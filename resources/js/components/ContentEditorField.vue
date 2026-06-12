@@ -2,10 +2,18 @@
     <div class="form__horz-group">
       <template v-if="item.page_content_type_id === 1">
         <rd-rich-text :id="'form--content-'+item.id" v-model="item.content" :content="item.content" :key="item.key"></rd-rich-text>
+        <div class="field-colour" v-if="item.colour">
+          <span class="field-colour__label">Colour</span>
+          <rd-colour-set v-model="item.content_colour" :allow-empty="true"></rd-colour-set>
+        </div>
       </template>
 
       <template v-if="item.page_content_type_id === 2">
         <textarea :id="'form--content-'+item.id" v-model="item.content" required="required" class="form__control"></textarea>
+        <div class="field-colour" v-if="item.colour">
+          <span class="field-colour__label">Colour</span>
+          <rd-colour-set v-model="item.content_colour" :allow-empty="true"></rd-colour-set>
+        </div>
       </template>
 
       <template v-if="item.page_content_type_id === 3">
@@ -19,6 +27,10 @@
             :min="item.min || null"
             :max="item.max || null"
         >
+        <div class="field-colour" v-if="item.colour">
+          <span class="field-colour__label">Colour</span>
+          <rd-colour-set v-model="item.content_colour" :allow-empty="true"></rd-colour-set>
+        </div>
       </template>
 
       <template v-if="item.page_content_type_id === 4">
@@ -73,6 +85,10 @@
           :field="item"
           :choices="item.options"
         ></rd-select-as-tags>
+      </template>
+
+      <template v-if="item.page_content_type_id === 13">
+        <rd-colour-set v-model="item.content" :options="item.options"></rd-colour-set>
       </template>
 
       <div class="form__note" v-if="item.note && item.page_content_type_id !== 9" v-html="item.note"></div>

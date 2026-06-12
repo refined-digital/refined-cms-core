@@ -141,6 +141,11 @@ export default {
           field.content = field.page_content_type_id === 9 ? [] : ''
         }
 
+        // the key must exist up front for the colour picker binding to be reactive
+        if (field.colour && typeof field.content_colour === 'undefined') {
+          field.content_colour = '';
+        }
+
         if (!field.id) {
           field.id = `-${_.kebabCase(field.name)}-id-${this.uniqueId(10)}`
         }

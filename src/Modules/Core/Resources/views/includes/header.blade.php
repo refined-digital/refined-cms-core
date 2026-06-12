@@ -13,6 +13,9 @@
         <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
         <link rel="stylesheet" href="{{ refined_asset('vendor/refined/core/css/main.css?v='.uniqid()) }}"/>
+        @if (config('colour-set.css_file') && file_exists(base_path(config('colour-set.css_file'))))
+        <style id="colour-set-variables">{!! file_get_contents(base_path(config('colour-set.css_file'))) !!}</style>
+        @endif
     </head>
 
     <body>

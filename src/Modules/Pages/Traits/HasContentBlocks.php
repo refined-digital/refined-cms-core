@@ -45,6 +45,10 @@ trait HasContentBlocks
 
                                         foreach ($item as $key => $value) {
                                             $fieldData->{$key} = $value['content'] ?? null;
+
+                                            if (isset($value['content_colour'])) {
+                                                $fieldData->{$key.'_colour'} = $value['content_colour'];
+                                            }
                                         }
 
                                         return $fieldData;
@@ -65,6 +69,10 @@ trait HasContentBlocks
                                     'content' => $data
                                 ]
                             ];
+
+                            if (isset($field['content_colour'])) {
+                                $createData['data']['colour'] = $field['content_colour'];
+                            }
 
                             Content::create($createData);
                         }
@@ -156,6 +164,10 @@ trait HasContentBlocks
                     $item['fields'][$key]['content'] = $formattedContent->{$field['field']} ?? null;
                     $pageContentTypeId = (int) $field['page_content_type_id'];
 
+                    if (!empty($field['colour'])) {
+                        $item['fields'][$key]['content_colour'] = $formattedContent->{$field['field'].'_colour'} ?? '';
+                    }
+
                     if (
                         $pageContentTypeId === PageContentType::SELECT->value &&
                         isset($field['options']) &&
@@ -174,10 +186,18 @@ trait HasContentBlocks
                         $item['fields'][$key]['content'] = array_map(function ($item) use ($lookup) {
                             $newContent = $lookup;
                             foreach ($item as $key => $value) {
-                                if (!isset($newContent[$key])) {
+                                if (isset($newContent[$key])) {
+                                    $newContent[$key]['content'] = $value;
                                     continue;
                                 }
-                                $newContent[$key]['content'] = $value;
+
+                                // map saved colours back onto their colour enabled field
+                                if (\Str::endsWith($key, '_colour')) {
+                                    $baseKey = \Str::beforeLast($key, '_colour');
+                                    if (isset($newContent[$baseKey])) {
+                                        $newContent[$baseKey]['content_colour'] = $value;
+                                    }
+                                }
                             }
 
                             return $newContent;
@@ -188,6 +208,9 @@ trait HasContentBlocks
                                 $item[$key]['show'] =  true;
                                 if (!isset($item[$key]['content'])) {
                                     $item[$key]['content'] = '';
+                                }
+                                if (!empty($item[$key]['colour']) && !isset($item[$key]['content_colour'])) {
+                                    $item[$key]['content_colour'] = '';
                                 }
                                 unset($item[$key]['field']);
                             }
@@ -212,6 +235,7 @@ trait HasContentBlocks
             foreach ($blocks as $type => $fields) {
                 $class = new $type();
                 $content = $this->formatContent($class->getFields(), $fields);
+                $colours = $this->extractColours($fields);
                 $template = $class->getTemplate();
 
                 if (view()->exists($template)) {
@@ -224,7 +248,8 @@ trait HasContentBlocks
                         ->with(compact('index'))
                         ->with(compact('classes'))
                         ->with('page', $this)
-                        ->with('content', $content);
+                        ->with('content', $content)
+                        ->with('colours', $colours);
                 } else {
                     $html .= '<p style="color:#f00">Template "'.$template.'" does not exist</p>';
                 }
@@ -238,6 +263,28 @@ trait HasContentBlocks
         return $html;
     }
 
+    /**
+     * Builds the colour map passed to front end block views.
+     *
+     * @param iterable<\RefinedDigital\CMS\Modules\Content\Models\Content> $content
+     * @return array<string, string> e.g. ['heading_colour' => 'var(--grey-dark)']
+     */
+    private function extractColours($content): array
+    {
+        $colours = [];
+
+        foreach ($content as $field) {
+            $colour = $field->data['colour'] ?? null;
+
+            if ($colour) {
+                $key = \Str::snake($field->field);
+                $colours[$key.'_colour'] = 'var(--'.$colour.')';
+            }
+        }
+
+        return $colours;
+    }
+
     private function formatContent($fields, $content, $admin = false): object
     {
         $data = new \stdClass();
@@ -245,6 +292,11 @@ trait HasContentBlocks
         foreach ($content as $field) {
             $key = \Str::snake($field->field);
             $data->{$key} = $field->data['content'] ?? null;
+
+            // colours are kept out of the front end content and passed to the view separately
+            if ($admin && isset($field->data['colour'])) {
+                $data->{$key.'_colour'} = $field->data['colour'];
+            }
         }
 
         foreach ($fields as $field) {
@@ -275,6 +327,13 @@ trait HasContentBlocks
                 if (is_array($value) && sizeof($value)) {
                     foreach ($value as $index => $valueFields) {
                         foreach ($valueFields as $k => $v) {
+                            if (!isset($lookup[$k])) {
+                                // saved colours don't have a field definition, convert them for the front end
+                                if (\Str::endsWith($k, '_colour') && $v) {
+                                    $value[$index][$k] = 'var(--'.$v.')';
+                                }
+                                continue;
+                            }
                             $lookupField = $lookup[$k];
                             if ((int) $lookupField['page_content_type_id'] === PageContentType::IMAGE->value) {
                                 $itemValue = new \stdClass();

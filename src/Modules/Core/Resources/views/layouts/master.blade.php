@@ -90,6 +90,7 @@
         <script src="{{ refined_asset('vendor/refined/core/js/main.js?v='.uniqid()) }}"></script>
         <script>
             window.app.richEditor = {!! json_encode(config('rich-editor')) !!}
+            window.app.colourSet = {!! json_encode(config('colour-set.colours', new \stdClass())) !!};
             window.app.siteUrl = "{{ $siteUrl }}";
             window.app.publicUrl = "{{ $publicUrl }}";
             window.app.user = {!! json_encode(users()->getLoggedInUser()) !!}

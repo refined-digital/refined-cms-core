@@ -65,6 +65,9 @@ class CMSServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../Config/searchable-models.php' => config_path('searchable-models.php'),
         ], 'searchable-models');
+        $this->publishes([
+            __DIR__.'/../Config/colour-set.php' => config_path('colour-set.php'),
+        ], 'colour-set');
 
         Validator::extend('not0', function($attribute, $value) {
             return $value > '0';
@@ -202,6 +205,7 @@ class CMSServiceProvider extends ServiceProvider
 
         $this->mergeConfigFrom(__DIR__.'/../Config/rich-editor.php', 'rich-editor');
         $this->mergeConfigFrom(__DIR__.'/../Config/searchable-models.php', 'searchable-models');
+        $this->mergeConfigFrom(__DIR__.'/../Config/colour-set.php', 'colour-set');
 
         // add the custom url generator if multi tenancy
         if (help()->isMultiTenancy()) {

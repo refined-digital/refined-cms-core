@@ -34,24 +34,28 @@ import SelectAsTags from './components/SelectAsTags';
 import ProductVariations from './components/ProductVariations';
 import FormEmail from './components/FormEmail';
 import ColourPicker from './components/ColourPicker';
+import ColourSet from './components/ColourSet';
 import ContentBlocks from './components/ContentBlocks';
 
 window.eventBus = new Vue({});
 
-const echo = new Echo({
-    broadcaster: 'pusher',
-    key: process.env.MIX_PUSHER_APP_KEY,
-    cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-    forceTLS: process.env.MIX_PUSHER_APP_FORCE_TLS,
-});
+// only boot echo when a pusher key has been supplied at build time
+if (process.env.MIX_PUSHER_APP_KEY) {
+    const echo = new Echo({
+        broadcaster: 'pusher',
+        key: process.env.MIX_PUSHER_APP_KEY,
+        cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+        forceTLS: process.env.MIX_PUSHER_APP_FORCE_TLS,
+    });
 
-echo
-    .private('refinedCMS.media.updated')
-    .listenToAll((e, data) => {
-        if (data.media) {
-            window.eventBus.$emit('media-updated', data.media);
-        }
-    })
+    echo
+        .private('refinedCMS.media.updated')
+        .listenToAll((e, data) => {
+            if (data.media) {
+                window.eventBus.$emit('media-updated', data.media);
+            }
+        })
+}
 
 Vue.component('rd-date-time-picker', DateTimePicker);
 Vue.component('rd-date-picker', DatePicker);
@@ -77,6 +81,7 @@ Vue.component('rd-form-options', FormOptions);
 Vue.component('rd-form-repeatable', FormRepeatable);
 Vue.component('rd-product-variations', ProductVariations);
 Vue.component('rd-colour-picker', ColourPicker);
+Vue.component('rd-colour-set', ColourSet);
 Vue.component('rd-content-blocks', ContentBlocks);
 Vue.component('Icon', Icon);
 

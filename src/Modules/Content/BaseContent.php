@@ -92,12 +92,38 @@ class BaseContent
                 $data['options'] = forms()->getForSelect('content forms');
             }
 
+            if (
+                (int) $data['page_content_type_id'] === PageContentType::COLOUR_SET->value &&
+                empty($data['options'])
+            ) {
+                $data['options'] = $this->getColourSetOptions();
+            }
+
             if (isset($field['fields'])) {
                 $data['fields'] = $this->formatFields($field['fields']);
             }
 
             return $data;
         }, $fields);
+    }
+
+    /**
+     * Builds the select options from the configured colour set.
+     *
+     * @return array<int, array{label: string, value: string}>
+     */
+    private function getColourSetOptions(): array
+    {
+        $options = [];
+
+        foreach (config('colour-set.colours', []) as $value => $label) {
+            $options[] = [
+                'label' => $label,
+                'value' => $value,
+            ];
+        }
+
+        return $options;
     }
 }
 

@@ -27,6 +27,10 @@ export const PagesRepeatableMixin = {
           if (typeof field.options !== 'undefined') {
             d.options = field.options;
           }
+          if (field.colour) {
+            d.colour = field.colour;
+            d.content_colour = '';
+          }
           if (typeof field.width !== 'undefined') {
             d.width = field.width;
           }

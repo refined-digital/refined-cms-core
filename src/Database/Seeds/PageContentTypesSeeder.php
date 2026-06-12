@@ -28,6 +28,7 @@ class PageContentTypesSeeder extends Seeder
             'Password',
             'Colour',
             'Multi Select',
+            'Colour Set',
         ];
 
         foreach ($levels as $pos => $level) {
