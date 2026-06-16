@@ -236,6 +236,7 @@ trait HasContentBlocks
                 $class = new $type();
                 $content = $this->formatContent($class->getFields(), $fields);
                 $colours = $this->extractColours($fields);
+                $colourStyles = $this->buildColourStyles($colours);
                 $template = $class->getTemplate();
 
                 if (view()->exists($template)) {
@@ -249,7 +250,8 @@ trait HasContentBlocks
                         ->with(compact('classes'))
                         ->with('page', $this)
                         ->with('content', $content)
-                        ->with('colours', $colours);
+                        ->with('colours', $colours)
+                        ->with('colourStyles', $colourStyles);
                 } else {
                     $html .= '<p style="color:#f00">Template "'.$template.'" does not exist</p>';
                 }
@@ -283,6 +285,24 @@ trait HasContentBlocks
         }
 
         return $colours;
+    }
+
+    /**
+     * Converts the colour map into a CSS custom property declaration string
+     * suitable for injecting into a <style> tag.
+     *
+     * @param array<string, string> $colours e.g. ['heading_colour' => 'var(--grey-dark)']
+     * @return string e.g. '--heading-colour: var(--grey-dark); --title-colour: var(--grey-light);'
+     */
+    private function buildColourStyles(array $colours): string
+    {
+        $declarations = [];
+
+        foreach ($colours as $key => $value) {
+            $declarations[] = '--'.str_replace('_', '-', \Str::kebab($key)).': '.$value.';';
+        }
+
+        return implode(' ', $declarations);
     }
 
     private function formatContent($fields, $content, $admin = false): object
