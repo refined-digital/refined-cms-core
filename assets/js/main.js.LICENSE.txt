@@ -1,9 +1,20 @@
 /*!
- * Pusher JavaScript Library v8.5.0
+ * Pusher JavaScript Library v8.3.0
  * https://pusher.com/
  *
  * Copyright 2020, Pusher
  * Released under the MIT licence.
+ */
+
+/*!
+ * Sizzle CSS Selector Engine v2.3.6
+ * https://sizzlejs.com/
+ *
+ * Copyright JS Foundation and other contributors
+ * Released under the MIT license
+ * https://js.foundation/
+ *
+ * Date: 2021-02-16
  */
 
 /*!
@@ -13,59 +24,62 @@
  */
 
 /*!
- * jQuery JavaScript Library v3.7.1
+ * jQuery JavaScript Library v3.6.0
  * https://jquery.com/
+ *
+ * Includes Sizzle.js
+ * https://sizzlejs.com/
  *
  * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license
  * https://jquery.org/license
  *
- * Date: 2023-08-28T13:37Z
+ * Date: 2021-03-02T17:08Z
  */
 
 /*!
- * jQuery UI :data 1.14.2
- * https://jqueryui.com
+ * jQuery UI :data 1.13.1
+ * http://jqueryui.com
  *
- * Copyright OpenJS Foundation and other contributors
+ * Copyright jQuery Foundation and other contributors
  * Released under the MIT license.
- * https://jquery.org/license
+ * http://jquery.org/license
  */
 
 /*!
- * jQuery UI Mouse 1.14.2
- * https://jqueryui.com
+ * jQuery UI Mouse 1.13.1
+ * http://jqueryui.com
  *
- * Copyright OpenJS Foundation and other contributors
+ * Copyright jQuery Foundation and other contributors
  * Released under the MIT license.
- * https://jquery.org/license
+ * http://jquery.org/license
  */
 
 /*!
- * jQuery UI Scroll Parent 1.14.2
- * https://jqueryui.com
+ * jQuery UI Scroll Parent 1.13.1
+ * http://jqueryui.com
  *
- * Copyright OpenJS Foundation and other contributors
+ * Copyright jQuery Foundation and other contributors
  * Released under the MIT license.
- * https://jquery.org/license
+ * http://jquery.org/license
  */
 
 /*!
- * jQuery UI Sortable 1.14.2
- * https://jqueryui.com
+ * jQuery UI Sortable 1.13.1
+ * http://jqueryui.com
  *
- * Copyright OpenJS Foundation and other contributors
+ * Copyright jQuery Foundation and other contributors
  * Released under the MIT license.
- * https://jquery.org/license
+ * http://jquery.org/license
  */
 
 /*!
- * jQuery UI Widget 1.14.2
- * https://jqueryui.com
+ * jQuery UI Widget 1.13.1
+ * http://jqueryui.com
  *
- * Copyright OpenJS Foundation and other contributors
+ * Copyright jQuery Foundation and other contributors
  * Released under the MIT license.
- * https://jquery.org/license
+ * http://jquery.org/license
  */
 
 /**
@@ -78,10 +92,10 @@
  */
 
 /**
- * Trumbowyg v2.31.0 - A lightweight WYSIWYG editor
+ * Trumbowyg v2.24.0 - A lightweight WYSIWYG editor
  * Trumbowyg core file
  * ------------------------
- * @link https://alex-d.github.io/Trumbowyg/
+ * @link http://alex-d.github.io/Trumbowyg
  * @license MIT
  * @author Alexandre Demode (Alex-D)
  *         Twitter : @AlexandreDemode
