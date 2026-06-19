@@ -55,6 +55,10 @@
 
       <template v-if="item.page_content_type_id === 7">
         <rd-link v-model="item.content" :value="item.content"></rd-link>
+        <div class="field-colour" v-if="item.colour">
+          <span class="field-colour__label">Colour</span>
+          <rd-colour-set v-model="item.content_colour" :allow-empty="true"></rd-colour-set>
+        </div>
       </template>
 
       <template v-if="item.page_content_type_id === 8">
