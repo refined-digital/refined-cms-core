@@ -385,7 +385,7 @@ class PageRepository extends CoreRepository
             if ($hasForm) {
                 $page->assetAggregate
                     ->addModuleStyle(asset('vendor/refined/form-builder/css/form.css'))
-                    ->addModuleScript('form-builder', asset('vendor/refined/core/js/FormBuilder.js'), ['defer'])
+                    ->addModuleScript('form-builder', asset('vendor/refined/form-builder/js/form-builder-front-end.js'), ['defer'])
                 ;
 
                 $hasRecaptcha = Str::contains($content, '_captcha');

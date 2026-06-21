@@ -18,12 +18,16 @@ class EmailRepository extends CoreRepository {
     protected $tdOpen = '<td valign="top" style="border-bottom:1px solid #bbbbbb; padding:10px;font-family:arial;">';
     protected $tdClose = '</td>';
 
-    public function send($settings)
+    /**
+     * Send a notification email.
+     *
+     * The EmailSubmission record (which the CSV export reads) is persisted
+     * synchronously so export stays reliable even when delivery is queued.
+     * Only the actual mail delivery is queued when $queue is true.
+     */
+    public function send($settings, $queue = false)
     {
-        $email = new Notification($settings);
-        $emailAddresses = help()->explodeAndTrim($settings->to);
-        Mail::to($emailAddresses)->send($email);
-
+        // persist the submission record inline (export depends on this)
         $submissionData = [
             'to'    => $settings->to,
             'from'  => config('mail.from.address'),
@@ -42,6 +46,21 @@ class EmailRepository extends CoreRepository {
             ->withProperties(['Email has been sent'])
             ->log('Email has been sent')
         ;
+
+        $email = new Notification($settings);
+        $emailAddresses = help()->explodeAndTrim($settings->to);
+
+        // queued mail is serialized to the worker — file attachments must resolve
+        // from a persistent path. Fall back to inline send when attachments exist.
+        $hasFiles = isset($settings->files) && is_array($settings->files) && count($settings->files);
+
+        if ($queue && !$hasFiles) {
+            Mail::to($emailAddresses)->queue($email);
+        } else {
+            Mail::to($emailAddresses)->send($email);
+        }
+
+        return $item;
     }
 
     private function generateFieldHtml($data, $fullWidth = false)
@@ -126,7 +145,35 @@ class EmailRepository extends CoreRepository {
 
         $html = str_replace($search, $replace, $html);
 
+        // per-field tokens [[field:<id>]] and the [Form Name] token
+        $html = $this->replaceTokens($html, $request, $form);
+
         return $html;
+    }
+
+    /**
+     * Replace per-field tokens [[field:<id>]] with the submitted value and the
+     * [Form Name] token with the form's name. Used by form-builder notifications.
+     */
+    public function replaceTokens($content, $request, $form)
+    {
+        if (!is_string($content) || $content === '') {
+            return $content;
+        }
+
+        if (isset($form->name)) {
+            $content = str_replace('[Form Name]', $form->name, $content);
+        }
+
+        if (str_contains($content, '[[field:')) {
+            $fields = $this->formatFields($request, $form);
+            $content = preg_replace_callback('/\[\[field:(\d+)\]\]/', function ($m) use ($fields) {
+                $id = (int) $m[1];
+                return isset($fields[$id]) ? $fields[$id]->value : '';
+            }, $content);
+        }
+
+        return $content;
     }
 
     public function makeText($request, $form, $type = 'message')
@@ -201,12 +248,19 @@ class EmailRepository extends CoreRepository {
         $dontAdd = [10, 11, 19];
         if ($form->fields && $form->fields->count()) {
             foreach ($form->fields as $field) {
-                if (!in_array($field->form_field_type_id, $dontAdd)) {
-                    $fieldData = new \stdClass();
-                    $fieldData->name = $field->name;
-                    $fieldData->value = $this->formatField($request, $field);
-                    $data[$field->id] = $fieldData;
+                if (in_array($field->form_field_type_id, $dontAdd)) {
+                    continue;
                 }
+
+                // form-builder fields can opt out of the email body
+                if (isset($field->include_in_email) && !$field->include_in_email) {
+                    continue;
+                }
+
+                $fieldData = new \stdClass();
+                $fieldData->name = $field->name;
+                $fieldData->value = $this->formatField($request, $field);
+                $data[$field->id] = $fieldData;
             }
         }
 

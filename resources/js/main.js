@@ -1,7 +1,8 @@
 import './bootstrap';
 import '../sass/main.scss';
 import 'vue-multiselect/dist/vue-multiselect.min.css';
-import { createApp } from 'vue';
+import * as Vue from 'vue';
+const { createApp } = Vue;
 import { createPinia } from 'pinia';
 import { storeToRefs } from 'pinia';
 import kebabCase from 'lodash.kebabcase';
@@ -177,6 +178,43 @@ app.component('Icon', Icon);
 
 registerDirectives(app);
 
-app.mount('#app');
+// registration hook for satellite packages (e.g. form-builder) whose bundles
+// load after this one: they register their components/directives into this same
+// app before it mounts. mount is deferred to DOMContentLoaded so any package
+// <script> in the page body has already run by then.
+const registerComponent = (name, component) => app.component(name, component);
+const registerComponents = (map) => {
+  Object.entries(map).forEach(([name, component]) => app.component(name, component));
+};
+
+// expose the Vue runtime so satellite bundles can share it instead of bundling
+// their own copy (a second Vue instance breaks component registration). The flat
+// global is what satellite IIFE bundles map their external `vue` import to.
+window.RefinedCMSVue = Vue;
+
+window.RefinedCMS = {
+  Vue,
+  app,
+  pinia,
+  ui,
+  config,
+  eventBus,
+  registerComponent,
+  registerComponents,
+};
+
+let mounted = false;
+const boot = () => {
+  if (mounted) return;
+  mounted = true;
+  app.mount('#app');
+};
+window.RefinedCMS.boot = boot;
+
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
 
 window.vueApp = app;

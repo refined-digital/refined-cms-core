@@ -17,6 +17,7 @@ use RefinedDigital\CMS\Commands\InstallCMS;
 use RefinedDigital\CMS\Commands\InstallDatabase;
 use RefinedDigital\CMS\Commands\InstallSymLink;
 use RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\FormBuilderIntegrationAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\ContentAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\CustomModuleAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\SitemapXMLAggregate;
@@ -181,6 +182,7 @@ class CMSServiceProvider extends ServiceProvider
         $this->app->singleton(ModuleAggregate::class);
         $this->app->singleton(PackageAggregate::class);
         $this->app->singleton(PaymentGatewayAggregate::class);
+        $this->app->singleton(FormBuilderIntegrationAggregate::class);
         $this->app->singleton(AssetAggregate::class);
         $this->app->singleton(CustomModuleAggregate::class);
         $this->app->singleton(SitemapXMLAggregate::class);
