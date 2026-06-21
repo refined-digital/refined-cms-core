@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, createLogger } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import * as esbuild from 'esbuild';
 import { fileURLToPath } from 'node:url';
@@ -7,6 +7,26 @@ import path from 'node:path';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const resolve = (p) => path.resolve(root, p);
+
+// SCSS references published runtime asset paths (/vendor/refined/core/...) that
+// intentionally resolve at runtime, not build time. Vite logs a warning for
+// each; suppress just that one message so it doesn't drown out real output.
+const logger = createLogger();
+const suppress = (msg) => typeof msg === 'string'
+  && msg.includes('/vendor/refined/core/')
+  && msg.includes("didn't resolve at build time");
+
+const originalWarn = logger.warn;
+logger.warn = (msg, options) => {
+  if (suppress(msg)) return;
+  originalWarn(msg, options);
+};
+
+const originalWarnOnce = logger.warnOnce;
+logger.warnOnce = (msg, options) => {
+  if (suppress(msg)) return;
+  originalWarnOnce(msg, options);
+};
 
 // replaces Laravel Mix's copyDirectory/copy — deterministically mirrors the
 // static img + editor-icons sprite into the assets output after each build, and
@@ -42,6 +62,7 @@ function copyStaticAssets() {
 // public/vendor/refined/core directory. the admin blade loads them with plain
 // <script>/<link> tags (not @vite), so the output filenames must stay fixed.
 export default defineConfig({
+  customLogger: logger,
   resolve: {
     alias: {
       jquery: resolve('node_modules/jquery'),
