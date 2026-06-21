@@ -89,16 +89,21 @@
     }
 
     span {
-      margin: 0 5px;
       display: inline-block;
     }
 
     aside {
       flex: 0 0 485px;
-      text-align: right;
+      // flex row with a gap restores the spacing that used to come from
+      // whitespace between inline buttons (Vue 3 strips those text nodes)
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
       @media only screen and (max-width: 520px) {
         flex: 0 0 100%;
         margin-top: 10px;
+        flex-wrap: wrap;
       }
     }
   }
