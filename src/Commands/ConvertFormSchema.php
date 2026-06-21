@@ -34,10 +34,12 @@ class ConvertFormSchema extends Command
 
     public function handle(): int
     {
-        $model = $this->argument('model');
+        $model = $this->resolveModelClass($this->argument('model'));
 
-        if (! class_exists($model)) {
-            $this->error("Class {$model} not found. Pass the fully-qualified class name.");
+        if ($model === null) {
+            $this->error('Model class not found. Pass the fully-qualified class name, e.g.');
+            $this->line('  php artisan refinedCMS:convert-form-schema "App\\\\RefinedCMS\\\\Projects\\\\Models\\\\Project"');
+            $this->line('  (or use forward slashes: "App/RefinedCMS/Projects/Models/Project")');
 
             return self::FAILURE;
         }
@@ -72,6 +74,52 @@ class ConvertFormSchema extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Resolve the model class from user input, tolerating forward-slash
+     * separators (App/Foo/Bar) and shells that strip backslashes entirely.
+     */
+    protected function resolveModelClass(string $input): ?string
+    {
+        // as typed, and with forward slashes normalised to namespace separators
+        foreach ([$input, str_replace('/', '\\', $input)] as $candidate) {
+            $candidate = ltrim($candidate, '\\');
+            if (class_exists($candidate)) {
+                return $candidate;
+            }
+        }
+
+        // backslashes were eaten by the shell (App\Foo\Bar -> AppFooBar): match
+        // by comparing the separator-stripped name against every model file the
+        // app's composer autoloader knows about
+        $needle = strtolower(str_replace(['\\', '/'], '', $input));
+        foreach ($this->knownClassNames() as $class) {
+            if (strtolower(str_replace('\\', '', $class)) === $needle) {
+                return $class;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * All classes the composer classmap can autoload — lets us recover a model
+     * whose namespace separators were stripped by the shell.
+     */
+    protected function knownClassNames(): array
+    {
+        $classes = get_declared_classes();
+
+        foreach (spl_autoload_functions() ?: [] as $loader) {
+            // composer's ClassLoader exposes its classmap; merge in its keys
+            $instance = is_array($loader) ? ($loader[0] ?? null) : null;
+            if (is_object($instance) && method_exists($instance, 'getClassMap')) {
+                $classes = array_merge($classes, array_keys($instance->getClassMap()));
+            }
+        }
+
+        return array_unique($classes);
     }
 
     /** read the legacy field array off the model (property or method) */
