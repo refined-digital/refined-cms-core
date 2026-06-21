@@ -158,6 +158,7 @@
 
 .link__type--with-button {
   display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   align-items: center;
 }
@@ -168,7 +169,16 @@
 
 .link__type aside {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
+}
+
+/* keep the browse/clear buttons at their natural size — don't let the flex
+   row stretch or shrink them when space gets tight */
+.link__type aside .button {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .rd-link .sitemap__inner {
