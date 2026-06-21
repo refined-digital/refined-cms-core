@@ -37,7 +37,8 @@
       margin: 0 auto;
 
       & + .button {
-        margin: 10px 0 0;
+        display: block;
+        margin: 10px auto 0;
       }
     }
 
@@ -126,9 +127,24 @@
     padding: 0 4px;
   }
 
+  &__divider {
+    align-self: center;
+    width: 1px;
+    height: 20px;
+    margin: 0 4px;
+    background: var(--color-input-border);
+  }
+
   &__content {
     min-height: 200px;
     padding: 0;
+    // the toolbar supplies the top edge (it has border, border-bottom: 0),
+    // so close the box on the other three sides
+    border: 1px solid var(--color-input-border);
+    border-top: 0;
+    // it also carries .form__control, whose gradient draws an input-style
+    // underline — drop that so only the box border shows
+    background-image: none;
 
     .rich-editor__editable {
       min-height: 200px;
@@ -140,6 +156,16 @@
       min-height: 200px;
       outline: none;
     }
+  }
+
+  &__source-view {
+    padding: 12px;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: vertical;
+    white-space: pre;
+    outline: none;
   }
 
   &__link-hint {
@@ -162,7 +188,7 @@
     background: #fff;
     border-radius: 4px;
     padding: 20px;
-    width: 420px;
+    width: 640px;
     max-width: 90vw;
     max-height: 90vh;
     overflow: auto;

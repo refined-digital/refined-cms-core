@@ -461,6 +461,11 @@
     &--title {
       font-size: $systemFontSize;
     }
+
+    aside {
+      display: flex;
+      gap: 8px;
+    }
   }
 }
 
