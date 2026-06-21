@@ -41,10 +41,14 @@
       'name',
       'id',
       'value',
+      'modelValue',
       'width',
       'height',
     ]);
-    const emit = defineEmits(['input']);
+    const emit = defineEmits(['input', 'update:modelValue']);
+
+    // support both the v-model (modelValue) and explicit :value bindings
+    const currentValue = () => props.value ?? props.modelValue;
 
     const ui = useUiStore();
     const uid = getCurrentInstance().uid;
@@ -108,11 +112,12 @@
     }
 
     function loadFile() {
-      image.value = props.value;
+      const value = currentValue();
+      image.value = value;
 
-      if (props.value) {
+      if (value) {
         axios
-          .get(`${window.siteUrl}/refined/media/${props.value}`)
+          .get(`${window.siteUrl}/refined/media/${value}`)
           .then(r => {
             ui.loading = false;
             if (r.status === 200 && r.data.file) {
@@ -160,9 +165,10 @@
 
     function emitInput() {
       emit('input', image.value);
+      emit('update:modelValue', image.value);
     }
 
-    watch(() => props.value, loadFile);
+    watch(() => [props.value, props.modelValue], loadFile);
 
     loadFile();
 

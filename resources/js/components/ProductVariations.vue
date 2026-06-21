@@ -81,7 +81,7 @@ import swal from 'sweetalert';
 import eventBus from '../eventBus';
 
 const props = defineProps(['item', 'name', 'value', 'variations', 'types', 'field', 'statuses']);
-const emit = defineEmits(['input']);
+const emit = defineEmits(['input', 'update:modelValue']);
 
 const items = ref([]);
 const values = ref([]);
@@ -199,6 +199,7 @@ watch(
       items: items.value,
     };
     emit('input', data);
+    emit('update:modelValue', data);
     values.value = JSON.stringify(data);
   },
   { deep: true }

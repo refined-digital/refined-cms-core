@@ -20,7 +20,7 @@ import { ref, watch, onMounted } from 'vue';
 import Multiselect from 'vue-multiselect';
 
 const props = defineProps(['field', 'values', 'choices', 'value']);
-const emit = defineEmits(['input']);
+const emit = defineEmits(['input', 'update:modelValue']);
 
 const internalValue = ref([]);
 const tags = ref('');
@@ -58,6 +58,7 @@ watch(
 
 watch(tags, (val) => {
   emit('input', val);
+  emit('update:modelValue', val);
 });
 
 onMounted(() => {

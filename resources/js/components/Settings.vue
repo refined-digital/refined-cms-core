@@ -90,7 +90,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, onUpdated, nextTick } from 'vue';
+  import { ref, reactive, onUpdated, onUnmounted, nextTick } from 'vue';
   import swal from 'sweetalert';
   import { useUiStore } from '../stores/ui';
   import { useConfigStore } from '../stores/config';
@@ -304,6 +304,10 @@
     nextTick(() => {
       initSort();
     });
+  });
+
+  onUnmounted(() => {
+    if (contentSort) contentSort.destroy();
   });
 </script>
 

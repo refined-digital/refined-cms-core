@@ -25,7 +25,7 @@ const props = defineProps([
   'field', 'type', 'values', 'choices', 'dontAllowCreate',
   'valueField', 'asSelect', 'valueType',
 ]);
-const emit = defineEmits(['input']);
+const emit = defineEmits(['input', 'update:modelValue']);
 
 const delimiter = '|';
 const setType = props.type || 'tags';
@@ -98,6 +98,7 @@ watch(
     // the hidden input (and form submission) used the pipe delimiter
     tags.value = v.join(delimiter);
     emit('input', tags.value);
+    emit('update:modelValue', tags.value);
   },
   { deep: true }
 );

@@ -124,7 +124,7 @@ import { useConfigStore } from '../stores/config';
 import { buildExtensions } from '../tiptap/extensions';
 
 const props = defineProps(['name', 'id', 'content']);
-const emit = defineEmits(['input', 'blur']);
+const emit = defineEmits(['input', 'blur', 'update:modelValue']);
 
 const ui = useUiStore();
 const config = useConfigStore();
@@ -165,6 +165,7 @@ const editor = useEditor({
   onUpdate: ({ editor: e }) => {
     data.value = e.getHTML();
     emit('input', data.value);
+    emit('update:modelValue', data.value);
   },
   onFocus: () => { focused.value = true; },
   onBlur: () => {

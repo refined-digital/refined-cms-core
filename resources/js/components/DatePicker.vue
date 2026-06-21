@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, onUnmounted } from 'vue';
 import Flatpickr from 'flatpickr';
 import { format, parse, parseISO, isValid } from 'date-fns';
 import 'flatpickr/dist/themes/material_blue.css';
@@ -38,5 +38,11 @@ onMounted(() => {
     ? format(toDate(props.value), dateFormat)
     : format(new Date(), dateFormat);
   datePicker = new Flatpickr('#form--' + props.field.name, config);
+});
+
+onUnmounted(() => {
+  // a selector-based Flatpickr returns an array of instances
+  const instances = Array.isArray(datePicker) ? datePicker : [datePicker];
+  instances.forEach((instance) => instance && instance.destroy());
 });
 </script>

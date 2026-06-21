@@ -32,10 +32,13 @@
 </template>
 
 <script setup>
-  import { ref, watch, onMounted } from 'vue';
+  import { ref, watch, onMounted, onUnmounted } from 'vue';
 
-  const props = defineProps(['name', 'value']);
-  const emit = defineEmits(['input']);
+  const props = defineProps(['name', 'value', 'modelValue']);
+  const emit = defineEmits(['input', 'update:modelValue']);
+
+  // support both the v-model (modelValue) and explicit :value bindings
+  const initialValue = props.value ?? props.modelValue;
 
   const root = ref(null);
 
@@ -49,6 +52,7 @@
 
   watch(items, () => {
     emit('input', items.value);
+    emit('update:modelValue', items.value);
   });
 
   function add() {
@@ -80,14 +84,18 @@
   }
 
   // created
-  if (props.value && props.value.length > 0) {
+  if (initialValue && initialValue.length > 0) {
     items.value = [];
-    props.value.forEach(item => {
+    initialValue.forEach(item => {
       items.value.push(item);
     });
   }
 
   onMounted(() => {
     initSort();
+  });
+
+  onUnmounted(() => {
+    if (sortable) sortable.destroy();
   });
 </script>

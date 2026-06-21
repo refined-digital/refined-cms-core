@@ -55,7 +55,7 @@
   import eventBus from '../eventBus';
 
   const props = defineProps(['item', 'name', 'value']);
-  const emit = defineEmits(['input']);
+  const emit = defineEmits(['input', 'update:modelValue']);
 
   const items = ref([]);
   const values = ref([]);
@@ -105,6 +105,7 @@
 
   watch(items, () => {
     emit('input', items.value);
+    emit('update:modelValue', items.value);
     values.value = JSON.stringify(items.value);
   }, { deep: true });
 

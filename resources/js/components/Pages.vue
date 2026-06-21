@@ -254,7 +254,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, onUpdated, nextTick, provide } from 'vue';
+  import { ref, reactive, onUpdated, onUnmounted, nextTick, provide } from 'vue';
   import swal from 'sweetalert';
   import naturalSort from 'javascript-natural-sort';
   import _ from 'lodash';
@@ -1209,5 +1209,10 @@
     nextTick(() => {
       initSort();
     });
+  });
+
+  onUnmounted(() => {
+    if (contentSort) contentSort.destroy();
+    if (sortables) sortables.destroy();
   });
 </script>

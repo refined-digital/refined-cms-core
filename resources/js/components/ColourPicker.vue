@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, onUnmounted } from 'vue';
   import Picker from 'vanilla-picker/csp';
   import 'vanilla-picker/dist/vanilla-picker.csp.css';
 
@@ -33,6 +33,10 @@
     if (props.value) {
       chosenValue.value = props.value;
     }
+  });
+
+  onUnmounted(() => {
+    if (picker) picker.destroy();
   });
 </script>
 

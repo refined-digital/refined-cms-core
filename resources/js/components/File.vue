@@ -20,11 +20,14 @@ import { ref, watch, onMounted, onUnmounted, getCurrentInstance } from 'vue';
 import eventBus from '../eventBus';
 import { useUiStore } from '../stores/ui';
 
-const props = defineProps(['name', 'id', 'value']);
-const emit = defineEmits(['input']);
+const props = defineProps(['name', 'id', 'value', 'modelValue']);
+const emit = defineEmits(['input', 'update:modelValue']);
 
 const ui = useUiStore();
 const uid = getCurrentInstance().uid;
+
+// support both the v-model (modelValue) and explicit :value bindings
+const currentValue = () => props.value ?? props.modelValue;
 
 const clone = (data) => JSON.parse(JSON.stringify(data));
 
@@ -42,6 +45,7 @@ function clearFile() {
   item.value = null;
   file.value = clone(defaultFile);
   emit('input', item.value);
+  emit('update:modelValue', item.value);
 }
 
 function loadModal() {
@@ -55,15 +59,17 @@ function updateFile(data) {
     file.value = data;
     item.value = file.value.id;
     emit('input', item.value);
+    emit('update:modelValue', item.value);
     eventBus.emit('media-close');
   }
 }
 
 function loadFile() {
-  item.value = props.value;
-  if (props.value) {
+  const value = currentValue();
+  item.value = value;
+  if (value) {
     axios
-      .get(`${window.siteUrl}/refined/media/${props.value}`)
+      .get(`${window.siteUrl}/refined/media/${value}`)
       .then((r) => {
         ui.loading = false;
         if (r.status === 200) {
@@ -78,7 +84,7 @@ function loadFile() {
   }
 }
 
-watch(() => props.value, loadFile);
+watch(() => [props.value, props.modelValue], loadFile);
 
 onMounted(() => {
   loadFile();

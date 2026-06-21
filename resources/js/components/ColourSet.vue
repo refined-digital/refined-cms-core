@@ -1,7 +1,7 @@
 <template>
   <div class="colour-set" ref="colourSet">
     <button type="button" class="form__control colour-set__toggle" @click="open = !open">
-      <span class="colour-set__swatch" :style="swatchStyle(value)"></span>
+      <span class="colour-set__swatch" :style="swatchStyle(currentValue)"></span>
       <span class="colour-set__label">{{ selectedLabel }}</span>
       <span class="colour-set__arrow" :class="{ 'colour-set__arrow--open': open }"></span>
     </button>
@@ -10,7 +10,7 @@
         <button
           type="button"
           class="colour-set__option"
-          :class="{ 'colour-set__option--selected': option.value === (value || '') }"
+          :class="{ 'colour-set__option--selected': option.value === (currentValue || '') }"
           @click="select(option)"
         >
           <span class="colour-set__swatch" :style="swatchStyle(option.value)"></span>
@@ -25,10 +25,13 @@
   import { ref, computed, onMounted, onUnmounted } from 'vue';
   import { useConfigStore } from '../stores/config';
 
-  const props = defineProps(['value', 'options', 'allowEmpty']);
-  const emit = defineEmits(['input']);
+  const props = defineProps(['value', 'modelValue', 'options', 'allowEmpty']);
+  const emit = defineEmits(['input', 'update:modelValue']);
 
   const config = useConfigStore();
+
+  // support both the v-model (modelValue) and explicit :value bindings
+  const currentValue = computed(() => props.value ?? props.modelValue);
 
   const colourSet = ref(null);
   const open = ref(false);
@@ -52,7 +55,7 @@
   });
 
   const selectedLabel = computed(() => {
-    const selected = colourOptions.value.find(option => option.value === (props.value || ''));
+    const selected = colourOptions.value.find(option => option.value === (currentValue.value || ''));
     return selected ? selected.label : 'Select a colour';
   });
 
@@ -63,6 +66,7 @@
   function select(option) {
     open.value = false;
     emit('input', option.value);
+    emit('update:modelValue', option.value);
   }
 
   function onDocumentClick(event) {
@@ -71,8 +75,9 @@
     }
   }
 
-  if (!props.allowEmpty && !props.value && colourOptions.value.length) {
+  if (!props.allowEmpty && !currentValue.value && colourOptions.value.length) {
     emit('input', colourOptions.value[0].value);
+    emit('update:modelValue', colourOptions.value[0].value);
   }
 
   onMounted(() => {

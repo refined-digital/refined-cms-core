@@ -1149,6 +1149,7 @@
     eventBus.off('media-clear', clear);
     eventBus.off('media-updated', mediaUpdated);
     eventBus.off('media-dropped', mediaDropped);
+    if (sortable) sortable.destroy();
   });
 
   // recursive MediaBranch children inject these instead of walking the parent chain

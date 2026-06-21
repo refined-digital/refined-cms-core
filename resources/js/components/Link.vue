@@ -87,7 +87,7 @@
   import { useUiStore } from '../stores/ui';
 
   const props = defineProps(['name', 'id', 'value', 'settings']);
-  const emit = defineEmits(['input']);
+  const emit = defineEmits(['input', 'update:modelValue']);
 
   const ui = useUiStore();
   const uid = getCurrentInstance().uid;
@@ -273,6 +273,7 @@
     linkModel.value = _.cloneDeep(modal.value);
     link.value = JSON.stringify(linkModel.value);
     emit('input', linkModel.value);
+    emit('update:modelValue', linkModel.value);
     closeModal();
   }
 

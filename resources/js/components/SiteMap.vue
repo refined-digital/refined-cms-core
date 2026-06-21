@@ -35,7 +35,7 @@
   import { useUiStore } from '../stores/ui';
 
   const props = defineProps(['siteUrl', 'config', 'modules']);
-  const emit = defineEmits(['input']);
+  const emit = defineEmits(['input', 'update:modelValue']);
 
   const ui = useUiStore();
 
@@ -54,6 +54,7 @@
     link.value = buildLink(item);
     value.value = link.value;
     emit('input', link.value);
+    emit('update:modelValue', link.value);
     eventBus.emit('selecting-link', link.value);
     closeModal();
   }
@@ -112,7 +113,6 @@
   }
 
   function clearSitemap() {
-    console.log('clearing sitemap');
     ui.sitemap.showModal = false;
     ui.sitemap.active = false;
     ui.sitemap.fieldId = null;

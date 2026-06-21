@@ -39,7 +39,9 @@
       background: var(--color-table-even);
     }
     &:hover .data-table__cell {
-      background: color-mix(in srgb, var(--color-main-color-1), white 32%);
+      // lighten(main-color-1, 32%) in HSL — color-mix toward white mixes
+      // too dark, so keep the original tint as an explicit value
+      background: #eceef9;
     }
 
     &.gu-transit, &.sortable-chosen {

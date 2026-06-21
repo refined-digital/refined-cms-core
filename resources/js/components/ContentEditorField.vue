@@ -48,8 +48,8 @@
       </template>
 
       <template v-if="item.page_content_type_id === 6 && item.options">
-        <select v-model="item.content" required="required" class="form__control" :change="selectChanged(item, options)">
-          <option :value="opt.value" v-for="opt in item.options">{{ opt.label }}</option>
+        <select v-model="item.content" required="required" class="form__control" @change="selectChanged(item, options)">
+          <option :value="opt.value" v-for="opt in item.options" :key="opt.value">{{ opt.label }}</option>
         </select>
       </template>
 
