@@ -28,6 +28,13 @@ class TagServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->mergeConfigFrom(__DIR__.'/../Config/tags.php', 'tags');
+
+        // off by default — enable with REFINED_TAGS_ENABLED=true in .env
+        if (!config('tags.enabled')) {
+            return;
+        }
+
         if (help()->isMultiTenancy()) {
             return;
         }
