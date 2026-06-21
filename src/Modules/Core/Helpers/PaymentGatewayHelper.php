@@ -7,11 +7,8 @@ use Str;
 
 class PaymentGatewayHelper {
 
-    protected $aggregate;
-
-    public function __construct(PaymentGatewayAggregate $aggregate)
+    public function __construct(protected PaymentGatewayAggregate $aggregate)
     {
-        $this->aggregate = $aggregate;
     }
 
     public function getAll()

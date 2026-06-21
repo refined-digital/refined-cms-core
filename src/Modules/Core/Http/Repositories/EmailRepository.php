@@ -28,7 +28,7 @@ class EmailRepository extends CoreRepository {
             'to'    => $settings->to,
             'from'  => config('mail.from.address'),
             'ip'    => help()->getClientIP(),
-            'form_id' => isset($settings->form_id) ? $settings->form_id : null,
+            'form_id' => $settings->form_id ?? null,
             'data'  => $settings
         ];
 
@@ -221,7 +221,7 @@ class EmailRepository extends CoreRepository {
         }
 
         $fieldName = $field->field_name;
-        $data = isset($request[$fieldName]) ? $request[$fieldName] : null;
+        $data = $request[$fieldName] ?? null;
 
         // if there are files, we need the names
         if (request()->hasFile($fieldName)) {

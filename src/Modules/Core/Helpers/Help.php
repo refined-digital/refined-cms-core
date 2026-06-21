@@ -10,12 +10,10 @@ use Str;
 class Help {
     use Macroable;
 
-    protected $request;
     protected $mailtoHex = '&#109;&#97;&#105;&#108;&#116;&#111;&#58;';
 
-    public function __construct(Request $request)
+    public function __construct(protected Request $request)
     {
-        $this->request = $request;
     }
 
     public function trace($data, $exit = false)
@@ -66,7 +64,7 @@ class Help {
         if ($size > 0) {
             $size = (int) $size;
             $base = log($size) / log(1024);
-            $suffixes = array(' bytes', ' KB', ' MB', ' GB', ' TB');
+            $suffixes = [' bytes', ' KB', ' MB', ' GB', ' TB'];
 
             return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
         } else {

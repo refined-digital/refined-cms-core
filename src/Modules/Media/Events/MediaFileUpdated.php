@@ -15,16 +15,13 @@ class MediaFileUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Media $media;
-
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Media $media)
+    public function __construct(public Media $media)
     {
-        $this->media = $media;
     }
 
     /**

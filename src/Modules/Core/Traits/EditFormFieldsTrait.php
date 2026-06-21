@@ -301,20 +301,20 @@ trait EditFormFieldsTrait
         return $fields;
     }
 
-    private function array_find_deep($array, $search, $keys = array())
+    private function array_find_deep($array, $search, $keys = [])
     {
         foreach ($array as $key => $value) {
             if (is_array($value)) {
-                $sub = $this->array_find_deep($value, $search, array_merge($keys, array($key)));
+                $sub = $this->array_find_deep($value, $search, array_merge($keys, [$key]));
                 if (count($sub)) {
                     return $sub;
                 }
             } else if ($value === $search) {
-                return array_merge($keys, array($key));
+                return array_merge($keys, [$key]);
             }
         }
 
-        return array();
+        return [];
     }
 
     private function injectImageDimensions(&$fields)

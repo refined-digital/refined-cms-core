@@ -770,9 +770,7 @@ class PageRepository extends CoreRepository
         foreach ($settingConfig as $setting) {
             $key = Str::slug($setting['name'], '_');
             $newSetting = $setting;
-            $newSetting['content'] = isset($keyedSettings[$key])
-                ? $keyedSettings[$key]
-                : null;
+            $newSetting['content'] = $keyedSettings[$key] ?? null;
 
             if (isset($newSetting['options']) && $newSetting['options'] === 'forms' && function_exists('forms')) {
                 $newSetting['options'] = forms()->getForSelect('content forms');

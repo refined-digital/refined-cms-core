@@ -47,7 +47,7 @@ class SettingRepository extends CoreRepository
                         'page_content_type_id'  => (int) $item->value->page_content_type_id,
                         'note'                  => $item->value->note,
                         'content'               => $item->value->content,
-                        'options'               => isset($item->value->options) ? $item->value->options : [],
+                        'options'               => $item->value->options ?? [],
                         'position'              => (int) $item->position,
                     ]);
                 }
