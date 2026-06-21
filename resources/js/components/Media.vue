@@ -49,6 +49,7 @@
             <template v-if="!show.buttons.controls">
               <a href="" class="button button--grey button--small" @click.prevent.stop="mediaOpen">Add Files</a>
               <a href="" class="button button--grey button--small" @click.prevent.stop="categoryAdd">Add a Category</a>
+              <a href="" class="button button--grey button--small" @click.prevent.stop="refresh" title="Reload the library from the server"><i class="fas fa-sync"></i></a>
             </template>
 
             <template v-if="modal">
@@ -268,9 +269,11 @@
 
 <script setup>
   import { ref, reactive, computed, watch, onMounted, onUpdated, onUnmounted, nextTick, provide } from 'vue';
+  import { storeToRefs } from 'pinia';
   import Dropzone from 'dropzone';
   import eventBus from '../eventBus';
   import { useUiStore } from '../stores/ui';
+  import { useMediaStore } from '../stores/media';
 
   const props = defineProps({
     modal: {
@@ -284,6 +287,13 @@
   });
 
   const ui = useUiStore();
+  const media = useMediaStore();
+
+  // persistent media data lives in the store (loaded once, mutated in place).
+  // `category` is the active folder; `tree`/`files` are the store's flat indexes.
+  const { categories, searchableFiles, activeCategory: category, leaf } = storeToRefs(media);
+  const tree = media.tree;
+  const files = media.files;
 
   const clone = (data) => JSON.parse(JSON.stringify(data));
 
@@ -294,10 +304,6 @@
   const siteUrl = ref('');
 
   const search = ref('');
-
-  const category = ref({
-    files: []
-  });
 
   const file = ref({
     name: '',
@@ -314,16 +320,7 @@
   });
 
   let categoryClone = {};
-  const categories = ref([]);
-  let tree = {};
-  let files = {};
-  const searchableFiles = ref([]);
   const bulk = ref([]);
-
-  const leaf = reactive({
-    category: {},
-    media: {}
-  });
 
   let sortable = null;
   let drop = null;
@@ -365,30 +362,21 @@
     }
   });
 
-  // reload the media library
-  function reload() {
-    axios
-      .get(`${window.siteUrl}/refined/media/get-tree`)
-      .then(r => {
-        ui.loading = false;
-        if (r.status === 200) {
-          categories.value = r.data.tree;
-          leaf.category = r.data.categoryLeaf;
-          leaf.media = r.data.mediaLeaf;
-
-          // setting the initial page
-          if (categories.value.length) {
-            setTree();
-            setFiles();
-            loadCategory(tree[1].children[0]);
-          }
-
-        }
-      })
-      .catch(e => {
-        ui.loading = false;
-      })
-    ;
+  // force a fresh fetch from the server (manual refresh button). the store
+  // preserves the open folder where possible; re-sync the view to it.
+  async function refresh() {
+    ui.loading = true;
+    try {
+      await media.refresh();
+      const current = category.value?.id ? media.tree[category.value.id] : null;
+      if (current) {
+        loadCategory(current);
+      } else if (media.tree[1]?.children?.length) {
+        loadCategory(media.tree[1].children[0]);
+      }
+    } finally {
+      ui.loading = false;
+    }
   }
 
   // show / hide the tree
@@ -421,48 +409,6 @@
     }
   }
 
-  // sets the tree
-  function setTree() {
-    tree = {};
-    addBranches(categories.value);
-  }
-
-  function addBranches(items) {
-    if (items.length) {
-      items.forEach(item => {
-        tree[item.id] = item;
-
-        if (item.children.length) {
-          addBranches(item.children);
-        }
-      })
-    }
-  }
-
-  function setFiles() {
-    files = {};
-    searchableFiles.value = [];
-    setFile(categories.value);
-  }
-
-  function setFile(items) {
-    if (items.length) {
-      items.forEach(item => {
-
-        if (item.files.length) {
-          item.files.forEach(f => {
-            files[f.id] = f;
-            searchableFiles.value.push(f);
-          });
-        }
-
-        if (item.children.length) {
-          setFile(item.children);
-        }
-      })
-    }
-  }
-
   function initSort() {
     if (sortable == null) {
       let elements = document.querySelectorAll('.media-library .tree__trunk--sortable');
@@ -490,7 +436,7 @@
 
             // find and update the new leaf
             if (typeof tree[e.dataset.id] != 'undefined') {
-              tree[e.dataset.id].parent_id = parentId;
+              media.moveCategory(parseInt(e.dataset.id), parentId);
 
               // now update the leaf in the db
               categoryUpdateParent(e.dataset.id, parentId);
@@ -562,7 +508,7 @@
   }
 
   function categoryAdd() {
-    let newData = clone(leaf.category);
+    let newData = clone(leaf.value.category);
     newData.parent_id = category.value.id;
     loadCategory(newData);
     show.buttons.controls = true;
@@ -635,13 +581,10 @@
           if (r.data.success) {
 
             if (typeof category.value.newPage !== 'undefined') {
-              // we have just added a page, so insert it into the menu
-              tree[r.data.leaf.id] = r.data.leaf;
-              if (typeof tree[category.value.parent_id] != 'undefined') {
-                tree[category.value.parent_id].children.push(r.data.leaf);
-              }
+              // we have just added a category, so insert it into the tree
+              media.addCategory(r.data.leaf);
 
-              // load the page
+              // load the new category
               loadCategory(tree[r.data.leaf.id]);
               findFolder();
               categoryClose();
@@ -719,29 +662,12 @@
     });
   }
 
-  // find the page in the parent and remove
+  // remove a category via the store, then load the fallback folder it returns
   function categoryFindAndRemove(items, item) {
-    if (items.length) {
-      items.forEach((cat, index) => {
-        if (item.id === cat.id) {
-          items.splice(index, 1);
-          delete tree[item.id];
-
-          // set the first category in the list to the new active category
-          if (items.length) {
-            loadCategory(items[0]);
-          } else {
-            // load the parent
-            loadCategory(tree[item.parent_id]);
-          }
-        }
-
-        if (cat.children.length) {
-          categoryFindAndRemove(cat.children, item);
-        }
-      });
+    const fallback = media.removeCategory(item);
+    if (fallback) {
+      loadCategory(fallback);
     }
-
   }
 
   // run the db to reset position items
@@ -871,11 +797,14 @@
       $(f.previewElement).fadeOut(300).remove();
     }, 500);
 
-    // here we need to add the returned data into the files array
+    // push the uploaded file into the store (no refetch needed)
     if (typeof f.xhr != 'undefined') {
       let response = JSON.parse(f.xhr.response);
       if (response.file) {
-        category.value.files.push(response.file);
+        if (!response.file.media_category_id) {
+          response.file.media_category_id = category.value.id;
+        }
+        media.addFile(response.file);
       }
     }
 
@@ -912,23 +841,8 @@
 
   function mediaDropped(e) {
     if (typeof files[e.mediaId] != 'undefined' && typeof tree[e.categoryId] != 'undefined') {
-      let f = files[e.mediaId];
-
-      let newCategory = tree[e.categoryId];
-
-      let oldCategory = tree[f.media_category_id];
-      // find the media in the listing
-      if (oldCategory.files.length) {
-        oldCategory.files.forEach((file, index) => {
-          if (file.id === f.id) {
-            oldCategory.files.splice(index, 1);
-          }
-        });
-      }
-
-      // add the file to the new category
-      f.media_category_id = e.categoryId;
-      newCategory.files.push(f);
+      // move in the store (updates both categories + indexes)
+      media.moveFile(e.mediaId, e.categoryId);
 
       // update the db
       axios
@@ -1027,9 +941,7 @@
   }
 
   function mediaUpdated(item) {
-    if (files[item.id]) {
-      files[item.id] = item;
-    }
+    media.updateFile(item);
 
     if (file.value.id == item.id && item.external_url) {
       file.value.external_url = item.external_url;
@@ -1140,23 +1052,7 @@
   }
 
   function mediaFindAndRemove(items, item) {
-    if (items.length) {
-      items.forEach(cat => {
-        if (typeof cat.files !== 'undefined' && cat.files.length) {
-          cat.files.forEach((f, index) => {
-            if (f.id === item.id) {
-              cat.files.splice(index, 1);
-              delete files[item.id];
-            }
-          });
-        }
-
-        if (cat.children.length) {
-          mediaFindAndRemove(cat.children, item);
-        }
-      });
-    }
-
+    media.removeFile(item);
   }
 
 
@@ -1202,23 +1098,30 @@
     scroll();
   }
 
+  // only clear the transient filters on close — the open folder is kept so the
+  // modal reopens exactly where the user left it.
   function reset() {
     search.value = '';
     type.value = '*';
-    if (tree.length) {
-      loadCategory(tree[1].children[0]);
-    }
   }
 
-  // created
-  ui.loading = true;
-  reload();
+  // created: load the tree once (no-op on subsequent modal opens)
   siteUrl.value = window.siteUrl;
+  ui.loading = true;
+  media.load().finally(() => {
+    ui.loading = false;
+    // open the first real category the first time only
+    if (!category.value?.id && media.tree[1]?.children?.length) {
+      loadCategory(media.tree[1].children[0]);
+    }
+  });
 
   onMounted(() => {
     eventBus.on('media-close', close);
     eventBus.on('media-set-type', setType);
-    eventBus.on('media-reload', reload);
+    // NB: 'media-reload' is intentionally not handled — the library loads once
+    // and is kept fresh by in-place store mutations. Use the Refresh button to
+    // force a server refetch.
     eventBus.on('media-clear', clear);
     eventBus.on('media-updated', mediaUpdated);
     eventBus.on('media-dropped', mediaDropped);
@@ -1235,7 +1138,6 @@
   onUnmounted(() => {
     eventBus.off('media-close', close);
     eventBus.off('media-set-type', setType);
-    eventBus.off('media-reload', reload);
     eventBus.off('media-clear', clear);
     eventBus.off('media-updated', mediaUpdated);
     eventBus.off('media-dropped', mediaDropped);
