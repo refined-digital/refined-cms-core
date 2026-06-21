@@ -63,11 +63,6 @@ function copyStaticAssets() {
 // <script>/<link> tags (not @vite), so the output filenames must stay fixed.
 export default defineConfig({
   customLogger: logger,
-  resolve: {
-    alias: {
-      jquery: resolve('node_modules/jquery'),
-    },
-  },
 
   css: {
     preprocessorOptions: {

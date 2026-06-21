@@ -297,6 +297,14 @@
 
   const clone = (data) => JSON.parse(JSON.stringify(data));
 
+  // native replacement for jQuery's $(el).fadeOut(300).remove()
+  function fadeOutAndRemove(el, duration = 300) {
+    if (!el) return;
+    el.style.transition = `opacity ${duration}ms`;
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), duration);
+  }
+
   const root = ref(null);
 
   const tab = ref('details');
@@ -718,7 +726,7 @@
         createImageThumbnails: true,
         previewsContainer: root.value.querySelector('.media-uploader__preview-listing'),
         headers: {
-          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
         }
       };
 
@@ -762,7 +770,7 @@
       const error = err.previewElement.querySelector('.dz-error-mark');
       if (error) {
         error.addEventListener('click', () => {
-          $(err.previewElement).fadeOut(300).remove();
+          fadeOutAndRemove(err.previewElement);
         })
       }
       if (typeof err.xhr != 'undefined') {
@@ -794,7 +802,7 @@
     }
 
     setTimeout(() => {
-      $(f.previewElement).fadeOut(300).remove();
+      fadeOutAndRemove(f.previewElement);
     }, 500);
 
     // push the uploaded file into the store (no refetch needed)

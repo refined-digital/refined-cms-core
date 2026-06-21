@@ -50,8 +50,6 @@
     "email-validator": "^2.0.4",
     "flatpickr": "^4.6.9",
     "javascript-natural-sort": "^0.7.1",
-    "jquery": "^3.6.0",
-    "jquery-ui": "^1.12.1",
     "laravel-echo": "^1.15.3",
     "lodash": "^4.17.21",
     "lodash.kebabcase": "^4.1.1",

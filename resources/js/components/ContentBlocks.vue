@@ -187,22 +187,47 @@ function removeContentBlock(index) {
   });
 }
 
-// todo: remove the jquery from here
+// native slide-toggle for a content block (replaces the old jQuery slideUp/Down)
 function toggleContentBlockContent(event) {
-  const klass = 'content-editor__item';
-  const element = $(event.target).closest(`.${klass}`);
-  if (element) {
-    const block = element.find('.content-editor__item-content');
+  const element = event.target.closest('.content-editor__item');
+  if (!element) return;
 
-    if (!element.hasClass('open')) {
-      block.slideDown(200, function () {
-        element.addClass('open')
-      })
-    } else {
-      block.slideUp(200, function () {
-        element.removeClass('open')
-      })
-    }
+  const block = element.querySelector('.content-editor__item-content');
+  if (!block) return;
+
+  const duration = 200;
+  const isOpen = element.classList.contains('open');
+
+  if (!isOpen) {
+    // slide down: from 0 to the natural height, then settle on auto
+    block.style.display = 'block';
+    block.style.overflow = 'hidden';
+    block.style.height = '0px';
+    block.style.transition = `height ${duration}ms`;
+    requestAnimationFrame(() => {
+      block.style.height = `${block.scrollHeight}px`;
+    });
+    element.classList.add('open');
+    setTimeout(() => {
+      block.style.height = '';
+      block.style.overflow = '';
+      block.style.transition = '';
+    }, duration);
+  } else {
+    // slide up: from current height to 0, then hide
+    block.style.overflow = 'hidden';
+    block.style.height = `${block.scrollHeight}px`;
+    block.style.transition = `height ${duration}ms`;
+    requestAnimationFrame(() => {
+      block.style.height = '0px';
+    });
+    element.classList.remove('open');
+    setTimeout(() => {
+      block.style.display = 'none';
+      block.style.height = '';
+      block.style.overflow = '';
+      block.style.transition = '';
+    }, duration);
   }
 }
 

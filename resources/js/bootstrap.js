@@ -1,10 +1,3 @@
-// TODO: remove jquery — only jquery-ui sortable still depends on it
-import jQuery from 'jquery';
-window.jQuery = window.$ = jQuery;
-
-// TODO: remove this too
-import 'jquery-ui/ui/widgets/sortable.js';
-
 import axios from 'axios';
 
 window.axios = axios;
