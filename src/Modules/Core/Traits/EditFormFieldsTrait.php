@@ -23,6 +23,12 @@ trait EditFormFieldsTrait
     {
         if (method_exists($this, 'setFormFields')) {
             $fields = $this->setFormFields();
+        } elseif (method_exists($this, 'formSchema')) {
+            // fluent Tab/Block/Field builders — compile to the legacy array shape
+            $fields = array_map(
+                fn ($tab) => is_object($tab) && method_exists($tab, 'toArray') ? $tab->toArray() : $tab,
+                $this->formSchema()
+            );
         } else {
             if (method_exists($this, 'formFields')) {
                 $fields = $this->formFields();

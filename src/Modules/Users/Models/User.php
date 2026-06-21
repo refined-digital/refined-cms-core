@@ -8,6 +8,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 use RefinedDigital\CMS\Modules\Core\Traits\EditFormFieldsTrait;
 use RefinedDigital\CMS\Modules\Core\Traits\ExtraFillableFieldsTrait;
+use RefinedDigital\CMS\Modules\Core\Forms\Tab;
+use RefinedDigital\CMS\Modules\Core\Forms\Block;
+use RefinedDigital\CMS\Modules\Core\Forms\Row;
+use RefinedDigital\CMS\Modules\Core\Forms\Fields\TextInput;
+use RefinedDigital\CMS\Modules\Core\Forms\Fields\Field;
+use RefinedDigital\CMS\Modules\Core\Forms\Fields\Select;
+use RefinedDigital\CMS\Modules\Core\Forms\Fields\Password;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
 use RefinedDigital\CMS\Modules\Users\Traits\UserLevel;
@@ -60,40 +67,33 @@ class User extends Authenticatable implements Sortable
 
     /**
      * The fields to be displayed for creating / editing
-     *
-     * @var array
      */
-    private $formFields = [
-      [
-        'name' => 'User Details',
-        'blocks' => [
-          [
-            'name' => 'Profile',
-            'fields' => [
-              [
-                [ 'label' => 'Active', 'name' => 'active', 'required' => true, 'type' => 'select', 'options' => [1 => 'Yes', 0 => 'No'] ],
-                [ 'label' => 'User Level', 'name' => 'user_level_id', 'required' => true, 'type' => 'userLevels', 'note' => 'User <strong>Admin</strong> for all administrators to edit website information<br/>Use <strong>Member</strong> for all users who login to the website' ],
-                [ 'label' => 'User Group', 'name' => 'groups', 'type' => 'userGroups'],
-              ],
-              [
-                [ 'label' => 'First Name', 'name' => 'first_name', 'required' => true ],
-                [ 'label' => 'Last Name', 'name' => 'last_name', 'required' => true ],
-                [ 'label' => 'Email', 'name' => 'email', 'type' => 'email', 'required' => true, 'note' => 'Used for login' ],
-              ]
-            ],
-          ],
-          [
-            'name' => 'Password',
-            'fields' => [
-              [
-                [ 'label' => 'Password', 'name' => 'password', 'type' => 'password', 'required' => true ],
-                [ 'label' => 'Confirm Password', 'name' => 'password_confirmation', 'type' => 'password', 'required' => true ],
-              ]
-            ]
-          ]
-        ]
-      ]
-    ];
+    public function formSchema(): array
+    {
+        return [
+            Tab::make('User Details')->schema([
+                Block::make('Profile')->schema([
+                    Row::make([
+                        Select::make('active', 'Active')->required()->options([1 => 'Yes', 0 => 'No']),
+                        Field::make('user_level_id', 'User Level')->type('userLevels')->required()
+                            ->note('User <strong>Admin</strong> for all administrators to edit website information<br/>Use <strong>Member</strong> for all users who login to the website'),
+                        Field::make('groups', 'User Group')->type('userGroups'),
+                    ]),
+                    Row::make([
+                        TextInput::make('first_name', 'First Name')->required(),
+                        TextInput::make('last_name', 'Last Name')->required(),
+                        TextInput::make('email', 'Email')->email()->required()->note('Used for login'),
+                    ]),
+                ]),
+                Block::make('Password')->schema([
+                    Row::make([
+                        Password::make('password', 'Password')->required(),
+                        Password::make('password_confirmation', 'Confirm Password')->required(),
+                    ]),
+                ]),
+            ]),
+        ];
+    }
 
     public function groups()
     {

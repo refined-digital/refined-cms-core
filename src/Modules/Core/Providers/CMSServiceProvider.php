@@ -12,6 +12,7 @@ use Illuminate\Foundation\AliasLoader;
 use RefinedDigital\CMS\Commands\ConvertCpanel;
 use RefinedDigital\CMS\Commands\CreateContentBlock;
 use RefinedDigital\CMS\Commands\CreateModule;
+use RefinedDigital\CMS\Commands\ConvertFormSchema;
 use RefinedDigital\CMS\Commands\InstallCMS;
 use RefinedDigital\CMS\Commands\InstallDatabase;
 use RefinedDigital\CMS\Commands\InstallSymLink;
@@ -106,6 +107,7 @@ class CMSServiceProvider extends ServiceProvider
             $this->commands([
                 CreateModule::class,
                 CreateContentBlock::class,
+                ConvertFormSchema::class,
             ]);
 
             $publicPathDir = explode('/', public_path());
