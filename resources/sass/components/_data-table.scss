@@ -2,12 +2,12 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    border: 1px solid color(table-border);
+    border: 1px solid var(--color-table-border);
   }
 
   thead, tfoot {
     th, td {
-      background: color(grey) !important;
+      background: var(--color-grey) !important;
       color: #fff;
       padding: 18px 8px;
       a {
@@ -18,7 +18,7 @@
         }
 
         &:hover {
-          color: darken(#fff, $darkenAmount);
+          color: color-mix(in srgb, #fff, black 10%);
         }
       }
     }
@@ -33,18 +33,18 @@
   tbody tr {
 
     &:nth-child(odd) .data-table__cell {
-      background: color(table-odd);
+      background: var(--color-table-odd);
     }
     &:nth-child(even) .data-table__cell {
-      background: color(table-even);
+      background: var(--color-table-even);
     }
     &:hover .data-table__cell {
-      background: lighten(color(main-color-1), 32);
+      background: color-mix(in srgb, var(--color-main-color-1), white 32%);
     }
 
     &.gu-transit, &.sortable-chosen {
       th, td {
-        background: lighten(color(blue), 20) !important;
+        background: color-mix(in srgb, var(--color-blue), white 20%) !important;
         &, a {
           color: #fff;
         }
@@ -56,7 +56,7 @@
   &__cell {
     text-align: left;
     padding: 10px 8px;
-    border-top:1px solid color(table-border);
+    border-top:1px solid var(--color-table-border);
 
     svg {
       height: 30px;
@@ -93,9 +93,9 @@
       text-align: right;
 
       a {
-        color: color(green);
+        color: var(--color-green);
         &:hover {
-          color: darken(color(green), $darkenAmount);
+          color: color-mix(in srgb, var(--color-green), black 10%);
         }
 
       }
@@ -112,10 +112,10 @@
           border: 0;
           background: none;
           cursor: pointer;
-          color: color(red);
+          color: var(--color-red);
           padding: 0;
           &:hover {
-            color: darken(color(red), $darkenAmount);
+            color: color-mix(in srgb, var(--color-red), black 10%);
           }
         }
       }
@@ -143,14 +143,14 @@
       &-plus i {
         color: #fff;
         &:hover {
-          color: darken(#fff, $darkenAmount);
+          color: color-mix(in srgb, #fff, black 10%);
         }
       }
 
       &-delete i {
-        color: color(red);
+        color: var(--color-red);
         &:hover {
-          color: darken(color(red), $darkenAmount);
+          color: color-mix(in srgb, var(--color-red), black 10%);
         }
       }
 
@@ -195,7 +195,7 @@
         }
 
         &-has-error .form__control {
-          border-color: color(red);
+          border-color: var(--color-red);
         }
       }
     }

@@ -64,226 +64,220 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted, onUnmounted, provide } from 'vue';
 import swal from 'sweetalert';
-import Vue from 'vue';
 import _ from 'lodash';
+import eventBus from '../eventBus';
 
-import {PagesImageNoteMixin} from '../mixins/PagesImageNote.js';
-import {PagesRepeatableMixin} from '../mixins/PagesRepeatable.js';
+import { usePagesImageNote } from '../composables/usePagesImageNote';
+import { usePagesRepeatable } from '../composables/usePagesRepeatable';
 
-export default {
-  name: 'rd-content-blocks',
+const props = defineProps(['config', 'page', 'name', 'content']);
 
-  props: [ 'config', 'page', 'name', 'content' ],
+const data = ref([]);
 
-  mixins: [
-    PagesImageNoteMixin,
-    PagesRepeatableMixin
-  ],
+const pageRef = computed(() => props.page);
+const { getImageNote } = usePagesImageNote(pageRef);
+const { addRepeatable } = usePagesRepeatable(pageRef, { getImageNote });
 
-  data() {
-    return {
-      data: []
+// child PagesRepeatable components inject the nearest addRepeatable
+provide('pages:addRepeatable', addRepeatable);
+
+const canShowAnchors = computed(() => {
+  if (!props.config) {
+    return false;
+  }
+
+  if (!props.config.show_page_anchors) {
+    return false;
+  }
+
+  if (!props.config.show_page_anchors.enabled) {
+    return false;
+  }
+
+  return true;
+});
+
+const anchorPrefix = computed(() => {
+  if (!props.config) {
+    return ''
+  }
+
+  if (!props.config.show_page_anchors) {
+    return '';
+  }
+
+  if (!props.config.show_page_anchors.class) {
+    return '';
+  }
+
+  return props.config.show_page_anchors.class;
+});
+
+function formatContent(content) {
+  content.fields.forEach(field => {
+    if (!field.content) {
+      field.content = field.page_content_type_id === 9 ? [] : ''
     }
-  },
 
-  mounted() {
-    const data = this.page[this.name];
-
-    this.data = data.map(item => this.formatContent(item));
-  },
-
-  created() {
-    eventBus.$on('pages.sortable.content-item.dragend', data => {
-      this.reorderContentBlocks(data);
-    })
-  },
-
-  computed: {
-    canShowAnchors() {
-      if (!this.config) {
-        return false;
-      }
-
-      if (!this.config.show_page_anchors) {
-        return false;
-      }
-
-      if (!this.config.show_page_anchors.enabled) {
-        return false;
-      }
-
-      return true;
-    },
-
-    anchorPrefix() {
-      if (!this.config) {
-        return ''
-      }
-
-      if (!this.config.show_page_anchors) {
-        return '';
-      }
-
-      if (!this.config.show_page_anchors.class) {
-        return '';
-      }
-
-      return this.config.show_page_anchors.class;
+    // the key must exist up front for the colour picker binding to be reactive
+    if (field.colour && typeof field.content_colour === 'undefined') {
+      field.content_colour = '';
     }
-  },
 
-  methods: {
-    formatContent(content) {
-      content.fields.forEach(field => {
-        if (!field.content) {
-          field.content = field.page_content_type_id === 9 ? [] : ''
+    if (!field.id) {
+      field.id = `-${_.kebabCase(field.name)}-id-${uniqueId(10)}`
+    }
+
+    if (!field.key) {
+      field.key = `-${_.kebabCase(field.name)}-key-${uniqueId(10)}`
+    }
+
+    if (field.page_content_type_id === 9 && Array.isArray(field.content)) {
+      field.content = field.content.map(item => {
+        for (const key in item) {
+          const localItem = item[key];
+
+          if (!localItem.id) {
+            localItem.id = `-${_.kebabCase(localItem.name)}-id-${uniqueId(10)}`
+          }
+
+          if (!localItem.key) {
+            localItem.key = `-${_.kebabCase(localItem.name)}-key-${uniqueId(10)}`
+          }
         }
 
-        // the key must exist up front for the colour picker binding to be reactive
-        if (field.colour && typeof field.content_colour === 'undefined') {
-          field.content_colour = '';
-        }
-
-        if (!field.id) {
-          field.id = `-${_.kebabCase(field.name)}-id-${this.uniqueId(10)}`
-        }
-
-        if (!field.key) {
-          field.key = `-${_.kebabCase(field.name)}-key-${this.uniqueId(10)}`
-        }
-
-        if (field.page_content_type_id === 9 && Array.isArray(field.content)) {
-          field.content = field.content.map(item => {
-            for (const key in item) {
-              const localItem = item[key];
-
-              if (!localItem.id) {
-                localItem.id = `-${_.kebabCase(localItem.name)}-id-${this.uniqueId(10)}`
-              }
-
-              if (!localItem.key) {
-                localItem.key = `-${_.kebabCase(localItem.name)}-key-${this.uniqueId(10)}`
-              }
-            }
-
-            return item;
-          })
-        }
+        return item;
       })
+    }
+  })
 
-      if (!content.id) {
-        content.id = `id-${this.uniqueId(10)}`
-      }
+  if (!content.id) {
+    content.id = `id-${uniqueId(10)}`
+  }
 
-      if (!content.key) {
-        content.key = `key-${this.uniqueId(10)}`
-      }
+  if (!content.key) {
+    content.key = `key-${uniqueId(10)}`
+  }
 
-      return content;
-    },
+  return content;
+}
 
-    loadContentBlock(content) {
-      const newContent = _.cloneDeep(content);
-      const formattedContent = this.formatContent(content);
+function loadContentBlock(content) {
+  const newContent = _.cloneDeep(content);
+  const formattedContent = formatContent(content);
 
-      this.data.push(formattedContent);
-      Vue.set(this.page, this.name, this.data);
-    },
+  data.value.push(formattedContent);
+  props.page[props.name] = data.value;
+}
 
-    removeContentBlock(index) {
-      swal({
-        title: 'Are you sure?',
-        icon: 'warning',
-        buttons: true,
-        dangerMode: true,
-      }).then(value => {
-        if (value) {
-          this.data.splice(index, 1);
-          Vue.set(this.page, this.name, this.data);
-        }
-      });
-    },
+function removeContentBlock(index) {
+  swal({
+    title: 'Are you sure?',
+    icon: 'warning',
+    buttons: true,
+    dangerMode: true,
+  }).then(value => {
+    if (value) {
+      data.value.splice(index, 1);
+      props.page[props.name] = data.value;
+    }
+  });
+}
 
-    // todo: remove the jquery from here
-    toggleContentBlockContent(event) {
-      const klass = 'content-editor__item';
-      const element = $(event.target).closest(`.${klass}`);
-      if (element) {
-        const block = element.find('.content-editor__item-content');
+// todo: remove the jquery from here
+function toggleContentBlockContent(event) {
+  const klass = 'content-editor__item';
+  const element = $(event.target).closest(`.${klass}`);
+  if (element) {
+    const block = element.find('.content-editor__item-content');
 
-        if (!element.hasClass('open')) {
-          block.slideDown(200, function () {
-            element.addClass('open')
-          })
-        } else {
-          block.slideUp(200, function () {
-            element.removeClass('open')
-          })
-        }
-      }
-    },
-
-    reorderContentBlocks(order) {
-      const contentLookup = _.keyBy(this.data, 'id');
-
-      this.data = order.map(item => {
-        return contentLookup[item.id];
-      });
-
-      Vue.set(this.page, this.name, this.data);
-    },
-
-    canShow(field, content) {
-
-      if (!field.showOn) {
-        return true;
-      }
-
-      const keys = field.showOn.split(':');
-      // find the corrosponding field
-      const altField = content.fields.find(item => {
-        const key = _.snakeCase(item.name)
-        return key === keys.at(0)
+    if (!element.hasClass('open')) {
+      block.slideDown(200, function () {
+        element.addClass('open')
       })
-
-      if (altField) {
-        return altField.content == keys.at(1);
-      }
-
-      return true;
-    },
-
-    selectAndCopy(event) {
-      const target = event.target;
-
-      // Select the content of the target element
-      const textToCopy = target.innerText || target.textContent;
-
-      // Use the modern Clipboard API to copy the text
-      navigator.clipboard.writeText(textToCopy)
-        .then(() => {
-          alert('Text copied to clipboard');
-        })
-        .catch(err => {
-          console.error('Failed to copy text: ', err);
-          alert('Failed to copy text');
-        });
-    },
-
-    uniqueId(length) {
-      let result = '';
-      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      const charactersLength = characters.length;
-      let counter = 0;
-      while (counter < length) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-        counter += 1;
-      }
-      return result;
+    } else {
+      block.slideUp(200, function () {
+        element.removeClass('open')
+      })
     }
   }
 }
 
+function reorderContentBlocks(order) {
+  const contentLookup = _.keyBy(data.value, 'id');
+
+  data.value = order.map(item => {
+    return contentLookup[item.id];
+  });
+
+  props.page[props.name] = data.value;
+}
+
+function canShow(field, content) {
+
+  if (!field.showOn) {
+    return true;
+  }
+
+  const keys = field.showOn.split(':');
+  // find the corrosponding field
+  const altField = content.fields.find(item => {
+    const key = _.snakeCase(item.name)
+    return key === keys.at(0)
+  })
+
+  if (altField) {
+    return altField.content == keys.at(1);
+  }
+
+  return true;
+}
+
+function selectAndCopy(event) {
+  const target = event.target;
+
+  // Select the content of the target element
+  const textToCopy = target.innerText || target.textContent;
+
+  // Use the modern Clipboard API to copy the text
+  navigator.clipboard.writeText(textToCopy)
+    .then(() => {
+      alert('Text copied to clipboard');
+    })
+    .catch(err => {
+      console.error('Failed to copy text: ', err);
+      alert('Failed to copy text');
+    });
+}
+
+function uniqueId(length) {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
+  return result;
+}
+
+function onContentItemDragend(order) {
+  reorderContentBlocks(order);
+}
+
+// created
+eventBus.on('pages.sortable.content-item.dragend', onContentItemDragend);
+
+onMounted(() => {
+  const initial = props.page[props.name];
+  data.value = initial.map(item => formatContent(item));
+});
+
+onUnmounted(() => {
+  eventBus.off('pages.sortable.content-item.dragend', onContentItemDragend);
+});
 </script>

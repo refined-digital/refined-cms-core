@@ -21,74 +21,67 @@
   </div>
 </template>
 
-<script>
-  export default {
+<script setup>
+  import { ref, computed, onMounted, onUnmounted } from 'vue';
+  import { useConfigStore } from '../stores/config';
 
-    props: [ 'value', 'options', 'allowEmpty' ],
+  const props = defineProps(['value', 'options', 'allowEmpty']);
+  const emit = defineEmits(['input']);
 
-    data() {
-      return {
-        open: false,
-      }
-    },
+  const config = useConfigStore();
 
-    computed: {
-      colourOptions() {
-        let options = [];
+  const colourSet = ref(null);
+  const open = ref(false);
 
-        if (Array.isArray(this.options) && this.options.length) {
-          options = this.options;
-        } else {
-          // fall back to the globally configured colour set
-          const colours = (window.app && window.app.colourSet) || {};
-          options = Object.keys(colours).map(value => ({ value, label: colours[value] }));
-        }
+  const colourOptions = computed(() => {
+    let options = [];
 
-        if (this.allowEmpty) {
-          options = [{ value: '', label: 'Default' }, ...options];
-        }
+    if (Array.isArray(props.options) && props.options.length) {
+      options = props.options;
+    } else {
+      // fall back to the globally configured colour set
+      const colours = config.colourSet || {};
+      options = Object.keys(colours).map(value => ({ value, label: colours[value] }));
+    }
 
-        return options;
-      },
+    if (props.allowEmpty) {
+      options = [{ value: '', label: 'Default' }, ...options];
+    }
 
-      selectedLabel() {
-        const selected = this.colourOptions.find(option => option.value === (this.value || ''));
-        return selected ? selected.label : 'Select a colour';
-      },
-    },
+    return options;
+  });
 
-    created() {
-      if (!this.allowEmpty && !this.value && this.colourOptions.length) {
-        this.$emit('input', this.colourOptions[0].value);
-      }
-    },
+  const selectedLabel = computed(() => {
+    const selected = colourOptions.value.find(option => option.value === (props.value || ''));
+    return selected ? selected.label : 'Select a colour';
+  });
 
-    mounted() {
-      document.addEventListener('click', this.onDocumentClick);
-    },
-
-    beforeDestroy() {
-      document.removeEventListener('click', this.onDocumentClick);
-    },
-
-    methods: {
-      swatchStyle(value) {
-        return { background: value ? `var(--${value})` : 'transparent' };
-      },
-
-      select(option) {
-        this.open = false;
-        this.$emit('input', option.value);
-      },
-
-      onDocumentClick(event) {
-        if (this.$refs.colourSet && !this.$refs.colourSet.contains(event.target)) {
-          this.open = false;
-        }
-      },
-    },
-
+  function swatchStyle(value) {
+    return { background: value ? `var(--${value})` : 'transparent' };
   }
+
+  function select(option) {
+    open.value = false;
+    emit('input', option.value);
+  }
+
+  function onDocumentClick(event) {
+    if (colourSet.value && !colourSet.value.contains(event.target)) {
+      open.value = false;
+    }
+  }
+
+  if (!props.allowEmpty && !props.value && colourOptions.value.length) {
+    emit('input', colourOptions.value[0].value);
+  }
+
+  onMounted(() => {
+    document.addEventListener('click', onDocumentClick);
+  });
+
+  onUnmounted(() => {
+    document.removeEventListener('click', onDocumentClick);
+  });
 </script>
 
 <style lang="scss">

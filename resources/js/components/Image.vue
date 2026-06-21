@@ -31,153 +31,148 @@
 
 </template>
 
-<script>
+<script setup>
 
-    export default {
+    import { ref, computed, watch, onMounted, onUnmounted, getCurrentInstance } from 'vue';
+    import eventBus from '../eventBus';
+    import { useUiStore } from '../stores/ui';
 
-        props: [
-          'name',
-          'id',
-          'value',
-          'width',
-          'height'
-        ],
+    const props = defineProps([
+      'name',
+      'id',
+      'value',
+      'width',
+      'height',
+    ]);
+    const emit = defineEmits(['input']);
 
-        data() {
-            return {
-              image: '',
+    const ui = useUiStore();
+    const uid = getCurrentInstance().uid;
 
-              file: {
-                link: {
-                  thumb: ''
-                },
-                external_id: '',
-                external_url: '',
-                note: null,
-                type: ''
-              },
+    const clone = (data) => JSON.parse(JSON.stringify(data));
 
-              default: {
-                link: {
-                  thumb: ''
-                },
-                external_id: '',
-                external_url: '',
-              },
+    const image = ref('');
 
-            }
-        },
+    const file = ref({
+      link: {
+        thumb: '',
+      },
+      external_id: '',
+      external_url: '',
+      note: null,
+      type: '',
+    });
 
-        created() {
-          this.loadFile();
+    const defaultFile = {
+      link: {
+        thumb: '',
+      },
+      external_id: '',
+      external_url: '',
+    };
 
-          eventBus.$on('selecting-file', this.updateFile);
-          eventBus.$on('media-updated', this.mediaUpdated);
-        },
+    const fileUrl = computed(() => {
+      if (file.value.external_url) {
+        return file.value.external_url;
+      }
 
-        computed: {
-          fileUrl() {
-            if (this.file.external_url) {
-              return this.file.external_url;
-            }
+      return file.value.link.thumb;
+    });
 
-            return this.file.link.thumb;
-          }
-
-        },
-
-        methods:  {
-
-          clearFile() {
-            this.image = null;
-            this.file = this.$root.clone(this.default);
-            this.emit();
-          },
-
-          loadModal() {
-            eventBus.$emit('media-set-type', 'Image');
-            eventBus.$emit('media-reload');
-            this.$root.media.showModal = true;
-            this.$root.media.model = this._uid;
-          },
-
-          mediaUpdated(data) {
-            if (data.external_url) {
-              this.file.external_url = data.external_url;
-            }
-          },
-
-          updateFile(data) {
-            if (data.model === this._uid) {
-              this.file = data;
-              this.image = this.file.id;
-              this.emit();
-              eventBus.$emit('media-close');
-            }
-          },
-
-          loadFile() {
-            this.image = this.value;
-
-            if (this.value) {
-              axios
-                .get(`${window.siteUrl}/refined/media/${this.value}`)
-                .then(r => {
-                  this.$root.loading = false;
-                  if (r.status === 200 && r.data.file) {
-                    this.file = r.data.file;
-                    this.setFileNote();
-                    if (typeof this.name !== 'undefined') {
-                      this.emit();
-                    }
-                  }
-                })
-                .catch(() => {
-                  this.$root.loading = false;
-                })
-              ;
-            } else {
-              this.file = this.default;
-              this.setFileNote();
-              if (typeof this.name !== 'undefined') {
-                this.emit();
-              }
-            }
-
-          },
-
-          setFileNote() {
-
-            if (this.width || this.height) {
-
-              const n = [];
-              if (this.width) {
-                n.push(`${this.width}px wide`)
-              }
-              if (this.height) {
-                n.push(`${this.height}px tall`)
-              }
-
-              const dimensions = `<strong>${n.length > 1 ? 'fit within ' : ''}${n.join(' x ')}</strong>`
-
-              this.file.note = `
-                Image will be resized to ${dimensions}
-                <br>If you are having trouble with images, <a href="https://www.iloveimg.com/photo-editor" target="_blank">visit this page</a> to create your image.</div>
-              `;
-            }
-          },
-
-          emit() {
-            this.$emit('input', this.image);
-          }
-
-
-        },
-
-        watch: {
-          value() {
-            this.loadFile();
-          }
-        }
+    function clearFile() {
+      image.value = null;
+      file.value = clone(defaultFile);
+      emitInput();
     }
+
+    function loadModal() {
+      eventBus.emit('media-set-type', 'Image');
+      eventBus.emit('media-reload');
+      ui.media.showModal = true;
+      ui.media.model = uid;
+    }
+
+    function mediaUpdated(data) {
+      if (data.external_url) {
+        file.value.external_url = data.external_url;
+      }
+    }
+
+    function updateFile(data) {
+      if (data.model === uid) {
+        file.value = data;
+        image.value = file.value.id;
+        emitInput();
+        eventBus.emit('media-close');
+      }
+    }
+
+    function loadFile() {
+      image.value = props.value;
+
+      if (props.value) {
+        axios
+          .get(`${window.siteUrl}/refined/media/${props.value}`)
+          .then(r => {
+            ui.loading = false;
+            if (r.status === 200 && r.data.file) {
+              file.value = r.data.file;
+              setFileNote();
+              if (typeof props.name !== 'undefined') {
+                emitInput();
+              }
+            }
+          })
+          .catch(() => {
+            ui.loading = false;
+          })
+        ;
+      } else {
+        file.value = defaultFile;
+        setFileNote();
+        if (typeof props.name !== 'undefined') {
+          emitInput();
+        }
+      }
+
+    }
+
+    function setFileNote() {
+
+      if (props.width || props.height) {
+
+        const n = [];
+        if (props.width) {
+          n.push(`${props.width}px wide`)
+        }
+        if (props.height) {
+          n.push(`${props.height}px tall`)
+        }
+
+        const dimensions = `<strong>${n.length > 1 ? 'fit within ' : ''}${n.join(' x ')}</strong>`
+
+        file.value.note = `
+          Image will be resized to ${dimensions}
+          <br>If you are having trouble with images, <a href="https://www.iloveimg.com/photo-editor" target="_blank">visit this page</a> to create your image.</div>
+        `;
+      }
+    }
+
+    function emitInput() {
+      emit('input', image.value);
+    }
+
+    watch(() => props.value, loadFile);
+
+    loadFile();
+
+    onMounted(() => {
+      eventBus.on('selecting-file', updateFile);
+      eventBus.on('media-updated', mediaUpdated);
+    });
+
+    onUnmounted(() => {
+      eventBus.off('selecting-file', updateFile);
+      eventBus.off('media-updated', mediaUpdated);
+    });
 </script>

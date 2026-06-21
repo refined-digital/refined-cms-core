@@ -26,27 +26,19 @@
         >{{ page.name}}</span>
       </div>
 
-      <rd-media-branch @media-dropped="mediaDropped" :data="page" :id="page.id"></rd-media-branch>
+      <rd-media-branch :data="page" :id="page.id"></rd-media-branch>
 
     </li>
   </ul>
 </template>
 
-<script>
+<script setup>
+import { inject } from 'vue';
 
-  export default {
-    props: [ 'data', 'id' ],
+defineProps(['data', 'id']);
 
-    methods: {
-      loadCategory(page) {
-        this.$parent.loadCategory(page);
-      },
-      toggleSubMenu(page) {
-        this.$parent.toggleSubMenu(page);
-      },
-      mediaDropped(e) {
-        this.$parent.mediaDropped(e);
-      }
-    }
-  }
+// the branch is recursive; Media provides the real implementations once and
+// every branch injects them directly (no parent-chain walking).
+const loadCategory = inject('media:loadCategory');
+const toggleSubMenu = inject('media:toggleSubMenu');
 </script>

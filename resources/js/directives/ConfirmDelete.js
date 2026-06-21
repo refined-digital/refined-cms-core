@@ -1,9 +1,9 @@
-import Vue from 'vue'
+import swal from 'sweetalert';
 
-Vue.directive('confirm-delete', {
-  bind: function(el) {
-    var submitForm = false;
-    el.addEventListener('submit', e => {
+export default {
+  mounted(el) {
+    let submitForm = false;
+    el.addEventListener('submit', (e) => {
       if (!submitForm) {
         e.preventDefault();
       }
@@ -13,14 +13,12 @@ Vue.directive('confirm-delete', {
         icon: 'warning',
         buttons: true,
         dangerMode: true,
-      })
-      .then((value) => {
+      }).then((value) => {
         if (value) {
           submitForm = true;
           el.submit();
         }
-      })
-      ;
-    })
-  }
-});
+      });
+    });
+  },
+};

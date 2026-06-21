@@ -1,34 +1,28 @@
-import Vue from 'vue'
+import dragula from 'dragula';
 
-Vue.directive('sortable-table', {
-  bind: function(el) {
-    let element = el.querySelector('tbody');
+export default {
+  mounted(el) {
+    const element = el.querySelector('tbody');
     dragula([element], {
-      direction: 'vertical'
-    }).on('drop', function(){
-      if (typeof el.dataset.route != 'undefined') {
-        let positions = [];
+      direction: 'vertical',
+    }).on('drop', () => {
+      if (typeof el.dataset.route !== 'undefined') {
+        const positions = [];
 
-        // get the positions and ids
-        let elements = element.querySelectorAll('tr');
+        const elements = element.querySelectorAll('tr');
         if (elements.length) {
-          elements.forEach(ele => {
+          elements.forEach((ele) => {
             positions.push(ele.dataset.id);
           });
         }
 
-        // post to the server
         axios
-          .post(el.dataset.route, {
-            positions: positions
-          })
-          .then(response => {})
-          .catch(error => {
+          .post(el.dataset.route, { positions })
+          .then(() => {})
+          .catch((error) => {
             console.log('Table Sort Error', error);
-          })
-        ;
+          });
       }
-
     });
-  }
-});
+  },
+};

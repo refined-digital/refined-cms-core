@@ -5,7 +5,7 @@
 
   &__header {
     color: #fff;
-    background: color(blue);
+    background: var(--color-blue);
     padding: 20px 20px;
   }
 
@@ -26,11 +26,11 @@
   &--error {
     .alert {
       &__header {
-        background: color(red);
+        background: var(--color-red);
         h4 { color: #fff; }
       }
       &__body {
-        color: color(red);
+        color: var(--color-red);
       }
     }
   }

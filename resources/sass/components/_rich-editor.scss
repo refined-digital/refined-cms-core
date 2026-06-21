@@ -23,7 +23,7 @@
 
     &-control {
       flex: 1;
-      border: 1px solid color(input);
+      border: 1px solid var(--color-input-border);
       padding: 3px 2px;
     }
 
@@ -84,5 +84,105 @@
     &--external, &--media, &--internal {
       display: none;
     }
+  }
+
+  // Tiptap editor UI
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    padding: 6px;
+    border: 1px solid var(--color-input-border);
+    border-bottom: 0;
+    background: var(--color-table-even);
+  }
+
+  &__btn {
+    appearance: none;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: 3px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    color: var(--color-text);
+
+    &:hover {
+      background: #fff;
+      border-color: var(--color-input-border);
+    }
+
+    &.is-active {
+      background: var(--color-nav-color);
+      color: #fff;
+    }
+  }
+
+  &__format {
+    height: 30px;
+    border: 1px solid var(--color-input-border);
+    border-radius: 3px;
+    background: #fff;
+    padding: 0 4px;
+  }
+
+  &__content {
+    min-height: 200px;
+    padding: 0;
+
+    .rich-editor__editable {
+      min-height: 200px;
+      padding: 12px;
+      outline: none;
+    }
+
+    .ProseMirror {
+      min-height: 200px;
+      outline: none;
+    }
+  }
+
+  &__link-hint {
+    font-size: 12px;
+    color: var(--color-form-label);
+    margin: 4px 0;
+  }
+
+  &__modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  &__modal-box {
+    background: #fff;
+    border-radius: 4px;
+    padding: 20px;
+    width: 420px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+
+    h3 {
+      margin: 0 0 12px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin: 10px 0 3px;
+    }
+  }
+
+  &__modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
   }
 }

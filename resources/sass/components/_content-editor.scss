@@ -1,6 +1,8 @@
+@use '../variables' as *;
+
 .content-editor {
   &__header {
-    border-bottom: 1px solid color(input-border);
+    border-bottom: 1px solid var(--color-input-border);
     padding-bottom: 10px;
     margin-bottom: 10px;
 
@@ -22,7 +24,7 @@
 
       &--has-note {
         .button__text {
-          border-right: 1px solid darken(color(green), 10);
+          border-right: 1px solid color-mix(in srgb, var(--color-green), black 10%);
         }
       }
     }
@@ -47,7 +49,7 @@
     left: 0;
     background: #ededed;
     padding: 3px;
-    color: color(text);
+    color: var(--color-text);
     font-size: $systemFontSize - 4px;
     width: 300px;
     text-align: left;
@@ -105,7 +107,7 @@
           }
 
           &.fa-times {
-            color: color(red);
+            color: var(--color-red);
           }
 
           &.fa-sort {

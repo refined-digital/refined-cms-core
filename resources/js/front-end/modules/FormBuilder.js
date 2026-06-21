@@ -1,5 +1,5 @@
-window.FormValidate = require('../plugins/FormValidate');
-window.FormValidate = FormValidate.FormValidate;
+import { FormValidate } from '../plugins/FormValidate';
+window.FormValidate = FormValidate;
 
 const gateways = document.querySelectorAll('.payment-gateway input[type="radio"]');
 if (gateways.length) {

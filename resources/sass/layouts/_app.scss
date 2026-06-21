@@ -91,7 +91,7 @@
       color: #fff;
 
       &:hover {
-        color: darken(#fff, 10);
+        color: color-mix(in srgb, #fff, black 10%);
       }
 
     }
@@ -143,10 +143,10 @@
         font-weight: bold;
 
         a {
-          color: color(black);
+          color: var(--color-black);
 
           &:hover {
-            color: color(link-hover);
+            color: var(--color-link-hover);
           }
         }
 
@@ -187,7 +187,7 @@
       padding: 0;
 
       a {
-        color: color(nav-color);
+        color: var(--color-nav-color);
       }
     }
 
@@ -215,7 +215,7 @@
 
       &--active > a {
         background: #ededed;
-        border-color: color(main-color-1);
+        border-color: var(--color-main-color-1);
       }
     }
 
@@ -223,7 +223,7 @@
       & > a {
         padding: 5px 10px 5px 40px;
         &:hover {
-          color: color(nav-color-hover);
+          color: var(--color-nav-color-hover);
         }
       }
 

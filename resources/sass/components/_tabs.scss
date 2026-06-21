@@ -21,7 +21,7 @@
       font-weight: bold;
 
       &.tabs__nav-item--active {
-        background: color(main-color-1);
+        background: var(--color-main-color-1);
         color: #fff;
       }
     }

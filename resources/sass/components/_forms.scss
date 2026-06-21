@@ -1,9 +1,11 @@
+@use '../variables' as *;
+
 .form {
 
   &__label {
     cursor: pointer;
     font-weight: 500;
-    color: color(form-label);
+    color: var(--color-form-label);
     font-size: $systemFontSize;
   }
 
@@ -17,7 +19,7 @@
 
     background: #fff no-repeat;
     background-position: center bottom, center 99%;
-    background-image: linear-gradient(color(main-color-1), color(main-color-1)), linear-gradient(color(input-border), color(input-border));
+    background-image: linear-gradient(var(--color-main-color-1), var(--color-main-color-1)), linear-gradient(var(--color-input-border), var(--color-input-border));
     background-size: 0 2px, 100% 1px;
 
     transition: all 0s linear 0s;
@@ -105,7 +107,7 @@
 
       .form {
         &__label {
-          color: color(form-label);
+          color: var(--color-form-label);
           cursor: text;
           position: absolute;
           transform: translateY(-29px);
@@ -124,7 +126,7 @@
       .form__control--active ~ .form__label {
         transform: translateY(-48px);
         font-size: 12px;
-        color: color(main-color-1);
+        color: var(--color-main-color-1);
       }
 
     }
@@ -134,7 +136,7 @@
       &:after {
         content: '*';
         font-size: 90%;
-        color: color(red);
+        color: var(--color-red);
         display: inline-block;
         margin: -2px 0 0 2px;
       }
@@ -143,10 +145,10 @@
     &--has-error {
       .form {
         &__label {
-          color: color(red);
+          color: var(--color-red);
         }
         &__control {
-          background-image: linear-gradient(color(main-color-1), color(main-color-1)), linear-gradient(color(red), color(red));
+          background-image: linear-gradient(var(--color-main-color-1), var(--color-main-color-1)), linear-gradient(var(--color-red), var(--color-red));
         }
       }
     }
@@ -245,7 +247,7 @@
     margin-top: 4px;
 
     &--error {
-      color: color(red);
+      color: var(--color-red);
     }
   }
 
@@ -269,7 +271,7 @@
         height: 17px;
         margin-right: 4px;
         border-radius: 2px;
-        border: 1px solid color(input-border);
+        border: 1px solid var(--color-input-border);
         transition: .2s ease-in-out;
         cursor: pointer;
       }
@@ -295,8 +297,8 @@
 
     input:checked ~ label, &.checked label {
       &:before {
-        background: color(main-color-1);
-        border-color: color(main-color-1);
+        background: var(--color-main-color-1);
+        border-color: var(--color-main-color-1);
       }
       &:after {
         opacity: 1;
@@ -315,7 +317,7 @@
 
       &__row {
         display: flex;
-        border-bottom: 1px solid color(input-border);
+        border-bottom: 1px solid var(--color-input-border);
         padding: 0 0 20px;
 
         &:last-child {
@@ -387,7 +389,7 @@
         translate: -50% -50%;
         z-index: 3;
         &:before {
-          border-color: color(black) transparent;
+          border-color: var(--color-black) transparent;
           width: 45px;
           height: 45px;
         }
@@ -418,7 +420,7 @@
       figcaption {
         font-size: 14px;
         line-height: 1;
-        color: color(main-color-2);
+        color: var(--color-main-color-2);
         font-weight: 700;
         text-align: center;
         padding: 10px 0 0;
@@ -465,12 +467,12 @@
 select.form__control {
   width: auto;
   padding: 6px;
-  border: 1px solid color(input-border);
+  border: 1px solid var(--color-input-border);
   background-image: none;
   border-radius: 4px;
 
   &:focus {
-    border-bottom-color: color(main-color-1);
+    border-bottom-color: var(--color-main-color-1);
   }
 
   &--full-width {

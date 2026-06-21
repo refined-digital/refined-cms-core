@@ -3,17 +3,17 @@
   padding: 15px;
   font-weight: 500;
 
-  background: color(blue);
+  background: var(--color-blue);
 
   &--success {
-    background: color(green);
+    background: var(--color-green);
   }
 
   &--warning {
-    background: color(yellow);
+    background: var(--color-yellow);
   }
 
   &--error {
-    background: color(red);
+    background: var(--color-red);
   }
 }

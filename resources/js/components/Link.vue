@@ -80,231 +80,233 @@
 
 </template>
 
-<script>
-    export default {
+<script setup>
+  import { ref, computed, onMounted, onUnmounted, getCurrentInstance } from 'vue';
+  import _ from 'lodash';
+  import eventBus from '../eventBus';
+  import { useUiStore } from '../stores/ui';
 
-        props: ['name', 'id', 'value', 'settings'],
+  const props = defineProps(['name', 'id', 'value', 'settings']);
+  const emit = defineEmits(['input']);
 
-        data() {
-            return {
-              link: null,
-              linkModel: null,
-              modal: {
-                text: null,
-                type: 'internal',
-                url: null,
-                title: null,
-                id: null,
-                classes: null,
-                file: {
-                  name: null,
-                  url: null
-                },
-              },
-              hasButton: [
-                'internal',
-                'file'
-              ],
-              elementId: null,
-              active: false
-            }
-        },
+  const ui = useUiStore();
+  const uid = getCurrentInstance().uid;
 
-        created() {
-          this.loadLink();
-          eventBus.$on('selecting-link', this.updateLink);
-          eventBus.$on('selecting-file', this.updateLink);
+  const link = ref(null);
+  const linkModel = ref(null);
+  const modal = ref({
+    text: null,
+    type: 'internal',
+    url: null,
+    title: null,
+    id: null,
+    classes: null,
+    file: {
+      name: null,
+      url: null
+    },
+  });
+  const hasButton = ref([
+    'internal',
+    'file'
+  ]);
+  const elementId = ref(null);
+  const active = ref(false);
 
-          if (this.id) {
-            this.elementId = this.id;
-          } else {
-            this.elementId = Date.now();
-          }
-
-        },
-
-        computed: {
-          urlLabel() {
-            if (this.modal.type === 'email') {
-              return 'Email Address';
-            }
-
-            if (this.modal.type === 'phone') {
-              return 'Phone';
-            }
-
-            if (this.modal.type === 'anchor') {
-              return 'Element ID';
-            }
-
-            return 'URL'
-          },
-
-          classList() {
-            if (this.hasButton.includes(this.modal.type)) {
-              return 'link__type--with-button';
-            }
-
-            return '';
-          },
-
-          isSimple() {
-            if (!this.settings) {
-              return false;
-            }
-
-            if (this.settings.simple) {
-              return true;
-            }
-
-            return false;
-          },
-
-          options() {
-
-            const items = [
-              { value: 'internal', label: 'Internal Page' },
-              { value: 'external', label: 'External Link' },
-            ];
-
-            const items2 = [
-              { value: 'file', label: 'File / Image' },
-              { value: 'email', label: 'Email' },
-              { value: 'phone', label: 'Phone' },
-              { value: 'anchor', label: 'Anchor' },
-            ];
-
-            const options = [
-              ...items
-            ];
-
-            if (!this.isSimple) {
-              options.push(...items2);
-            }
-
-            return options;
-          }
-        },
-
-      methods: {
-
-        clearLink() {
-          this.link = null;
-          this.linkModel.text = null;
-          this.linkModel.type = 'internal';
-          this.linkModel.url = null;
-          this.linkModel.id = null;
-          this.linkModel.title = null;
-          this.linkModel.classes = null;
-          this.linkModel.file.name = null;
-            this.linkModel.file.url = null;
-          },
-
-          clearFile() {
-            this.modal.url = null;
-            this.modal.file.name = null;
-            this.modal.file.url = null;
-          },
-
-          openModal() {
-            if (this.linkModel) {
-              this.modal = _.cloneDeep(this.linkModel);
-            }
-
-            this.active = true;
-            this.$root.link.active = true;
-          },
-
-          loadModal() {
-            if (this.modal.type === 'internal') {
-              eventBus.$emit('sitemap-reload');
-              this.$root.sitemap.showModal = true;
-              this.$root.sitemap.model = this._uid;
-            }
-
-            if (this.modal.type === 'file') {
-              eventBus.$emit('media-set-type', '*');
-              eventBus.$emit('media-reload');
-              this.$root.media.showModal = true;
-              this.$root.media.model = this._uid;
-            }
-          },
-
-          updateLink(data) {
-            if (this.$root.sitemap.model == this._uid) {
-              this.modal.url = data;
-              eventBus.$emit('sitemap-close');
-            }
-
-            if (this.$root.media.model == this._uid) {
-              this.modal.url = data.id;
-              this.modal.file.name = data.file;
-              const url = data.link.original.replace(data.link.basePath, '/');
-              this.modal.file.url = url;
-              eventBus.$emit('media-close');
-            }
-          },
-
-          loadLink() {
-            let value = this.value;
-            if (typeof value === 'string' && value.length) {
-              try {
-                value = JSON.parse(value);
-              } catch (e) {
-                console.warn(e.message);
-                value = _.cloneDeep(this.modal);
-              }
-            }
-
-            if (typeof value !== 'object' || !value) {
-              this.modal = _.cloneDeep(this.modal);
-            } else {
-              this.modal = value;
-            }
-
-            this.link = JSON.stringify(value);
-            this.linkModel = value;
-          },
-
-          save() {
-            const fieldsToCheck = [this.modal.url];
-            if (!this.isSimple) {
-              fieldsToCheck.push(this.modal.text);
-            }
-
-            const check = fieldsToCheck.filter(item => !!item);
-
-            if (check.length !== fieldsToCheck.length) {
-
-              let msg = 'The following fields are required: ';
-              if (!this.modal.text && !this.isSimple) msg += "\n - Link Text";
-              if (!this.modal.url) msg += "\n - URL";
-              alert(msg);
-
-              return;
-            }
-
-            this.linkModel = _.cloneDeep(this.modal);
-            this.link = JSON.stringify(this.linkModel);
-            this.$emit('input', this.linkModel);
-            this.closeModal();
-          },
-
-          closeModal() {
-            this.active = false;
-            this.modal.text = null;
-            this.modal.type = 'internal';
-            this.modal.url = null;
-            this.modal.id = null;
-            this.modal.title = null;
-            this.modal.classes = null;
-            this.modal.file.name = null;
-            this.modal.file.url = null;
-            this.$root.link.active = false;
-          }
-
-        },
+  const urlLabel = computed(() => {
+    if (modal.value.type === 'email') {
+      return 'Email Address';
     }
+
+    if (modal.value.type === 'phone') {
+      return 'Phone';
+    }
+
+    if (modal.value.type === 'anchor') {
+      return 'Element ID';
+    }
+
+    return 'URL'
+  });
+
+  const classList = computed(() => {
+    if (hasButton.value.includes(modal.value.type)) {
+      return 'link__type--with-button';
+    }
+
+    return '';
+  });
+
+  const isSimple = computed(() => {
+    if (!props.settings) {
+      return false;
+    }
+
+    if (props.settings.simple) {
+      return true;
+    }
+
+    return false;
+  });
+
+  const options = computed(() => {
+
+    const items = [
+      { value: 'internal', label: 'Internal Page' },
+      { value: 'external', label: 'External Link' },
+    ];
+
+    const items2 = [
+      { value: 'file', label: 'File / Image' },
+      { value: 'email', label: 'Email' },
+      { value: 'phone', label: 'Phone' },
+      { value: 'anchor', label: 'Anchor' },
+    ];
+
+    const opts = [
+      ...items
+    ];
+
+    if (!isSimple.value) {
+      opts.push(...items2);
+    }
+
+    return opts;
+  });
+
+  function clearLink() {
+    link.value = null;
+    linkModel.value.text = null;
+    linkModel.value.type = 'internal';
+    linkModel.value.url = null;
+    linkModel.value.id = null;
+    linkModel.value.title = null;
+    linkModel.value.classes = null;
+    linkModel.value.file.name = null;
+    linkModel.value.file.url = null;
+  }
+
+  function clearFile() {
+    modal.value.url = null;
+    modal.value.file.name = null;
+    modal.value.file.url = null;
+  }
+
+  function openModal() {
+    if (linkModel.value) {
+      modal.value = _.cloneDeep(linkModel.value);
+    }
+
+    active.value = true;
+    ui.link.active = true;
+  }
+
+  function loadModal() {
+    if (modal.value.type === 'internal') {
+      eventBus.emit('sitemap-reload');
+      ui.sitemap.showModal = true;
+      ui.sitemap.model = uid;
+    }
+
+    if (modal.value.type === 'file') {
+      eventBus.emit('media-set-type', '*');
+      eventBus.emit('media-reload');
+      ui.media.showModal = true;
+      ui.media.model = uid;
+    }
+  }
+
+  function updateLink(data) {
+    if (ui.sitemap.model == uid) {
+      modal.value.url = data;
+      eventBus.emit('sitemap-close');
+    }
+
+    if (ui.media.model == uid) {
+      modal.value.url = data.id;
+      modal.value.file.name = data.file;
+      const url = data.link.original.replace(data.link.basePath, '/');
+      modal.value.file.url = url;
+      eventBus.emit('media-close');
+    }
+  }
+
+  function loadLink() {
+    let value = props.value;
+    if (typeof value === 'string' && value.length) {
+      try {
+        value = JSON.parse(value);
+      } catch (e) {
+        console.warn(e.message);
+        value = _.cloneDeep(modal.value);
+      }
+    }
+
+    if (typeof value !== 'object' || !value) {
+      modal.value = _.cloneDeep(modal.value);
+    } else {
+      modal.value = value;
+    }
+
+    link.value = JSON.stringify(value);
+    linkModel.value = value;
+  }
+
+  function save() {
+    const fieldsToCheck = [modal.value.url];
+    if (!isSimple.value) {
+      fieldsToCheck.push(modal.value.text);
+    }
+
+    const check = fieldsToCheck.filter(item => !!item);
+
+    if (check.length !== fieldsToCheck.length) {
+
+      let msg = 'The following fields are required: ';
+      if (!modal.value.text && !isSimple.value) msg += "\n - Link Text";
+      if (!modal.value.url) msg += "\n - URL";
+      alert(msg);
+
+      return;
+    }
+
+    linkModel.value = _.cloneDeep(modal.value);
+    link.value = JSON.stringify(linkModel.value);
+    emit('input', linkModel.value);
+    closeModal();
+  }
+
+  function closeModal() {
+    active.value = false;
+    modal.value.text = null;
+    modal.value.type = 'internal';
+    modal.value.url = null;
+    modal.value.id = null;
+    modal.value.title = null;
+    modal.value.classes = null;
+    modal.value.file.name = null;
+    modal.value.file.url = null;
+    ui.link.active = false;
+  }
+
+  // created
+  loadLink();
+
+  if (props.id) {
+    elementId.value = props.id;
+  } else {
+    elementId.value = Date.now();
+  }
+
+  onMounted(() => {
+    eventBus.on('selecting-link', updateLink);
+    eventBus.on('selecting-file', updateLink);
+  });
+
+  onUnmounted(() => {
+    eventBus.off('selecting-link', updateLink);
+    eventBus.off('selecting-file', updateLink);
+  });
 </script>
 
 <style scoped>

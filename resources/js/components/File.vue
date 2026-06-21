@@ -13,91 +13,79 @@
       </aside>
     </div><!-- / form image -->
   </div>
-
 </template>
 
-<script>
+<script setup>
+import { ref, watch, onMounted, onUnmounted, getCurrentInstance } from 'vue';
+import eventBus from '../eventBus';
+import { useUiStore } from '../stores/ui';
 
-    export default {
+const props = defineProps(['name', 'id', 'value']);
+const emit = defineEmits(['input']);
 
-        props: ['name', 'id', 'value'],
+const ui = useUiStore();
+const uid = getCurrentInstance().uid;
 
-        data() {
-            return {
-              item: '',
+const clone = (data) => JSON.parse(JSON.stringify(data));
 
-              file: {
-                name: '',
-                size: '',
-                link: {
-                  original: ''
-                }
-              },
+const item = ref('');
+const file = ref({
+  name: '',
+  size: '',
+  link: { original: '' },
+});
+const defaultFile = {
+  link: { thumb: '' },
+};
 
-              default: {
-                link: {
-                  thumb: ''
-                }
-              }
-            }
-        },
+function clearFile() {
+  item.value = null;
+  file.value = clone(defaultFile);
+  emit('input', item.value);
+}
 
-        created() {
-          this.loadFile();
+function loadModal() {
+  eventBus.emit('media-set-type', 'File');
+  ui.media.showModal = true;
+  ui.media.model = uid;
+}
 
-          eventBus.$on('selecting-file', this.updateFile);
-        },
+function updateFile(data) {
+  if (data.model === uid) {
+    file.value = data;
+    item.value = file.value.id;
+    emit('input', item.value);
+    eventBus.emit('media-close');
+  }
+}
 
-        methods:  {
-          clearFile() {
-            this.item = null;
-            this.file = this.$root.clone(this.default);
-            this.$emit('input', this.item);
-          },
-
-          loadModal() {
-            eventBus.$emit('media-set-type', 'File');
-            this.$root.media.showModal = true;
-            this.$root.media.model = this._uid;
-          },
-
-          updateFile(data) {
-            if (data.model === this._uid) {
-              this.file = data;
-              this.item = this.file.id;
-              this.$emit('input', this.item);
-              eventBus.$emit('media-close');
-            }
-          },
-
-          loadFile() {
-
-            this.item = this.value;
-            if (this.value) {
-              axios
-                .get(`${window.siteUrl}/refined/media/${this.value}`)
-                .then(r => {
-                  this.$root.loading = false;
-                  if (r.status == 200) {
-                    this.file = r.data.file;
-                  }
-                })
-                .catch(e => {
-                  this.$root.loading = false;
-                })
-              ;
-            } else {
-              this.file = this.default;
-            }
-          },
-
-
-        },
-
-        watch: {
-          value() {
-            this.loadFile();
-          }
+function loadFile() {
+  item.value = props.value;
+  if (props.value) {
+    axios
+      .get(`${window.siteUrl}/refined/media/${props.value}`)
+      .then((r) => {
+        ui.loading = false;
+        if (r.status === 200) {
+          file.value = r.data.file;
         }
-    }
+      })
+      .catch(() => {
+        ui.loading = false;
+      });
+  } else {
+    file.value = defaultFile;
+  }
+}
+
+watch(() => props.value, loadFile);
+
+onMounted(() => {
+  loadFile();
+  eventBus.on('selecting-file', updateFile);
+});
+
+onUnmounted(() => {
+  eventBus.off('selecting-file', updateFile);
+});
 </script>

@@ -1,75 +1,76 @@
 <template>
-    <div class="form__control--email-tags" ref="row">
-      <input type="text" class="form__control" :value="tags" :name="field.name" required :id="'form--'+field.name" ref="control" autocomplete="offer">
-    </div>
+  <div class="form__control--email-tags" ref="row">
+    <input type="hidden" :value="tags" :name="field.name" :id="'form--'+field.name">
+    <Multiselect
+      v-model="internalValue"
+      :options="options"
+      :multiple="true"
+      :taggable="true"
+      :close-on-select="false"
+      :clear-on-select="false"
+      :preserve-search="true"
+      label="email"
+      track-by="email"
+      :placeholder="'Add an email'"
+      tag-placeholder="Add this email"
+      @tag="addEmail"
+    />
+  </div>
 </template>
 
-<script>
-  import Selectize from 'vue2-selectize';
-  const REGEX_EMAIL = "([a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@" + "(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)";
+<script setup>
+import { ref, watch, onMounted } from 'vue';
+import Multiselect from 'vue-multiselect';
 
-  export default {
+const REGEX_EMAIL = "([a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@"
+  + '(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)';
 
-    props: [ 'field', 'value' ],
+const props = defineProps(['field', 'value']);
+const emit = defineEmits(['input']);
 
-    data() {
-      return {
-        tags: '',
-        options: [],
-      }
-    },
+const internalValue = ref([]);
+const tags = ref('');
+const options = ref([]);
 
-    created() {
-      this.tags = this.value;
-      this.options = this.value.split(',').map(item => { return { email: item }})
-    },
+function isEmail(input) {
+  const regex = new RegExp(`^${REGEX_EMAIL}$`, 'i');
+  return !!input.match(regex);
+}
 
-    mounted () {
-      this.loadSelect();
-    },
-
-    watch: {
-      value(val) {
-        const v = val.map(item => { return { email: item }});
-        this.tags = v.join(',');
-      }
-    },
-
-    methods: {
-      loadSelect() {
-        const self = this;
-        const element = this.$refs.control;
-        const row = this.$refs.row;
-        const klass = 'form__control--email-tags-active';
-        const selectizeOptions = {
-          plugins: ['restore_on_backspace', 'remove_button'],
-          delimiter: ',',
-          persist: true,
-          maxItems: null,
-          valueField: 'name',
-          labelField: 'name',
-          searchField: 'name',
-          options: this.options,
-          create: true,
-          createFilter: function (input) {
-            const regex = new RegExp("^" + REGEX_EMAIL + "$", "i");
-            const match = input.match(regex);
-            if (match) return !this.options.hasOwnProperty(match[0]);
-
-            return false;
-          },
-          onChange: function(value) {
-            self.tags = value;
-          },
-        };
-
-        if (this.tags) {
-          selectizeOptions.items = this.tags.split(',')
-        }
-
-        $(element)
-          .selectize(selectizeOptions)
-      }
-    }
+function addEmail(input) {
+  const email = input.trim();
+  if (!isEmail(email)) {
+    return;
   }
+  if (internalValue.value.some((i) => i.email === email)) {
+    return;
+  }
+  const option = { email };
+  options.value.push(option);
+  internalValue.value.push(option);
+}
+
+// seed from the incoming value (comma-delimited string or array)
+if (typeof props.value === 'string' && props.value) {
+  const emails = props.value.split(',').map((s) => s.trim()).filter(Boolean);
+  internalValue.value = emails.map((email) => ({ email }));
+  options.value = emails.map((email) => ({ email }));
+} else if (Array.isArray(props.value)) {
+  internalValue.value = props.value.map((email) => ({ email }));
+  options.value = props.value.map((email) => ({ email }));
+}
+
+watch(
+  internalValue,
+  (val) => {
+    tags.value = val.map((i) => i.email).join(',');
+  },
+  { deep: true, immediate: true }
+);
+
+watch(tags, (val) => {
+  emit('input', val);
+});
+
+onMounted(() => {});
 </script>

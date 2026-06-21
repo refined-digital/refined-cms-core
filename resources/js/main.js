@@ -1,198 +1,180 @@
-require('./bootstrap');
-window.Vue = require('vue');
-window.dragula = require('dragula');
-window.swal = require('sweetalert');
-require('./directives/_directives');
-
-const { default: Echo } = require('laravel-echo');
-
-import Vue from 'vue'
+import './bootstrap';
+import '../sass/main.scss';
+import 'vue-multiselect/dist/vue-multiselect.min.css';
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import { storeToRefs } from 'pinia';
 import kebabCase from 'lodash.kebabcase';
+import swal from 'sweetalert';
+import dragula from 'dragula';
 
-import DateTimePicker from './components/DateTimePicker';
-import DatePicker from './components/DatePicker';
-import RichText from './components/RichText';
-import Tags from './components/Tags';
-import Pages from './components/Pages';
-import PagesBranch from './components/PagesBranch';
-import PagesRepeatable from './components/PagesRepeatable';
-import PagesSettings from './components/PagesSettings';
-import ContentEditorField from './components/ContentEditorField';
-import Settings from './components/Settings';
-import Media from './components/Media';
-import MediaBranch from './components/MediaBranch';
-import MediaFile from './components/MediaFile';
-import Image from './components/Image';
-import Images from './components/Images';
-import File from './components/File';
-import Link from './components/Link';
-import SiteMap from './components/SiteMap';
-import FormOptions from './components/FormOptions';
-import FormRepeatable from './components/FormRepeatable';
-import Icon from './components/Icon';
-import SelectAsTags from './components/SelectAsTags';
-import ProductVariations from './components/ProductVariations';
-import FormEmail from './components/FormEmail';
-import ColourPicker from './components/ColourPicker';
-import ColourSet from './components/ColourSet';
-import ContentBlocks from './components/ContentBlocks';
+import eventBus from './eventBus';
+import { useUiStore } from './stores/ui';
+import { useConfigStore } from './stores/config';
+import { registerDirectives } from './directives/_directives';
 
-window.eventBus = new Vue({});
+import DateTimePicker from './components/DateTimePicker.vue';
+import DatePicker from './components/DatePicker.vue';
+import RichText from './components/RichText.vue';
+import Tags from './components/Tags.vue';
+import Pages from './components/Pages.vue';
+import PagesBranch from './components/PagesBranch.vue';
+import PagesRepeatable from './components/PagesRepeatable.vue';
+import PagesSettings from './components/PagesSettings.vue';
+import ContentEditorField from './components/ContentEditorField.vue';
+import Settings from './components/Settings.vue';
+import Media from './components/Media.vue';
+import MediaBranch from './components/MediaBranch.vue';
+import MediaFile from './components/MediaFile.vue';
+import Image from './components/Image.vue';
+import Images from './components/Images.vue';
+import File from './components/File.vue';
+import Link from './components/Link.vue';
+import SiteMap from './components/SiteMap.vue';
+import FormOptions from './components/FormOptions.vue';
+import FormRepeatable from './components/FormRepeatable.vue';
+import Icon from './components/Icon.vue';
+import SelectAsTags from './components/SelectAsTags.vue';
+import ProductVariations from './components/ProductVariations.vue';
+import FormEmail from './components/FormEmail.vue';
+import ColourPicker from './components/ColourPicker.vue';
+import ColourSet from './components/ColourSet.vue';
+import ContentBlocks from './components/ContentBlocks.vue';
 
-// only boot echo when a pusher key has been supplied at build time
-if (process.env.MIX_PUSHER_APP_KEY) {
-    const echo = new Echo({
-        broadcaster: 'pusher',
-        key: process.env.MIX_PUSHER_APP_KEY,
-        cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-        forceTLS: process.env.MIX_PUSHER_APP_FORCE_TLS,
-    });
+window.dragula = dragula;
+window.swal = swal;
 
-    echo
-        .private('refinedCMS.media.updated')
-        .listenToAll((e, data) => {
-            if (data.media) {
-                window.eventBus.$emit('media-updated', data.media);
-            }
-        })
-}
+const slugify = (text) => kebabCase(text);
+window.slugify = slugify;
 
-Vue.component('rd-date-time-picker', DateTimePicker);
-Vue.component('rd-date-picker', DatePicker);
-Vue.component('rd-rich-text', RichText);
-Vue.component('rd-tags', Tags);
-Vue.component('rd-form-email', FormEmail);
-Vue.component('rd-select-as-tags', SelectAsTags);
-Vue.component('rd-pages', Pages);
-Vue.component('rd-pages-branch', PagesBranch);
-Vue.component('rd-pages-repeatable', PagesRepeatable);
-Vue.component('rd-pages-settings', PagesSettings);
-Vue.component('rd-content-editor-field', ContentEditorField);
-Vue.component('rd-settings', Settings);
-Vue.component('rd-media', Media);
-Vue.component('rd-media-branch', MediaBranch);
-Vue.component('rd-media-file', MediaFile);
-Vue.component('rd-image', Image);
-Vue.component('rd-images', Images);
-Vue.component('rd-file', File);
-Vue.component('rd-link', Link);
-Vue.component('rd-sitemap', SiteMap);
-Vue.component('rd-form-options', FormOptions);
-Vue.component('rd-form-repeatable', FormRepeatable);
-Vue.component('rd-product-variations', ProductVariations);
-Vue.component('rd-colour-picker', ColourPicker);
-Vue.component('rd-colour-set', ColourSet);
-Vue.component('rd-content-blocks', ContentBlocks);
-Vue.component('Icon', Icon);
+const pinia = createPinia();
 
+// instantiate the stores up-front so the window.app shim and the root component
+// share the same reactive state.
+const ui = useUiStore(pinia);
+const config = useConfigStore(pinia);
 
-window.app = new Vue({
-    el: '#app',
-
-    data: {
-    	tab: window.tab || 'content',
-    	loading: false,
-    	siteUrl: false,
-    	publicUrl: false,
-        richEditor: {},
-    	user: {},
-    	content: {
-    	  name: null,
-    	  uri: null
-    	},
-    	media: {
-    	  active: false,
-    	  display: 'thumb',
-    	  showModal: false,
-    	  model: null,
-        fieldId: null,
-        type: 'image'
-    	},
-    	sitemap: {
-    	  active: false,
-    	  showModal: false,
-    	  model: null,
-        fieldId: null,
-    	},
-        link: {
-        active: false,
-      },
-        linkAttributes: {},
-    	form: {
-            action: 1,
-            typeId: 1,
-            receipt: 0,
-            reply: 0,
-            labelPosition: 1,
-            field: {
-              type: 0,
-              showOptionsFor: [
-                  '3','4','5'
-              ],
-              showDataFor: [
-                  '19'
-              ]
-            },
-    	},
-        bulk: [],
-        bulkAction: false,
-        mobileMenuActive: false,
+// backwards-compatible window.app: the admin blade's inline <script> blocks set
+// config (richEditor/colourSet/siteUrl/user) on window.app AFTER this bundle
+// loads, and the rich-text editor reads window.app.media/sitemap. proxy those
+// onto the pinia stores so existing markup keeps working untouched.
+const configKeys = new Set(['richEditor', 'colourSet', 'siteUrl', 'publicUrl', 'user']);
+window.app = new Proxy(
+  {},
+  {
+    get(_target, prop) {
+      if (configKeys.has(prop)) return config[prop];
+      return ui[prop];
     },
+    set(_target, prop, value) {
+      if (configKeys.has(prop)) {
+        config[prop] = value;
+      } else {
+        ui[prop] = value;
+      }
+      return true;
+    },
+  }
+);
 
-    methods: {
+const app = createApp({
+  setup() {
+    const uiRefs = storeToRefs(ui);
 
-      // triggers the form to submit from the tabbed buttons
-      submitForm(type) {
-        document.getElementById('form--submit').value = type;
-        document.getElementById('model-form').submit();
-      },
+    // triggers the form to submit from the tabbed buttons
+    const submitForm = (type) => {
+      document.getElementById('form--submit').value = type;
+      document.getElementById('model-form').submit();
+    };
 
-      // copies the page meta
-      copyUrl() {
-        let string = this.publicUrl + '/' + this.content.uri;
-        let el = document.createElement('textarea');
+    // copies the page meta url to the clipboard
+    const copyUrl = () => {
+      const string = `${config.publicUrl}/${ui.content.uri}`;
+      const el = document.createElement('textarea');
+      el.value = string;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    };
 
-        el.value = string;
+    // updates the meta slug from the content name
+    const updateSlug = () => {
+      ui.content.uri = slugify(ui.content.name);
+    };
 
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
+    const clone = (data) => JSON.parse(JSON.stringify(data));
 
-        document.body.removeChild(el);
-
-      },
-
-      // updates the meta slug
-      updateSlug() {
-        this.content.uri = slugify(this.content.name);
-      },
-
-      // clones an element
-      clone(data) {
-        return JSON.parse(JSON.stringify(data));
-      },
-
-        handleBulk(e) {
-          const form = e.target.closest('form');
-          if (form && this.bulkAction) {
-              swal({
-                  title: 'Are you sure?',
-                  icon: 'warning',
-                  buttons: true,
-                  dangerMode: true,
-              })
-              .then((value) => {
-                  if (value) {
-                      form.submit();
-                  } else {
-                      this.bulkAction = false;
-                  }
-              })
+    const handleBulk = (e) => {
+      const form = e.target.closest('form');
+      if (form && ui.bulkAction) {
+        swal({
+          title: 'Are you sure?',
+          icon: 'warning',
+          buttons: true,
+          dangerMode: true,
+        }).then((value) => {
+          if (value) {
+            form.submit();
+          } else {
+            ui.bulkAction = false;
           }
-        }
-    }
+        });
+      }
+    };
+
+    return {
+      ...uiRefs,
+      submitForm,
+      copyUrl,
+      updateSlug,
+      clone,
+      handleBulk,
+    };
+  },
 });
 
-window.slugify = function (text) {
-  return kebabCase(text);
-};
+app.use(pinia);
+
+// only boot echo when a pusher key has been supplied at build time
+if (import.meta.env.VITE_PUSHER_APP_KEY && window.Echo) {
+  window.Echo.private('refinedCMS.media.updated').listenToAll((e, data) => {
+    if (data?.media) {
+      eventBus.emit('media-updated', data.media);
+    }
+  });
+}
+
+app.component('rd-date-time-picker', DateTimePicker);
+app.component('rd-date-picker', DatePicker);
+app.component('rd-rich-text', RichText);
+app.component('rd-tags', Tags);
+app.component('rd-form-email', FormEmail);
+app.component('rd-select-as-tags', SelectAsTags);
+app.component('rd-pages', Pages);
+app.component('rd-pages-branch', PagesBranch);
+app.component('rd-pages-repeatable', PagesRepeatable);
+app.component('rd-pages-settings', PagesSettings);
+app.component('rd-content-editor-field', ContentEditorField);
+app.component('rd-settings', Settings);
+app.component('rd-media', Media);
+app.component('rd-media-branch', MediaBranch);
+app.component('rd-media-file', MediaFile);
+app.component('rd-image', Image);
+app.component('rd-images', Images);
+app.component('rd-file', File);
+app.component('rd-link', Link);
+app.component('rd-sitemap', SiteMap);
+app.component('rd-form-options', FormOptions);
+app.component('rd-form-repeatable', FormRepeatable);
+app.component('rd-product-variations', ProductVariations);
+app.component('rd-colour-picker', ColourPicker);
+app.component('rd-colour-set', ColourSet);
+app.component('rd-content-blocks', ContentBlocks);
+app.component('Icon', Icon);
+
+registerDirectives(app);
+
+app.mount('#app');
+
+window.vueApp = app;

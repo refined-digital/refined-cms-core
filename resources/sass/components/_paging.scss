@@ -24,13 +24,13 @@
     display: inline-block;
 
     &.active span {
-      background: color(main-color-2);
+      background: var(--color-main-color-2);
       color: #fff;
     }
   }
 
   a:hover {
-    background: color(main-color-1);
+    background: var(--color-main-color-1);
     color: #fff;
   }
 

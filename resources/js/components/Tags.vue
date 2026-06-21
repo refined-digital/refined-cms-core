@@ -1,148 +1,104 @@
 <template>
-    <div class="form__control--tags">
-      <input type="text" class="form__control" :value="tags" :name="this.fieldName" required :id="'form--'+field.name" autocomplete="off">
-    </div>
+  <div class="form__control--tags">
+    <input type="hidden" :value="tags" :name="fieldName" :id="'form--'+field.name">
+    <Multiselect
+      v-model="value"
+      :options="options"
+      :multiple="true"
+      :taggable="!dontAllowCreate"
+      :close-on-select="false"
+      :clear-on-select="false"
+      :preserve-search="true"
+      label="name"
+      track-by="id"
+      :placeholder="placeholder"
+      @tag="addTag"
+    />
+  </div>
 </template>
 
-<script>
-  import Selectize from 'vue2-selectize';
+<script setup>
+import { ref, watch } from 'vue';
+import Multiselect from 'vue-multiselect';
 
-  export default {
+const props = defineProps([
+  'field', 'type', 'values', 'choices', 'dontAllowCreate',
+  'valueField', 'asSelect', 'valueType',
+]);
+const emit = defineEmits(['input']);
 
-    props: [ 'field', 'type', 'values', 'choices', 'dontAllowCreate', 'valueField', 'asSelect', 'valueType' ],
+const delimiter = '|';
+const setType = props.type || 'tags';
+const value = ref([]);
+const tags = ref('');
+const options = ref([]);
+const placeholder = ref('Select Tags');
+const fieldName = ref('modelTags[]');
 
-    data() {
-      return {
-        value : [],
-        tags: '',
-        setType: this.type || 'tags',
-        placeholder: 'Select Tags',
-        options: [],
-        fieldName: 'modelTags[]',
-        delimiter: '|'
-      }
-    },
+placeholder.value = `Select ${props.field.label ? props.field.label : setType.replace(/-/gi, ' ')}`;
+fieldName.value = `modelTags[${props.field.name.replace('data__', '')}]`;
+if (props.asSelect) {
+  fieldName.value = props.field.name;
+}
 
-    created () {
-      this.placeholder = `Select ${this.field.label ? this.field.label : this.setType.replace(/-/gi,' ')}`;
-      this.fieldName = `modelTags[${this.field.name.replace('data__', '')}]`;
-      if (this.asSelect) {
-        this.fieldName = this.field.name;
-      }
+if (props.choices) {
+  props.choices.forEach((choice) => {
+    options.value.push({ ...choice });
+  });
+}
 
-      if (this.choices) {
-        this.choices.forEach(choice => {
-          this.options.push({ ... choice});
-        });
-      }
-
-      // add the initial tags
-      if (typeof this.values != 'undefined') {
-        if (Array.isArray(this.values[this.setType])) {
-          this.values[this.setType].forEach(tag => {
-            this.value.push(tag);
-          });
-        } else if (this.asSelect) {
-          const valuesAsArray = this.values.split(this.delimiter).filter(item => !!item).map(id => parseInt(id))
-          const values = this.options
-              .filter(option => {
-                return valuesAsArray.includes(option.id) || valuesAsArray.includes(parseInt(option.id))
-              })
-          this.value = values.map(v => v);
-        } else {
-          this.tags = this.values[this.setType];
-        }
-      }
-
-      // get the available tags
-      axios.get(`${window.siteUrl}/refined/tags/get-all-tags`)
-        .then(r => {
-          if (r.status == 200) {
-            let data = r.data;
-
-            if (data.length) {
-              data.forEach(d => {
-                if (d.type == this.setType) {
-                  const type = {
-                    id: d.id,
-                    name: d.name
-                  };
-
-                  if (this.options.indexOf(type) < 0 && !this.choices) {
-                    this.options.push(type);
-                  }
-                }
-              });
-            }
-          }
-
-          this.loadSelect();
-        });
-    },
-
-    watch: {
-      value(val) {
-        let v = [];
-        val.forEach(i => {
-          if (this.valueType === 'id') {
-            v.push(i.id);
-          } else {
-            v.push(i.name);
-          }
-        })
-        this.tags = v.join('|');
-      }
-    },
-
-    methods: {
-      loadSelect() {
-        var self = this;
-        let element = this.$el.querySelector('.form__control');
-        let selectizeOptions = {
-          plugins: ['restore_on_backspace', 'remove_button'],
-          delimiter: self.delimiter,
-          persist: true,
-          maxItems: null,
-          placeholder: this.placeholder,
-          valueField: 'name',
-          labelField: 'name',
-          searchField: 'name',
-          options: this.options,
-          create:
-            !this.dontAllowCreate ?
-            function(input) {
-              return {
-                id: 't-'+new Date().getTime(),
-                name: input
-              }
-            }
-            :
-            false
-          ,
-          onChange: function(value) {
-            if (self.valueType && self.valueType === 'id') {
-              const valueAsArray = value.split(self.delimiter);
-              const valueIds = self.options
-                  .filter(option => valueAsArray.includes(option.id))
-                  .map(option => option.id)
-              self.tags = valueIds.join(self.delimiter);
-            } else {
-              self.tags = value.replace(/\|/g, ',');
-            }
-          }
-        };
-
-        if (this.valueField) {
-          selectizeOptions.valueField = this.valueField;
-        }
-
-        $(element)
-          .selectize(selectizeOptions)
-
-      }
-
-    }
-
-
+// seed the initial selection
+if (typeof props.values !== 'undefined') {
+  if (Array.isArray(props.values[setType])) {
+    props.values[setType].forEach((tag) => {
+      value.value.push(tag);
+    });
+  } else if (props.asSelect) {
+    const valuesAsArray = props.values.split(delimiter).filter((item) => !!item).map((id) => parseInt(id, 10));
+    value.value = options.value.filter((option) => valuesAsArray.includes(option.id) || valuesAsArray.includes(parseInt(option.id, 10)));
+  } else {
+    tags.value = props.values[setType];
   }
+}
+
+function addTag(input) {
+  const tag = {
+    id: `t-${new Date().getTime()}`,
+    name: input,
+  };
+  options.value.push(tag);
+  value.value.push(tag);
+}
+
+// get the available tags
+axios.get(`${window.siteUrl}/refined/tags/get-all-tags`).then((r) => {
+  if (r.status === 200 && r.data.length) {
+    r.data.forEach((d) => {
+      if (d.type === setType) {
+        const type = { id: d.id, name: d.name };
+        if (options.value.indexOf(type) < 0 && !props.choices) {
+          options.value.push(type);
+        }
+      }
+    });
+  }
+});
+
+watch(
+  value,
+  (val) => {
+    const v = [];
+    val.forEach((i) => {
+      if (props.valueType === 'id') {
+        v.push(i.id);
+      } else {
+        v.push(i.name);
+      }
+    });
+    // the hidden input (and form submission) used the pipe delimiter
+    tags.value = v.join(delimiter);
+    emit('input', tags.value);
+  },
+  { deep: true }
+);
 </script>

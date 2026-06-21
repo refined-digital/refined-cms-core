@@ -1,5 +1,5 @@
 <template>
-  <div class="sitemap" :class="{ 'sitemap--active' : $root.sitemap.showModal }">
+  <div class="sitemap" :class="{ 'sitemap--active' : ui.sitemap.showModal }">
     <div class="sitemap__inner">
       <div class="pages__tree">
         <nav class="tree">
@@ -29,137 +29,146 @@
   </div>
 </template>
 
-<script>
+<script setup>
+  import { ref, onMounted, onUnmounted, provide } from 'vue';
+  import eventBus from '../eventBus';
+  import { useUiStore } from '../stores/ui';
 
-    export default {
+  const props = defineProps(['siteUrl', 'config', 'modules']);
+  const emit = defineEmits(['input']);
 
-      props: [ 'siteUrl', 'config', 'modules' ],
+  const ui = useUiStore();
 
-      data() {
-        return {
-          pages: [],
-          parents: {}
+  const pages = ref([]);
+  let parents = {};
+  const link = ref(null);
+  const value = ref(null);
+
+  function toggleSubMenu(item) {
+    if (item.children.length || item.type == 'holder') {
+      item.show = !item.show;
+    }
+  }
+
+  function loadPage(item) {
+    link.value = buildLink(item);
+    value.value = link.value;
+    emit('input', link.value);
+    eventBus.emit('selecting-link', link.value);
+    closeModal();
+  }
+
+  function setupParents() {
+    parents = {};
+    addParents(pages.value, 0);
+  }
+
+  function addParents(items, depth) {
+    if (items.length) {
+      items.forEach(item => {
+        // add to the flat listing
+        if (item.type == 'holder') {
+          parents['-'+item.id] = item;
+        } else {
+          parents[item.id] = item;
         }
-      },
 
-      created () {
-        // get pages
-        this.$root.loading = true;
-
-        eventBus.$on('sitemap-close', this.closeModal);
-        eventBus.$on('sitemap-reload', this.resetSitemap);
-        eventBus.$on('sitemap-clear', this.clearSitemap);
-
-        axios
-          .get(`${window.siteUrl}/refined/pages/get-tree-basic`)
-          .then(r => {
-            this.$root.loading = false;
-
-            if (r.status == 200) {
-              this.pages = r.data;
-              this.setupParents();
-            }
-          })
-          .catch(e => {
-            this.$root.loading = false;
-          })
-        ;
-      },
-
-      methods: {
-        toggleSubMenu(item) {
-          if (item.children.length || item.type == 'holder') {
-            item.show = !item.show;
-          }
-        },
-
-        loadPage(item) {
-          this.link = this.buildLink(item);
-          this.value = this.link;
-          this.$emit('input', this.link);
-          eventBus.$emit('selecting-link', this.link);
-          this.closeModal();
-        },
-
-        setupParents() {
-          this.parents = {};
-          this.addParents(this.pages, 0);
-        },
-
-        addParents(items, depth) {
-          if (items.length) {
-            items.forEach(item => {
-              // add to the flat listing
-              if (item.type == 'holder') {
-                this.parents['-'+item.id] = item;
-              } else {
-                this.parents[item.id] = item;
-              }
-
-              if (item.children.length) {
-                this.addParents(item.children, depth + 1);
-              }
-
-            });
-          }
-        },
-
-        buildLink(item) {
-          let link = [];
-          let c = 0;
-          link.push(item.meta.uri);
-          while (item.parent_id > -1) {
-            c++;
-            if (item.parent_id > 0 && typeof this.parents[item.parent_id] != 'undefined') {
-              item = this.parents[item.parent_id];
-              link.push(item.meta.uri);
-            }
-
-            if (c > 10) {
-              break;
-            }
-          }
-
-          const joint = link.reverse().join('/');
-
-          if (joint.startsWith('[')) {
-            return joint;
-          }
-
-          return `/${joint}`;
-        },
-
-        closeModal() {
-          this.$root.sitemap.showModal = false;
-          this.$root.sitemap.active = false;
-        },
-
-        clearSitemap() {
-          console.log('clearing sitemap');
-          this.$root.sitemap.showModal = false;
-          this.$root.sitemap.active = false;
-          this.$root.sitemap.fieldId = null;
-          this.$root.sitemap.model = null;
-        },
-
-        resetSitemap() {
-          if (this.pages.length) {
-            this.resetSection(this.pages);
-          }
-          this.pages[0].show = true;
-          this.pages[0].on = true;
-        },
-
-        resetSection(pages) {
-          pages.forEach(page => {
-            page.show = false;
-            page.on = false;
-            if (page.children.length) {
-              this.resetSection(page.children);
-            }
-          });
-
+        if (item.children.length) {
+          addParents(item.children, depth + 1);
         }
+
+      });
+    }
+  }
+
+  function buildLink(item) {
+    let lnk = [];
+    let c = 0;
+    lnk.push(item.meta.uri);
+    while (item.parent_id > -1) {
+      c++;
+      if (item.parent_id > 0 && typeof parents[item.parent_id] != 'undefined') {
+        item = parents[item.parent_id];
+        lnk.push(item.meta.uri);
+      }
+
+      if (c > 10) {
+        break;
       }
     }
+
+    const joint = lnk.reverse().join('/');
+
+    if (joint.startsWith('[')) {
+      return joint;
+    }
+
+    return `/${joint}`;
+  }
+
+  function closeModal() {
+    ui.sitemap.showModal = false;
+    ui.sitemap.active = false;
+  }
+
+  function clearSitemap() {
+    console.log('clearing sitemap');
+    ui.sitemap.showModal = false;
+    ui.sitemap.active = false;
+    ui.sitemap.fieldId = null;
+    ui.sitemap.model = null;
+  }
+
+  function resetSitemap() {
+    if (pages.value.length) {
+      resetSection(pages.value);
+    }
+    pages.value[0].show = true;
+    pages.value[0].on = true;
+  }
+
+  function resetSection(items) {
+    items.forEach(page => {
+      page.show = false;
+      page.on = false;
+      if (page.children.length) {
+        resetSection(page.children);
+      }
+    });
+
+  }
+
+  // created
+  ui.loading = true;
+
+  axios
+    .get(`${window.siteUrl}/refined/pages/get-tree-basic`)
+    .then(r => {
+      ui.loading = false;
+
+      if (r.status == 200) {
+        pages.value = r.data;
+        setupParents();
+      }
+    })
+    .catch(e => {
+      ui.loading = false;
+    })
+  ;
+
+  onMounted(() => {
+    eventBus.on('sitemap-close', closeModal);
+    eventBus.on('sitemap-reload', resetSitemap);
+    eventBus.on('sitemap-clear', clearSitemap);
+  });
+
+  onUnmounted(() => {
+    eventBus.off('sitemap-close', closeModal);
+    eventBus.off('sitemap-reload', resetSitemap);
+    eventBus.off('sitemap-clear', clearSitemap);
+  });
+
+  // recursive PagesBranch children inject these instead of walking the parent chain
+  provide('pages:loadPage', loadPage);
+  provide('pages:toggleSubMenu', toggleSubMenu);
 </script>

@@ -38,42 +38,32 @@
   </div>
 </template>
 
-<script>
+<script setup>
 
-  export default {
-    props: ['name', 'content', 'note' ],
+  import { ref } from 'vue';
 
-    data() {
-      return {
-        data: []
-      }
-    },
+  const props = defineProps(['name', 'content', 'note']);
 
-    created() {
-      this.data = [... this.content];
-    },
+  const data = ref([...props.content]);
 
-    methods:  {
-      addRepeatable() {
-        const item = {
-          content: ''
-        }
-        this.content.push(item);
-      },
-
-      removeRepeatable(item, index) {
-        swal({
-          title: 'Are you sure?',
-          icon: 'warning',
-          buttons: true,
-          dangerMode: true,
-        })
-        .then((value) => {
-          if (value) {
-            this.content.splice(index, 1);
-          }
-        });
-      },
+  function addRepeatable() {
+    const item = {
+      content: ''
     }
+    props.content.push(item);
+  }
+
+  function removeRepeatable(item, index) {
+    swal({
+      title: 'Are you sure?',
+      icon: 'warning',
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((value) => {
+      if (value) {
+        props.content.splice(index, 1);
+      }
+    });
   }
 </script>

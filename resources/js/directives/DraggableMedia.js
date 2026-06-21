@@ -1,5 +1,3 @@
-import Vue from 'vue'
-
 const dragStart = (e, el) => {
   e.target.classList.add('media__file--on-drag-start');
   e.dataTransfer.setData('media', e.target.closest('.media__file').dataset.id);
@@ -15,16 +13,17 @@ const dragEnd = (e) => {
   return false;
 };
 
-
-Vue.directive('draggable-media', {
-  bind: function(el) {
+export default {
+  mounted(el) {
     el.setAttribute('draggable', true);
-    el.addEventListener('dragstart', (e) => dragStart(e, el));
+    el._onDragStart = (e) => dragStart(e, el);
+    el.addEventListener('dragstart', el._onDragStart);
     el.addEventListener('dragend', dragEnd);
   },
 
-  unbind: function(el) {
-    el.removeEventListener('dragstart', (e) => dragStart(e, el));
+  unmounted(el) {
+    el.removeEventListener('dragstart', el._onDragStart);
     el.removeEventListener('dragend', dragEnd);
-  }
-});
+    delete el._onDragStart;
+  },
+};

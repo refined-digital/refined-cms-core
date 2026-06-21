@@ -32,11 +32,11 @@
       i {
         font-size: 20px;
         line-height: 1;
-        color: color(red);
+        color: var(--color-red);
         cursor: pointer;
 
         &:hover {
-          color: darken(color(red), $darkenAmount);
+          color: color-mix(in srgb, var(--color-red), black 10%);
         }
       }
     }
@@ -65,7 +65,7 @@
     &.dz-drag-hover {
       .media-uploader {
         &__dropzone {
-          border-color: color(main-color-2);
+          border-color: var(--color-main-color-2);
           border-style: solid;
         }
       }
@@ -86,7 +86,7 @@
       align-items: center;
       background: #f4f4f4;
       padding-right: 20px;
-      border-bottom: 1px solid color(input-border);
+      border-bottom: 1px solid var(--color-input-border);
 
       &:nth-child(2n+2) {
         background: #fff;
@@ -106,12 +106,12 @@
             font-family: 'Font Awesome 5 Free';
             font-weight: 900;
             font-size: 30px;
-            color: color(green);
+            color: var(--color-green);
           }
         }
         &.dz-error-mark:after {
           content: '\f00d';
-          color: color(red);
+          color: var(--color-red);
         }
       }
 
@@ -137,7 +137,7 @@
 
         &-upload {
           display: block;
-          background: color(main-color-2);
+          background: var(--color-main-color-2);
           height: 15px;
           width: 0;
         }
@@ -147,7 +147,7 @@
         }
 
         &-error-message {
-          color: color(red);
+          color: var(--color-red);
         }
 
         &-error-mark {

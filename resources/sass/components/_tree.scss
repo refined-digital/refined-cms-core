@@ -13,7 +13,7 @@
   }
 
   span:hover {
-    color: color(blue);
+    color: var(--color-blue);
   }
 
   span, i {
@@ -38,13 +38,13 @@
     &--hide-from-menu > div > span {
       font-style: italic;
       &, &:hover {
-        color: color(yellow);
+        color: var(--color-yellow);
       }
     }
     &--hide-page > div > span {
       text-decoration: line-through;
       &, &:hover {
-        color: color(red);
+        color: var(--color-red);
       }
     }
 
@@ -99,13 +99,13 @@
     }
 
     &--on-drag-over > div {
-      background: color(main-color-2);
+      background: var(--color-main-color-2);
       i, span {
         color: #fff;
       }
 
       i:after {
-        color: color(text);
+        color: var(--color-text);
       }
     }
 
@@ -113,7 +113,7 @@
 
   &__leaf {
     &--active {
-      color: color(blue);
+      color: var(--color-blue);
     }
   }
 
@@ -125,7 +125,7 @@
 
     input {
       width: 100%;
-      border: 1px solid color(input-border);
+      border: 1px solid var(--color-input-border);
       padding: 4px 34px 4px 4px;
     }
 
@@ -134,7 +134,7 @@
       right: 18px;
       top: 5px;
       color: #fff;
-      background: color(red);
+      background: var(--color-red);
       border-radius: 50%;
       width: 20px;
       height: 20px;
@@ -148,7 +148,7 @@
       }
 
       &:hover {
-        background: lighten(color(red), 8);
+        background: color-mix(in srgb, var(--color-red), white 8%);
         color: #fff;
       }
     }
