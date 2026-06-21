@@ -358,9 +358,7 @@ class Install extends Command
         }
 
         $this->output->writeln('<info>Installing the Database</info>');
-        $host = $this->isDdev ? '127.0.0.1' : env('DB_HOST');
-        $host .= ($this->isDdev && $this->dbPort ? ':' . $this->dbPort : '');
-        $db = new PDO('mysql:host='.$host.';', $this->dbUser, $this->dbPass);
+        $db = new PDO('mysql:host='.$this->getPdoHost().';', $this->dbUser, $this->dbPass);
         $db->exec('CREATE DATABASE `'.$this->dbName.'`;');
 
         // run migrations
@@ -461,9 +459,7 @@ class Install extends Command
             case 'Admin': $userLevelId = 2; break;
         }
 
-        $host = $this->isDdev ? '127.0.0.1' : env('DB_HOST');
-        $host .= ($this->isDdev && $this->dbPort ? ':' . $this->dbPort : '');
-        $db = new PDO('mysql:host='.$host.';', $this->dbUser, $this->dbPass);
+        $db = new PDO('mysql:host='.$this->getPdoHost().';', $this->dbUser, $this->dbPass);
         $db->exec('USE '.$this->dbName);
 
         // run migrations
@@ -906,6 +902,46 @@ RedirectMatch 404 ^/page-cache",
     }
 
     /**
+     * Whether the installer is running inside the DDEV web container (as opposed
+     * to on the host machine). DDEV sets IS_DDEV_PROJECT inside the container.
+     *
+     * @return bool
+     */
+    protected function isInsideDdevContainer()
+    {
+        return getenv('IS_DDEV_PROJECT') === 'true';
+    }
+
+    /**
+     * Build the host string for the raw PDO connection used during install.
+     *
+     * - Inside the DDEV container: connect to the `db` service on its internal
+     *   port (3306) — the host-exposed port and 127.0.0.1 are not reachable here.
+     * - On the host with DDEV: connect via 127.0.0.1 and the exposed port.
+     * - Otherwise: use the configured DB_HOST/DB_PORT.
+     *
+     * @return string
+     */
+    protected function getPdoHost()
+    {
+        if ($this->isDdev && $this->isInsideDdevContainer()) {
+            $host = env('DB_HOST', 'db');
+            $port = env('DB_PORT', '3306');
+
+            return $host.($port ? ':'.$port : '');
+        }
+
+        if ($this->isDdev) {
+            return '127.0.0.1'.($this->dbPort ? ':'.$this->dbPort : '');
+        }
+
+        $host = env('DB_HOST');
+        $port = env('DB_PORT');
+
+        return $host.($port ? ':'.$port : '');
+    }
+
+    /**
      * Check if database exists
      *
      * @return bool
@@ -913,9 +949,7 @@ RedirectMatch 404 ^/page-cache",
     protected function checkDatabaseExists()
     {
         try {
-            $host = $this->isDdev ? '127.0.0.1' : env('DB_HOST');
-            $host .= ($this->isDdev && $this->dbPort ? ':' . $this->dbPort : '');
-            $db = new PDO('mysql:host='.$host.';', $this->dbUser, $this->dbPass);
+            $db = new PDO('mysql:host='.$this->getPdoHost().';', $this->dbUser, $this->dbPass);
 
             // Query to check if database exists
             $stmt = $db->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '".$this->dbName."'");
