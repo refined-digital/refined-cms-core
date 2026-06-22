@@ -248,14 +248,19 @@
     }
   }
 
-  &--has-media, &--has-sitemap, &--has-link {
+  &--has-media, &--has-sitemap, &--has-link, &--has-modal {
     z-index: 1001;
   }
 
-  &__module--media.app--has-media, .app--has-link {
-    .app__right {
-      z-index: 3;
-    }
+  // raise the content layer above the sidebar whenever a full-screen overlay is
+  // open, so the modal/overlay covers the menu. Previously the media flag only
+  // applied on the media module page, leaving the upload modal behind the menu
+  // when opened as a picker elsewhere — now it applies everywhere, like link.
+  &--has-media .app__right,
+  &--has-sitemap .app__right,
+  &--has-link .app__right,
+  &--has-modal .app__right {
+    z-index: 3;
   }
 }
 
