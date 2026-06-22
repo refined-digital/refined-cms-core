@@ -212,3 +212,34 @@
     margin-top: 16px;
   }
 }
+
+// field-token chips inside the rich editor (form-builder notification content).
+// `.fb-token` is the serialised/static form; the editor node view uses the
+// removable variant with a × button.
+.fb-token {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #e7f0ff;
+  color: var(--color-main-color-1, #2d7ff9);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0 1px;
+  white-space: nowrap;
+
+  &__remove {
+    appearance: none;
+    border: none;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    padding: 0;
+    opacity: 0.6;
+
+    &:hover { opacity: 1; }
+  }
+}

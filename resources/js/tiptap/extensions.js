@@ -11,6 +11,7 @@ import { TableRow } from '@tiptap/extension-table-row';
 import { TableHeader } from '@tiptap/extension-table-header';
 import { TableCell } from '@tiptap/extension-table-cell';
 import { FontSize } from './FontSize';
+import { FieldToken } from './FieldToken';
 
 // preserves arbitrary id/class/title attributes on links and images so HTML
 // authored in the old Trumbowyg editor round-trips without being stripped.
@@ -80,6 +81,9 @@ export function buildExtensions(config = {}) {
     TableRow,
     TableHeader,
     TableCell,
+    // field-token chips (form-builder notification editor). labels map raw
+    // tokens -> friendly field names so chips read e.g. "Name", not [[field:5]].
+    FieldToken.configure({ labels: config.tokenLabels || {} }),
   ];
 }
 

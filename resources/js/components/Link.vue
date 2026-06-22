@@ -96,11 +96,20 @@
     if (typeof value !== 'object' || !value) {
       modal.value = _.cloneDeep(modal.value);
     } else {
-      modal.value = value;
+      // merge the saved value onto the full default model so every expected key
+      // (type, file, etc.) is always present — a partial/empty saved value must
+      // still default to type 'internal' and have a file sub-object
+      modal.value = { ..._.cloneDeep(modal.value), ...value };
+      if (!modal.value.type) {
+        modal.value.type = 'internal';
+      }
+      if (!modal.value.file) {
+        modal.value.file = { name: null, url: null };
+      }
     }
 
-    link.value = JSON.stringify(value);
-    linkModel.value = value;
+    link.value = JSON.stringify(modal.value);
+    linkModel.value = modal.value;
   }
 
   function save() {

@@ -5,10 +5,12 @@
 
       <span class="rich-editor__divider"></span>
 
-      <button type="button" class="rich-editor__btn" title="Undo" @click="editor.chain().focus().undo().run()"><i class="fas fa-undo"></i></button>
-      <button type="button" class="rich-editor__btn" title="Redo" @click="editor.chain().focus().redo().run()"><i class="fas fa-redo"></i></button>
+      <template v-if="!reduced">
+        <button type="button" class="rich-editor__btn" title="Undo" @click="editor.chain().focus().undo().run()"><i class="fas fa-undo"></i></button>
+        <button type="button" class="rich-editor__btn" title="Redo" @click="editor.chain().focus().redo().run()"><i class="fas fa-redo"></i></button>
 
-      <span class="rich-editor__divider"></span>
+        <span class="rich-editor__divider"></span>
+      </template>
 
       <select class="rich-editor__format" :value="currentBlock" @change="applyFormat($event.target.value)">
         <option v-for="f in formats" :key="f.value" :value="f.value">{{ f.label }}</option>
@@ -18,36 +20,48 @@
 
       <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive('bold') }" title="Bold" @click="editor.chain().focus().toggleBold().run()"><i class="fas fa-bold"></i></button>
       <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive('italic') }" title="Italic" @click="editor.chain().focus().toggleItalic().run()"><i class="fas fa-italic"></i></button>
-      <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive('strike') }" title="Strikethrough" @click="editor.chain().focus().toggleStrike().run()"><i class="fas fa-strikethrough"></i></button>
+      <button type="button" v-if="!reduced" class="rich-editor__btn" :class="{ 'is-active': editor.isActive('strike') }" title="Strikethrough" @click="editor.chain().focus().toggleStrike().run()"><i class="fas fa-strikethrough"></i></button>
 
-      <span class="rich-editor__divider"></span>
+      <template v-if="!reduced">
+        <span class="rich-editor__divider"></span>
 
-      <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive('superscript') }" title="Superscript" @click="editor.chain().focus().toggleSuperscript().run()"><i class="fas fa-superscript"></i></button>
-      <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive('subscript') }" title="Subscript" @click="editor.chain().focus().toggleSubscript().run()"><i class="fas fa-subscript"></i></button>
+        <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive('superscript') }" title="Superscript" @click="editor.chain().focus().toggleSuperscript().run()"><i class="fas fa-superscript"></i></button>
+        <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive('subscript') }" title="Subscript" @click="editor.chain().focus().toggleSubscript().run()"><i class="fas fa-subscript"></i></button>
+      </template>
 
       <span class="rich-editor__divider"></span>
 
       <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive('link') }" title="Insert Link" @click="openLinkModal"><i class="fas fa-link"></i></button>
       <button type="button" class="rich-editor__btn" title="Remove Link" @click="editor.chain().focus().unsetLink().run()"><i class="fas fa-unlink"></i></button>
-      <button type="button" class="rich-editor__btn" title="Insert Image" @click="openImageModal()"><i class="fas fa-image"></i></button>
-      <button type="button" class="rich-editor__btn" title="Embed Video" @click="embedVideo"><i class="fab fa-youtube"></i></button>
+      <button type="button" v-if="!reduced" class="rich-editor__btn" title="Insert Image" @click="openImageModal()"><i class="fas fa-image"></i></button>
+      <button type="button" v-if="!reduced" class="rich-editor__btn" title="Embed Video" @click="embedVideo"><i class="fab fa-youtube"></i></button>
 
-      <span class="rich-editor__divider"></span>
+      <template v-if="!reduced">
+        <span class="rich-editor__divider"></span>
 
-      <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive({ textAlign: 'left' }) }" title="Align Left" @click="editor.chain().focus().setTextAlign('left').run()"><i class="fas fa-align-left"></i></button>
-      <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive({ textAlign: 'center' }) }" title="Align Center" @click="editor.chain().focus().setTextAlign('center').run()"><i class="fas fa-align-center"></i></button>
-      <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive({ textAlign: 'right' }) }" title="Align Right" @click="editor.chain().focus().setTextAlign('right').run()"><i class="fas fa-align-right"></i></button>
-      <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive({ textAlign: 'justify' }) }" title="Justify" @click="editor.chain().focus().setTextAlign('justify').run()"><i class="fas fa-align-justify"></i></button>
+        <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive({ textAlign: 'left' }) }" title="Align Left" @click="editor.chain().focus().setTextAlign('left').run()"><i class="fas fa-align-left"></i></button>
+        <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive({ textAlign: 'center' }) }" title="Align Center" @click="editor.chain().focus().setTextAlign('center').run()"><i class="fas fa-align-center"></i></button>
+        <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive({ textAlign: 'right' }) }" title="Align Right" @click="editor.chain().focus().setTextAlign('right').run()"><i class="fas fa-align-right"></i></button>
+        <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive({ textAlign: 'justify' }) }" title="Justify" @click="editor.chain().focus().setTextAlign('justify').run()"><i class="fas fa-align-justify"></i></button>
 
-      <span class="rich-editor__divider"></span>
+        <span class="rich-editor__divider"></span>
 
-      <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive('bulletList') }" title="Bullet List" @click="editor.chain().focus().toggleBulletList().run()"><i class="fas fa-list-ul"></i></button>
-      <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive('orderedList') }" title="Numbered List" @click="editor.chain().focus().toggleOrderedList().run()"><i class="fas fa-list-ol"></i></button>
+        <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive('bulletList') }" title="Bullet List" @click="editor.chain().focus().toggleBulletList().run()"><i class="fas fa-list-ul"></i></button>
+        <button type="button" class="rich-editor__btn" :class="{ 'is-active': editor.isActive('orderedList') }" title="Numbered List" @click="editor.chain().focus().toggleOrderedList().run()"><i class="fas fa-list-ol"></i></button>
 
-      <span class="rich-editor__divider"></span>
+        <span class="rich-editor__divider"></span>
 
-      <button type="button" class="rich-editor__btn" title="Horizontal Rule" @click="editor.chain().focus().setHorizontalRule().run()"><i class="fas fa-minus"></i></button>
-      <button type="button" class="rich-editor__btn" title="Clear Formatting" @click="editor.chain().focus().unsetAllMarks().clearNodes().run()"><i class="fas fa-eraser"></i></button>
+        <button type="button" class="rich-editor__btn" title="Horizontal Rule" @click="editor.chain().focus().setHorizontalRule().run()"><i class="fas fa-minus"></i></button>
+        <button type="button" class="rich-editor__btn" title="Clear Formatting" @click="editor.chain().focus().unsetAllMarks().clearNodes().run()"><i class="fas fa-eraser"></i></button>
+      </template>
+
+      <template v-if="tokens && tokens.length">
+        <span class="rich-editor__divider"></span>
+        <select class="rich-editor__format" @change="insertToken($event)">
+          <option value="">Insert field…</option>
+          <option v-for="t in tokens" :key="t.token" :value="t.token">{{ t.label }}</option>
+        </select>
+      </template>
     </div>
 
     <editor-content v-show="!sourceView" :editor="editor" class="rich-editor__content form__control" />
@@ -102,7 +116,10 @@ import { useUiStore } from '../stores/ui';
 import { useConfigStore } from '../stores/config';
 import { buildExtensions } from '../tiptap/extensions';
 
-const props = defineProps(['name', 'id', 'content']);
+// `reduced` trims the toolbar to code/format/bold/italic/link (used by the
+// form-builder notification editor). `tokens` adds an "insert field" dropdown
+// of { label, token } entries that drop the raw token text into the content.
+const props = defineProps(['name', 'id', 'content', 'reduced', 'tokens']);
 const emit = defineEmits(['input', 'blur', 'update:modelValue']);
 
 const ui = useUiStore();
@@ -112,6 +129,39 @@ const config = useConfigStore();
 const editorId = `rich-editor-${props.id}-${Date.now()}`;
 const richConfig = config.richEditor || {};
 
+// token label map ({ '[[field:5]]': 'Name', '[[fields]]': 'All form fields' })
+const tokenLabels = {};
+(props.tokens || []).forEach((t) => { tokenLabels[t.token] = t.label; });
+const hasTokens = (props.tokens || []).length > 0;
+
+// build a regex matching the field tokens ([[fields]] / [[field:N]]) plus any
+// other registered literal tokens (e.g. [Form Name]).
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+const literalTokens = (props.tokens || [])
+  .map((t) => t.token)
+  .filter((t) => !/^\[\[field/.test(t) && t !== '[[fields]]');
+const tokenPattern = new RegExp(
+  ['\\[\\[fields\\]\\]', '\\[\\[field:\\d+\\]\\]', ...literalTokens.map(escapeRegex)].join('|'),
+  'g',
+);
+
+// raw stored tokens -> chip spans so they render as chips in the editor
+function tokensToChips(html) {
+  if (!hasTokens || typeof html !== 'string') return html;
+  return html.replace(tokenPattern, (token) => {
+    const label = tokenLabels[token] || token;
+    return `<span data-fb-token="${token}">${label}</span>`;
+  });
+}
+
+// chip spans -> raw tokens for the stored value (what the server expects)
+function chipsToTokens(html) {
+  if (!hasTokens || typeof html !== 'string') return html;
+  return html.replace(/<span[^>]*data-fb-token="([^"]+)"[^>]*>.*?<\/span>/g, (m, token) => token);
+}
+
 const data = ref(props.content || '');
 const focused = ref(false);
 const sourceView = ref(false);
@@ -120,7 +170,8 @@ const sourceView = ref(false);
 // source view, push the edited HTML back into the editor
 function toggleSource() {
   if (sourceView.value) {
-    editor.value.commands.setContent(data.value, false);
+    // re-chip raw tokens when returning to the WYSIWYG view
+    editor.value.commands.setContent(tokensToChips(data.value), false);
     emit('input', data.value);
     emit('update:modelValue', data.value);
   }
@@ -140,13 +191,14 @@ const formats = [
 ];
 
 const editor = useEditor({
-  content: props.content || '',
-  extensions: buildExtensions(richConfig),
+  content: tokensToChips(props.content || ''),
+  extensions: buildExtensions({ ...richConfig, tokenLabels }),
   editorProps: {
     attributes: { class: 'rich-editor__editable' },
   },
   onUpdate: ({ editor: e }) => {
-    data.value = e.getHTML();
+    // store raw tokens, never the chip markup
+    data.value = chipsToTokens(e.getHTML());
     emit('input', data.value);
     emit('update:modelValue', data.value);
   },
@@ -178,6 +230,17 @@ function applyFormat(value) {
   } else if (/^h[1-6]$/.test(value)) {
     chain.setHeading({ level: parseInt(value.slice(1), 10) }).run();
   }
+}
+
+// insert a field token as a chip node (renders the field name, stores the token)
+function insertToken(event) {
+  const token = event.target.value;
+  event.target.value = '';
+  if (!token) return;
+  editor.value.chain().focus().insertContent({
+    type: 'fieldToken',
+    attrs: { token },
+  }).run();
 }
 
 function embedVideo() {
