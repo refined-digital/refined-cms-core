@@ -9,15 +9,6 @@ use Mail;
 
 class EmailRepository extends CoreRepository {
 
-    protected $tableOpen = '<table rules="all" style="border:1px solid #bbbbbb;" cellpadding="10">';
-    protected $tableClose = '</table>';
-
-    protected $thOpen = '<th align="left" valign="top" style="border-bottom:1px solid #bbbbbb; border-right:1px solid #bbbbbb; background: #dedede; padding:10px;font-family:arial;width: 300px;color: #111;">';
-    protected $thClose = '</th>';
-
-    protected $tdOpen = '<td valign="top" style="border-bottom:1px solid #bbbbbb; padding:10px;font-family:arial;">';
-    protected $tdClose = '</td>';
-
     /**
      * Send a notification email.
      *
@@ -65,23 +56,31 @@ class EmailRepository extends CoreRepository {
 
     private function generateFieldHtml($data, $fullWidth = false)
     {
-        $fields = '';
-        // add the field data, if any
-        if (sizeof($data)) {
-            $fields = $this->tableOpen;
-            if ($fullWidth) {
-                $fields = str_replace('style="', 'style="width:100%;', $fields);
-            }
-            foreach ($data as $field) {
-                $fields .= '<tr>';
-                    $fields .= $this->thOpen.$field->name.$this->thClose;
-                    $fields .= $this->tdOpen.$field->value.$this->tdClose;
-                $fields .= '</tr>';
-            }
-            $fields .= $this->tableClose;
+        if (!sizeof($data)) {
+            return '';
         }
 
-        return $fields;
+        // modern stacked layout: each field is an uppercase muted label above its
+        // value, separated by a hairline. fully inline-styled for email clients.
+        // ($fullWidth kept for signature compatibility; the table is already 100%.)
+        $rows = '';
+        $last = array_key_last($data);
+        foreach ($data as $key => $field) {
+            $border = $key === $last ? '' : 'border-bottom:1px solid #eef0f2;';
+            $rows .= '<tr><td style="padding:14px 0;'.$border.'">'
+                . '<div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:#9ca3af; margin-bottom:4px;">'
+                . e($field->name)
+                . '</div>'
+                . '<div style="font-size:15px; line-height:1.5; color:#111827; word-break:break-word;">'
+                . ($field->value === '' || $field->value === null ? '<span style="color:#c4c8cf;">&mdash;</span>' : $field->value)
+                . '</div>'
+                . '</td></tr>';
+        }
+
+        return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
+            . 'style="width:100%; border-collapse:collapse; margin:8px 0;">'
+            . $rows
+            . '</table>';
     }
 
     private function generateFieldText($data)
@@ -245,7 +244,10 @@ class EmailRepository extends CoreRepository {
     public function formatFields($request, $form)
     {
         $data = [];
-        $dontAdd = [10, 11, 19];
+        // skip non-answer field types: passwords (10/11), static (19), hidden (12),
+        // and group start/end (22/23). a field still shows when its
+        // include_in_email toggle is on, even if the value is blank.
+        $dontAdd = [10, 11, 12, 19, 22, 23];
         if ($form->fields && $form->fields->count()) {
             foreach ($form->fields as $field) {
                 if (in_array($field->form_field_type_id, $dontAdd)) {
@@ -327,7 +329,10 @@ class EmailRepository extends CoreRepository {
 
         if ($field->form_field_type_id == 20) {
             $class = forms()->getFieldClass($field);
-            $data = $class->formatData($field, $request);
+            // a custom field with no resolvable class returns false — don't fatal
+            if (is_string($class) && class_exists($class)) {
+                $data = (new $class($field))->formatData($field, $request);
+            }
         }
 
         // if we have an array, make it a string
