@@ -1,7 +1,7 @@
 <template>
   <div class="colour-set" ref="colourSet">
     <button type="button" class="form__control colour-set__toggle" @click="open = !open">
-      <span class="colour-set__swatch" :style="swatchStyle(value)"></span>
+      <span class="colour-set__swatch" :style="swatchStyle(currentValue)"></span>
       <span class="colour-set__label">{{ selectedLabel }}</span>
       <span class="colour-set__arrow" :class="{ 'colour-set__arrow--open': open }"></span>
     </button>
@@ -10,7 +10,7 @@
         <button
           type="button"
           class="colour-set__option"
-          :class="{ 'colour-set__option--selected': option.value === (value || '') }"
+          :class="{ 'colour-set__option--selected': option.value === (currentValue || '') }"
           @click="select(option)"
         >
           <span class="colour-set__swatch" :style="swatchStyle(option.value)"></span>
@@ -21,74 +21,72 @@
   </div>
 </template>
 
-<script>
-  export default {
+<script setup>
+  import { ref, computed, onMounted, onUnmounted } from 'vue';
+  import { useConfigStore } from '../stores/config';
 
-    props: [ 'value', 'options', 'allowEmpty' ],
+  const props = defineProps(['value', 'modelValue', 'options', 'allowEmpty']);
+  const emit = defineEmits(['input', 'update:modelValue']);
 
-    data() {
-      return {
-        open: false,
-      }
-    },
+  const config = useConfigStore();
 
-    computed: {
-      colourOptions() {
-        let options = [];
+  // support both the v-model (modelValue) and explicit :value bindings
+  const currentValue = computed(() => props.value ?? props.modelValue);
 
-        if (Array.isArray(this.options) && this.options.length) {
-          options = this.options;
-        } else {
-          // fall back to the globally configured colour set
-          const colours = (window.app && window.app.colourSet) || {};
-          options = Object.keys(colours).map(value => ({ value, label: colours[value] }));
-        }
+  const colourSet = ref(null);
+  const open = ref(false);
 
-        if (this.allowEmpty) {
-          options = [{ value: '', label: 'Default' }, ...options];
-        }
+  const colourOptions = computed(() => {
+    let options = [];
 
-        return options;
-      },
+    if (Array.isArray(props.options) && props.options.length) {
+      options = props.options;
+    } else {
+      // fall back to the globally configured colour set
+      const colours = config.colourSet || {};
+      options = Object.keys(colours).map(value => ({ value, label: colours[value] }));
+    }
 
-      selectedLabel() {
-        const selected = this.colourOptions.find(option => option.value === (this.value || ''));
-        return selected ? selected.label : 'Select a colour';
-      },
-    },
+    if (props.allowEmpty) {
+      options = [{ value: '', label: 'Default' }, ...options];
+    }
 
-    created() {
-      if (!this.allowEmpty && !this.value && this.colourOptions.length) {
-        this.$emit('input', this.colourOptions[0].value);
-      }
-    },
+    return options;
+  });
 
-    mounted() {
-      document.addEventListener('click', this.onDocumentClick);
-    },
+  const selectedLabel = computed(() => {
+    const selected = colourOptions.value.find(option => option.value === (currentValue.value || ''));
+    return selected ? selected.label : 'Select a colour';
+  });
 
-    beforeDestroy() {
-      document.removeEventListener('click', this.onDocumentClick);
-    },
-
-    methods: {
-      swatchStyle(value) {
-        return { background: value ? `var(--${value})` : 'transparent' };
-      },
-
-      select(option) {
-        this.open = false;
-        this.$emit('input', option.value);
-      },
-
-      onDocumentClick(event) {
-        if (this.$refs.colourSet && !this.$refs.colourSet.contains(event.target)) {
-          this.open = false;
-        }
-      },
-    },
-
+  function swatchStyle(value) {
+    return { background: value ? `var(--${value})` : 'transparent' };
   }
+
+  function select(option) {
+    open.value = false;
+    emit('input', option.value);
+    emit('update:modelValue', option.value);
+  }
+
+  function onDocumentClick(event) {
+    if (colourSet.value && !colourSet.value.contains(event.target)) {
+      open.value = false;
+    }
+  }
+
+  if (!props.allowEmpty && !currentValue.value && colourOptions.value.length) {
+    emit('input', colourOptions.value[0].value);
+    emit('update:modelValue', colourOptions.value[0].value);
+  }
+
+  onMounted(() => {
+    document.addEventListener('click', onDocumentClick);
+  });
+
+  onUnmounted(() => {
+    document.removeEventListener('click', onDocumentClick);
+  });
 </script>
 
 <style lang="scss">

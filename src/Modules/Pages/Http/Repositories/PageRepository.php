@@ -385,7 +385,7 @@ class PageRepository extends CoreRepository
             if ($hasForm) {
                 $page->assetAggregate
                     ->addModuleStyle(asset('vendor/refined/form-builder/css/form.css'))
-                    ->addModuleScript('form-builder', asset('vendor/refined/core/js/FormBuilder.js'), ['defer'])
+                    ->addModuleScript('form-builder', asset('vendor/refined/form-builder/js/form-builder-front-end.js'), ['defer'])
                 ;
 
                 $hasRecaptcha = Str::contains($content, '_captcha');
@@ -770,9 +770,7 @@ class PageRepository extends CoreRepository
         foreach ($settingConfig as $setting) {
             $key = Str::slug($setting['name'], '_');
             $newSetting = $setting;
-            $newSetting['content'] = isset($keyedSettings[$key])
-                ? $keyedSettings[$key]
-                : null;
+            $newSetting['content'] = $keyedSettings[$key] ?? null;
 
             if (isset($newSetting['options']) && $newSetting['options'] === 'forms' && function_exists('forms')) {
                 $newSetting['options'] = forms()->getForSelect('content forms');

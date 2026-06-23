@@ -48,8 +48,8 @@
       </template>
 
       <template v-if="item.page_content_type_id === 6 && item.options">
-        <select v-model="item.content" required="required" class="form__control" :change="selectChanged(item, options)">
-          <option :value="opt.value" v-for="opt in item.options">{{ opt.label }}</option>
+        <select v-model="item.content" required="required" class="form__control" @change="selectChanged(item, options)">
+          <option :value="opt.value" v-for="opt in item.options" :key="opt.value">{{ opt.label }}</option>
         </select>
       </template>
 
@@ -100,23 +100,17 @@
 
 </template>
 
-<script>
+<script setup>
+import eventBus from '../eventBus';
 
-  export default {
+const props = defineProps(['item', 'options']);
 
-    props: [ 'item', 'options' ],
+// created
+if (props.item.page_content_type_id == 6 && props.item.content == '' && props.item.options && props.item.options.length > 0) {
+  props.item.content = props.item.options[0].value;
+}
 
-    created() {
-      if (this.item.page_content_type_id == 6 && this.item.content == '' && this.item.options && this.item.options.length > 0) {
-        this.item.content = this.item.options[0].value;
-      }
-    },
-
-    methods: {
-      selectChanged(item, options) {
-        eventBus.$emit('content-editor.select.changed', { item, options });
-      }
-    }
-
-  }
+function selectChanged(item, options) {
+  eventBus.emit('content-editor.select.changed', { item, options });
+}
 </script>

@@ -19,43 +19,37 @@
 
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import eventBus from '../eventBus';
 
-  export default {
+const props = defineProps(['file', 'siteUrl']);
 
-    props: [ 'file', 'siteUrl' ],
+const external_url = ref(undefined);
 
-    created() {
-      eventBus.$on('media-updated', this.mediaUpdated);
-    },
-
-    data() {
-      return {
-        external_url: undefined,
-      }
-    },
-
-    computed: {
-      fileUrl() {
-        if (this.file.external_url) {
-          return this.file.external_url;
-        }
-
-        if (this.external_url) {
-          return this.external_url;
-        }
-
-        return this.file.link.thumb;
-      }
-    },
-
-    methods: {
-      mediaUpdated(item) {
-        if (item.id === this.file.id && item.external_url) {
-          this.external_url = item.external_url;
-        }
-      }
-    }
-
+const fileUrl = computed(() => {
+  if (props.file.external_url) {
+    return props.file.external_url;
   }
+
+  if (external_url.value) {
+    return external_url.value;
+  }
+
+  return props.file.link.thumb;
+});
+
+function mediaUpdated(item) {
+  if (item.id === props.file.id && item.external_url) {
+    external_url.value = item.external_url;
+  }
+}
+
+onMounted(() => {
+  eventBus.on('media-updated', mediaUpdated);
+});
+
+onUnmounted(() => {
+  eventBus.off('media-updated', mediaUpdated);
+});
 </script>

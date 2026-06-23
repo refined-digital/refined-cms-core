@@ -1,75 +1,99 @@
 <template>
-    <div class="form__control--email-tags" ref="row">
-      <input type="text" class="form__control" :value="tags" :name="field.name" required :id="'form--'+field.name" ref="control" autocomplete="offer">
-    </div>
+  <div class="form__control--email-tags" ref="row">
+    <input type="hidden" :value="tags" :name="field.name" :id="'form--'+field.name">
+    <Multiselect
+      v-model="internalValue"
+      :options="options"
+      :multiple="true"
+      :taggable="true"
+      :close-on-select="false"
+      :clear-on-select="false"
+      :preserve-search="true"
+      :custom-label="optionLabel"
+      label="email"
+      track-by="email"
+      :placeholder="placeholder"
+      tag-placeholder="Add this email"
+      @tag="addEmail"
+    />
+  </div>
 </template>
 
-<script>
-  import Selectize from 'vue2-selectize';
-  const REGEX_EMAIL = "([a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@" + "(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)";
+<script setup>
+import { ref, watch } from 'vue';
+import Multiselect from 'vue-multiselect';
 
-  export default {
+const REGEX_EMAIL = "([a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@"
+  + '(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)';
 
-    props: [ 'field', 'value' ],
+// `fields` (optional): email-type form fields offered as selectable chips. Each
+// is stored as the raw token `field{id}` and shown by its friendly label; the
+// backend swaps the token for the submitted value at send time. When omitted,
+// the component behaves exactly as before (type literal emails only).
+const props = defineProps(['field', 'value', 'modelValue', 'fields']);
+const emit = defineEmits(['input', 'update:modelValue']);
 
-    data() {
-      return {
-        tags: '',
-        options: [],
-      }
-    },
+const initialValue = props.value ?? props.modelValue;
 
-    created() {
-      this.tags = this.value;
-      this.options = this.value.split(',').map(item => { return { email: item }})
-    },
+const internalValue = ref([]);
+const tags = ref('');
 
-    mounted () {
-      this.loadSelect();
-    },
+// preset dropdown options: one per email field (label shown, token stored)
+const fieldOptions = (Array.isArray(props.fields) ? props.fields : []).map((f) => ({
+  email: `field${f.id}`,
+  label: f.name,
+  isField: true,
+}));
+const options = ref([...fieldOptions]);
 
-    watch: {
-      value(val) {
-        const v = val.map(item => { return { email: item }});
-        this.tags = v.join(',');
-      }
-    },
+const placeholder = fieldOptions.length ? 'Add an email or pick a field' : 'Add an email';
 
-    methods: {
-      loadSelect() {
-        const self = this;
-        const element = this.$refs.control;
-        const row = this.$refs.row;
-        const klass = 'form__control--email-tags-active';
-        const selectizeOptions = {
-          plugins: ['restore_on_backspace', 'remove_button'],
-          delimiter: ',',
-          persist: true,
-          maxItems: null,
-          valueField: 'name',
-          labelField: 'name',
-          searchField: 'name',
-          options: this.options,
-          create: true,
-          createFilter: function (input) {
-            const regex = new RegExp("^" + REGEX_EMAIL + "$", "i");
-            const match = input.match(regex);
-            if (match) return !this.options.hasOwnProperty(match[0]);
+// the chip / dropdown label: friendly name for field tokens, the address otherwise
+function optionLabel(option) {
+  return option.label || option.email;
+}
 
-            return false;
-          },
-          onChange: function(value) {
-            self.tags = value;
-          },
-        };
+function isEmail(input) {
+  const regex = new RegExp(`^${REGEX_EMAIL}$`, 'i');
+  return !!input.match(regex);
+}
 
-        if (this.tags) {
-          selectizeOptions.items = this.tags.split(',')
-        }
-
-        $(element)
-          .selectize(selectizeOptions)
-      }
-    }
+function addEmail(input) {
+  const email = input.trim();
+  if (!isEmail(email)) {
+    return;
   }
+  if (internalValue.value.some((i) => i.email === email)) {
+    return;
+  }
+  const option = { email };
+  options.value.push(option);
+  internalValue.value.push(option);
+}
+
+// rebuild a stored token/email into a chip object, matching a known field
+// option so its friendly label shows
+function toChip(token) {
+  return fieldOptions.find((o) => o.email === token) || { email: token };
+}
+
+// seed from the incoming value (comma-delimited string or array)
+if (typeof initialValue === 'string' && initialValue) {
+  internalValue.value = initialValue.split(',').map((s) => s.trim()).filter(Boolean).map(toChip);
+} else if (Array.isArray(initialValue)) {
+  internalValue.value = initialValue.map(toChip);
+}
+
+watch(
+  internalValue,
+  (val) => {
+    tags.value = val.map((i) => i.email).join(',');
+  },
+  { deep: true, immediate: true }
+);
+
+watch(tags, (val) => {
+  emit('input', val);
+  emit('update:modelValue', val);
+});
 </script>

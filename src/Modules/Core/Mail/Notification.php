@@ -35,7 +35,17 @@ class Notification extends Mailable
         if (isset($this->settings, $this->settings->send_as_plain_text) && $this->settings->send_as_plain_text) {
           $data = $this->text('core::emails.notification-plain-text');
         } else {
-          $data = $this->markdown('core::emails.notification');
+          // self-contained, fully-inlined HTML email (no dependency on the host
+          // app's published markdown-mail theme). Branding is passed through from
+          // the caller's settings, with neutral fallbacks.
+          $data = $this->view('core::emails.notification', [
+              'body'    => $this->body,
+              'heading' => $this->settings->subject ?? null,
+              'accent'  => $this->settings->email_accent ?? '#1f2937',
+              'logo'    => $this->settings->email_logo ?? null,
+              'siteName' => config('app.name'),
+              'siteUrl'  => config('app.url'),
+          ]);
         }
 
         $data->subject($this->settings->subject);

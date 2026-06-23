@@ -64,7 +64,7 @@
   }
 
   &__header {
-    background: color(main-color-1);
+    background: var(--color-main-color-1);
     padding: 20px;
     display: flex;
     justify-content: space-between;
@@ -89,16 +89,21 @@
     }
 
     span {
-      margin: 0 5px;
       display: inline-block;
     }
 
     aside {
       flex: 0 0 485px;
-      text-align: right;
+      // flex row with a gap restores the spacing that used to come from
+      // whitespace between inline buttons (Vue 3 strips those text nodes)
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
       @media only screen and (max-width: 520px) {
         flex: 0 0 100%;
         margin-top: 10px;
+        flex-wrap: wrap;
       }
     }
   }
@@ -115,7 +120,7 @@
   &__tabs {
     z-index: 3;
     padding: 0 20px;
-    background: color(main-color-1);
+    background: var(--color-main-color-1);
 
     ul {
       margin: 0;
@@ -146,7 +151,7 @@
         display: block;
         width: 100%;
         height: 2px;
-        background: color(green);
+        background: var(--color-green);
         position: absolute;
         bottom: -2px;
         left: 0;

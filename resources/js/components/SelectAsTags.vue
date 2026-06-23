@@ -1,94 +1,71 @@
 <template>
-    <div class="form__control--tags">
-      <input type="text" class="form__control" :value="tags" :name="field.name" required :id="'form--'+field.name" autocomplete="off">
-    </div>
+  <div class="form__control--tags">
+    <input type="hidden" :value="tags" :name="field.name" :id="'form--'+field.name">
+    <Multiselect
+      v-model="internalValue"
+      :options="options"
+      :multiple="true"
+      :close-on-select="false"
+      :clear-on-select="false"
+      :preserve-search="true"
+      label="name"
+      track-by="id"
+      :placeholder="placeholder"
+    />
+  </div>
 </template>
 
-<script>
-  import Selectize from 'vue2-selectize';
+<script setup>
+import { ref, watch, onMounted } from 'vue';
+import Multiselect from 'vue-multiselect';
 
-  export default {
+const props = defineProps(['field', 'values', 'choices', 'value']);
+const emit = defineEmits(['input', 'update:modelValue']);
 
-    props: [ 'field', 'values', 'choices', 'value' ],
+const internalValue = ref([]);
+const tags = ref('');
+const options = ref([]);
+const placeholder = ref('Select');
 
-    data() {
-      return {
-        internalValue : [],
-        tags: '',
-        placeholder: 'Select',
-        options: [],
-      }
-    },
+placeholder.value = `Select ${props.field.label}`;
 
-    created () {
-      this.placeholder = `Select ${this.field.label}`;
+if (props.choices) {
+  props.choices.forEach((choice) => {
+    options.value.push({ ...choice });
+  });
+}
 
-      if (this.choices) {
-        this.choices.forEach(choice => {
-          this.options.push({ ...choice });
-        });
-      }
-
-      // add the initial tags
-      const initialValue = this.value || this.values;
-      if (typeof initialValue != 'undefined') {
-        if (Array.isArray(initialValue)) {
-          initialValue.forEach(tag => {
-            this.internalValue.push(tag);
-          });
-        } else {
-          this.tags = initialValue;
-        }
-      }
-    },
-
-    mounted() {
-      this.loadSelect();
-    },
-
-    watch: {
-      internalValue(val) {
-        let v = [];
-        val.forEach(i => {
-          v.push(i.name);
-        });
-        this.tags = v.join(',');
-      },
-      tags(val) {
-        this.$emit('input', val);
-      }
-    },
-
-    methods: {
-      loadSelect() {
-        let element = this.$el.querySelector('.form__control');
-        let selectizeOptions = {
-          plugins: ['restore_on_backspace', 'remove_button', 'drag_drop'],
-          delimiter: ',',
-          persist: true,
-          maxItems: null,
-          placeholder: this.placeholder,
-          valueField: 'id',
-          labelField: 'name',
-          searchField: 'name',
-          options: this.options,
-          create: false,
-          onChange: value => {
-            this.tags = value;
-          }
-        };
-
-        if (this.valueField) {
-          selectizeOptions.valueField = this.valueField;
-        }
-
-        $(element)
-          .selectize(selectizeOptions)
-
-      }
-
-    }
-
-
+// seed the initial selection from either `value` or `values`
+const initialValue = props.value || props.values;
+if (typeof initialValue !== 'undefined') {
+  if (Array.isArray(initialValue)) {
+    initialValue.forEach((tag) => {
+      internalValue.value.push(tag);
+    });
+  } else {
+    tags.value = initialValue;
   }
+}
+
+// keep the hidden input (the value the form submits) in sync with the selection
+watch(
+  internalValue,
+  (val) => {
+    tags.value = val.map((i) => i.name).join(',');
+  },
+  { deep: true }
+);
+
+watch(tags, (val) => {
+  emit('input', val);
+  emit('update:modelValue', val);
+});
+
+onMounted(() => {
+  // if the initial value was a delimited string, hydrate the selection from it
+  if (tags.value && !internalValue.value.length) {
+    const names = tags.value.split(',').map((s) => s.trim()).filter(Boolean);
+    internalValue.value = options.value.filter((o) => names.includes(o.name));
+  }
+});
 </script>

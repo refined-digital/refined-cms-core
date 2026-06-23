@@ -26,18 +26,13 @@
   </ul>
 </template>
 
-<script>
+<script setup>
+import { inject } from 'vue';
 
-  export default {
-    props: [ 'data', 'id' ],
+defineProps(['data', 'id']);
 
-    methods: {
-      loadPage(page) {
-        this.$parent.loadPage(page);
-      },
-      toggleSubMenu(page) {
-        this.$parent.toggleSubMenu(page);
-      },
-    }
-  }
+// the branch is recursive; Pages provides the real implementations once and
+// every branch injects them directly (no parent-chain walking).
+const loadPage = inject('pages:loadPage');
+const toggleSubMenu = inject('pages:toggleSubMenu');
 </script>

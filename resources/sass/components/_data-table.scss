@@ -2,12 +2,12 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    border: 1px solid color(table-border);
+    border: 1px solid var(--color-table-border);
   }
 
   thead, tfoot {
     th, td {
-      background: color(grey) !important;
+      background: var(--color-grey) !important;
       color: #fff;
       padding: 18px 8px;
       a {
@@ -18,7 +18,7 @@
         }
 
         &:hover {
-          color: darken(#fff, $darkenAmount);
+          color: color-mix(in srgb, #fff, black 10%);
         }
       }
     }
@@ -33,18 +33,20 @@
   tbody tr {
 
     &:nth-child(odd) .data-table__cell {
-      background: color(table-odd);
+      background: var(--color-table-odd);
     }
     &:nth-child(even) .data-table__cell {
-      background: color(table-even);
+      background: var(--color-table-even);
     }
     &:hover .data-table__cell {
-      background: lighten(color(main-color-1), 32);
+      // lighten(main-color-1, 32%) in HSL — color-mix toward white mixes
+      // too dark, so keep the original tint as an explicit value
+      background: #eceef9;
     }
 
     &.gu-transit, &.sortable-chosen {
       th, td {
-        background: lighten(color(blue), 20) !important;
+        background: color-mix(in srgb, var(--color-blue), white 20%) !important;
         &, a {
           color: #fff;
         }
@@ -56,7 +58,7 @@
   &__cell {
     text-align: left;
     padding: 10px 8px;
-    border-top:1px solid color(table-border);
+    border-top:1px solid var(--color-table-border);
 
     svg {
       height: 30px;
@@ -93,9 +95,9 @@
       text-align: right;
 
       a {
-        color: color(green);
+        color: var(--color-green);
         &:hover {
-          color: darken(color(green), $darkenAmount);
+          color: color-mix(in srgb, var(--color-green), black 10%);
         }
 
       }
@@ -112,12 +114,61 @@
           border: 0;
           background: none;
           cursor: pointer;
-          color: color(red);
+          color: var(--color-red);
           padding: 0;
           &:hover {
-            color: darken(color(red), $darkenAmount);
+            color: color-mix(in srgb, var(--color-red), black 10%);
           }
         }
+      }
+    }
+
+    // CSS tooltip for the row action icons (replaces the slow native title)
+    .data-table__action {
+      position: relative;
+
+      &::after,
+      &::before {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity .12s ease, transform .12s ease;
+        transform: translate(-50%, 4px);
+        z-index: 20;
+      }
+
+      // the label bubble
+      &::after {
+        content: attr(data-tooltip);
+        margin-bottom: 8px;
+        padding: 5px 9px;
+        border-radius: 5px;
+        background: #1f2937;
+        color: #fff;
+        font-size: 12px;
+        line-height: 1.2;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+
+      // the little arrow
+      &::before {
+        content: '';
+        margin-bottom: 3px;
+        border: 5px solid transparent;
+        border-top-color: #1f2937;
+      }
+
+      &:hover::after,
+      &:hover::before,
+      &:focus-visible::after,
+      &:focus-visible::before {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, 0);
       }
     }
 
@@ -143,14 +194,14 @@
       &-plus i {
         color: #fff;
         &:hover {
-          color: darken(#fff, $darkenAmount);
+          color: color-mix(in srgb, #fff, black 10%);
         }
       }
 
       &-delete i {
-        color: color(red);
+        color: var(--color-red);
         &:hover {
-          color: darken(color(red), $darkenAmount);
+          color: color-mix(in srgb, var(--color-red), black 10%);
         }
       }
 
@@ -195,7 +246,7 @@
         }
 
         &-has-error .form__control {
-          border-color: color(red);
+          border-color: var(--color-red);
         }
       }
     }

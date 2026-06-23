@@ -18,25 +18,18 @@
 
 </template>
 
-<script>
-export default {
+<script setup>
+const props = defineProps(['settings', 'page']);
 
-  props: ['settings', 'page'],
-
-  methods: {
-    show(item) {
-      if (typeof item.show_on_page !== 'undefined') {
-        return item.show_on_page.includes(this.page.id)
-      }
-
-
-      if (typeof item.show_in_holder !== 'undefined') {
-        return item.show_in_holder.includes(this.page.page_holder_id)
-      }
-
-      return true;
-    }
+function show(item) {
+  if (typeof item.show_on_page !== 'undefined') {
+    return item.show_on_page.includes(props.page.id)
   }
 
+  if (typeof item.show_in_holder !== 'undefined') {
+    return item.show_in_holder.includes(props.page.page_holder_id)
+  }
+
+  return true;
 }
 </script>

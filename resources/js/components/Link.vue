@@ -16,295 +16,150 @@
       </aside>
     </div>
 
-    <div class="rd-link form__horz sitemap" :class="active ? 'sitemap--active' : ''">
-      <div class="sitemap__inner">
-        <div class="sitemap__fields">
-          <div class="form__group">
-            <div class="form__row" v-show="!isSimple">
-              <label class="form__label" :for="`form--link-text-${elementId}`">Link Text</label>
-              <input type="text" class="form__control" name="link_text" :id="`form--link-text-${elementId}`" v-model="modal.text"/>
-            </div>
-
-            <div class="form__row">
-              <label class="form__label" :for="`form--link-type-${elementId}`">Link Type</label>
-              <select class="form__control" name="link_type" :id="`form--link-type-${elementId}`" v-model="modal.type">
-                <option :value="item.value" v-for="item in options" :key="item.label">{{ item.label }}</option>
-              </select>
-            </div>
-
-            <div class="form__row">
-              <label class="form__label" :for="`form--link-url-${elementId}`">{{ urlLabel }}</label>
-              <div class="link__type" :class="classList">
-                <input :type="modal.type === 'file' ? 'hidden' : 'text'" class="form__control" name="link_url" :id="`form--link-url-${elementId}`" v-model="modal.url"/>
-
-
-                <div class="link__file form__file-name" v-if="modal.type === 'file'">
-                  <strong class="form__file--title" v-if="modal.file.name">{{ modal.file.name }}</strong>
-                  <span v-if="modal.file.name"> / </span>
-                  <a :href="modal.file.url" v-if="modal.file.url" target="_blank" class="form__file--link">View File</a>
-                </div>
-
-                <aside v-if="hasButton.includes(modal.type)">
-                  <a href="" @click.prevent.stop="loadModal" class="button button--green button--small">Browse</a>
-                  <a href="" @click.prevent.stop="clearFile" class="button button--red button--small" v-if="modal.type === 'file'">Clear File</a>
-                </aside>
-
-                <div class="form__note" v-if="modal.type === 'external'">Must start with <code>http://</code> or <code>https://</code></div>
-              </div>
-            </div>
-
-            <div class="form__row" v-show="!isSimple">
-              <label class="form__label" :for="`form--link-title-${elementId}`">Element Title</label>
-              <input type="text" class="form__control" name="link_title" :id="`form--link-title-${elementId}`" v-model="modal.title"/>
-            </div>
-
-            <div class="form__row" v-show="!isSimple">
-              <label class="form__label" :for="`form--link-id-${elementId}`">Element ID</label>
-              <input type="text" class="form__control" name="link_id" :id="`form--link-id-${elementId}`" v-model="modal.id"/>
-            </div>
-
-            <div class="form__row" v-show="!isSimple">
-              <label class="form__label" :for="`form--link-classes-${elementId}`">Element Classes</label>
-              <input type="text" class="form__control" name="link_classes" :id="`form--link-classes-${elementId}`" v-model="modal.classes"/>
-            </div>
+    <Teleport to="body">
+      <div class="rd-link form__horz sitemap" :class="active ? 'sitemap--active' : ''">
+        <div class="sitemap__inner">
+          <div class="sitemap__fields">
+            <rd-link-form v-model="modal" :settings="settings"></rd-link-form>
           </div>
-        </div>
 
-        <footer class="sitemap__footer">
-          <button class="button button--blue button--small" @click.prevent.stop="save">Save</button>
-          <button class="button button--red button--small" @click.prevent.stop="closeModal">Close</button>
-        </footer>
+          <footer class="sitemap__footer">
+            <button class="button button--blue button--small" @click.prevent.stop="save">Save</button>
+            <button class="button button--red button--small" @click.prevent.stop="closeModal">Close</button>
+          </footer>
+        </div>
       </div>
-    </div>
+    </Teleport>
   </div>
 
 </template>
 
-<script>
-    export default {
+<script setup>
+  import { ref, computed } from 'vue';
+  import _ from 'lodash';
+  import { useUiStore } from '../stores/ui';
 
-        props: ['name', 'id', 'value', 'settings'],
+  const props = defineProps(['name', 'id', 'value', 'settings']);
+  const emit = defineEmits(['input', 'update:modelValue']);
 
-        data() {
-            return {
-              link: null,
-              linkModel: null,
-              modal: {
-                text: null,
-                type: 'internal',
-                url: null,
-                title: null,
-                id: null,
-                classes: null,
-                file: {
-                  name: null,
-                  url: null
-                },
-              },
-              hasButton: [
-                'internal',
-                'file'
-              ],
-              elementId: null,
-              active: false
-            }
-        },
+  const ui = useUiStore();
 
-        created() {
-          this.loadLink();
-          eventBus.$on('selecting-link', this.updateLink);
-          eventBus.$on('selecting-file', this.updateLink);
+  const link = ref(null);
+  const linkModel = ref(null);
+  const modal = ref({
+    text: null,
+    type: 'internal',
+    url: null,
+    title: null,
+    id: null,
+    classes: null,
+    file: {
+      name: null,
+      url: null
+    },
+  });
+  const elementId = ref(null);
+  const active = ref(false);
 
-          if (this.id) {
-            this.elementId = this.id;
-          } else {
-            this.elementId = Date.now();
-          }
+  const isSimple = computed(() => !!(props.settings && props.settings.simple));
 
-        },
+  function clearLink() {
+    link.value = null;
+    linkModel.value.text = null;
+    linkModel.value.type = 'internal';
+    linkModel.value.url = null;
+    linkModel.value.id = null;
+    linkModel.value.title = null;
+    linkModel.value.classes = null;
+    linkModel.value.file.name = null;
+    linkModel.value.file.url = null;
+  }
 
-        computed: {
-          urlLabel() {
-            if (this.modal.type === 'email') {
-              return 'Email Address';
-            }
-
-            if (this.modal.type === 'phone') {
-              return 'Phone';
-            }
-
-            if (this.modal.type === 'anchor') {
-              return 'Element ID';
-            }
-
-            return 'URL'
-          },
-
-          classList() {
-            if (this.hasButton.includes(this.modal.type)) {
-              return 'link__type--with-button';
-            }
-
-            return '';
-          },
-
-          isSimple() {
-            if (!this.settings) {
-              return false;
-            }
-
-            if (this.settings.simple) {
-              return true;
-            }
-
-            return false;
-          },
-
-          options() {
-
-            const items = [
-              { value: 'internal', label: 'Internal Page' },
-              { value: 'external', label: 'External Link' },
-            ];
-
-            const items2 = [
-              { value: 'file', label: 'File / Image' },
-              { value: 'email', label: 'Email' },
-              { value: 'phone', label: 'Phone' },
-              { value: 'anchor', label: 'Anchor' },
-            ];
-
-            const options = [
-              ...items
-            ];
-
-            if (!this.isSimple) {
-              options.push(...items2);
-            }
-
-            return options;
-          }
-        },
-
-      methods: {
-
-        clearLink() {
-          this.link = null;
-          this.linkModel.text = null;
-          this.linkModel.type = 'internal';
-          this.linkModel.url = null;
-          this.linkModel.id = null;
-          this.linkModel.title = null;
-          this.linkModel.classes = null;
-          this.linkModel.file.name = null;
-            this.linkModel.file.url = null;
-          },
-
-          clearFile() {
-            this.modal.url = null;
-            this.modal.file.name = null;
-            this.modal.file.url = null;
-          },
-
-          openModal() {
-            if (this.linkModel) {
-              this.modal = _.cloneDeep(this.linkModel);
-            }
-
-            this.active = true;
-            this.$root.link.active = true;
-          },
-
-          loadModal() {
-            if (this.modal.type === 'internal') {
-              eventBus.$emit('sitemap-reload');
-              this.$root.sitemap.showModal = true;
-              this.$root.sitemap.model = this._uid;
-            }
-
-            if (this.modal.type === 'file') {
-              eventBus.$emit('media-set-type', '*');
-              eventBus.$emit('media-reload');
-              this.$root.media.showModal = true;
-              this.$root.media.model = this._uid;
-            }
-          },
-
-          updateLink(data) {
-            if (this.$root.sitemap.model == this._uid) {
-              this.modal.url = data;
-              eventBus.$emit('sitemap-close');
-            }
-
-            if (this.$root.media.model == this._uid) {
-              this.modal.url = data.id;
-              this.modal.file.name = data.file;
-              const url = data.link.original.replace(data.link.basePath, '/');
-              this.modal.file.url = url;
-              eventBus.$emit('media-close');
-            }
-          },
-
-          loadLink() {
-            let value = this.value;
-            if (typeof value === 'string' && value.length) {
-              try {
-                value = JSON.parse(value);
-              } catch (e) {
-                console.warn(e.message);
-                value = _.cloneDeep(this.modal);
-              }
-            }
-
-            if (typeof value !== 'object' || !value) {
-              this.modal = _.cloneDeep(this.modal);
-            } else {
-              this.modal = value;
-            }
-
-            this.link = JSON.stringify(value);
-            this.linkModel = value;
-          },
-
-          save() {
-            const fieldsToCheck = [this.modal.url];
-            if (!this.isSimple) {
-              fieldsToCheck.push(this.modal.text);
-            }
-
-            const check = fieldsToCheck.filter(item => !!item);
-
-            if (check.length !== fieldsToCheck.length) {
-
-              let msg = 'The following fields are required: ';
-              if (!this.modal.text && !this.isSimple) msg += "\n - Link Text";
-              if (!this.modal.url) msg += "\n - URL";
-              alert(msg);
-
-              return;
-            }
-
-            this.linkModel = _.cloneDeep(this.modal);
-            this.link = JSON.stringify(this.linkModel);
-            this.$emit('input', this.linkModel);
-            this.closeModal();
-          },
-
-          closeModal() {
-            this.active = false;
-            this.modal.text = null;
-            this.modal.type = 'internal';
-            this.modal.url = null;
-            this.modal.id = null;
-            this.modal.title = null;
-            this.modal.classes = null;
-            this.modal.file.name = null;
-            this.modal.file.url = null;
-            this.$root.link.active = false;
-          }
-
-        },
+  function openModal() {
+    if (linkModel.value) {
+      modal.value = _.cloneDeep(linkModel.value);
     }
+
+    active.value = true;
+    ui.link.active = true;
+  }
+
+  function loadLink() {
+    let value = props.value;
+    if (typeof value === 'string' && value.length) {
+      try {
+        value = JSON.parse(value);
+      } catch (e) {
+        console.warn(e.message);
+        value = _.cloneDeep(modal.value);
+      }
+    }
+
+    if (typeof value !== 'object' || !value) {
+      modal.value = _.cloneDeep(modal.value);
+    } else {
+      // merge the saved value onto the full default model so every expected key
+      // (type, file, etc.) is always present — a partial/empty saved value must
+      // still default to type 'internal' and have a file sub-object
+      modal.value = { ..._.cloneDeep(modal.value), ...value };
+      if (!modal.value.type) {
+        modal.value.type = 'internal';
+      }
+      if (!modal.value.file) {
+        modal.value.file = { name: null, url: null };
+      }
+    }
+
+    link.value = JSON.stringify(modal.value);
+    linkModel.value = modal.value;
+  }
+
+  function save() {
+    const fieldsToCheck = [modal.value.url];
+    if (!isSimple.value) {
+      fieldsToCheck.push(modal.value.text);
+    }
+
+    const check = fieldsToCheck.filter(item => !!item);
+
+    if (check.length !== fieldsToCheck.length) {
+
+      let msg = 'The following fields are required: ';
+      if (!modal.value.text && !isSimple.value) msg += "\n - Link Text";
+      if (!modal.value.url) msg += "\n - URL";
+      alert(msg);
+
+      return;
+    }
+
+    linkModel.value = _.cloneDeep(modal.value);
+    link.value = JSON.stringify(linkModel.value);
+    emit('input', linkModel.value);
+    emit('update:modelValue', linkModel.value);
+    closeModal();
+  }
+
+  function closeModal() {
+    active.value = false;
+    modal.value.text = null;
+    modal.value.type = 'internal';
+    modal.value.url = null;
+    modal.value.id = null;
+    modal.value.title = null;
+    modal.value.classes = null;
+    modal.value.file.name = null;
+    modal.value.file.url = null;
+    ui.link.active = false;
+  }
+
+  // created
+  loadLink();
+
+  if (props.id) {
+    elementId.value = props.id;
+  } else {
+    elementId.value = Date.now();
+  }
 </script>
 
 <style scoped>
@@ -314,12 +169,27 @@
 
 .link__type--with-button {
   display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   align-items: center;
 }
 
 .link__file {
   flex: 1;
+}
+
+.link__type aside {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* keep the browse/clear buttons at their natural size — don't let the flex
+   row stretch or shrink them when space gets tight */
+.link__type aside .button {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .rd-link .sitemap__inner {
@@ -329,10 +199,4 @@
 .rd-link .sitemap__fields {
   min-height: 402px;
 }
-
-.rd-link .form__row {
-  flex: 0 0 100%;
-}
-
-
 </style>

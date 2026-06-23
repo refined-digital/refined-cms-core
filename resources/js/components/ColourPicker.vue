@@ -9,39 +9,35 @@
   </div>
 </template>
 
-<script>
+<script setup>
+  import { ref, onMounted, onUnmounted } from 'vue';
   import Picker from 'vanilla-picker/csp';
   import 'vanilla-picker/dist/vanilla-picker.csp.css';
 
-  export default {
+  const props = defineProps(['field', 'value']);
 
-    props: [ 'field', 'value' ],
+  const colourPicker = ref(null);
+  let picker = null;
+  const chosenValue = ref(null);
 
-    data() {
-      return {
-        picker: null,
-        chosenValue: null,
-      }
-    },
+  onMounted(() => {
+    picker = new Picker({
+      parent: colourPicker.value,
+      alpha: false,
+      popup: 'bottom',
+      color: props.value,
+      onChange(colour) {
+        chosenValue.value = colour.hex;
+      },
+    });
+    if (props.value) {
+      chosenValue.value = props.value;
+    }
+  });
 
-    mounted() {
-      const $this = this;
-      this.picker = new Picker({
-        parent: this.$refs['colourPicker'],
-        alpha: false,
-        popup: 'bottom',
-        color: this.value,
-        onChange(colour) {
-          $this.chosenValue = colour.hex
-        }
-      })
-      if (this.value) {
-        this.chosenValue = this.value;
-      }
-
-    },
-
-  }
+  onUnmounted(() => {
+    if (picker) picker.destroy();
+  });
 </script>
 
 <style lang="scss">

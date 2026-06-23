@@ -1,39 +1,37 @@
-@import 'variables';
-@function color($name) {
-	@return map-get($colours, $name);
-}
+@use 'variables';
 
-@import 'partials/setup';
-@import 'partials/normalize';
-@import 'partials/text';
+@use 'partials/setup';
+@use 'partials/normalize';
+@use 'partials/text';
 
-@import 'layouts/auth';
-@import 'layouts/app';
-@import 'layouts/pages';
+@use 'layouts/auth';
+@use 'layouts/app';
+@use 'layouts/pages';
 
-@import 'components/spinner';
-@import 'components/login';
-@import 'components/forms';
-@import 'components/buttons';
-@import 'components/alert';
-@import 'components/note';
-@import 'components/blocks';
-@import 'components/search';
-@import 'components/data-table';
-@import 'components/paging';
-@import 'components/tabs';
-@import 'components/tree';
-@import 'components/media-uploader';
-@import 'components/media';
-@import 'components/content-editor';
-@import 'components/sitemap';
-@import 'components/rich-editor';
+@use 'components/spinner';
+@use 'components/login';
+@use 'components/forms';
+@use 'components/buttons';
+@use 'components/alert';
+@use 'components/note';
+@use 'components/blocks';
+@use 'components/search';
+@use 'components/data-table';
+@use 'components/paging';
+@use 'components/tabs';
+@use 'components/tree';
+@use 'components/media-uploader';
+@use 'components/media';
+@use 'components/content-editor';
+@use 'components/sitemap';
+@use 'components/rich-editor';
 
+@use 'components/settings';
 
-@import 'components/settings';
+@use 'plugins/selectize';
+@use 'plugins/sweet-alert';
+@use 'plugins/dragular';
+@use 'plugins/ckeditor';
 
-@import 'plugins/selectize';
-@import 'plugins/sweet-alert';
-@import 'plugins/dragular';
-@import 'plugins/ckeditor';
-@import '~vanilla-picker/dist/vanilla-picker.csp.css';
+// vendor css (plain stylesheet, not a sass module)
+@import 'vanilla-picker/dist/vanilla-picker.csp.css';

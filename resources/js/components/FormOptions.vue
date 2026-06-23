@@ -1,5 +1,5 @@
 <template>
-  <div class="form__control--options">
+  <div class="form__control--options" ref="root">
     <div class="data-table">
       <table>
         <thead>
@@ -31,74 +31,71 @@
   </div>
 </template>
 
-<script>
+<script setup>
+  import { ref, watch, onMounted, onUnmounted } from 'vue';
 
-    export default {
+  const props = defineProps(['name', 'value', 'modelValue']);
+  const emit = defineEmits(['input', 'update:modelValue']);
 
-        props: ['name', 'value'],
+  // support both the v-model (modelValue) and explicit :value bindings
+  const initialValue = props.value ?? props.modelValue;
 
-        data() {
-            return {
-              items: [
-                {
-                  value: '',
-                  label: ''
-                }
-              ],
-              sortable: null
-            }
-        },
+  const root = ref(null);
 
-        created() {
-          if (this.value && this.value.length > 0) {
-            this.items = [];
-            this.value.forEach(item => {
-              this.items.push(item);
-            });
-          }
-        },
-
-        mounted() {
-          this.initSort();
-        },
-
-        watch: {
-          items() {
-            this.$emit('input', this.items);
-          }
-        },
-
-        methods:  {
-
-          add() {
-            this.items.push({
-              value: '',
-              label: '',
-            });
-          },
-
-          remove(index) {
-            swal({
-              title: 'Are you sure?',
-              icon: 'warning',
-              buttons: true,
-              dangerMode: true,
-            }).then(value => {
-              if (value) {
-                this.items.splice(index, 1);
-              }
-            });
-          },
-
-          initSort() {
-            if (!this.sortable) {
-              this.sortable = dragula([this.$el.querySelector('tbody')], {
-                direction: 'vertical'
-              });
-            }
-          }
-
-        },
-
+  const items = ref([
+    {
+      value: '',
+      label: ''
     }
+  ]);
+  let sortable = null;
+
+  watch(items, () => {
+    emit('input', items.value);
+    emit('update:modelValue', items.value);
+  });
+
+  function add() {
+    items.value.push({
+      value: '',
+      label: '',
+    });
+  }
+
+  function remove(index) {
+    swal({
+      title: 'Are you sure?',
+      icon: 'warning',
+      buttons: true,
+      dangerMode: true,
+    }).then(value => {
+      if (value) {
+        items.value.splice(index, 1);
+      }
+    });
+  }
+
+  function initSort() {
+    if (!sortable) {
+      sortable = dragula([root.value.querySelector('tbody')], {
+        direction: 'vertical'
+      });
+    }
+  }
+
+  // created
+  if (initialValue && initialValue.length > 0) {
+    items.value = [];
+    initialValue.forEach(item => {
+      items.value.push(item);
+    });
+  }
+
+  onMounted(() => {
+    initSort();
+  });
+
+  onUnmounted(() => {
+    if (sortable) sortable.destroy();
+  });
 </script>

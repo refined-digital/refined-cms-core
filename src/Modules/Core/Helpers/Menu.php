@@ -7,9 +7,6 @@ use RefinedDigital\CMS\Modules\Pages\Http\Repositories\PageRepository;
 
 class Menu {
 
-    protected $request;
-    protected $pageRepository;
-
     protected $holder;
     protected $maxDepth = 2;
     protected $parent = 0;
@@ -18,10 +15,8 @@ class Menu {
     protected $skipValue = 0;
     protected $limitValue = 0;
 
-    public function __construct(Request $request, PageRepository $pageRepository)
+    public function __construct(protected Request $request, protected PageRepository $pageRepository)
     {
-        $this->request = $request;
-        $this->pageRepository = $pageRepository;
     }
 
     public function holder($holder = 'Sitemap'): self
@@ -50,7 +45,7 @@ class Menu {
 
     public function get($activePage = false)
     {
-        $holder = isset($this->holder->id) ? $this->holder->id : 1;
+        $holder = $this->holder->id ?? 1;
 
         $data = $this->pageRepository->getPagesForMenu(
             $holder,

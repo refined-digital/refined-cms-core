@@ -26,7 +26,7 @@ class ModuleAggregate
             'icon'              => $config['icon'],
             'route'             => $config['route'],
             'activeFor'         => $config['activeFor'],
-            'max_user_level_id' => isset($config['max_user_level_id']) ? $config['max_user_level_id'] : null,
+            'max_user_level_id' => $config['max_user_level_id'] ?? null,
             'children'          => isset($config['children']) && is_array($config['children']) ? $config['children'] : [],
         ]));
 

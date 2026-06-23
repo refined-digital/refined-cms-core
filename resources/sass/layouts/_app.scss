@@ -91,7 +91,7 @@
       color: #fff;
 
       &:hover {
-        color: darken(#fff, 10);
+        color: color-mix(in srgb, #fff, black 10%);
       }
 
     }
@@ -143,10 +143,10 @@
         font-weight: bold;
 
         a {
-          color: color(black);
+          color: var(--color-black);
 
           &:hover {
-            color: color(link-hover);
+            color: var(--color-link-hover);
           }
         }
 
@@ -187,7 +187,7 @@
       padding: 0;
 
       a {
-        color: color(nav-color);
+        color: var(--color-nav-color);
       }
     }
 
@@ -215,7 +215,7 @@
 
       &--active > a {
         background: #ededed;
-        border-color: color(main-color-1);
+        border-color: var(--color-main-color-1);
       }
     }
 
@@ -223,7 +223,7 @@
       & > a {
         padding: 5px 10px 5px 40px;
         &:hover {
-          color: color(nav-color-hover);
+          color: var(--color-nav-color-hover);
         }
       }
 
@@ -248,14 +248,19 @@
     }
   }
 
-  &--has-media, &--has-sitemap, &--has-link {
+  &--has-media, &--has-sitemap, &--has-link, &--has-modal {
     z-index: 1001;
   }
 
-  &__module--media.app--has-media, .app--has-link {
-    .app__right {
-      z-index: 3;
-    }
+  // raise the content layer above the sidebar whenever a full-screen overlay is
+  // open, so the modal/overlay covers the menu. Previously the media flag only
+  // applied on the media module page, leaving the upload modal behind the menu
+  // when opened as a picker elsewhere — now it applies everywhere, like link.
+  &--has-media .app__right,
+  &--has-sitemap .app__right,
+  &--has-link .app__right,
+  &--has-modal .app__right {
+    z-index: 3;
   }
 }
 

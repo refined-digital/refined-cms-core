@@ -57,7 +57,7 @@ class PaymentGateway {
         }
 
         return FormPaymentTransaction::create([
-            'form_id' => isset($form->id) ? $form->id : null,
+            'form_id' => $form->id ?? null,
             'type_id' => $this->typeId,
             'type_details' => $this->typeDetails,
             'transaction_id' => $transactionId,

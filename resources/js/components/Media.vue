@@ -1,5 +1,5 @@
 <template>
-  <div class="media-library" :class="{ 'media__modal' : modal, 'media-library--active' : $root.media.showModal }">
+  <div class="media-library" ref="root" :class="{ 'media__modal' : modal, 'media-library--active' : ui.media.showModal }">
 
     <div class="pages">
       <aside class="app__trigger" @click="mobileMenuActive = !mobileMenuActive">
@@ -25,7 +25,7 @@
                 <span class="tree__leaf" @click="toggleSubMenu(holder)">{{ holder.name }}</span>
               </div>
 
-              <rd-media-branch @media-dropped="mediaDropped" :data="holder" :id="-holder.id"></rd-media-branch>
+              <rd-media-branch :data="holder" :id="-holder.id"></rd-media-branch>
 
             </li>
           </ul>
@@ -49,6 +49,7 @@
             <template v-if="!show.buttons.controls">
               <a href="" class="button button--grey button--small" @click.prevent.stop="mediaOpen">Add Files</a>
               <a href="" class="button button--grey button--small" @click.prevent.stop="categoryAdd">Add a Category</a>
+              <a href="" class="button button--grey button--small" @click.prevent.stop="refresh" title="Reload the library from the server"><i class="fas fa-sync"></i></a>
             </template>
 
             <template v-if="modal">
@@ -56,7 +57,7 @@
               <a href="" class="button button--red button--small" @click.prevent.stop="close">Close</a>
             </template>
 
-            <template v-if="bulk.length && !show.buttons.controls && $root.media.display === 'list'">
+            <template v-if="bulk.length && !show.buttons.controls && ui.media.display === 'list'">
               <span>|</span>
               <a href="" class="button button--red button--small" @click.prevent.stop="bulkDelete">Delete</a>
             </template>
@@ -137,7 +138,7 @@
                     <label class="form__label">File Url</label>
                     <div class="form__horz-group">
                       <div class="form__control--url">
-                        <input type="text" id="form--slug" v-model="file.external_url || file.link.original" readonly required="required" class="form__control">
+                        <input type="text" id="form--slug" :value="file.external_url || file.link.original" readonly required="required" class="form__control">
                         <span class="copy-url" @click="copyUrl"><i class="fas fa-link"></i></span>
                       </div>
                     </div>
@@ -155,31 +156,32 @@
               <header class="pages__tab-pane-header">
                 <h3>File Listing</h3>
                 <aside class="media__toggle">
-                  <i class="fas fa-th-large" :class="{ 'media__toggle--active' : $root.media.display === 'thumb' }" @click="mediaDisplay('thumb')"></i>
-                  <i class="fas fa-th-list" :class="{ 'media__toggle--active' : $root.media.display === 'list' }" @click="mediaDisplay('list')"></i>
+                  <i class="fas fa-th-large" :class="{ 'media__toggle--active' : ui.media.display === 'thumb' }" @click="mediaDisplay('thumb')"></i>
+                  <i class="fas fa-th-list" :class="{ 'media__toggle--active' : ui.media.display === 'list' }" @click="mediaDisplay('list')"></i>
                 </aside>
               </header>
 
               <p v-if="category.files.length < 1">There are no files in this folder</p>
 
-              <div class="media__files" :class="'media__files--'+$root.media.display" id="dropzone-2">
-                <div class="media__file"
-                  v-for="file of category.files"
-                  v-draggable-media
-                  :data-id="file.id"
-                  v-if="type === file.type || type === '*' || (type === 'Image' && file.type === 'Video')"
-                >
+              <div class="media__files" :class="'media__files--'+ui.media.display" id="dropzone-2">
+                <template v-for="file of category.files">
+                  <div class="media__file"
+                    v-draggable-media
+                    :data-id="file.id"
+                    v-if="type === file.type || type === '*' || (type === 'Image' && file.type === 'Video')"
+                  >
 
-                  <div class="media__file--control">
-                      <div class="form__checkbox form__checkbox--no-input">
-                          <input type="checkbox" v-model="bulk" :id="`item--${file.id}`" name="bulk[]" :value="file.id"/>
-                          <label :for="`item--${file.id}`"></label>
-                      </div>
+                    <div class="media__file--control">
+                        <div class="form__checkbox form__checkbox--no-input">
+                            <input type="checkbox" v-model="bulk" :id="`item--${file.id}`" name="bulk[]" :value="file.id"/>
+                            <label :for="`item--${file.id}`"></label>
+                        </div>
+                    </div>
+                    <div class="media__file--item" @click="mediaLoad(file)">
+                      <rd-media-file :file="file" :site-url="siteUrl"></rd-media-file>
+                    </div>
                   </div>
-                  <div class="media__file--item" @click="mediaLoad(file)">
-                    <rd-media-file :file="file" :site-url="siteUrl"></rd-media-file>
-                  </div>
-                </div>
+                </template>
 
               </div><!-- / files -->
 
@@ -234,7 +236,7 @@
       </section>
 
 
-      <div class="media-uploader" v-show="$root.media.active">
+      <div class="media-uploader" v-show="ui.media.active">
         <div class="media-uploader__inner">
 
           <header class="media-uploader__header">
@@ -265,985 +267,892 @@
   </div>
 </template>
 
-<script>
+<script setup>
+  import { ref, reactive, computed, watch, onMounted, onUpdated, onUnmounted, nextTick, provide } from 'vue';
+  import { storeToRefs } from 'pinia';
   import Dropzone from 'dropzone';
+  import eventBus from '../eventBus';
+  import { useUiStore } from '../stores/ui';
+  import { useMediaStore } from '../stores/media';
 
-  export default {
+  const props = defineProps({
+    modal: {
+      type: Boolean,
+      default: null
+    },
+    maxFilesize: {
+      type: Number,
+      default: 10
+    }
+  });
 
-    props: {
-      modal: {
-        type: Boolean,
-        default: null
+  const ui = useUiStore();
+  const media = useMediaStore();
+
+  // persistent media data lives in the store (loaded once, mutated in place).
+  // `category` is the active folder; `tree`/`files` are the store's flat indexes.
+  const { categories, searchableFiles, activeCategory: category, leaf } = storeToRefs(media);
+  const tree = media.tree;
+  const files = media.files;
+
+  const clone = (data) => JSON.parse(JSON.stringify(data));
+
+  // native replacement for jQuery's $(el).fadeOut(300).remove()
+  function fadeOutAndRemove(el, duration = 300) {
+    if (!el) return;
+    el.style.transition = `opacity ${duration}ms`;
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), duration);
+  }
+
+  const root = ref(null);
+
+  const tab = ref('details');
+  const type = ref('*');
+  const siteUrl = ref('');
+
+  const search = ref('');
+
+  const file = ref({
+    name: '',
+    alt: '',
+    description: '',
+    type: '',
+    size: '',
+    link: {
+      original: '',
+      thumb: ''
+    },
+    external_url: '',
+    external_id: '',
+  });
+
+  let categoryClone = {};
+  const bulk = ref([]);
+
+  let sortable = null;
+  let drop = null;
+  let drop2 = null;
+
+  const show = reactive({
+    buttons: {
+      controls: false,
+      categoryDelete: true,
+    },
+    tabs: {
+      files: true,
+      details: {
+        category: false,
+        file: false,
       },
-      maxFilesize: {
-        type: Number,
-        default: 10
+    }
+  });
+
+  const mobileMenuActive = ref(false);
+
+  const filterFiles = computed(() => {
+    return searchableFiles.value.filter(item => {
+      let s = search.value.toLowerCase();
+      let name = item.name.toLowerCase();
+
+      if (type.value === item.type || type.value === '*') {
+        return name.indexOf(s) !== -1;
       }
-    },
 
-    created () {
-      // get pages
-      this.$root.loading = true;
+      return false;
 
-      this.reload();
+    });
+  });
 
-      eventBus.$on('media-close', this.close);
-      eventBus.$on('media-set-type', this.setType);
-      eventBus.$on('media-reload', this.reload);
-      eventBus.$on('media-clear', this.clear);
-      eventBus.$on('media-updated', this.mediaUpdated);
+  watch(search, (value) => {
+    if (tab.value !== 'files' && value.length > 0) {
+      loadFiles();
+    }
+  });
 
-      this.siteUrl = window.siteUrl;
-    },
-
-    data() {
-      return {
-        tab: 'details',
-        type: '*',
-        siteUrl: '',
-
-        search: '',
-
-        category: {
-          files: []
-        },
-
-        file: {
-          name: '',
-          alt: '',
-          description: '',
-          type: '',
-          size: '',
-          link: {
-            original: '',
-            thumb: ''
-          },
-          external_url: '',
-          external_id: '',
-        },
-
-        categoryClone: {},
-        categories: [],
-        tree: {},
-        files: {},
-        searchableFiles: [],
-        bulk: [],
-
-        leaf: {
-          category: {},
-          media: {}
-        },
-
-        sortable: null,
-        drop: null,
-        drop2: null,
-
-        show: {
-          buttons: {
-            controls: false,
-            categoryDelete: true,
-          },
-          tabs: {
-            files: true,
-            details: {
-              category: false,
-              file: false,
-            },
-          }
-        },
-
-        forms: {
-          category: {
-            name: ''
-          }
-        },
-
-        mobileMenuActive: false
-
+  // force a fresh fetch from the server (manual refresh button). the store
+  // preserves the open folder where possible; re-sync the view to it.
+  async function refresh() {
+    ui.loading = true;
+    try {
+      await media.refresh();
+      const current = category.value?.id ? media.tree[category.value.id] : null;
+      if (current) {
+        loadCategory(current);
+      } else if (media.tree[1]?.children?.length) {
+        loadCategory(media.tree[1].children[0]);
       }
-    },
+    } finally {
+      ui.loading = false;
+    }
+  }
 
-    updated() {
-      this.$nextTick(() => {
-        this.initSort();
+  // show / hide the tree
+  function toggleSubMenu(item) {
+    if (item.children.length) {
+      item.show = !item.show;
+    }
+  }
+
+  // this just turns off all on pages
+  function turnOffCategories() {
+    for (let i in tree) {
+      let branch = tree[i];
+      if (branch.children.length < 1) {
+        branch.show = false;
+      }
+      branch.on = false;
+    }
+  }
+
+  function turnOnParents(cat) {
+    if (cat.parent_id > 0 && typeof tree[cat.parent_id] != 'undefined') {
+      cat.show = true;
+      turnOnParents(tree[cat.parent_id]);
+    }
+
+    // always have the media category open
+    if (cat.id === 1) {
+      cat.show = true;
+    }
+  }
+
+  function initSort() {
+    if (sortable == null) {
+      let elements = document.querySelectorAll('.media-library .tree__trunk--sortable');
+
+      let containers = [];
+      if (elements.length) {
+        elements.forEach(element => {
+          containers.push(element);
+        })
+
+        sortable = dragula(containers, {
+          direction: 'vertical'
+        })
+        .on('drop', (e) => {
+          let parent = document.querySelector('.media-library .tree__trunk[data-id="'+e.dataset.parent+'"');
+          let newParent = e.closest('.tree__trunk');
+          let children = [];
+          let parentId = e.dataset.parent;
+
+          // check to see if the parent has updated
+          if (parent.dataset.id !== newParent.dataset.id) {
+            // we have a different parent, need to update
+            children = newParent.querySelectorAll(':scope > .tree__branch');
+            parentId = parseInt(newParent.dataset.id);
+
+            // find and update the new leaf
+            if (typeof tree[e.dataset.id] != 'undefined') {
+              media.moveCategory(parseInt(e.dataset.id), parentId);
+
+              // now update the leaf in the db
+              categoryUpdateParent(e.dataset.id, parentId);
+            }
+
+          } else {
+            children = parent.querySelectorAll(':scope > .tree__branch');
+          }
+
+          if (children.length) {
+            let ids = [];
+            children.forEach(el => {
+              ids.push(el.dataset.id);
+            });
+
+            reposition(ids, parentId);
+          }
+
+        })
+        ;
+      }
+    }
+  }
+
+  function loadFiles() {
+    tab.value = 'files';
+    show.tabs.details.file = false;
+    show.tabs.details.category = true;
+    show.buttons.controls = false;
+  }
+
+  // finds the folder the particular page is in
+  function findFolder() {
+    let key = category.value.parent_id;
+    if (typeof tree[key] != 'undefined' && tree[key].show === false) {
+      tree[key].show = true;
+    }
+  }
+
+  function scroll() {
+    root.value.querySelector('.pages__info').scrollTop = 0;
+  }
+
+  //////
+  /// category
+
+  // load the page for editing
+  function loadCategory(item) {
+    turnOffCategories();
+    scroll();
+
+    category.value = item;
+    category.value.on = true;
+    category.value.show = true;
+    show.tabs.files = true;
+    show.tabs.details.category = true;
+    show.buttons.categoryDelete = (!(category.value.files.length || category.value.children.length));
+    categoryClose();
+
+    turnOnParents(category.value);
+    loadFiles();
+  }
+
+  // show the add category stuff
+  function categoryShow() {
+    show.buttons.controls = true;
+    tab.value = 'details-category';
+    categoryClone = clone(category.value);
+  }
+
+  function categoryAdd() {
+    let newData = clone(leaf.value.category);
+    newData.parent_id = category.value.id;
+    loadCategory(newData);
+    show.buttons.controls = true;
+    show.buttons.categoryDelete = false;
+    show.tabs.files = false;
+
+    if (typeof tree[newData.parent_id] != 'undefined') {
+      tree[newData.parent_id].on = true;
+    }
+
+    tab.value = 'details-category';
+  }
+
+  // removes the add category form
+  function categoryCancel() {
+    category.value.name = categoryClone.name;
+    show.buttons.controls = false;
+    show.tabs.files = true;
+    categoryClone = {};
+    loadFiles();
+  }
+
+  function categoryClose() {
+    show.buttons.controls = false;
+    show.tabs.files = true;
+    categoryClone = {};
+    tab.value = 'files';
+  }
+
+  function categorySave() {
+
+    let check   = /^.+[\s]{0,4}/,
+        errors  = [],
+        validationData = document.createElement('ul')
+    ;
+
+    // do the validation
+    if (!check.test(category.value.name) || category.value.name === null) {
+      errors.push(1);
+      let child = document.createElement('li');
+      child.innerText = 'Please enter a Name';
+      validationData.appendChild(child);
+    }
+
+    if (errors.length) {
+      swal({
+        title: 'You have some errors in your form.',
+        content: validationData,
+        icon: 'error',
+        dangerMode: true,
       });
-    },
+    } else {
 
-    mounted() {
-      this.setDropZone();
-    },
-
-    watch: {
-      search(value) {
-        if (this.tab !== 'files' && value.length > 0) {
-          this.loadFiles();
-        }
+      ui.loading = true;
+      let config = {
+        url: `${window.siteUrl}/refined/media/categories`,
+        method: 'POST',
+        data: category.value,
       }
-    },
 
-    computed: {
-      filterFiles() {
-        return this.searchableFiles.filter(item => {
-          let search = this.search.toLowerCase();
-          let name = item.name.toLowerCase();
-
-          if (this.type === item.type || this.type === '*') {
-            return name.indexOf(search) !== -1;
-          }
-
-          return false;
-
-        });
+      if (typeof category.value.newPage === 'undefined') {
+        config.method = 'PUT';
+        config.url += '/'+ category.value.id
       }
-    },
 
-    methods: {
-      // reload the media library
-      reload() {
-        axios
-          .get(`${window.siteUrl}/refined/media/get-tree`)
-          .then(r => {
-            this.$root.loading = false;
-            if (r.status === 200) {
-              this.categories = r.data.tree;
-              this.leaf.category = r.data.categoryLeaf;
-              this.leaf.media = r.data.mediaLeaf;
+      axios
+        .request(config)
+        .then(r => {
+          ui.loading = false;
+          if (r.data.success) {
 
-              // setting the initial page
-              if (this.categories.length) {
-                this.setTree();
-                this.setFiles();
-                this.loadCategory(this.tree[1].children[0]);
-              }
+            if (typeof category.value.newPage !== 'undefined') {
+              // we have just added a category, so insert it into the tree
+              media.addCategory(r.data.leaf);
 
+              // load the new category
+              loadCategory(tree[r.data.leaf.id]);
+              findFolder();
+              categoryClose();
             }
-          })
-          .catch(e => {
-            this.$root.loading = false;
-          })
-        ;
-      },
 
-      // show / hide the tree
-      toggleSubMenu(item) {
-        if (item.children.length) {
-          item.show = !item.show;
-        }
-      },
+            swal({
+              title: 'Success',
+              text: 'Category has been successfully saved',
+              icon: 'success'
+            });
 
-      // this just turns off all on pages
-      turnOffCategories() {
-        for (let i in this.tree) {
-          let branch = this.tree[i];
-          if (branch.children.length < 1) {
-            branch.show = false;
+            categoryClose();
+
           }
-          branch.on = false;
-        }
-      },
-
-      turnOnParents(category) {
-        if (category.parent_id > 0 && typeof this.tree[category.parent_id] != 'undefined') {
-          category.show = true;
-          this.turnOnParents(this.tree[category.parent_id]);
-        }
-
-        // always have the media category open
-        if (category.id === 1) {
-          category.show = true;
-        }
-      },
-
-      // sets the tree
-      setTree() {
-        this.tree = {};
-        this.addBranches(this.categories);
-      },
-
-      addBranches(items) {
-        if (items.length) {
-          items.forEach(item => {
-            this.tree[item.id] = item;
-
-            if (item.children.length) {
-              this.addBranches(item.children);
-            }
-          })
-        }
-      },
-
-      setFiles() {
-        this.files = {};
-        this.searchableFiles = [];
-        this.setFile(this.categories);
-      },
-
-      setFile(items) {
-        if (items.length) {
-          items.forEach(item => {
-
-            if (item.files.length) {
-              item.files.forEach(file => {
-                this.files[file.id] = file;
-                this.searchableFiles.push(file);
-              });
-            }
-
-            if (item.children.length) {
-              this.setFile(item.children);
-            }
-          })
-        }
-      },
-
-      initSort() {
-        if (this.sortable == null) {
-          let elements = document.querySelectorAll('.media-library .tree__trunk--sortable');
-
-          let containers = [];
-          if (elements.length) {
-            elements.forEach(element => {
-              containers.push(element);
-            })
-
-            this.sortable = dragula(containers, {
-              direction: 'vertical'
-            })
-            .on('drop', (e) => {
-              let parent = document.querySelector('.media-library .tree__trunk[data-id="'+e.dataset.parent+'"');
-              let newParent = e.closest('.tree__trunk');
-              let children = [];
-              let parentId = e.dataset.parent;
-
-              // check to see if the parent has updated
-              if (parent.dataset.id !== newParent.dataset.id) {
-                // we have a different parent, need to update
-                children = newParent.querySelectorAll(':scope > .tree__branch');
-                parentId = parseInt(newParent.dataset.id);
-
-                // find and update the new leaf
-                if (typeof this.tree[e.dataset.id] != 'undefined') {
-                  this.tree[e.dataset.id].parent_id = parentId;
-
-                  // now update the leaf in the db
-                  this.categoryUpdateParent(e.dataset.id, parentId);
-                }
-
-              } else {
-                children = parent.querySelectorAll(':scope > .tree__branch');
-              }
-
-              if (children.length) {
-                let ids = [];
-                children.forEach(el => {
-                  ids.push(el.dataset.id);
-                });
-
-                this.reposition(ids, parentId);
-              }
-
-            })
-            ;
-          }
-        }
-      },
-
-      loadFiles() {
-        this.tab = 'files';
-        this.show.tabs.details.file = false;
-        this.show.tabs.details.category = true;
-        this.show.buttons.controls = false;
-      },
-
-      // finds the folder the particular page is in
-      findFolder() {
-        let key = this.category.parent_id;
-        if (typeof this.tree[key] != 'undefined' && this.tree[key].show === false) {
-          this.tree[key].show = true;
-        }
-      },
-
-      scroll() {
-        this.$el.querySelector('.pages__info').scrollTop = 0;
-      },
-
-      //////
-      /// category
-
-      // load the page for editing
-      loadCategory(item) {
-        this.turnOffCategories();
-        this.scroll();
-
-        this.category = item;
-        this.category.on = true;
-        this.category.show = true;
-        this.show.tabs.files = true;
-        this.show.tabs.details.category = true;
-        this.show.buttons.categoryDelete =  (!(this.category.files.length || this.category.children.length));
-        this.categoryClose();
-
-        this.turnOnParents(this.category);
-        this.loadFiles();
-      },
-
-      // show the add category stuff
-      categoryShow() {
-        this.show.buttons.controls = true;
-        this.tab = 'details-category';
-        this.categoryClone = this.$root.clone(this.category);
-      },
-
-      categoryAdd() {
-        let newData = this.$root.clone(this.leaf.category);
-        newData.parent_id = this.category.id;
-        this.loadCategory(newData);
-        this.show.buttons.controls = true;
-        this.show.buttons.categoryDelete = false;
-        this.show.tabs.files = false;
-
-        if (typeof this.tree[newData.parent_id] != 'undefined') {
-          this.tree[newData.parent_id].on = true;
-        }
-
-        this.tab = 'details-category';
-      },
-
-      // removes the add category form
-      categoryCancel() {
-        this.category.name = this.categoryClone.name;
-        this.show.buttons.controls = false;
-        this.show.tabs.files = true;
-        this.categoryClone = {};
-        this.loadFiles();
-      },
-
-      categoryClose() {
-        this.show.buttons.controls = false;
-        this.show.tabs.files = true;
-        this.categoryClone = {};
-        this.tab = 'files';
-      },
-
-      categorySave() {
-
-        let check   = /^.+[\s]{0,4}/,
-            errors  = [],
-            validationData = document.createElement('ul')
-        ;
-
-        // do the validation
-        if (!check.test(this.category.name) || this.category.name === null) {
-          errors.push(1);
-          let child = document.createElement('li');
-          child.innerText = 'Please enter a Name';
-          validationData.appendChild(child);
-        }
-
-        if (errors.length) {
-          swal({
-            title: 'You have some errors in your form.',
-            content: validationData,
-            icon: 'error',
-            dangerMode: true,
-          });
-        } else {
-
-          this.$root.loading = true;
-          let config = {
-            url: `${window.siteUrl}/refined/media/categories`,
-            method: 'POST',
-            data: this.category,
-          }
-
-          if (typeof this.category.newPage === 'undefined') {
-            config.method = 'PUT';
-            config.url += '/'+ this.category.id
-          }
-
-          axios
-            .request(config)
-            .then(r => {
-              this.$root.loading = false;
-              if (r.data.success) {
-
-                if (typeof this.category.newPage !== 'undefined') {
-                  // we have just added a page, so insert it into the menu
-                  this.tree[r.data.leaf.id] = r.data.leaf;
-                  if (typeof this.tree[this.category.parent_id] != 'undefined') {
-                    this.tree[this.category.parent_id].children.push(r.data.leaf);
-                  }
-
-                  // load the page
-                  this.loadCategory(this.tree[r.data.leaf.id]);
-                  this.findFolder();
-                  this.categoryClose();
-                }
-
-                swal({
-                  title: 'Success',
-                  text: 'Category has been successfully saved',
-                  icon: 'success'
-                });
-
-                this.categoryClose();
-
-              }
-              else {
-                swal({
-                  title: 'Something went wrong',
-                  text: r.data.msg,
-                  icon: 'error'
-                });
-              }
-            })
-            .catch(e => {
-              console.log(e);
-              this.$root.loading = false;
-              swal({
-                title: 'Something went wrong',
-                text: e.message,
-                icon: 'error'
-              });
-            })
-          ;
-
-        }
-      },
-
-      categoryDelete() {
-        swal({
-          title: 'Are you sure?',
-          icon: 'warning',
-          buttons: true,
-          dangerMode: true,
-        }).then(value => {
-          if (value) {
-          this.$root.loading = true;
-            axios
-              .delete(`${window.siteUrl}/refined/media/categories/${this.category.id}`)
-              .then(r => {
-                this.$root.loading = false;
-
-                if (r.data.success) {
-
-                  // find the page and splice from parent
-                  this.categoryFindAndRemove(this.categories, this.category);
-
-                } else {
-                  swal({
-                    title: 'Something went wrong',
-                    text: r.data.msg,
-                    icon: 'error'
-                  });
-                }
-              })
-              .catch(e => {
-                console.log(e);
-                this.$root.loading = false;
-                swal({
-                  title: 'Something went wrong',
-                  text: e.message,
-                  icon: 'error'
-                });
-              })
-            ;
-          }
-        });
-      },
-
-      // find the page in the parent and remove
-      categoryFindAndRemove(items, item) {
-        if (items.length) {
-          items.forEach((category, index) => {
-            if (item.id === category.id) {
-              items.splice(index, 1);
-              delete this.tree[item.id];
-
-              // set the first category in the list to the new active category
-              if (items.length) {
-                this.loadCategory(items[0]);
-              } else {
-                // load the parent
-                this.loadCategory(this.tree[item.parent_id]);
-              }
-            }
-
-            if (category.children.length) {
-              this.categoryFindAndRemove(category.children, item);
-            }
-          });
-        }
-
-      },
-
-      // run the db to reset position items
-      reposition(ids, parent) {
-        if (Array.isArray(ids) && ids.length) {
-          axios
-            .post(`${window.siteUrl}/refined/media/categories/position`, {
-              positions: ids,
-              parent,
-            })
-            .catch(error => {
-              console.log('Sort Error', error);
-            })
-          ;
-        }
-
-      },
-
-      // updates the parent ids in the db
-      categoryUpdateParent(itemId, parentId) {
-        let config = {
-          url: `${window.siteUrl}/refined/media/categories/${itemId}/update-parent`,
-          method: 'PUT',
-          data: { parentId }
-        };
-
-        axios
-          .request(config)
-          .catch(error => {
-            console.log('Sort Error', error);
-          })
-        ;
-      },
-
-      /// category
-      //////
-
-      //////
-      /// drop zone
-      setDropZone() {
-
-        if (this.drop == null) {
-          let self = this;
-          let args = {
-            url: `${window.siteUrl}/refined/media/upload-file`,
-            acceptedFiles: 'image/*,.pdf,.docx,.doc,.xls,.xlsx,.zip,.mp4,.json',
-            maxFilesize: this.maxFilesize,
-            timeout: 300000,
-            createImageThumbnails: true,
-            previewsContainer: self.$el.querySelector('.media-uploader__preview-listing'),
-            headers: {
-              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-          };
-
-          this.drop = new Dropzone(
-            '#dropzone',
-            args
-          ).on('error', err => {
-              this.dropError(err);
-            })
-            .on('sending', (file, xhr, data) => {
-              this.dropSending(data);
-            })
-            .on('success', file => {
-              this.dropSuccess(file);
-            })
-          ;
-
-          let args2 = this.$root.clone(args);
-          args2.clickable = false;
-          args2.previewTemplate = self.$el.querySelector('.media__file--template').innerHTML
-          delete args2.previewsContainer;
-
-          this.drop2 = new Dropzone(
-            '#dropzone-2',
-            args2
-          ).on('error', err => {
-              this.dropError(err);
-            })
-            .on('sending', (file, xhr, data) => {
-              this.dropSending(data);
-            })
-            .on('success', file => {
-              this.dropSuccess(file, true);
-            })
-          ;
-        }
-      },
-
-      dropError(err) {
-        if (err.status === 'error') {
-          const error = err.previewElement.querySelector('.dz-error-mark');
-          if (error) {
-            error.addEventListener('click', () => {
-              $(err.previewElement).fadeOut(300).remove();
-            })
-          }
-          if (typeof err.xhr != 'undefined') {
-            let msg = JSON.parse(err.xhr.response);
-            let message = '';
-            if (typeof msg.exception != 'undefined') {
-              message = msg.message ? msg.message : msg.exception;
-
-              if (message === 'Symfony\\Component\\HttpKernel\\Exception\\NotFoundHttpException') {
-                message = 'Route not found, please contact support';
-              }
-
-            }
-
-            if (message) {
-              err.previewElement.querySelector('[data-dz-errormessage]').innerText = message;
-            }
-          }
-        }
-      },
-
-      dropSending(data) {
-        data.append('media_category_id', this.category.id);
-      },
-
-      dropSuccess(file, inline = false) {
-        if (!file.type.match('image/')) {
-          file.previewElement.querySelector('.dz-image').classList.add('dz-file');
-        }
-
-        setTimeout(() => {
-          $(file.previewElement).fadeOut(300).remove();
-        }, 500);
-
-        // here we need to add the returned data into the files array
-        if (typeof file.xhr != 'undefined') {
-          let response = JSON.parse(file.xhr.response);
-          if (response.file) {
-            this.category.files.push(response.file);
-          }
-        }
-
-        if (inline) {
-          this.drop2.removeFile(file);
-        }
-      },
-
-      /// drop zone
-      //////
-
-
-      mediaClose() {
-        this.$root.media.active = false;
-        const element = document.querySelector('#app');
-        if (element && element.classList.contains('app--has-media')) {
-          element.classList.remove('app--has-media');
-        }
-        this.drop.removeAllFiles();
-      },
-
-      mediaOpen() {
-        this.$root.media.active = true;
-        const element = document.querySelector('#app');
-        if (element && !element.classList.contains('app--has-media')) {
-          element.classList.add('app--has-media');
-        }
-        this.drop.removeAllFiles();
-      },
-
-      mediaDisplay(type) {
-        this.$root.media.display = type;
-      },
-
-      mediaDropped(e) {
-        if (typeof this.files[e.mediaId] != 'undefined' && typeof this.tree[e.categoryId] != 'undefined') {
-          let file = this.files[e.mediaId];
-
-          let newCategory = this.tree[e.categoryId];
-
-          let oldCategory = this.tree[file.media_category_id];
-          // find the media in the listing
-          if (oldCategory.files.length) {
-            oldCategory.files.forEach((f, index) => {
-              if (f.id === file.id) {
-                oldCategory.files.splice(index, 1);
-              }
+          else {
+            swal({
+              title: 'Something went wrong',
+              text: r.data.msg,
+              icon: 'error'
             });
           }
-
-          // add the file to the new category
-          file.media_category_id = e.categoryId;
-          newCategory.files.push(file);
-
-          // update the db
-          axios
-            .post(`${window.siteUrl}/refined/media/update-parent`, {
-              media: e.mediaId,
-              media_category_id: e.categoryId,
-            })
-            .then(response => {})
-            .catch(error => {
-              console.log('Sort Error', error);
-            })
-          ;
-
-        }
-      },
-
-      mediaLoad(item) {
-        if (!this.modal) {
-          this.file = item;
-          this.tab = 'details-file';
-          this.show.tabs.details.file = true;
-          this.show.tabs.details.category = false;
-          this.show.buttons.controls = true;
-        } else {
-          // fire an event for the chosen file
-          const newItem = {...item};
-          newItem.model = this.$root.media.model;
-          eventBus.$emit('selecting-file', newItem);
-        }
-      },
-
-      mediaSave() {
-
-        let check   = /^.+[\s]{0,4}/,
-            errors  = [],
-            validationData = document.createElement('ul')
-        ;
-
-        // do the validation
-        if (!check.test(this.file.name) || this.file.name == null) {
-          errors.push(1);
-          let child = document.createElement('li');
-          child.innerText = 'Please enter a Name';
-          validationData.appendChild(child);
-        }
-
-        if (errors.length) {
+        })
+        .catch(e => {
+          console.log(e);
+          ui.loading = false;
           swal({
-            title: 'You have some errors in your form.',
-            content: validationData,
-            icon: 'error',
-            dangerMode: true,
+            title: 'Something went wrong',
+            text: e.message,
+            icon: 'error'
           });
-        } else {
-
-          this.$root.loading = true;
-          let config = {
-            url: `${window.siteUrl}/refined/media/${this.file.id}`,
-            method: 'PUT',
-            data: this.file,
-          }
-
-          axios
-            .request(config)
-            .then(r => {
-              this.$root.loading = false;
-              if (r.data.success) {
-
-                swal({
-                  title: 'Success',
-                  text: 'The file has been successfully saved',
-                  icon: 'success'
-                });
-
-              }
-              else {
-                swal({
-                  title: 'Something went wrong',
-                  text: r.data.msg,
-                  icon: 'error'
-                });
-              }
-            })
-            .catch(e => {
-              console.log(e);
-              this.$root.loading = false;
-              swal({
-                title: 'Something went wrong',
-                text: e.message,
-                icon: 'error'
-              });
-            })
-          ;
-
-        }
-      },
-
-      mediaUpdated(item) {
-        if (this.files[item.id]) {
-          this.files[item.id] = item;
-        }
-
-        if (this.file.id == item.id && item.external_url) {
-          this.file.external_url = item.external_url;
-          this.file.external_id = item.external_id;
-        }
-      },
-
-      mediaDelete(item) {
-
-        swal({
-          title: 'Are you sure?',
-          icon: 'warning',
-          buttons: true,
-          dangerMode: true,
         })
-        .then((value) => {
-          this.$root.loading = true;
-
-          if (value) {
-            axios
-              .delete(`${window.siteUrl}/refined/media/${item.id}`)
-              .then(r => {
-                this.$root.loading = false;
-
-                if (r.data.success) {
-                  // find the page and splice from parent
-                  this.mediaFindAndRemove(this.categories, item);
-                  this.loadFiles();
-
-                } else {
-                  swal({
-                    title: 'Something went wrong',
-                    text: r.data.msg,
-                    icon: 'error'
-                  });
-                }
-              })
-              .catch(e => {
-                console.log(e);
-                this.$root.loading = false;
-                swal({
-                  title: 'Something went wrong',
-                  text: e.message,
-                  icon: 'error'
-                });
-              })
-            ;
-          }
-        })
-        ;
-      },
-
-      bulkDelete() {
-        swal({
-          title: 'Are you sure?',
-          icon: 'warning',
-          buttons: true,
-          dangerMode: true,
-        })
-        .then((value) => {
-          if (value) {
-            this.$root.loading = true;
-            axios
-              .post(`${window.siteUrl}/refined/media/bulk`, {
-                ids: this.bulk,
-              })
-              .then(r => {
-                this.$root.loading = false;
-                if (r.data.success) {
-                  // find the items
-                  const items = this.bulk.map(id => {
-                    return this.files[id] || null
-                  }).filter(item => !!item);
-
-                  if (items.length) {
-                    items.forEach(item => {
-                      // find the page and splice from parent
-                      this.mediaFindAndRemove(this.categories, item);
-                    })
-                  }
-
-                  this.loadFiles();
-                  this.bulk = [];
-
-                } else {
-                  swal({
-                    title: 'Something went wrong',
-                    text: r.data.msg,
-                    icon: 'error'
-                  });
-                }
-
-
-              })
-              .catch(e => {
-                console.log(e);
-                this.$root.loading = false;
-                swal({
-                  title: 'Something went wrong',
-                  text: e.message,
-                  icon: 'error'
-                });
-              })
-            ;
-          }
-        })
-        ;
-      },
-
-      mediaFindAndRemove(items, item) {
-        if (items.length) {
-          items.forEach(category => {
-            if (typeof category.files !== 'undefined' && category.files.length) {
-              category.files.forEach((file, index) => {
-                if (file.id === item.id) {
-                  category.files.splice(index, 1);
-                  delete this.files[item.id];
-                }
-              });
-            }
-
-            if (category.children.length) {
-              this.mediaFindAndRemove(category.children, item);
-            }
-          });
-        }
-
-      },
-
-
-      // copy url
-      copyUrl() {
-        let string = this.file.link.original;
-        let el = document.createElement('textarea');
-
-        el.value = string;
-
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-
-        document.body.removeChild(el);
-
-      },
-
-      // clearing out the search
-      clearSearch() {
-        this.search = '';
-      },
-
-      close() {
-        this.$root.media.showModal = false;
-        this.$root.media.active = false;
-        this.$root.media.model = 0;
-        this.reset();
-        this.scroll();
-        document.querySelector('body').classList.remove('body-has-modal');
-      },
-
-      clear() {
-        this.close();
-        this.$root.media.display = 'thumb';
-    	  this.$root.media.model = null;
-        this.$root.media.fieldId = null;
-        this.$root.media.type = 'image';
-      },
-
-      setType(type) {
-        this.type = type;
-        this.scroll();
-      },
-
-      reset() {
-        this.search = '';
-        this.type = '*';
-        if (this.tree.length) {
-          this.loadCategory(this.tree[1].children[0]);
-        }
-      }
+      ;
 
     }
   }
+
+  function categoryDelete() {
+    swal({
+      title: 'Are you sure?',
+      icon: 'warning',
+      buttons: true,
+      dangerMode: true,
+    }).then(value => {
+      if (value) {
+      ui.loading = true;
+        axios
+          .delete(`${window.siteUrl}/refined/media/categories/${category.value.id}`)
+          .then(r => {
+            ui.loading = false;
+
+            if (r.data.success) {
+
+              // find the page and splice from parent
+              categoryFindAndRemove(categories.value, category.value);
+
+            } else {
+              swal({
+                title: 'Something went wrong',
+                text: r.data.msg,
+                icon: 'error'
+              });
+            }
+          })
+          .catch(e => {
+            console.log(e);
+            ui.loading = false;
+            swal({
+              title: 'Something went wrong',
+              text: e.message,
+              icon: 'error'
+            });
+          })
+        ;
+      }
+    });
+  }
+
+  // remove a category via the store, then load the fallback folder it returns
+  function categoryFindAndRemove(items, item) {
+    const fallback = media.removeCategory(item);
+    if (fallback) {
+      loadCategory(fallback);
+    }
+  }
+
+  // run the db to reset position items
+  function reposition(ids, parent) {
+    if (Array.isArray(ids) && ids.length) {
+      axios
+        .post(`${window.siteUrl}/refined/media/categories/position`, {
+          positions: ids,
+          parent,
+        })
+        .catch(error => {
+          console.log('Sort Error', error);
+        })
+      ;
+    }
+
+  }
+
+  // updates the parent ids in the db
+  function categoryUpdateParent(itemId, parentId) {
+    let config = {
+      url: `${window.siteUrl}/refined/media/categories/${itemId}/update-parent`,
+      method: 'PUT',
+      data: { parentId }
+    };
+
+    axios
+      .request(config)
+      .catch(error => {
+        console.log('Sort Error', error);
+      })
+    ;
+  }
+
+  /// category
+  //////
+
+  //////
+  /// drop zone
+  function setDropZone() {
+
+    if (drop == null) {
+      let args = {
+        url: `${window.siteUrl}/refined/media/upload-file`,
+        acceptedFiles: 'image/*,.pdf,.docx,.doc,.xls,.xlsx,.zip,.mp4,.json',
+        maxFilesize: props.maxFilesize,
+        timeout: 300000,
+        createImageThumbnails: true,
+        previewsContainer: root.value.querySelector('.media-uploader__preview-listing'),
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+        }
+      };
+
+      drop = new Dropzone(
+        '#dropzone',
+        args
+      ).on('error', err => {
+          dropError(err);
+        })
+        .on('sending', (f, xhr, data) => {
+          dropSending(data);
+        })
+        .on('success', f => {
+          dropSuccess(f);
+        })
+      ;
+
+      let args2 = clone(args);
+      args2.clickable = false;
+      args2.previewTemplate = root.value.querySelector('.media__file--template').innerHTML
+      delete args2.previewsContainer;
+
+      drop2 = new Dropzone(
+        '#dropzone-2',
+        args2
+      ).on('error', err => {
+          dropError(err);
+        })
+        .on('sending', (f, xhr, data) => {
+          dropSending(data);
+        })
+        .on('success', f => {
+          dropSuccess(f, true);
+        })
+      ;
+    }
+  }
+
+  function dropError(err) {
+    if (err.status === 'error') {
+      const error = err.previewElement.querySelector('.dz-error-mark');
+      if (error) {
+        error.addEventListener('click', () => {
+          fadeOutAndRemove(err.previewElement);
+        })
+      }
+      if (typeof err.xhr != 'undefined') {
+        let msg = JSON.parse(err.xhr.response);
+        let message = '';
+        if (typeof msg.exception != 'undefined') {
+          message = msg.message ? msg.message : msg.exception;
+
+          if (message === 'Symfony\\Component\\HttpKernel\\Exception\\NotFoundHttpException') {
+            message = 'Route not found, please contact support';
+          }
+
+        }
+
+        if (message) {
+          err.previewElement.querySelector('[data-dz-errormessage]').innerText = message;
+        }
+      }
+    }
+  }
+
+  function dropSending(data) {
+    data.append('media_category_id', category.value.id);
+  }
+
+  function dropSuccess(f, inline = false) {
+    if (!f.type.match('image/')) {
+      f.previewElement.querySelector('.dz-image').classList.add('dz-file');
+    }
+
+    setTimeout(() => {
+      fadeOutAndRemove(f.previewElement);
+    }, 500);
+
+    // push the uploaded file into the store (no refetch needed)
+    if (typeof f.xhr != 'undefined') {
+      let response = JSON.parse(f.xhr.response);
+      if (response.file) {
+        if (!response.file.media_category_id) {
+          response.file.media_category_id = category.value.id;
+        }
+        media.addFile(response.file);
+      }
+    }
+
+    if (inline) {
+      drop2.removeFile(f);
+    }
+  }
+
+  /// drop zone
+  //////
+
+
+  function mediaClose() {
+    ui.media.active = false;
+    const element = document.querySelector('#app');
+    if (element && element.classList.contains('app--has-media')) {
+      element.classList.remove('app--has-media');
+    }
+    drop.removeAllFiles();
+  }
+
+  function mediaOpen() {
+    ui.media.active = true;
+    const element = document.querySelector('#app');
+    if (element && !element.classList.contains('app--has-media')) {
+      element.classList.add('app--has-media');
+    }
+    drop.removeAllFiles();
+  }
+
+  function mediaDisplay(t) {
+    ui.media.display = t;
+  }
+
+  function mediaDropped(e) {
+    if (typeof files[e.mediaId] != 'undefined' && typeof tree[e.categoryId] != 'undefined') {
+      // move in the store (updates both categories + indexes)
+      media.moveFile(e.mediaId, e.categoryId);
+
+      // update the db
+      axios
+        .post(`${window.siteUrl}/refined/media/update-parent`, {
+          media: e.mediaId,
+          media_category_id: e.categoryId,
+        })
+        .then(response => {})
+        .catch(error => {
+          console.log('Sort Error', error);
+        })
+      ;
+
+    }
+  }
+
+  function mediaLoad(item) {
+    if (!props.modal) {
+      file.value = item;
+      tab.value = 'details-file';
+      show.tabs.details.file = true;
+      show.tabs.details.category = false;
+      show.buttons.controls = true;
+    } else {
+      // fire an event for the chosen file
+      const newItem = {...item};
+      newItem.model = ui.media.model;
+      eventBus.emit('selecting-file', newItem);
+    }
+  }
+
+  function mediaSave() {
+
+    let check   = /^.+[\s]{0,4}/,
+        errors  = [],
+        validationData = document.createElement('ul')
+    ;
+
+    // do the validation
+    if (!check.test(file.value.name) || file.value.name == null) {
+      errors.push(1);
+      let child = document.createElement('li');
+      child.innerText = 'Please enter a Name';
+      validationData.appendChild(child);
+    }
+
+    if (errors.length) {
+      swal({
+        title: 'You have some errors in your form.',
+        content: validationData,
+        icon: 'error',
+        dangerMode: true,
+      });
+    } else {
+
+      ui.loading = true;
+      let config = {
+        url: `${window.siteUrl}/refined/media/${file.value.id}`,
+        method: 'PUT',
+        data: file.value,
+      }
+
+      axios
+        .request(config)
+        .then(r => {
+          ui.loading = false;
+          if (r.data.success) {
+
+            swal({
+              title: 'Success',
+              text: 'The file has been successfully saved',
+              icon: 'success'
+            });
+
+          }
+          else {
+            swal({
+              title: 'Something went wrong',
+              text: r.data.msg,
+              icon: 'error'
+            });
+          }
+        })
+        .catch(e => {
+          console.log(e);
+          ui.loading = false;
+          swal({
+            title: 'Something went wrong',
+            text: e.message,
+            icon: 'error'
+          });
+        })
+      ;
+
+    }
+  }
+
+  function mediaUpdated(item) {
+    media.updateFile(item);
+
+    if (file.value.id == item.id && item.external_url) {
+      file.value.external_url = item.external_url;
+      file.value.external_id = item.external_id;
+    }
+  }
+
+  function mediaDelete(item) {
+
+    swal({
+      title: 'Are you sure?',
+      icon: 'warning',
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((value) => {
+      ui.loading = true;
+
+      if (value) {
+        axios
+          .delete(`${window.siteUrl}/refined/media/${item.id}`)
+          .then(r => {
+            ui.loading = false;
+
+            if (r.data.success) {
+              // find the page and splice from parent
+              mediaFindAndRemove(categories.value, item);
+              loadFiles();
+
+            } else {
+              swal({
+                title: 'Something went wrong',
+                text: r.data.msg,
+                icon: 'error'
+              });
+            }
+          })
+          .catch(e => {
+            console.log(e);
+            ui.loading = false;
+            swal({
+              title: 'Something went wrong',
+              text: e.message,
+              icon: 'error'
+            });
+          })
+        ;
+      }
+    })
+    ;
+  }
+
+  function bulkDelete() {
+    swal({
+      title: 'Are you sure?',
+      icon: 'warning',
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((value) => {
+      if (value) {
+        ui.loading = true;
+        axios
+          .post(`${window.siteUrl}/refined/media/bulk`, {
+            ids: bulk.value,
+          })
+          .then(r => {
+            ui.loading = false;
+            if (r.data.success) {
+              // find the items
+              const items = bulk.value.map(id => {
+                return files[id] || null
+              }).filter(item => !!item);
+
+              if (items.length) {
+                items.forEach(item => {
+                  // find the page and splice from parent
+                  mediaFindAndRemove(categories.value, item);
+                })
+              }
+
+              loadFiles();
+              bulk.value = [];
+
+            } else {
+              swal({
+                title: 'Something went wrong',
+                text: r.data.msg,
+                icon: 'error'
+              });
+            }
+
+
+          })
+          .catch(e => {
+            console.log(e);
+            ui.loading = false;
+            swal({
+              title: 'Something went wrong',
+              text: e.message,
+              icon: 'error'
+            });
+          })
+        ;
+      }
+    })
+    ;
+  }
+
+  function mediaFindAndRemove(items, item) {
+    media.removeFile(item);
+  }
+
+
+  // copy url
+  function copyUrl() {
+    let string = file.value.link.original;
+    let el = document.createElement('textarea');
+
+    el.value = string;
+
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+
+    document.body.removeChild(el);
+
+  }
+
+  // clearing out the search
+  function clearSearch() {
+    search.value = '';
+  }
+
+  function close() {
+    ui.media.showModal = false;
+    ui.media.active = false;
+    ui.media.model = 0;
+    reset();
+    scroll();
+    document.querySelector('body').classList.remove('body-has-modal');
+  }
+
+  function clear() {
+    close();
+    ui.media.display = 'thumb';
+    ui.media.model = null;
+    ui.media.fieldId = null;
+    ui.media.type = 'image';
+  }
+
+  function setType(t) {
+    type.value = t;
+    scroll();
+  }
+
+  // only clear the transient filters on close — the open folder is kept so the
+  // modal reopens exactly where the user left it.
+  function reset() {
+    search.value = '';
+    type.value = '*';
+  }
+
+  // created: load the tree once (no-op on subsequent modal opens)
+  siteUrl.value = window.siteUrl;
+  ui.loading = true;
+  media.load().finally(() => {
+    ui.loading = false;
+    // open the first real category the first time only
+    if (!category.value?.id && media.tree[1]?.children?.length) {
+      loadCategory(media.tree[1].children[0]);
+    }
+  });
+
+  onMounted(() => {
+    eventBus.on('media-close', close);
+    eventBus.on('media-set-type', setType);
+    // NB: 'media-reload' is intentionally not handled — the library loads once
+    // and is kept fresh by in-place store mutations. Use the Refresh button to
+    // force a server refetch.
+    eventBus.on('media-clear', clear);
+    eventBus.on('media-updated', mediaUpdated);
+    eventBus.on('media-dropped', mediaDropped);
+
+    setDropZone();
+  });
+
+  onUpdated(() => {
+    nextTick(() => {
+      initSort();
+    });
+  });
+
+  onUnmounted(() => {
+    eventBus.off('media-close', close);
+    eventBus.off('media-set-type', setType);
+    eventBus.off('media-clear', clear);
+    eventBus.off('media-updated', mediaUpdated);
+    eventBus.off('media-dropped', mediaDropped);
+    if (sortable) sortable.destroy();
+  });
+
+  // recursive MediaBranch children inject these instead of walking the parent chain
+  provide('media:loadCategory', loadCategory);
+  provide('media:toggleSubMenu', toggleSubMenu);
 </script>

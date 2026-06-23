@@ -13,7 +13,7 @@
   }
 
   &--red {
-    color: color(red) !important;
+    color: var(--color-red) !important;
   }
 
   &--no-margin {
@@ -23,7 +23,7 @@
 
 a.text {
   &--red:hover {
-    color: darken(color(red), $darkenAmount) !important;
+    color: color-mix(in srgb, var(--color-red), black 10%) !important;
   }
 }
 

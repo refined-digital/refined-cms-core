@@ -1,7 +1,9 @@
+@use '../variables' as *;
+
 /* system */
 html { background:#fff; overflow-x:hidden; }
 body { padding:0; }
-body, button, input, select, textarea { font:#{$systemFontSize}/#{$systemLineHeight} $systemFont; color:color(text); -webkit-font-smoothing: antialiased; }
+body, button, input, select, textarea { font:#{$systemFontSize}/#{$systemLineHeight} $systemFont; color:var(--color-text); -webkit-font-smoothing: antialiased; }
 body.body-has-modal .trumbowyg-modal {
   display: none;
 }
@@ -9,7 +11,7 @@ body.body-has-modal .trumbowyg-modal {
 /* end system */
 
 /* type */
-h1, h2, h3, h4, h5, h6 { font-weight: 500; letter-spacing: 0.08em; color: color(black); }
+h1, h2, h3, h4, h5, h6 { font-weight: 500; letter-spacing: 0.08em; color: var(--color-black); }
 h1 { font-size: 48px; }
 h2 { font-size: 24px; }
 h3 { font-size: 21px; }
@@ -17,8 +19,8 @@ h4 { font-size: 18px; }
 h5 { font-size: 14px; }
 h6 { }
 
-a { color:color(link); text-decoration:none; }
-a:hover { color:color(link-hover); }
+a { color:var(--color-link); text-decoration:none; }
+a:hover { color:var(--color-link-hover); }
 @media only screen and (max-width:660px) { a { overflow-wrap: break-word; word-wrap: break-word; } }
 
 a, input[type="submit"], button, .button, .data-table__cell, .tree li i, .tree li span,

@@ -23,6 +23,12 @@ trait EditFormFieldsTrait
     {
         if (method_exists($this, 'setFormFields')) {
             $fields = $this->setFormFields();
+        } elseif (method_exists($this, 'formSchema')) {
+            // fluent Tab/Block/Field builders — compile to the legacy array shape
+            $fields = array_map(
+                fn ($tab) => is_object($tab) && method_exists($tab, 'toArray') ? $tab->toArray() : $tab,
+                $this->formSchema()
+            );
         } else {
             if (method_exists($this, 'formFields')) {
                 $fields = $this->formFields();
@@ -301,20 +307,20 @@ trait EditFormFieldsTrait
         return $fields;
     }
 
-    private function array_find_deep($array, $search, $keys = array())
+    private function array_find_deep($array, $search, $keys = [])
     {
         foreach ($array as $key => $value) {
             if (is_array($value)) {
-                $sub = $this->array_find_deep($value, $search, array_merge($keys, array($key)));
+                $sub = $this->array_find_deep($value, $search, array_merge($keys, [$key]));
                 if (count($sub)) {
                     return $sub;
                 }
             } else if ($value === $search) {
-                return array_merge($keys, array($key));
+                return array_merge($keys, [$key]);
             }
         }
 
-        return array();
+        return [];
     }
 
     private function injectImageDimensions(&$fields)

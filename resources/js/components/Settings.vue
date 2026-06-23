@@ -4,7 +4,7 @@
       <div class="pages__header">
         <h3>{{ heading }}</h3>
         <aside>
-          <template v-if="$root.user.user_level_id < 2">
+          <template v-if="config.user.user_level_id < 2">
             <a href="" class="button button--green button--small" @click.prevent.stop="toggleContentEditorForm">Add a Setting</a>
             <span> | </span>
           </template>
@@ -73,7 +73,7 @@
                       <i class="fa fa-sort"></i>
                       <label :for="'form--content-'+item.id">{{ item.name }}</label>
                     </div>
-                    <i class="fa fa-times" @click="removeContent(index)" v-if="$root.user.user_level_id < 2"></i>
+                    <i class="fa fa-times" @click="removeContent(index)" v-if="config.user.user_level_id < 2"></i>
                   </div>
 
                   <rd-content-editor-field :item="item"></rd-content-editor-field>
@@ -89,231 +89,226 @@
   </div><!-- / pages -->
 </template>
 
-<script>
+<script setup>
+  import { ref, reactive, onUpdated, onUnmounted, nextTick } from 'vue';
   import swal from 'sweetalert';
+  import { useUiStore } from '../stores/ui';
+  import { useConfigStore } from '../stores/config';
 
-  export default {
+  const props = defineProps(['data', 'model', 'heading']);
 
-    props: [ 'data', 'model', 'heading' ],
+  const ui = useUiStore();
+  const config = useConfigStore();
 
-    created () {
-      // get the content types
-      this.$root.loading = true;
-      axios
-        .get(`${window.siteUrl}/refined/pages/get-tree`)
-        .then(r => {
-          this.$root.loading = false;
-          if (r.status == 200) {
-            this.contentTypes = r.data.types;
-          }
-        })
-        .catch(e => {
-          this.$root.loading = false;
-        })
-      ;
+  const contentTypes = ref([]);
+  let contentSort = null;
+  const content = ref([]);
 
-      this.content = this.data;
-    },
+  const editor = reactive({
+    showForm: false,
+    form: {
+      name: null,
+      required: 0,
+      field_type: 3,
+      note: null,
+      options: []
+    }
+  });
 
-    updated() {
-      this.$nextTick(() => {
-        this.initSort();
+  function toggleContentEditorForm() {
+    editor.showForm = !editor.showForm;
+  }
+
+  function addContentField() {
+    let check   = /^.+[\s]{0,4}/,
+        errors  = [],
+        validationData = document.createElement('ul')
+    ;
+
+    // do the validation
+    if (!check.test(editor.form.name) || editor.form.name == null) {
+      errors.push(1);
+      let child = document.createElement('li');
+      child.innerText = 'Please enter a Name';
+      validationData.appendChild(child);
+    }
+    if (editor.form.field_type == 0) {
+      errors.push(1);
+      let child = document.createElement('li');
+      child.innerText = 'Please select a Field Type';
+      validationData.appendChild(child);
+    }
+    if (editor.form.field_type == 6 && editor.form.options.length < 1) {
+      errors.push(1);
+      let child = document.createElement('li');
+      child.innerText = 'Please add some options';
+      validationData.appendChild(child);
+    }
+
+    if (errors.length) {
+      swal({
+        title: 'You have some errors in your form.',
+        content: validationData,
+        icon: 'error',
+        dangerMode: true,
       });
-    },
+    } else {
+      // now push into the page content area
+      let length = content.value.length;
+      content.value.push({
+        id: 'field_'+length,
+        name: editor.form.name,
+        required: editor.form.required,
+        page_content_type_id: editor.form.field_type,
+        note: editor.form.note,
+        options: editor.form.options,
+        content: '',
+        position: length
+      });
 
-    data() {
-      return {
-
-        contentTypes: [],
-        contentSort: null,
-        content: [],
-
-        editor: {
-          showForm: false,
-          form: {
-            name: null,
-            required: 0,
-            field_type: 3,
-            note: null,
-            options: []
-          }
-        },
-      }
-    },
-
-    methods: {
-      toggleContentEditorForm() {
-        this.editor.showForm = !this.editor.showForm;
-      },
-
-      addContentField() {
-        let check   = /^.+[\s]{0,4}/,
-            errors  = [],
-            validationData = document.createElement('ul')
-        ;
-
-        // do the validation
-        if (!check.test(this.editor.form.name) || this.editor.form.name == null) {
-          errors.push(1);
-          let child = document.createElement('li');
-          child.innerText = 'Please enter a Name';
-          validationData.appendChild(child);
-        }
-        if (this.editor.form.field_type == 0) {
-          errors.push(1);
-          let child = document.createElement('li');
-          child.innerText = 'Please select a Field Type';
-          validationData.appendChild(child);
-        }
-        if (this.editor.form.field_type == 6 && this.editor.form.options.length < 1) {
-          errors.push(1);
-          let child = document.createElement('li');
-          child.innerText = 'Please add some options';
-          validationData.appendChild(child);
-        }
-
-        if (errors.length) {
-          swal({
-            title: 'You have some errors in your form.',
-            content: validationData,
-            icon: 'error',
-            dangerMode: true,
-          });
-        } else {
-          // now push into the page content area
-          let length = this.content.length;
-          this.content.push({
-            id: 'field_'+length,
-            name: this.editor.form.name,
-            required: this.editor.form.required,
-            page_content_type_id: this.editor.form.field_type,
-            note: this.editor.form.note,
-            options: this.editor.form.options,
-            content: '',
-            position: length
-          });
-
-          this.resetContentForm();
-          this.initSort();
-        }
-
-      },
-
-      resetContentForm() {
-        this.editor.form.name = null;
-        this.editor.form.required = 0;
-        this.editor.form.field_type = 3;
-        this.editor.form.note = null;
-        this.editor.form.options = [];
-      },
-
-      removeContent(index) {
-
-        swal({
-          title: 'Are you sure?',
-          icon: 'warning',
-          buttons: true,
-          dangerMode: true,
-        }).then(value => {
-          if (value) {
-            this.content.splice(index, 1);
-          }
-        });
-
-      },
-
-      initSort() {
-        if (this.contentSort == null) {
-          this.contentSort = dragula([document.querySelector('.content-editor__fields')], {
-            direction: 'vertical'
-          })
-          .on('drop', () => {
-            let fields = document.querySelectorAll('.content-editor__field');
-
-            if (fields.length) {
-              fields.forEach((field, index) => {
-                if (!field.classList.contains('gu-mirror')) {
-                  this.content.forEach(content => {
-                    if (content.id == field.dataset.id) {
-                      content.position = index;
-                    }
-                  })
-                }
-              })
-            }
-
-          });
-        }
-      },
-
-      save() {
-        // do some quick validation
-        let check   = /^.+[\s]{0,4}/,
-            errors  = [],
-            validationData = document.createElement('ul')
-        ;
-
-          this.content.forEach(content => {
-            if (content.required && (!check.test(content.content) || content.content == null)) {
-              errors.push(1);
-              let child = document.createElement('li');
-              child.innerText = 'The '+content.name+' field is required.';
-              validationData.appendChild(child);
-            }
-          })
-
-          if (errors.length) {
-            swal({
-              title: 'You have some errors in your form.',
-              content: validationData,
-              icon: 'error',
-              dangerMode: true,
-            });
-          } else {
-            let config = {
-              url: `${window.siteUrl}/refined/settings/${this.model}`,
-              method: 'POST',
-              data: this.content
-            }
-
-            axios
-              .request(config)
-              .then(r => {
-                this.$root.loading = false;
-                if (r.data.success) {
-                  swal({
-                    title: 'Success',
-                    text: 'Settings have been successfully saved',
-                    icon: 'success'
-                  });
-                } else {
-                  swal({
-                    title: 'Something went wrong',
-                    text: r.data.msg,
-                    icon: 'error'
-                  });
-                }
-              })
-              .catch(e => {
-                console.log(e);
-                this.$root.loading = false;
-                swal({
-                  title: 'Something went wrong',
-                  text: e.message,
-                  icon: 'error'
-                });
-              })
-            ;
-
-
-          }
-
-        }
-
-      }
-
+      resetContentForm();
+      initSort();
+    }
 
   }
+
+  function resetContentForm() {
+    editor.form.name = null;
+    editor.form.required = 0;
+    editor.form.field_type = 3;
+    editor.form.note = null;
+    editor.form.options = [];
+  }
+
+  function removeContent(index) {
+
+    swal({
+      title: 'Are you sure?',
+      icon: 'warning',
+      buttons: true,
+      dangerMode: true,
+    }).then(value => {
+      if (value) {
+        content.value.splice(index, 1);
+      }
+    });
+
+  }
+
+  function initSort() {
+    if (contentSort == null) {
+      contentSort = dragula([document.querySelector('.content-editor__fields')], {
+        direction: 'vertical'
+      })
+      .on('drop', () => {
+        let fields = document.querySelectorAll('.content-editor__field');
+
+        if (fields.length) {
+          fields.forEach((field, index) => {
+            if (!field.classList.contains('gu-mirror')) {
+              content.value.forEach(content => {
+                if (content.id == field.dataset.id) {
+                  content.position = index;
+                }
+              })
+            }
+          })
+        }
+
+      });
+    }
+  }
+
+  function save() {
+    // do some quick validation
+    let check   = /^.+[\s]{0,4}/,
+        errors  = [],
+        validationData = document.createElement('ul')
+    ;
+
+      content.value.forEach(content => {
+        if (content.required && (!check.test(content.content) || content.content == null)) {
+          errors.push(1);
+          let child = document.createElement('li');
+          child.innerText = 'The '+content.name+' field is required.';
+          validationData.appendChild(child);
+        }
+      })
+
+      if (errors.length) {
+        swal({
+          title: 'You have some errors in your form.',
+          content: validationData,
+          icon: 'error',
+          dangerMode: true,
+        });
+      } else {
+        let requestConfig = {
+          url: `${window.siteUrl}/refined/settings/${props.model}`,
+          method: 'POST',
+          data: content.value
+        }
+
+        axios
+          .request(requestConfig)
+          .then(r => {
+            ui.loading = false;
+            if (r.data.success) {
+              swal({
+                title: 'Success',
+                text: 'Settings have been successfully saved',
+                icon: 'success'
+              });
+            } else {
+              swal({
+                title: 'Something went wrong',
+                text: r.data.msg,
+                icon: 'error'
+              });
+            }
+          })
+          .catch(e => {
+            console.log(e);
+            ui.loading = false;
+            swal({
+              title: 'Something went wrong',
+              text: e.message,
+              icon: 'error'
+            });
+          })
+        ;
+
+
+      }
+
+    }
+
+  // created
+  ui.loading = true;
+  axios
+    .get(`${window.siteUrl}/refined/pages/get-tree`)
+    .then(r => {
+      ui.loading = false;
+      if (r.status == 200) {
+        contentTypes.value = r.data.types;
+      }
+    })
+    .catch(e => {
+      ui.loading = false;
+    })
+  ;
+
+  content.value = props.data;
+
+  onUpdated(() => {
+    nextTick(() => {
+      initSort();
+    });
+  });
+
+  onUnmounted(() => {
+    if (contentSort) contentSort.destroy();
+  });
 </script>
 
 <style>

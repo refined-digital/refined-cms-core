@@ -12,10 +12,12 @@ use Illuminate\Foundation\AliasLoader;
 use RefinedDigital\CMS\Commands\ConvertCpanel;
 use RefinedDigital\CMS\Commands\CreateContentBlock;
 use RefinedDigital\CMS\Commands\CreateModule;
+use RefinedDigital\CMS\Commands\ConvertFormSchema;
 use RefinedDigital\CMS\Commands\InstallCMS;
 use RefinedDigital\CMS\Commands\InstallDatabase;
 use RefinedDigital\CMS\Commands\InstallSymLink;
 use RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\FormBuilderIntegrationAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\ContentAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\CustomModuleAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\SitemapXMLAggregate;
@@ -106,6 +108,7 @@ class CMSServiceProvider extends ServiceProvider
             $this->commands([
                 CreateModule::class,
                 CreateContentBlock::class,
+                ConvertFormSchema::class,
             ]);
 
             $publicPathDir = explode('/', public_path());
@@ -179,6 +182,7 @@ class CMSServiceProvider extends ServiceProvider
         $this->app->singleton(ModuleAggregate::class);
         $this->app->singleton(PackageAggregate::class);
         $this->app->singleton(PaymentGatewayAggregate::class);
+        $this->app->singleton(FormBuilderIntegrationAggregate::class);
         $this->app->singleton(AssetAggregate::class);
         $this->app->singleton(CustomModuleAggregate::class);
         $this->app->singleton(SitemapXMLAggregate::class);

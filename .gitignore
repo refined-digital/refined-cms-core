@@ -1,8 +1,10 @@
 .idea
+.claude
+.plan
 /vendor
 /node_modules
 /package-lock.json
 /composer.lock
 .env
 .DS_Store
-
+.impeccable

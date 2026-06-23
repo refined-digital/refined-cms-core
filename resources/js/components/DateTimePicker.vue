@@ -5,33 +5,44 @@
     </div>
 </template>
 
-<script>
-  import Flatpickr from 'flatpickr';
-  import moment from 'moment';
-  import 'flatpickr/dist/themes/material_blue.css';
+<script setup>
+import { reactive, onMounted, onUnmounted } from 'vue';
+import Flatpickr from 'flatpickr';
+import { format, parse, parseISO, isValid } from 'date-fns';
+import 'flatpickr/dist/themes/material_blue.css';
 
-  export default {
+const props = defineProps(['field', 'value']);
 
-    props: [ 'field', 'value' ],
+const dateFormat = 'yyyy-MM-dd HH:mm:ss';
+let datePicker = null;
 
-    data() {
-      return {
-        datePicker: null,
-        dateFormat: 'YYYY-MM-DD HH:mm:ss',
-        config: {
-          altInput: true,
-          altFormat: 'F j, Y h:iK',
-          dateFormat: 'Y-m-d H:i:S',
-          enableTime: true,
-          defaultDate: ''
-        }
-      }
-    },
+const config = reactive({
+  altInput: true,
+  altFormat: 'F j, Y h:iK',
+  dateFormat: 'Y-m-d H:i:S',
+  enableTime: true,
+  defaultDate: '',
+});
 
-    mounted() {
-      this.config.defaultDate = this.value ? moment(this.value, this.dateFormat).format(this.dateFormat) : moment().format(this.dateFormat);
-      this.datePicker = new Flatpickr('#form--'+this.field.name, this.config);
-    }
-
+// parse leniently like moment did: try the exact format, then fall back to ISO
+function toDate(value) {
+  let d = parse(value, dateFormat, new Date());
+  if (!isValid(d)) {
+    d = parseISO(value);
   }
+  return isValid(d) ? d : new Date();
+}
+
+onMounted(() => {
+  config.defaultDate = props.value
+    ? format(toDate(props.value), dateFormat)
+    : format(new Date(), dateFormat);
+  datePicker = new Flatpickr('#form--' + props.field.name, config);
+});
+
+onUnmounted(() => {
+  // a selector-based Flatpickr returns an array of instances
+  const instances = Array.isArray(datePicker) ? datePicker : [datePicker];
+  instances.forEach((instance) => instance && instance.destroy());
+});
 </script>

@@ -14,23 +14,24 @@
           <tr v-for="(item, index) in items" class="form__control--options-row" :data-index="index" :key="item._key">
             <td class="data-table__cell data-table__cell--sort"><i class="fa fa-sort" v-if="items.length > 1"></i></td>
             <td class="data-table__cell">
-              <template
-                v-for="(cell, cellKey, index) of item"
-                v-if="cell.hide_field && cellKey !== '_key'"
-              >
-                <input type="hidden" v-model="cell.content"/>
+              <template v-for="(cell, cellKey, index) of item" :key="`hidden-${cellKey}`">
+                <input
+                  type="hidden"
+                  v-model="cell.content"
+                  v-if="cell.hide_field && cellKey !== '_key'"
+                />
               </template>
               <div class="data-table__repeatable" :class="`data-table__repeatable--${name}`">
-                <div
-                  class="data-table__cell--repeatable"
-                  :class="`data-table__cell--repeatable-${childIndex}`"
-                  v-for="(cell, cellKey, childIndex) of item"
-                  :key="cell._key"
-                  v-if="!cell.hide_field"
-                >
-                  <label class="form__label" v-if="!cell.hide_label">{{ cell.name }}</label>
-                  <rd-content-editor-field :item="cell"></rd-content-editor-field>
-                </div>
+                <template v-for="(cell, cellKey, childIndex) of item" :key="cell._key">
+                  <div
+                    class="data-table__cell--repeatable"
+                    :class="`data-table__cell--repeatable-${childIndex}`"
+                    v-if="!cell.hide_field"
+                  >
+                    <label class="form__label" v-if="!cell.hide_label">{{ cell.name }}</label>
+                    <rd-content-editor-field :item="cell"></rd-content-editor-field>
+                  </div>
+                </template>
               </div>
             </td>
             <td class="data-table__cell data-table__cell--options-delete"><i class="fa fa-times" @click="removeRepeatable(item, index)"></i></td>
@@ -48,100 +49,97 @@
   </div>
 </template>
 
-<script>
+<script setup>
+  import { ref, watch, onMounted, onUnmounted } from 'vue';
   import _ from 'lodash';
+  import eventBus from '../eventBus';
 
-  export default {
+  const props = defineProps(['item', 'name', 'value']);
+  const emit = defineEmits(['input', 'update:modelValue']);
 
-    props: ['item', 'name', 'value'],
+  const items = ref([]);
+  const values = ref([]);
+  const id = ref(Date.now());
 
-    data() {
-        return {
-          items: [],
-          values: [],
-          id: Date.now()
-        }
-    },
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  }
 
-    created() {
-      let value = this.value;
-      // convert the value to an object, if it is a string
-      if (value && typeof value === 'string') {
-        value = JSON.parse(value);
+  function addRepeatable(item) {
+    let data = {};
+    item.fields.forEach(field => {
+      let f = JSON.parse(JSON.stringify(field));
+      f.content = '';
+      data[f.field] = f;
+    });
+
+    items.value.push(data);
+
+  }
+
+  function removeRepeatable(item, index) {
+    swal({
+      title: 'Are you sure?',
+      icon: 'warning',
+      buttons: true,
+      dangerMode: true,
+    }).then(value => {
+      if (value) {
+        items.value.splice(index, 1);
       }
-      if (value && value.length > 0) {
-        this.items = [];
-        value.forEach(item => {
-          this.items.push(item);
-        });
-      }
+    });
+  }
 
-      this.items = this.items.map(item => {
-        for (const key in item) {
-          if (key === '_key') {
-            continue;
-          }
-
-          item[key]._key = `repeatable_${key}_${this.uid()}`
-        }
-
-        item._key = `repeatable_${this.uid()}`
-        return item;
+  function onDragend(data) {
+    if (data.id === id.value.toString()) {
+      const orderedArray = [];
+      data.indexes.forEach(index => {
+        orderedArray.push(items.value[index]);
       })
 
-      eventBus.$on('sortable-repeatable-table.dragend', data => {
-        if (data.id === this.id.toString()) {
-          const orderedArray = [];
-          data.indexes.forEach(index => {
-            orderedArray.push(this.items[index]);
-          })
-
-          orderedArray.forEach((item, index) => {
-            this.$set(this.items, index, item);
-          })
-        }
+      orderedArray.forEach((item, index) => {
+        items.value[index] = item;
       })
-    },
-
-    watch: {
-      items: {
-        handler() {
-          this.$emit('input', this.items);
-          this.values = JSON.stringify(this.items);
-        },
-        deep: true
-      }
-    },
-
-    methods: {
-      uid() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
-      },
-
-      addRepeatable(item) {
-        let data = {};
-        item.fields.forEach(field => {
-          let f = JSON.parse(JSON.stringify(field));
-          f.content = '';
-          data[f.field] = f;
-        });
-
-        this.items.push(data);
-
-      },
-
-      removeRepeatable(item, index) {
-        swal({
-          title: 'Are you sure?',
-          icon: 'warning',
-          buttons: true,
-          dangerMode: true,
-        }).then(value => {
-          if (value) {
-            this.items.splice(index, 1);
-          }
-        });
-      },
     }
   }
+
+  watch(items, () => {
+    emit('input', items.value);
+    emit('update:modelValue', items.value);
+    values.value = JSON.stringify(items.value);
+  }, { deep: true });
+
+  // created
+  let value = props.value;
+  // convert the value to an object, if it is a string
+  if (value && typeof value === 'string') {
+    value = JSON.parse(value);
+  }
+  if (value && value.length > 0) {
+    items.value = [];
+    value.forEach(item => {
+      items.value.push(item);
+    });
+  }
+
+  items.value = items.value.map(item => {
+    for (const key in item) {
+      if (key === '_key') {
+        continue;
+      }
+
+      item[key]._key = `repeatable_${key}_${uid()}`
+    }
+
+    item._key = `repeatable_${uid()}`
+    return item;
+  })
+
+  onMounted(() => {
+    eventBus.on('sortable-repeatable-table.dragend', onDragend);
+  });
+
+  onUnmounted(() => {
+    eventBus.off('sortable-repeatable-table.dragend', onDragend);
+  });
 </script>
