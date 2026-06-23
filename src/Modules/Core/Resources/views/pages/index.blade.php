@@ -108,12 +108,12 @@
 
                                 <td class="data-table__cell data-table__cell--controls">
                                     @if (isset($tableSettings->routes->edit))
-                                        <a href="{{ route($tableSettings->routes->edit, $d->id) }}" title="Edit"><i class="fa fa-pencil-alt"></i></a>
+                                        <a href="{{ route($tableSettings->routes->edit, $d->id) }}" class="data-table__action" data-tooltip="Edit" aria-label="Edit"><i class="fa fa-pencil-alt"></i></a>
                                     @endif
 
                                     @if (isset($tableSettings->extraActions) && is_array($tableSettings->extraActions) && sizeof($tableSettings->extraActions))
                                         @foreach ($tableSettings->extraActions as $action)
-                                            <a href="{{ route($action->route, $d->id) }}" title="{{ $action->name }}"><i class="{{ $action->icon }}"></i></a>
+                                            <a href="{{ route($action->route, $d->id) }}" class="data-table__action" data-tooltip="{{ $action->name }}" aria-label="{{ $action->name }}"><i class="{{ $action->icon }}"></i></a>
                                         @endforeach
                                     @endif
 
@@ -121,7 +121,7 @@
                                         <form method="post" action="{{ route($tableSettings->routes->destroy, $d->id) }}" v-confirm-delete>
                                             {{ csrf_field() }}
                                             {{ method_field('DELETE') }}
-                                            <button title="Delete"><i class="fa fa-trash-alt"></i></button>
+                                            <button class="data-table__action" data-tooltip="Delete" aria-label="Delete"><i class="fa fa-trash-alt"></i></button>
                                         </form>
                                     @endif
                                 </td>

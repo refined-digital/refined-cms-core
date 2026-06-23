@@ -9,9 +9,10 @@
       :close-on-select="false"
       :clear-on-select="false"
       :preserve-search="true"
+      :custom-label="optionLabel"
       label="email"
       track-by="email"
-      :placeholder="'Add an email'"
+      :placeholder="placeholder"
       tag-placeholder="Add this email"
       @tag="addEmail"
     />
@@ -19,21 +20,38 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import Multiselect from 'vue-multiselect';
 
 const REGEX_EMAIL = "([a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@"
   + '(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)';
 
-const props = defineProps(['field', 'value', 'modelValue']);
+// `fields` (optional): email-type form fields offered as selectable chips. Each
+// is stored as the raw token `field{id}` and shown by its friendly label; the
+// backend swaps the token for the submitted value at send time. When omitted,
+// the component behaves exactly as before (type literal emails only).
+const props = defineProps(['field', 'value', 'modelValue', 'fields']);
 const emit = defineEmits(['input', 'update:modelValue']);
 
-// support both the v-model (modelValue) and explicit :value bindings
 const initialValue = props.value ?? props.modelValue;
 
 const internalValue = ref([]);
 const tags = ref('');
-const options = ref([]);
+
+// preset dropdown options: one per email field (label shown, token stored)
+const fieldOptions = (Array.isArray(props.fields) ? props.fields : []).map((f) => ({
+  email: `field${f.id}`,
+  label: f.name,
+  isField: true,
+}));
+const options = ref([...fieldOptions]);
+
+const placeholder = fieldOptions.length ? 'Add an email or pick a field' : 'Add an email';
+
+// the chip / dropdown label: friendly name for field tokens, the address otherwise
+function optionLabel(option) {
+  return option.label || option.email;
+}
 
 function isEmail(input) {
   const regex = new RegExp(`^${REGEX_EMAIL}$`, 'i');
@@ -53,14 +71,17 @@ function addEmail(input) {
   internalValue.value.push(option);
 }
 
+// rebuild a stored token/email into a chip object, matching a known field
+// option so its friendly label shows
+function toChip(token) {
+  return fieldOptions.find((o) => o.email === token) || { email: token };
+}
+
 // seed from the incoming value (comma-delimited string or array)
 if (typeof initialValue === 'string' && initialValue) {
-  const emails = initialValue.split(',').map((s) => s.trim()).filter(Boolean);
-  internalValue.value = emails.map((email) => ({ email }));
-  options.value = emails.map((email) => ({ email }));
+  internalValue.value = initialValue.split(',').map((s) => s.trim()).filter(Boolean).map(toChip);
 } else if (Array.isArray(initialValue)) {
-  internalValue.value = initialValue.map((email) => ({ email }));
-  options.value = initialValue.map((email) => ({ email }));
+  internalValue.value = initialValue.map(toChip);
 }
 
 watch(
@@ -75,6 +96,4 @@ watch(tags, (val) => {
   emit('input', val);
   emit('update:modelValue', val);
 });
-
-onMounted(() => {});
 </script>

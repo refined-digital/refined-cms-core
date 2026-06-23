@@ -1,6 +1,7 @@
 # files kept in the repo but excluded from the composer dist archive
 # (consumers get a built package: src, config, compiled assets — not the source/tooling)
 /resources         export-ignore
+/CLAUDE.MD          export-ignore
 /.github           export-ignore
 /.idea             export-ignore
 /.claude           export-ignore
