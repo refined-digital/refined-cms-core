@@ -848,12 +848,12 @@ RedirectMatch 404 ^/page-cache",
 
         $search = [
             "'root' => storage_path('app/public'),",
-            "'url' => env('APP_URL').'/storage',"
+            "'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',"
         ];
 
         $replace = [
             "'root' => storage_path('app/public/uploads'),",
-            "'url' => env('APP_URL').'/storage/uploads',"
+            "'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage/uploads',"
         ];
 
         $data = str_replace($search, $replace, $filesystem);
