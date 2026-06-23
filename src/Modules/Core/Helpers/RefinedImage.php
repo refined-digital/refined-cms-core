@@ -204,7 +204,7 @@ class RefinedImage
 
             // load the image
             $manager = new ImageManager(new Driver);
-            $image = $manager->read($fileContents);
+            $image = $manager->decodeBinary($fileContents);
 
             if ($this->type && $width && $height) {
                 if ($this->type == 'fit') {
