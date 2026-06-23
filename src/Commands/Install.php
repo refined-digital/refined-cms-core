@@ -72,6 +72,8 @@ class Install extends Command
     {
         $helper = $this->getHelper('question');
 
+        $this->isDdev = $this->detectDdev();
+
         // site name
         $question = new Question('Site Name?: ', false);
         $question->setValidator(function ($answer) {
@@ -86,7 +88,8 @@ class Install extends Command
 
 
         // ask for the url
-        $question = new Question('Site Url? (http://127.0.0.1:8000): ', 'http://127.0.0.1:8000');
+        $defaultUrl = $this->isDdev ? ($this->getDdevUrl() ?? 'http://127.0.0.1:8000') : 'http://127.0.0.1:8000';
+        $question = new Question('Site Url? ('.$defaultUrl.'): ', $defaultUrl);
         $question->setValidator(function($answer) {
             if (strlen($answer) < 1) {
                 throw new RuntimeException('Site URL is required');
@@ -194,10 +197,11 @@ class Install extends Command
     {
         $helper = $this->getHelper('question');
 
-        // Detect DDEV
-        $this->isDdev = $this->detectDdev();
+        if ($this->isDdev) {
+            $this->output->writeln('<info>DDEV detected!</info>');
+        }
 
-        $databaseName = Str::slug('refined '.$this->siteName, '_');
+        $databaseName = $this->isDdev ? 'db' : Str::slug('refined '.$this->siteName, '_');
 
         // database
         $question = new Question('Database? ('.$databaseName.'): ', $databaseName);
@@ -211,7 +215,7 @@ class Install extends Command
         $dbName = Str::slug($dbName, '_');
 
         // database user
-        $question = new Question('Database User?: ', false);
+        $question = new Question('Database User?'.($this->isDdev ? ' (db)' : '').': ', $this->isDdev ? 'db' : false);
         $question->setValidator(function ($answer) {
             if(strlen($answer) < 1) {
                 throw new RuntimeException('Database user is required');
@@ -221,8 +225,8 @@ class Install extends Command
         $dbUser = $helper->ask($this->input, $this->output, $question);
 
         // database password
-        $question = new Question('Database Password?: ', false);
-        $question->setHidden(true);
+        $question = new Question('Database Password?'.($this->isDdev ? ' (db)' : '').': ', $this->isDdev ? 'db' : false);
+        $question->setHidden(!$this->isDdev);
         $question->setHiddenFallback(false);
         $question->setValidator(function ($answer) {
             if(strlen($answer) < 1) {
@@ -234,8 +238,7 @@ class Install extends Command
 
         // Ask for port if DDEV is detected
         if ($this->isDdev) {
-            $this->output->writeln('<info>DDEV detected!</info>');
-            $question = new Question('Database Port?: ', '3306');
+            $question = new Question('Database Port? (3306): ', '3306');
             $question->setValidator(function ($answer) {
                 if(strlen($answer) < 1) {
                     throw new RuntimeException('Database port is required');
@@ -315,17 +318,12 @@ class Install extends Command
     {
         $helper = $this->getHelper('question');
 
-        $question = new ConfirmationQuestion('Does the database already exist? ', false);
-
-        $dbExists = $helper->ask($this->input, $this->output, $question);
-
-        // For DDEV, check if database actually exists when user says it doesn't
-        if (!$dbExists && $this->isDdev) {
-            $actuallyExists = $this->checkDatabaseExists();
-            if ($actuallyExists) {
-                $this->output->writeln('<info>Database already exists, skipping creation...</info>');
-                $dbExists = true;
-            }
+        // DDEV always provides the `db` database, so skip the prompt and migrate
+        if ($this->isDdev) {
+            $dbExists = true;
+        } else {
+            $question = new ConfirmationQuestion('Does the database already exist? ', false);
+            $dbExists = $helper->ask($this->input, $this->output, $question);
         }
 
         if($dbExists) {
@@ -658,6 +656,11 @@ class Install extends Command
 
     public function askCpanel()
     {
+        // cPanel conversion is irrelevant under DDEV
+        if ($this->isDdev) {
+            return;
+        }
+
         $helper = $this->getHelper('question');
 
         $question = new ConfirmationQuestion('Do you want to convert for cPanel?: ', false);
@@ -902,6 +905,33 @@ RedirectMatch 404 ^/page-cache",
     }
 
     /**
+     * Get the primary DDEV site URL (https://<name>.ddev.site).
+     * The project name comes from .ddev/config.yaml, falling back to the
+     * project directory name (DDEV's own default).
+     *
+     * @return string|null
+     */
+    protected function getDdevUrl()
+    {
+        $name = null;
+        $config = base_path('.ddev/config.yaml');
+
+        if (file_exists($config)) {
+            // ponytail: regex over the line, not a YAML parser — config.yaml's
+            // name is always a flat top-level scalar
+            if (preg_match('/^name:\s*["\']?([^"\'\s]+)/m', file_get_contents($config), $m)) {
+                $name = $m[1];
+            }
+        }
+
+        if (!$name) {
+            $name = basename(base_path());
+        }
+
+        return $name ? 'https://'.$name.'.ddev.site' : null;
+    }
+
+    /**
      * Whether the installer is running inside the DDEV web container (as opposed
      * to on the host machine). DDEV sets IS_DDEV_PROJECT inside the container.
      *
@@ -939,26 +969,6 @@ RedirectMatch 404 ^/page-cache",
         $port = env('DB_PORT');
 
         return $host.($port ? ':'.$port : '');
-    }
-
-    /**
-     * Check if database exists
-     *
-     * @return bool
-     */
-    protected function checkDatabaseExists()
-    {
-        try {
-            $db = new PDO('mysql:host='.$this->getPdoHost().';', $this->dbUser, $this->dbPass);
-
-            // Query to check if database exists
-            $stmt = $db->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '".$this->dbName."'");
-            $result = $stmt->fetch();
-
-            return $result !== false;
-        } catch (\Exception $e) {
-            return false;
-        }
     }
 
 }
