@@ -41,5 +41,9 @@
     margin-top: 10px;
     text-align: right;
     flex: 0 0 40px;
+
+    .button + .button {
+      margin-left: 10px;
+    }
   }
 }

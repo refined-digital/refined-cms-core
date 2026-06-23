@@ -16,18 +16,20 @@
       </aside>
     </div>
 
-    <div class="rd-link form__horz sitemap" :class="active ? 'sitemap--active' : ''">
-      <div class="sitemap__inner">
-        <div class="sitemap__fields">
-          <rd-link-form v-model="modal" :settings="settings"></rd-link-form>
-        </div>
+    <Teleport to="body">
+      <div class="rd-link form__horz sitemap" :class="active ? 'sitemap--active' : ''">
+        <div class="sitemap__inner">
+          <div class="sitemap__fields">
+            <rd-link-form v-model="modal" :settings="settings"></rd-link-form>
+          </div>
 
-        <footer class="sitemap__footer">
-          <button class="button button--blue button--small" @click.prevent.stop="save">Save</button>
-          <button class="button button--red button--small" @click.prevent.stop="closeModal">Close</button>
-        </footer>
+          <footer class="sitemap__footer">
+            <button class="button button--blue button--small" @click.prevent.stop="save">Save</button>
+            <button class="button button--red button--small" @click.prevent.stop="closeModal">Close</button>
+          </footer>
+        </div>
       </div>
-    </div>
+    </Teleport>
   </div>
 
 </template>

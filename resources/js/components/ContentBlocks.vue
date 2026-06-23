@@ -19,7 +19,7 @@
     <div class="content-editor__data form form__horz" v-sortable-content-item>
       <div
         class="content-editor__item"
-        :class="{ 'open' : index === 0}"
+        :class="{ 'open' : openBlocks[content.id]}"
         v-for="(content, index) of data"
         :data-index="index"
         :data-id="content.id"
@@ -27,12 +27,12 @@
       >
         <div class="content-editor__item-header">
           <header>
-            <div class="content-editor__item-toggle" @click="toggleContentBlockContent($event, index)">
+            <div class="content-editor__item-toggle" @click="toggleContentBlockContent(content.id)">
               <i class="fa fa-chevron-right"></i>
               <i class="fa fa-chevron-down"></i>
             </div>
             <h5>
-              <span @click="toggleContentBlockContent($event, index)">
+              <span @click="toggleContentBlockContent(content.id)">
                 {{ content.name }}
               </span>
               <small v-if="canShowAnchors" class="content-editor__anchor">
@@ -45,7 +45,7 @@
             <i class="fa fa-times" @click="removeContentBlock(index)"></i>
           </aside>
         </div>
-        <div class="content-editor__item-content" :style="{ display: index === 0 ? 'block' : 'none' }">
+        <div class="content-editor__item-content" v-show="openBlocks[content.id]">
           <div class="form form__horz">
             <div
               class="content-editor__form-row form__row form__row--inline-label"
@@ -76,6 +76,8 @@ import { usePagesRepeatable } from '../composables/usePagesRepeatable';
 const props = defineProps(['config', 'page', 'name', 'content']);
 
 const data = ref([]);
+// per-block open state keyed by block id (survives re-render and reorder)
+const openBlocks = ref({});
 
 const pageRef = computed(() => props.page);
 const { getImageNote } = usePagesImageNote(pageRef);
@@ -170,6 +172,7 @@ function loadContentBlock(content) {
   const formattedContent = formatContent(content);
 
   data.value.push(formattedContent);
+  openBlocks.value[formattedContent.id] = true;
   props.page[props.name] = data.value;
 }
 
@@ -187,48 +190,8 @@ function removeContentBlock(index) {
   });
 }
 
-// native slide-toggle for a content block (replaces the old jQuery slideUp/Down)
-function toggleContentBlockContent(event) {
-  const element = event.target.closest('.content-editor__item');
-  if (!element) return;
-
-  const block = element.querySelector('.content-editor__item-content');
-  if (!block) return;
-
-  const duration = 200;
-  const isOpen = element.classList.contains('open');
-
-  if (!isOpen) {
-    // slide down: from 0 to the natural height, then settle on auto
-    block.style.display = 'block';
-    block.style.overflow = 'hidden';
-    block.style.height = '0px';
-    block.style.transition = `height ${duration}ms`;
-    requestAnimationFrame(() => {
-      block.style.height = `${block.scrollHeight}px`;
-    });
-    element.classList.add('open');
-    setTimeout(() => {
-      block.style.height = '';
-      block.style.overflow = '';
-      block.style.transition = '';
-    }, duration);
-  } else {
-    // slide up: from current height to 0, then hide
-    block.style.overflow = 'hidden';
-    block.style.height = `${block.scrollHeight}px`;
-    block.style.transition = `height ${duration}ms`;
-    requestAnimationFrame(() => {
-      block.style.height = '0px';
-    });
-    element.classList.remove('open');
-    setTimeout(() => {
-      block.style.display = 'none';
-      block.style.height = '';
-      block.style.overflow = '';
-      block.style.transition = '';
-    }, duration);
-  }
+function toggleContentBlockContent(id) {
+  openBlocks.value[id] = !openBlocks.value[id];
 }
 
 function reorderContentBlocks(order) {
@@ -300,6 +263,10 @@ eventBus.on('pages.sortable.content-item.dragend', onContentItemDragend);
 onMounted(() => {
   const initial = props.page[props.name];
   data.value = initial.map(item => formatContent(item));
+  // preserve the old default: first block open
+  if (data.value.length) {
+    openBlocks.value[data.value[0].id] = true;
+  }
 });
 
 onUnmounted(() => {

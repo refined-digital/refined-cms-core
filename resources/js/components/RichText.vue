@@ -69,42 +69,61 @@
     <textarea :name="name" :id="id" class="rich-editor__source" v-model="data" hidden></textarea>
 
     <!-- Image modal -->
-    <div class="rich-editor__modal-overlay" v-if="imageModal.open" @click.self="closeImageModal">
-      <div class="rich-editor__modal-box">
-        <h3>{{ imageModal.editing ? 'Edit Image' : 'Insert Image' }}</h3>
-        <div class="rich-editor__modal">
-          <div class="rich-editor__modal-image">
-            <div class="rich-editor__modal-thumb" :style="imageModal.src ? `background-image: url(${imageModal.src})` : ''"></div>
+    <Teleport to="body">
+      <div class="rich-editor__modal-overlay" v-if="imageModal.open" @click.self="closeImageModal">
+        <div class="rich-editor__modal-box">
+          <h3>{{ imageModal.editing ? 'Edit Image' : 'Insert Image' }}</h3>
+          <div class="rich-editor__modal">
+            <div class="rich-editor__modal-image">
+              <div class="rich-editor__modal-thumb" :style="imageModal.src ? `background-image: url(${imageModal.src})` : ''"></div>
+            </div>
+            <button type="button" class="button button--green button--small" @click="browseImage">Browse Server</button>
           </div>
-          <button type="button" class="button button--green button--small" @click="browseImage">Browse Server</button>
+          <input type="hidden" v-model="imageModal.src" :id="`${editorId}-image-src`">
+          <label>Alternative Text</label>
+          <input type="text" class="form__control" v-model="imageModal.alt">
+          <label>Id</label>
+          <input type="text" class="form__control" v-model="imageModal.elId">
+          <label>Class</label>
+          <input type="text" class="form__control" v-model="imageModal.className">
+          <footer class="rich-editor__modal-actions">
+            <button type="button" class="button button--blue button--small" @click="confirmImage">Save</button>
+            <button type="button" class="button button--red button--small" @click="closeImageModal">Cancel</button>
+          </footer>
         </div>
-        <input type="hidden" v-model="imageModal.src" :id="`${editorId}-image-src`">
-        <label>Alternative Text</label>
-        <input type="text" class="form__control" v-model="imageModal.alt">
-        <label>Id</label>
-        <input type="text" class="form__control" v-model="imageModal.elId">
-        <label>Class</label>
-        <input type="text" class="form__control" v-model="imageModal.className">
-        <footer class="rich-editor__modal-actions">
-          <button type="button" class="button button--grey button--small" @click="closeImageModal">Cancel</button>
-          <button type="button" class="button button--green button--small" @click="confirmImage">Confirm</button>
-        </footer>
       </div>
-    </div>
+    </Teleport>
 
     <!-- Link modal -->
-    <div class="rich-editor__modal-overlay" v-if="linkModal.open" @click.self="closeLinkModal">
-      <div class="rich-editor__modal-box">
-        <h3>Insert Link</h3>
+    <Teleport to="body">
+      <div class="rich-editor__modal-overlay" v-if="linkModal.open" @click.self="closeLinkModal">
+        <div class="rich-editor__modal-box">
+          <h3>Insert Link</h3>
 
-        <rd-link-form v-model="linkModalModel" :settings="{ simple: false }"></rd-link-form>
+          <rd-link-form v-model="linkModalModel" :settings="{ simple: false }"></rd-link-form>
 
-        <footer class="rich-editor__modal-actions">
-          <button type="button" class="button button--grey button--small" @click="closeLinkModal">Cancel</button>
-          <button type="button" class="button button--green button--small" @click="confirmLink">Confirm</button>
-        </footer>
+          <footer class="rich-editor__modal-actions">
+            <button type="button" class="button button--blue button--small" @click="confirmLink">Save</button>
+            <button type="button" class="button button--red button--small" @click="closeLinkModal">Cancel</button>
+          </footer>
+        </div>
       </div>
-    </div>
+    </Teleport>
+
+    <!-- Video modal -->
+    <Teleport to="body">
+      <div class="rich-editor__modal-overlay" v-if="videoModal.open" @click.self="closeVideoModal">
+        <div class="rich-editor__modal-box">
+          <h3>Embed Video</h3>
+          <label>YouTube URL</label>
+          <input type="text" class="form__control" v-model="videoModal.src" placeholder="https://www.youtube.com/watch?v=…" @keyup.enter="confirmVideo">
+          <footer class="rich-editor__modal-actions">
+            <button type="button" class="button button--blue button--small" @click="confirmVideo">Save</button>
+            <button type="button" class="button button--red button--small" @click="closeVideoModal">Cancel</button>
+          </footer>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -243,11 +262,23 @@ function insertToken(event) {
   }).run();
 }
 
+const videoModal = reactive({ open: false, src: '' });
+
 function embedVideo() {
-  const url = window.prompt('Enter a YouTube URL');
+  videoModal.src = '';
+  videoModal.open = true;
+}
+
+function closeVideoModal() {
+  videoModal.open = false;
+}
+
+function confirmVideo() {
+  const url = videoModal.src.trim();
   if (url) {
     editor.value.chain().focus().setYoutubeVideo({ src: url }).run();
   }
+  closeVideoModal();
 }
 
 /* ---------------- image modal ---------------- */
