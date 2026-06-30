@@ -11,10 +11,12 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use RefinedDigital\CMS\Modules\Core\Traits\BackgroundImageTrait;
 use RefinedDigital\CMS\Modules\Pages\Http\Repositories\PageRepository;
 
 class NewPasswordController extends Controller
 {
+    use BackgroundImageTrait;
     /**
      * Display the password reset view.
      */
@@ -23,6 +25,7 @@ class NewPasswordController extends Controller
         $repo = new PageRepository();
         $page = $repo->setAsPage('Reset Password');
         return view('core::auth.reset-password', ['request' => $request])
+            ->with('backgroundImage', $this->getBackgroundImage())
             ->with(compact('page'));
     }
 

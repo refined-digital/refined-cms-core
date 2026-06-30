@@ -7,10 +7,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\View\View;
+use RefinedDigital\CMS\Modules\Core\Traits\BackgroundImageTrait;
 use RefinedDigital\CMS\Modules\Pages\Http\Repositories\PageRepository;
 
 class PasswordResetLinkController extends Controller
 {
+    use BackgroundImageTrait;
     /**
      * Display the password reset link request view.
      */
@@ -18,7 +20,9 @@ class PasswordResetLinkController extends Controller
     {
         $repo = new PageRepository();
         $page = $repo->setAsPage('Forgot Password');
-        return view('core::auth.forgot-password')->with(compact('page'));
+        return view('core::auth.forgot-password')
+            ->with('backgroundImage', $this->getBackgroundImage())
+            ->with(compact('page'));
     }
 
     /**

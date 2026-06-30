@@ -8,12 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use RefinedDigital\CMS\Modules\Core\Traits\AuthTrait;
+use RefinedDigital\CMS\Modules\Core\Traits\BackgroundImageTrait;
 use RefinedDigital\CMS\Modules\Pages\Http\Repositories\PageRepository;
 use RefinedDigital\CMS\Modules\Core\Http\Requests\Auth\LoginRequest;
 
 class AuthenticatedSessionController extends Controller
 {
     use AuthTrait;
+    use BackgroundImageTrait;
     /**
      * Display the login view.
      */
@@ -22,6 +24,7 @@ class AuthenticatedSessionController extends Controller
         $repo = new PageRepository();
         $page = $repo->setAsPage('Login');
         return view('core::auth.login')
+            ->with('background_image', $this->getBackgroundImage())
             ->with(compact('page'));
     }
 
