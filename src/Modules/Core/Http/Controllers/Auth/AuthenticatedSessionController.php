@@ -24,7 +24,7 @@ class AuthenticatedSessionController extends Controller
         $repo = new PageRepository();
         $page = $repo->setAsPage('Login');
         return view('core::auth.login')
-            ->with('background_image', $this->getBackgroundImage())
+            ->with('backgroundImage', $this->getBackgroundImage())
             ->with(compact('page'));
     }
 
