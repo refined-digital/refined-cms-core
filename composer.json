@@ -15,8 +15,8 @@
     "spatie/laravel-sluggable": "^4.0",
     "protonemedia/laravel-cross-eloquent-search": "^3.4",
     "friendsofphp/php-cs-fixer": "^3.62",
-    "symfony/mailgun-mailer": "^7.0",
-    "symfony/http-client": "^7.0"
+    "symfony/mailgun-mailer": "^7.0|^8.0",
+    "symfony/http-client": "^7.0|^8.0"
   },
   "license": "MIT",
   "authors": [
