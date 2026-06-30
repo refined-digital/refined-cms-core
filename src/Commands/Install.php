@@ -65,6 +65,7 @@ class Install extends Command
         $this->setCache();
         $this->askCpanel();
         $this->publishConfigs();
+        $this->setupMailgun();
         $this->addUser();
     }
 
@@ -836,6 +837,37 @@ RedirectMatch 404 ^/page-cache",
 
         file_put_contents(public_path('.htaccess'), str_replace($search, $replace, $contents));
 
+    }
+
+    protected function setupMailgun()
+    {
+        $this->output->writeln('<info>Adding Mailgun config</info>');
+
+        // mail.php: add the mailgun mailer to the mailers array (Laravel ships
+        // this on fresh installs, so only add it when it isn't already there)
+        $mailFile = config_path('mail.php');
+        if (file_exists($mailFile)) {
+            $mail = file_get_contents($mailFile);
+            if (!str_contains($mail, "'mailgun' =>")) {
+                // anchor on the top-level (4-space indented) mailers array only —
+                // mail.php also has deeper-indented 'mailers' in commented examples
+                $replace = "    'mailers' => [\n\n        'mailgun' => [\n            'transport' => 'mailgun',\n        ],";
+                $mail = preg_replace('/^    \'mailers\' => \[/m', $replace, $mail, 1);
+                file_put_contents($mailFile, $mail);
+            }
+        }
+
+        // services.php: add the mailgun credentials block
+        $servicesFile = config_path('services.php');
+        if (file_exists($servicesFile)) {
+            $services = file_get_contents($servicesFile);
+            if (!str_contains($services, "'mailgun' =>")) {
+                $block = "    'mailgun' => [\n        'domain' => env('MAILGUN_DOMAIN'),\n        'secret' => env('MAILGUN_SECRET'),\n        'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),\n    ],\n\n";
+                // insert before the first top-level service entry
+                $services = preg_replace('/(\n)(    \'[a-z]+\' => \[)/', "\n".$block.'$2', $services, 1);
+                file_put_contents($servicesFile, $services);
+            }
+        }
     }
 
     protected function updateFileStorage()
