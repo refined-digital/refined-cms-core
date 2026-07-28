@@ -695,6 +695,9 @@ class Install extends Command
         Artisan::call('vendor:publish', [
             '--tag' => 'pages'
         ]);
+        Artisan::call('vendor:publish', [
+            '--tag' => 'colour-set'
+        ]);
     }
 
     public function updatePackageJson()

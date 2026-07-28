@@ -42,13 +42,11 @@ class ContentServiceProvider extends ServiceProvider
         $agg
             ->registerNewField('heading', [
                 'name' => 'Heading',
-                'page_content_type_id' => PageContentType::PLAIN->value,
-                'note' => 'Use <code>|</code> for a new line.',
+                'page_content_type_id' => PageContentType::STATIC->value,
             ])
             ->registerNewField('title', [
                 'name' => 'Title',
-                'page_content_type_id' => PageContentType::PLAIN->value,
-                'note' => 'Use <code>|</code> for a new line.',
+                'page_content_type_id' => PageContentType::STATIC->value,
             ])
             ->registerNewField('content', [
                 'name' => 'Content',
@@ -62,11 +60,7 @@ class ContentServiceProvider extends ServiceProvider
                 'background',
                 [
                     'name' => 'Background Colour',
-                    'page_content_type_id' => PageContentType::SELECT->value,
-                    'options' => [
-                        ['label' => 'White', 'value' => 'white'],
-                        ['label' => 'Grey', 'value' => 'grey'],
-                    ],
+                    'page_content_type_id' => PageContentType::COLOUR_SET->value,
                 ]
             );
 

@@ -13,6 +13,12 @@ namespace RefinedDigital\CMS\Modules\Core\Aggregates;
  *     'processor'   => \Vendor\…\Process::class,   // implements FormBuilderIntegrationInterface
  *     'settings'    => [ ['name'=>'list_id','label'=>'List ID','type'=>'text','required'=>true] ],
  *     'view'        => null,  // optional: front-end injection markup callback/class
+ *     // Configure-modal shape:
+ *     'sortable'    => true,  // false drops drag-to-order when order is meaningless
+ *     'synthetic'   => [ ['key'=>'__date','label'=>'Date / Time'] ],  // extra non-form
+ *                             // rows the processor renders itself; the key is stored
+ *                             // verbatim in config.fields for it to special-case
+ *     'config_tab'  => true,  // false hides the Config tab (Send Email + settings)
  *   ]);
  *
  * Lives in core because both the form-builder editor (registered into core's Vue
@@ -32,6 +38,9 @@ class FormBuilderIntegrationAggregate
             'processor'   => null,
             'settings'    => [],
             'view'        => null,
+            'sortable'    => true,
+            'synthetic'   => [],
+            'config_tab'  => true,
         ], $config);
     }
 
