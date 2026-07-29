@@ -168,8 +168,7 @@ function formatContent(content) {
 }
 
 function loadContentBlock(content) {
-  const newContent = _.cloneDeep(content);
-  const formattedContent = formatContent(content);
+  const formattedContent = formatContent(_.cloneDeep(content));
 
   data.value.push(formattedContent);
   openBlocks.value[formattedContent.id] = true;
