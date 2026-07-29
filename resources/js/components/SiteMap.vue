@@ -1,4 +1,7 @@
 <template>
+  <!-- teleported out of .app__holder (position: fixed) — it traps this modal in
+       its own stacking context, below body-level teleported modals like rd-link -->
+  <Teleport to="body">
   <div class="sitemap" :class="{ 'sitemap--active' : ui.sitemap.showModal }">
     <div class="sitemap__inner">
       <div class="pages__tree">
@@ -27,6 +30,7 @@
       </footer>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <script setup>

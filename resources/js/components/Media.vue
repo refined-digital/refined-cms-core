@@ -1,4 +1,7 @@
 <template>
+  <!-- as a modal, teleported out of .app__holder (position: fixed) — it traps this
+       modal in its own stacking context, below body-level modals like rd-link -->
+  <Teleport to="body" :disabled="!modal">
   <div class="media-library" ref="root" :class="{ 'media__modal' : modal, 'media-library--active' : ui.media.showModal }">
 
     <div class="pages">
@@ -265,6 +268,7 @@
     </div><!-- / pages -->
 
   </div>
+  </Teleport>
 </template>
 
 <script setup>
