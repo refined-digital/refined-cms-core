@@ -192,6 +192,12 @@
   white-space: nowrap;
 }
 
+/* the sitemap/media pickers this modal opens share .sitemap's z-index (100000)
+   but sit earlier in the DOM, so they lose the tie — sit one below them */
+.rd-link.sitemap {
+  z-index: 99999;
+}
+
 .rd-link .sitemap__inner {
   max-height: 492px;
 }
