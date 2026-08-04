@@ -19,7 +19,7 @@
 import { ref, watch, onMounted } from 'vue';
 import Multiselect from 'vue-multiselect';
 
-const props = defineProps(['field', 'values', 'choices', 'value']);
+const props = defineProps(['field', 'values', 'choices', 'value', 'modelValue']);
 const emit = defineEmits(['input', 'update:modelValue']);
 
 const internalValue = ref([]);
@@ -27,7 +27,7 @@ const tags = ref('');
 const options = ref([]);
 const placeholder = ref('Select');
 
-placeholder.value = `Select ${props.field.label}`;
+placeholder.value = `Select ${props.field.label || props.field.name}`;
 
 if (props.choices) {
   props.choices.forEach((choice) => {
@@ -35,8 +35,8 @@ if (props.choices) {
   });
 }
 
-// seed the initial selection from either `value` or `values`
-const initialValue = props.value || props.values;
+// seed the initial selection from `value`, `values` or the v-model binding
+const initialValue = props.value || props.values || props.modelValue;
 if (typeof initialValue !== 'undefined') {
   if (Array.isArray(initialValue)) {
     initialValue.forEach((tag) => {
@@ -51,7 +51,7 @@ if (typeof initialValue !== 'undefined') {
 watch(
   internalValue,
   (val) => {
-    tags.value = val.map((i) => i.name).join(',');
+    tags.value = val.map((i) => i.id).join(',');
   },
   { deep: true }
 );
@@ -64,8 +64,8 @@ watch(tags, (val) => {
 onMounted(() => {
   // if the initial value was a delimited string, hydrate the selection from it
   if (tags.value && !internalValue.value.length) {
-    const names = tags.value.split(',').map((s) => s.trim()).filter(Boolean);
-    internalValue.value = options.value.filter((o) => names.includes(o.name));
+    const ids = tags.value.split(',').map((s) => s.trim()).filter(Boolean);
+    internalValue.value = options.value.filter((o) => ids.includes(String(o.id)));
   }
 });
 </script>
