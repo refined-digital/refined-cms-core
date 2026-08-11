@@ -43,7 +43,6 @@ a, .button, svg {
 
 .holder {
   position: relative;
-  color: var(--text-color);
   padding-inline: 1.25rem;
   width: 100%;
   max-width: var(--holder-width);
@@ -59,25 +58,6 @@ a, .button, svg {
 
   &--large {
     --holder-width: var(--holder-width-large);
-  }
-
-  &--grid {
-    --count: 12;
-    display: grid;
-    grid-template-columns: repeat(var(--count), 1fr);
-
-    &__body {
-      grid-column: 1/13;
-    }
-
-    @media (width > 1250px) {
-      padding: 0;
-      --count: 18;
-
-      &__body {
-        grid-column: 2/18
-      }
-    }
   }
 }
 

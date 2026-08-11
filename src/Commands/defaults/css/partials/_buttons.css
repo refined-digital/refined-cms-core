@@ -2,8 +2,8 @@
   display:inline-block;
   line-height: 1;
   text-transform: uppercase;
-  font-size: calc(var(--font-size) - 2px);
-  padding: 10px 20px;
+  font-size: 1rem;
+  padding: 0.5rem 2rem;
   position: relative;
   border: 1px solid var(--text-color);
   color: var(--text-color);
@@ -16,19 +16,6 @@
   }
 
   &:hover {
-    color: var(--main-color-2);
-    border-color: var(--main-color-2);
-  }
 
-  &--white {
-    color: #fff;
-    border-color: #fff;
-    &:hover {
-      color: #fff;
-    }
-  }
-
-  &--full {
-    width: 100%;
   }
 }
