@@ -1,6 +1,6 @@
 {
   "name": "@refineddigital/cms-core",
-  "version": "1.36.14",
+  "version": "1.36.15",
   "type": "module",
   "scripts": {
     "dev": "vite build --watch",
