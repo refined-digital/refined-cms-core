@@ -97,7 +97,13 @@ trait HasContentBlocks
         $this->addToAppends([
             'content',
             'content_blocks',
+            'has_banner',
         ]);
+    }
+
+    public function getHasBannerAttribute(): bool
+    {
+        return str_contains(strtolower($this->content_blocks[0] ?? ''), 'banner');
     }
 
     public function getContentBlocksAttribute(): array
