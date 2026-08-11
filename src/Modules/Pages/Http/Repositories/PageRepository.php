@@ -420,7 +420,7 @@ class PageRepository extends CoreRepository
         $classes[] = 'page__id--' . $page->id;
         $classes[] = 'page__template--' . Str::slug($page->meta->template->name);
         if (isset($page->has_banner)) {
-            $classes[] = $page->has_banner ? 'page__has-banner' : ' page__has-no-banner';
+            $classes[] = $page->has_banner ? 'page__has-banner' : 'page__has-no-banner';
         }
 
         // set some extra fun stuff to the page
