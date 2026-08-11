@@ -1,21 +1,27 @@
 .button {
-  display:inline-block;
+  display: inline-block;
   line-height: 1;
   text-transform: uppercase;
+  font-family: var(--font-alt);
   font-size: 1rem;
-  padding: 0.5rem 2rem;
+  padding: 0.5rem 1rem;
   position: relative;
-  border: 1px solid var(--text-color);
-  color: var(--text-color);
+  border: 0;
+  background-color: var(--button-bg);
+  color: var(--button-color);
   min-width: 200px;
   text-align: center;
-  background: transparent;
 
   &:focus {
-    outline:0;
+    outline: 0;
   }
 
   &:hover {
+    background-color: var(--button-bg-hover);
+    color: var(--button-color-hover);
+  }
 
+  &--full {
+    width: 100%;
   }
 }

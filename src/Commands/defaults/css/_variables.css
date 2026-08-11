@@ -11,6 +11,11 @@
 
     --border-color: #d6d6d6;
 
+    --button-bg: var(--black);
+    --button-color: var(--white);
+    --button-bg-hover: var(--black);
+    --button-color-hover: var(--white);
+
     --site-padding: 120px;
     --block-padding: 80px;
 
