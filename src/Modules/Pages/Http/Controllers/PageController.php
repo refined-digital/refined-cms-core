@@ -282,8 +282,22 @@ class PageController extends CoreController
         $view = view('templates::'.$page->meta->template->source)
                     ->with(compact('page'))->render();
 
-        // return the view
-        return $view;
+        // the form builder loads its own css and js inline, deduped through the
+        // container, so the cms does not queue those. recaptcha is the exception:
+        // nothing else emits it, and it is only needed when a rendered form asked
+        // for it, which cannot be known until the page is built
+        if (isset($page->assetAggregate) && \Str::contains($view, '_captcha')) {
+            $page->assetAggregate->addModuleScript(
+                'recaptcha',
+                '//www.google.com/recaptcha/api.js?render='.env('RECAPTCHA_SITE_KEY'),
+                ['async', 'defer']
+            );
+        }
+
+        // modules can register assets at any point while the body renders. the
+        // head carries a placeholder for them, resolved here now the page exists,
+        // which is what lets the page be rendered once instead of twice
+        return $page->assetAggregate->resolvePlaceholders($view);
     }
 
     /**

@@ -6,6 +6,17 @@ namespace RefinedDigital\CMS\Modules\Core\Aggregates;
 
 class AssetAggregate
 {
+    /**
+     * Module assets are emitted in the head, but modules can register themselves
+     * at any point while the body renders. Rather than rendering the page twice
+     * to find out, the head gets a marker and resolvePlaceholders() swaps in the
+     * real tags once the page is built. Html comments, so an unresolved marker
+     * is invisible rather than printed at the top of the page.
+     */
+    public const MODULE_STYLES_PLACEHOLDER = '<!--refined:module-styles-->';
+
+    public const MODULE_SCRIPTS_PLACEHOLDER = '<!--refined:module-scripts-->';
+
     protected $styles = [];
     protected $scripts = [];
 
@@ -45,6 +56,11 @@ class AssetAggregate
 
     public function getModuleStyles(): string
     {
+        return self::MODULE_STYLES_PLACEHOLDER;
+    }
+
+    public function renderModuleStyles(): string
+    {
         return join(PHP_EOL, array_map(function ($style) {
             return '<link href="'.$this->formatParameters($style).'" rel="stylesheet">';
         }, $this->moduleStyles));
@@ -62,6 +78,11 @@ class AssetAggregate
 
     public function getModuleScripts(): string
     {
+        return self::MODULE_SCRIPTS_PLACEHOLDER;
+    }
+
+    public function renderModuleScripts(): string
+    {
         return join(PHP_EOL, array_map(function ($script) {
             $attributes = $script['attributes'] ?? [];
             $attributes['src'] = \Str::contains($script['src'], 'recaptcha/api.js')
@@ -69,6 +90,19 @@ class AssetAggregate
                 : $this->formatParameters($script['src']);
             return '<script'.help()->arrToAttr($attributes).'></script>';
         }, $this->moduleScripts));
+    }
+
+    /**
+     * Swap the head markers for the assets collected while the page rendered.
+     * Safe to call on any html; a page without markers comes back untouched.
+     */
+    public function resolvePlaceholders(string $html): string
+    {
+        return str_replace(
+            [self::MODULE_STYLES_PLACEHOLDER, self::MODULE_SCRIPTS_PLACEHOLDER],
+            [$this->renderModuleStyles(), $this->renderModuleScripts()],
+            $html
+        );
     }
 
     private function formatParameters(string $value): string

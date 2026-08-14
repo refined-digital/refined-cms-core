@@ -45,6 +45,11 @@ class RefinedImage
 
     protected $attributes = [];
 
+    protected $fetchPriority = null;
+
+    /** storage path of the file the last createImage() call produced, for reading its real size */
+    protected $lastGeneratedPath = null;
+
     protected $newTypes = ['webp', 'avif'];
 
     protected $dimensions = [];
@@ -142,6 +147,18 @@ class RefinedImage
         return $this;
     }
 
+    /**
+     * Set the img fetchpriority hint. Pair with lazy(false) on an lcp image so
+     * the browser both requests it immediately and ranks it above other
+     * subresources.
+     */
+    public function fetchPriority($priority = 'high')
+    {
+        $this->fetchPriority = in_array($priority, ['high', 'low', 'auto']) ? $priority : null;
+
+        return $this;
+    }
+
     public function lazy($lazy = true)
     {
         $this->isLazy = $lazy;
@@ -181,8 +198,35 @@ class RefinedImage
         return $this;
     }
 
+    /**
+     * Real pixel size of a generated file, or null when it cannot be read.
+     *
+     * @return array{0: int, 1: int}|null
+     */
+    private function getImageSize(?string $storagePath): ?array
+    {
+        if (! $storagePath) {
+            return null;
+        }
+
+        try {
+            $size = @getimagesize(Storage::disk($this->disk)->path($storagePath));
+        } catch (\Exception $error) {
+            return null;
+        }
+
+        if (! $size || ! isset($size[0], $size[1]) || ! $size[0] || ! $size[1]) {
+            return null;
+        }
+
+        return [(int) $size[0], (int) $size[1]];
+    }
+
     public function createImage($width, $height, $fileName = false, $extension = false)
     {
+        // cleared up front so a caller cannot read a stale path off an early return
+        $this->lastGeneratedPath = null;
+
         if (! $this->file) {
             return null;
         }
@@ -195,6 +239,7 @@ class RefinedImage
         $height = (int) $height;
         $fileName = $this->buildFileName($fileName, $width, $height, $extension);
         $fileNameAndDirectory = $this->file->getFileWithDirectory($fileName);
+        $this->lastGeneratedPath = $fileNameAndDirectory;
 
         $fileExists = Storage::disk($this->disk)->exists($fileNameAndDirectory);
 
@@ -260,12 +305,19 @@ class RefinedImage
                         if (count($this->attributes)) {
                             $attrs = '';
                             foreach ($this->attributes as $key => $value) {
-                                $attrs = ' '.$key.'="'.$value.'"';
+                                $attrs .= ' '.$key.'="'.$value.'"';
                             }
                             $img .= $attrs;
                         }
+                        $size = $this->getImageSize($fileNameAndDirectory);
+                        if ($size) {
+                            $img .= ' width="'.$size[0].'" height="'.$size[1].'"';
+                        }
                         if ($this->isLazy) {
                             $img .= ' loading="lazy"';
+                        }
+                        if ($this->fetchPriority) {
+                            $img .= ' fetchpriority="'.$this->fetchPriority.'"';
                         }
                         $img .= '/>';
                         break;
@@ -337,19 +389,16 @@ class RefinedImage
         }
 
         try {
-            $html = '<picture';
-            if (count($this->attributes)) {
-                $attrs = '';
-                foreach ($this->attributes as $key => $value) {
-                    $attrs = ' '.$key.'="'.$value.'"';
-                }
-                $html .= $attrs;
-            }
-            $html .= '>';
+            // attributes describe the img, not the picture wrapper. alt was
+            // landing on picture here, where it is not a valid attribute
+            $html = '<picture>';
+
+            $basePath = null;
 
             if (!count($this->dimensions)) {
                 $image = $this->createImage($this->width, $this->height);
                 $baseImage = $image;
+                $basePath = $this->lastGeneratedPath;
                 $html .= $this->buildSourceHtml($image);
                 $html .= $this->buildNewSourceHtml();
             } else {
@@ -363,6 +412,9 @@ class RefinedImage
                     if ($dims['width'] > $width) {
                         $width = $dims['width'];
                         $baseImage = $image;
+                        // captured here rather than after the loop: the widest
+                        // dimension is not necessarily the last one generated
+                        $basePath = $this->lastGeneratedPath;
                     }
                 }
             }
@@ -371,13 +423,33 @@ class RefinedImage
                 'src' => asset($baseImage),
             ];
 
-            if ($this->isLazy) {
-                $attributes['loading'] = 'lazy';
+            // read off the generated file rather than the requested size: without
+            // fit() or fill() the resize scales down and the result is smaller
+            // than asked for. the pair gives the browser an aspect ratio to
+            // reserve space with, so the page does not shift as images arrive
+            $size = $this->getImageSize($basePath);
+
+            if ($size) {
+                $attributes['width'] = $size[0];
+                $attributes['height'] = $size[1];
             }
 
             if ($this->file->alt) {
                 $attributes['alt'] = $this->file->alt;
             }
+
+            if ($this->isLazy) {
+                $attributes['loading'] = 'lazy';
+            }
+
+            if ($this->fetchPriority) {
+                $attributes['fetchpriority'] = $this->fetchPriority;
+            }
+
+            // merged last so an explicit attributes() call wins. it replaces the
+            // whole array, including the alt that load() puts there, which is why
+            // alt is set from the file above rather than relied on here
+            $attributes = array_merge($attributes, $this->attributes);
 
             $html .= PHP_EOL."\t".'<img '.core()->arrayToAttr($attributes).'/>';
             $html .= PHP_EOL.'</picture>';

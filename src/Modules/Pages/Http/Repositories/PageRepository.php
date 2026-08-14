@@ -228,7 +228,6 @@ class PageRepository extends CoreRepository
 
     public function findByUri($uri)
     {
-        $initialUri = $uri;
         // check if we have a placeholder enabled
         // todo: integrate this into the placeholder module
         $settings = settings()->get('pages');
@@ -299,6 +298,13 @@ class PageRepository extends CoreRepository
         $baseHref = pages()->getBaseHref();
 
         $page = $class::with(['meta', 'meta.template'])->find($pageId);
+
+        // abort if no page found; find() returns null when the uri row outlives a
+        // soft-deleted record, and everything below dereferences the page
+        if (!isset($page->id)) {
+            abort(404);
+        }
+
         $base = class_basename($page);
         $page->type = $base;
         $page->url = $baseHref . $uri;
@@ -310,11 +316,6 @@ class PageRepository extends CoreRepository
             return redirect('/');
         }
 
-        // abort if no page found
-        if (!isset($page->id)) {
-            abort(404);
-        }
-
         // if the site is a single pager, only render the home page if its on the sitemap holder
         $isSinglePage = (isset($settings->is_single_page) && $settings->is_single_page->value) || env('IS_SINGLE_PAGE');
         if ($isSinglePage && (int)$page->page_holder_id === 1) {
@@ -324,6 +325,12 @@ class PageRepository extends CoreRepository
             $class = $uriReference->uriable_type;
             $original = $page;
             $page = $class::with(['meta', 'meta.template'])->find($pageId);
+
+            // same soft-delete case as above; the uri row can outlive the home page
+            if (!isset($page->id)) {
+                abort(404);
+            }
+
             $page->is_single_page = true;
             $page->original = $original;
         }
@@ -377,23 +384,10 @@ class PageRepository extends CoreRepository
 
         $page->assetAggregate = app(AssetAggregate::class);
 
-        // todo: find a better way to do this
-        // ie don't render the page to see if it has a form
-        if (function_exists('forms')) {
-            $content = view('templates::'.$page->meta->template->source)->with(compact('page'))->render();
-            $hasForm = Str::contains($content, '<form');
-            if ($hasForm) {
-                $page->assetAggregate
-                    ->addModuleStyle(asset('vendor/refined/form-builder/css/form.css'))
-                    ->addModuleScript('form-builder', asset('vendor/refined/form-builder/js/form-builder-front-end.js'), ['defer'])
-                ;
-
-                $hasRecaptcha = Str::contains($content, '_captcha');
-                if ($hasRecaptcha) {
-                    $page->assetAggregate->addModuleScript('recaptcha', '//www.google.com/recaptcha/api.js?render='.env('RECAPTCHA_SITE_KEY'), ['async', 'defer']);
-                }
-            }
-        }
+        // form detection used to render the whole template here, purely to grep it
+        // for a form, and the controller then rendered it a second time for the
+        // response. the head now carries a placeholder for module assets, so the
+        // page is rendered once and PageController resolves it afterwards
 
 
         // check if we need to do a listing
@@ -426,13 +420,18 @@ class PageRepository extends CoreRepository
         // set some extra fun stuff to the page
         $head = pages()->getPageHeaders();
 
-        if (isset($_GET) && sizeof($_GET)) {
-            $head[] = '<link rel="canonical" href="' . request()->url() . '" />';
-        } elseif (isset($page->page_url) && $page->page_url !== $initialUri) {
-            $head[] = '<link rel="canonical" href="'.rtrim($baseHref.$page->page_url, '/').'"/>';
-        } elseif (isset($page->is_single_page)) {
-            $head[] = '<link rel="canonical" href="' . rtrim($baseHref, '/') . '"/>';
+        // every page gets a self referencing canonical. page_url is already the
+        // canonical path and carries no query string, so alias urls and filtered
+        // or paginated requests both resolve back to the one indexable url
+        if (isset($page->is_single_page)) {
+            $canonical = rtrim($baseHref, '/');
+        } elseif (isset($page->page_url)) {
+            $canonical = rtrim($baseHref.$page->page_url, '/');
+        } else {
+            $canonical = rtrim(request()->url(), '/');
         }
+
+        $head[] = '<link rel="canonical" href="'.$canonical.'"/>';
 
         $page->title = (isset($page->meta->title) && $page->meta->title) ? $page->meta->title : $page->name;
 
@@ -857,27 +856,18 @@ class PageRepository extends CoreRepository
 
         $duplicate->save();
 
-        // Create new URI for the duplicated page
-        if ($originalMeta) {
-            $newUri = Str::slug($duplicate->name);
+        // the IsPage saved() hook already created the uri row (and Spatie's HasSlug
+        // made the slug unique), so only carry over what the hook can't derive from
+        // the model itself. creating a second Uri here left every duplicated page
+        // reachable on two urls, with renames only updating one of them
+        $newMeta = Uri::whereUriableId($duplicate->id)
+            ->whereUriableType('RefinedDigital\CMS\Modules\Pages\Models\Page')
+            ->first();
 
-            // Ensure unique URI
-            $counter = 1;
-            $originalUri = $newUri;
-            while (Uri::whereUri($newUri)->exists()) {
-                $newUri = $originalUri . '-' . $counter;
-                $counter++;
-            }
-
-            Uri::create([
-                'uri' => $newUri,
-                'uriable_id' => $duplicate->id,
-                'uriable_type' => 'RefinedDigital\CMS\Modules\Pages\Models\Page',
-                'title' => $originalMeta->title,
-                'description' => $originalMeta->description,
-                'template_id' => $originalMeta->template_id,
-                'name' => $duplicate->name,
-            ]);
+        if ($originalMeta && $newMeta) {
+            $newMeta->description = $originalMeta->description;
+            $newMeta->template_id = $originalMeta->template_id;
+            $newMeta->save();
         }
 
         // Duplicate content blocks

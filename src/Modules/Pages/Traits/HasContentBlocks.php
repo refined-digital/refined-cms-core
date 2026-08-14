@@ -92,6 +92,14 @@ trait HasContentBlocks
         });
     }
 
+    /**
+     * Rendered blocks for this request, kept so the template can be rendered
+     * more than once without rebuilding them.
+     *
+     * @var string|array|null
+     */
+    protected $renderedContent = null;
+
     protected function initializeHasContentBlocks(): void
     {
         $this->addToAppends([
@@ -127,6 +135,15 @@ trait HasContentBlocks
 
     public function getContentAttribute(): string | array
     {
+        // findByUri() renders the whole template once to sniff it for a form, then
+        // the controller renders it again for the response. without this the blocks
+        // are built twice per request: every block view, every image helper and
+        // every query inside them. the result cannot change within a request, so
+        // the second read is served from here
+        if ($this->renderedContent !== null) {
+            return $this->renderedContent;
+        }
+
         $content = Content::select(['content_class', 'field', 'data', 'position'])
             ->whereContentableId($this->id)
             ->whereContentableType(self::class)
@@ -149,10 +166,10 @@ trait HasContentBlocks
         }
 
         if (\Str::contains(request()->route()->getName(), 'refined.')) {
-            return $this->formatForAdmin($data);
+            return $this->renderedContent = $this->formatForAdmin($data);
         }
 
-        return $this->formatForFE($data);
+        return $this->renderedContent = $this->formatForFE($data);
     }
 
     private function formatForAdmin($data): array

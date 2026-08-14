@@ -105,6 +105,13 @@ sup {
 img {
   border-style: none;
   width: 100%;
+  /* images carry width/height attributes so the browser can reserve space and
+     avoid layout shift. those attributes also apply as presentational hints, so
+     height:auto is required to stop the pixel height being taken literally and
+     squashing the image once width:100% scales it. the attributes then only
+     supply the aspect ratio and never the rendered size. components that need a
+     fixed height, such as the banner, still override this. */
+  height: auto;
   display: block;
   object-fit: cover;
 }
