@@ -32,7 +32,10 @@ return [
         // to medium rather than a slower, smaller-output preset
         'crf' => 32,
         'preset' => 'medium',
-        'maxWidth' => 1920,
+        // these are muted, looping background reels behind a heading overlay,
+        // not footage anyone inspects closely — 1280 keeps the encode honest
+        // on 1080p+ uploads instead of barely scaling them
+        'maxWidth' => 1280,
         'poster' => true,
         'posterQuality' => 80,
         // bits per second, as ffprobe reports it. an upload already at or under

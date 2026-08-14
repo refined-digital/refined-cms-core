@@ -247,10 +247,17 @@ not handle, not a bug to work around.
 | `encode` | `true` | Set `false` to disable video processing entirely (uploads still succeed, derivatives are never generated) |
 | `crf` | `32` | h264 constant rate factor — the quality/size tradeoff. Lower is higher quality and larger |
 | `preset` | `medium` | ffmpeg encoding preset — the speed/size tradeoff. Slower presets shrink the file a little further, at the cost of holding the upload request open longer |
-| `maxWidth` | `1920` | Encoded and poster output are scaled down to this width when the source is wider |
+| `maxWidth` | `1280` | Encoded and poster output are scaled down to this width when the source is wider |
 | `poster` | `true` | Set `false` to skip poster generation |
 | `posterQuality` | `80` | webp quality for the poster |
 | `skipUnder` | `1500000` | Bitrate in bits per second, as `ffprobe` reports it. A source already at or under this, and within `maxWidth`, is served as-is rather than re-encoded |
 | `ffmpeg` / `ffprobe` | `env('FFMPEG_PATH', 'ffmpeg')` / `env('FFPROBE_PATH', 'ffprobe')` | Binary paths or names |
+
+`maxWidth` defaults to `1280`, not full resolution, because this helper targets
+muted, looping background reels sitting behind a heading overlay — nobody
+inspects them closely, and motion masks softness, so scaling a 1080p+ upload
+down to 1280 is deliberate rather than a limitation. A site that wants
+full-resolution video should raise `maxWidth` and run
+`refinedCMS:reprocess-videos` to re-encode existing uploads at the new width.
 
 There is no `video.disk` key — video storage always follows `pages.image.disk`.
