@@ -177,3 +177,80 @@ fields in place. Review the result and run your tests.
 
 > New modules generated with `php artisan make:module` already scaffold a
 > `formSchema()` using this builder.
+
+---
+
+## Video
+
+Uploading a video (`.mp4`) synchronously generates a compressed `-web.mp4`
+derivative and a `-poster.webp` first-frame poster beside the untouched original.
+The original is never modified.
+
+### Requirement: ffmpeg and ffprobe
+
+Both binaries must be on the server, e.g. `apt install ffmpeg` on Ubuntu (this
+also provides `ffprobe`). Without them, uploads still succeed and videos still
+serve — from the untouched original — but no derivatives are generated. The
+feature is inert, not broken, when the binaries are missing.
+
+Binary paths can be overridden with `FFMPEG_PATH` / `FFPROBE_PATH` if they're
+not on `$PATH`.
+
+### Encoding runs synchronously, in the upload request
+
+This package has no queue infrastructure, so encoding happens inline while the
+admin's upload request is held open. A large upload can hold that request open
+for a while. The practical limits are **nginx's `proxy_read_timeout`** and
+**PHP-FPM's `request_terminate_timeout`** — `set_time_limit(0)` is called
+internally, but it has no effect on PHP-FPM's terminate timeout. A site that
+expects large video uploads should raise both.
+
+### Rendering: `video()->load($id)->banner()`
+
+```php
+video()->load($media->id)->banner();
+```
+
+Emits a `<video>` element pointing at the `-web.mp4` derivative, with the
+`-poster.webp` as its `poster` attribute when one exists. If no derivative
+exists — ffmpeg unavailable, encoding disabled, or not yet reprocessed — it
+falls back to the untouched original, so the page never breaks for lack of a
+derivative.
+
+### `php artisan refinedCMS:reprocess-videos {id?}`
+
+Regenerates derivatives for one media id, or for every video when the id is
+omitted:
+
+```bash
+php artisan refinedCMS:reprocess-videos       # every video
+php artisan refinedCMS:reprocess-videos 67    # a single media id
+```
+
+**Derivatives are generated at upload time and by this command, and by
+nothing else.** A page load never generates or regenerates a derivative —
+this is deliberate, so rendering a video stays cheap. That also means
+deleting a derivative from disk is safe but not self-healing: the video keeps
+serving its untouched original until this command is run again.
+
+The command also matches more broadly than the upload hook: the upload hook
+only encodes what `Media` types as a video, which today is `.mp4` only, while
+this command matches any `video/*` mime type. So it will pick up containers
+the upload hook skips — `.mov`, `.webm`, etc. — and encode them to `.mp4`.
+This is intentional: it lets the command repair what the upload hook could
+not handle, not a bug to work around.
+
+### Config (`config/pages.php` → `video`)
+
+| Key | Default | Meaning |
+|-----|---------|---------|
+| `encode` | `true` | Set `false` to disable video processing entirely (uploads still succeed, derivatives are never generated) |
+| `crf` | `32` | h264 constant rate factor — the quality/size tradeoff. Lower is higher quality and larger |
+| `preset` | `medium` | ffmpeg encoding preset — the speed/size tradeoff. Slower presets shrink the file a little further, at the cost of holding the upload request open longer |
+| `maxWidth` | `1920` | Encoded and poster output are scaled down to this width when the source is wider |
+| `poster` | `true` | Set `false` to skip poster generation |
+| `posterQuality` | `80` | webp quality for the poster |
+| `skipUnder` | `1500000` | Bitrate in bits per second, as `ffprobe` reports it. A source already at or under this, and within `maxWidth`, is served as-is rather than re-encoded |
+| `ffmpeg` / `ffprobe` | `env('FFMPEG_PATH', 'ffmpeg')` / `env('FFPROBE_PATH', 'ffprobe')` | Binary paths or names |
+
+There is no `video.disk` key — video storage always follows `pages.image.disk`.

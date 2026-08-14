@@ -202,6 +202,8 @@ class VideoEncoder
             $original = $media->getFileWithDirectory();
 
             if (! $disk->exists($original)) {
+                Log::warning('Video processing skipped, media '.$media->id.' file not found at '.$original);
+
                 return ['status' => 'missing'] + $result;
             }
 
@@ -211,6 +213,8 @@ class VideoEncoder
             $details = $this->probe($sourcePath);
 
             if (! $details) {
+                Log::warning('Video processing skipped, media '.$media->id.' could not be read as video at '.$original);
+
                 return ['status' => 'missing'] + $result;
             }
 

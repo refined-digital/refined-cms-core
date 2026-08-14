@@ -26,10 +26,12 @@ return [
     ],
 
     'video' => [
-        'disk' => env('FILESYSTEM_DISK', 'public'),
         'encode' => true,
+        // crf is the quality/size tradeoff; preset is the speed/size tradeoff.
+        // encoding runs synchronously in the upload request, so preset defaults
+        // to medium rather than a slower, smaller-output preset
         'crf' => 32,
-        'preset' => 'slow',
+        'preset' => 'medium',
         'maxWidth' => 1920,
         'poster' => true,
         'posterQuality' => 80,
