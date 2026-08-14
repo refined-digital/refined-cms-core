@@ -2,6 +2,7 @@
 
 namespace RefinedDigital\CMS\Modules\Media\Http\Repositories;
 
+use RefinedDigital\CMS\Modules\Core\Helpers\VideoEncoder;
 use RefinedDigital\CMS\Modules\Core\Http\Repositories\CoreRepository;
 use RefinedDigital\CMS\Modules\Media\Models\Media;
 use RefinedDigital\CMS\Modules\Media\Models\MediaCategory;
@@ -188,6 +189,10 @@ class MediaRepository extends CoreRepository
                     $file->storeAs('uploads/' . $uploadDirectory, $fileName, 'local');
                 } else {
                     \Storage::disk(config('pages.image.disk'))->putFileAs($uploadDirectory, $file, $fileName);
+                }
+
+                if ($newFile->type === 'Video') {
+                    app(VideoEncoder::class)->process($newFile);
                 }
 
                 return $newFile;

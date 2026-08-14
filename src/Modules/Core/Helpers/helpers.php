@@ -11,6 +11,7 @@ use RefinedDigital\CMS\Modules\Core\Helpers\RefinedFile;
 use RefinedDigital\CMS\Modules\Core\Helpers\RefinedImage;
 use RefinedDigital\CMS\Modules\Core\Helpers\Tags;
 use RefinedDigital\CMS\Modules\Core\Helpers\RefinedSearch;
+use RefinedDigital\CMS\Modules\Core\Helpers\RefinedVideo;
 use RefinedDigital\CMS\Modules\Core\Helpers\ErrorViews;
 use RefinedDigital\CMS\Modules\Settings\Http\Repositories\SettingRepository;
 use RefinedDigital\CMS\Modules\Users\Http\Repositories\Users;
@@ -40,6 +41,13 @@ if (!function_exists('files')) {
     function files()
     {
         return app(RefinedFile::class);
+    }
+}
+
+if (!function_exists('video')) {
+    function video()
+    {
+        return app(RefinedVideo::class);
     }
 }
 

@@ -4,24 +4,12 @@
     ]);
 
     if (isset($content->video->id) && $content->video->id) {
-        $video = files()->load($content->video->id)->url();
+        $video = video()->load($content->video->id);
     }
 
 @endphp
-@if (isset($video) && $video)
+@if (isset($video) && $video->url())
     <section class="banner banner--video {{ implode(' ', $classes) }}">
-        <video
-                class="banner__video"
-                autoplay
-                muted
-                loop
-                playsinline
-                webkit-playsinline
-                x-webkit-airplay="deny"
-                preload="auto"
-                disablePictureInPicture
-        >
-            <source src="{{ $video }}" type="video/mp4">
-        </video>
+        {!! $video->banner() !!}
     </section>
 @endif

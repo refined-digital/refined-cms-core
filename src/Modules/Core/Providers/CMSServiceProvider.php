@@ -16,6 +16,7 @@ use RefinedDigital\CMS\Commands\ConvertFormSchema;
 use RefinedDigital\CMS\Commands\InstallCMS;
 use RefinedDigital\CMS\Commands\InstallDatabase;
 use RefinedDigital\CMS\Commands\InstallSymLink;
+use RefinedDigital\CMS\Commands\ReprocessVideos;
 use RefinedDigital\CMS\Modules\Core\Aggregates\AssetAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\FormBuilderIntegrationAggregate;
 use RefinedDigital\CMS\Modules\Core\Aggregates\ContentAggregate;
@@ -109,6 +110,7 @@ class CMSServiceProvider extends ServiceProvider
                 CreateModule::class,
                 CreateContentBlock::class,
                 ConvertFormSchema::class,
+                ReprocessVideos::class,
             ]);
 
             $publicPathDir = explode('/', public_path());
