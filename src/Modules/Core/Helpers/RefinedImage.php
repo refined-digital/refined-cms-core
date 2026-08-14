@@ -2,13 +2,13 @@
 
 namespace RefinedDigital\CMS\Modules\Core\Helpers;
 
-use Intervention\Image\Drivers\Gd\Driver;
-use Intervention\Image\Encoders\AutoEncoder;
-use Intervention\Image\ImageManager;
-use RefinedDigital\CMS\Modules\Media\Models\Media;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Cache;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\Encoders\AutoEncoder;
+use Intervention\Image\Encoders\FileExtensionEncoder;
+use Intervention\Image\ImageManager;
+use RefinedDigital\CMS\Modules\Media\Models\Media;
 
 class RefinedImage
 {
@@ -31,6 +31,7 @@ class RefinedImage
     protected $useNewFormat = true;
 
     protected $cacheSecondsHigh = 60 * 24 * 7;
+
     protected $cacheSecondsLow = 60 * 24;
 
     protected $extension = '';
@@ -51,6 +52,14 @@ class RefinedImage
     protected $lastGeneratedPath = null;
 
     protected $newTypes = ['webp', 'avif'];
+
+    /**
+     * Format generated for modern browsers. webp rather than avif because gd's
+     * avif encoder is both slower and worse: on a 1640x1045 photo, webp took
+     * 0.11s for 231KB against avif's 0.20s for 555KB. Revisit only if the driver
+     * moves to imagick, which encodes avif properly.
+     */
+    protected $newType = 'webp';
 
     protected $dimensions = [];
 
@@ -231,20 +240,28 @@ class RefinedImage
             return null;
         }
 
-        if ($this->isWebp() || $this->isSVG()) {
+        if ($this->isSVG()) {
             return $this->getOriginalImageUrl();
         }
 
         $width = (int) $width;
         $height = (int) $height;
-        $fileName = $this->buildFileName($fileName, $width, $height, $extension);
+        $targetExtension = $extension ?: $this->extension;
+        $fileName = $this->buildFileName($fileName, $width, $height, $targetExtension);
         $fileNameAndDirectory = $this->file->getFileWithDirectory($fileName);
         $this->lastGeneratedPath = $fileNameAndDirectory;
+
+        // the generated name collides with the upload's own when no dimensions were
+        // asked for and the target format matches it. under force that would
+        // re-encode the original in place, so hand back the untouched file instead
+        if ($fileNameAndDirectory === $this->originalFile) {
+            return $this->getOriginalImageUrl();
+        }
 
         $fileExists = Storage::disk($this->disk)->exists($fileNameAndDirectory);
 
         // only create if we are forcing, or the file doesn't already exist
-        if (!$fileExists || $this->force) {
+        if (! $fileExists || $this->force) {
             $fileContents = $this->getFileContents();
 
             // load the image
@@ -267,8 +284,17 @@ class RefinedImage
                 }
             }
 
+            // AutoEncoder picks its encoder from the *origin* media type, so it can
+            // never convert: a file named .avif came out holding the original jpeg
+            // bytes. Encode by the target extension when a modern format is asked
+            // for. Only the modern encoders are routed this way because png/gif/bmp
+            // take no quality argument
+            $encoder = in_array($targetExtension, $this->newTypes)
+                ? new FileExtensionEncoder($targetExtension, quality: (int) $this->getQuality())
+                : new AutoEncoder(quality: $this->getQuality());
+
             // now save it
-            $encodedImage = $image->encode(new AutoEncoder(quality: $this->getQuality()));
+            $encodedImage = $image->encode($encoder);
             Storage::disk($this->disk)->put($this->file->getFileWithDirectory($fileName), $encodedImage);
         }
 
@@ -278,11 +304,10 @@ class RefinedImage
     public function save($fileName = false)
     {
         if ($this->useNewFormat) {
-            $this->format('avif');
+            $this->format($this->newType);
         }
 
-        // return early for webp
-        if ($this->isWebp() || $this->isSVG()) {
+        if ($this->isSVG()) {
             return $this->getOriginalImageUrl();
         }
 
@@ -353,6 +378,7 @@ class RefinedImage
                 return $this->getFileContents();
             } else {
                 $this->returnType = 'image';
+
                 return $this->save();
             }
         } catch (\Exception $error) {
@@ -395,26 +421,26 @@ class RefinedImage
 
             $basePath = null;
 
-            if (!count($this->dimensions)) {
+            if (! count($this->dimensions)) {
                 $image = $this->createImage($this->width, $this->height);
                 $baseImage = $image;
                 $basePath = $this->lastGeneratedPath;
+                $html .= $this->buildModernSourceHtml($this->width, $this->height);
                 $html .= $this->buildSourceHtml($image);
-                $html .= $this->buildNewSourceHtml();
             } else {
                 $width = 0;
                 foreach ($this->dimensions as $dims) {
                     $image = $this->createImage($dims['width'], $dims['height']);
+                    // captured before the modern source overwrites it
+                    $generatedPath = $this->lastGeneratedPath;
+                    $html .= $this->buildModernSourceHtml($dims['width'], $dims['height'], $dims['media'] ?? false);
                     $html .= $this->buildSourceHtml($image, $dims['media'] ?? false);
-                    if (in_array($this->extension, $this->newTypes)) {
-                        $html .= $this->buildNewSourceHtml();
-                    }
                     if ($dims['width'] > $width) {
                         $width = $dims['width'];
                         $baseImage = $image;
                         // captured here rather than after the loop: the widest
                         // dimension is not necessarily the last one generated
-                        $basePath = $this->lastGeneratedPath;
+                        $basePath = $generatedPath;
                     }
                 }
             }
@@ -461,13 +487,18 @@ class RefinedImage
         }
     }
 
-    private function buildNewSourceHtml()
+    /**
+     * A modern-format <source> emitted ahead of the legacy one, so a browser that
+     * supports it never downloads the png/jpeg. Empty string when the original is
+     * already a modern format, or when new formats are turned off.
+     */
+    private function buildModernSourceHtml($width, $height, $media = false)
     {
-        $this->force = true;
-        $image = $this->createImage($this->width, $this->height, false, $this->originalExtension);
-        $this->force = false;
+        if (! $this->useNewFormat || in_array($this->originalExtension, $this->newTypes)) {
+            return '';
+        }
 
-        return $this->buildSourceHtml($image);
+        return $this->buildSourceHtml($this->createImage($width, $height, false, $this->newType), $media);
     }
 
     private function buildSourceHtml($image, $media = false)
@@ -477,9 +508,13 @@ class RefinedImage
             'srcset' => asset($image),
         ];
 
-        if ($this->extension && $this->originalExtension && $this->extension !== $this->originalExtension) {
-            $localPath = storage_path(str_replace('/storage', 'app/public', $image));
-            $attrs['type'] = mime_content_type($localPath);
+        // read off the generated file rather than mime_content_type: the type only
+        // matters when it differs from the img fallback, and the extension is
+        // already authoritative now that the encoder honours it
+        $extension = strtolower(pathinfo(parse_url($image, PHP_URL_PATH) ?: '', PATHINFO_EXTENSION));
+
+        if ($extension && $extension !== $this->originalExtension) {
+            $attrs['type'] = 'image/'.($extension === 'jpg' ? 'jpeg' : $extension);
         }
 
         if (is_numeric($media) && $media > 200) {
@@ -542,7 +577,6 @@ class RefinedImage
         $ext = $extension ?: $this->extension;
         $name .= '.'.$ext;
 
-
         // return the file name
         return $name;
     }
@@ -562,11 +596,6 @@ class RefinedImage
         return $quality;
     }
 
-    private function isWebp()
-    {
-        return $this->originalExtension === 'webp';
-    }
-
     private function isSVG()
     {
         return $this->originalExtension === 'svg';
@@ -584,7 +613,7 @@ class RefinedImage
 
     private function getCacheKey($name = '')
     {
-        if (!$name) {
+        if (! $name) {
             $name = $this->originalFileName;
         }
 
