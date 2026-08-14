@@ -12,6 +12,50 @@ class Format
 {
     use Macroable;
 
+    /**
+     * Whether a content block has already claimed the h1 this request.
+     *
+     * Static because format() resolves a fresh instance on every call.
+     */
+    protected static bool $h1Used = false;
+
+    /**
+     * Pick the tag for a content block heading.
+     *
+     * Blocks are arranged freely per page, so which one sits at the top is a
+     * content decision rather than a template one. The first block heading
+     * rendered in a request becomes the h1; every one after it keeps its own
+     * level.
+     *
+     * Site chrome such as the footer must not call this, or a page with no
+     * content heading would hand its h1 to the footer.
+     *
+     * @param  string  $default  the level this block uses when it is not first
+     */
+    public function headingTag(string $default = 'h2'): string
+    {
+        if (self::$h1Used) {
+            return $default;
+        }
+
+        self::$h1Used = true;
+
+        return 'h1';
+    }
+
+    /**
+     * Clear the h1 flag so the next block heading claims it.
+     *
+     * PageController calls this before the page template renders. It matters
+     * because the flag is static: under Octane, or anywhere a template reads
+     * $page->content more than once, the h1 would otherwise be consumed by an
+     * earlier render and never reach the visitor.
+     */
+    public function resetHeadingTag(): void
+    {
+        self::$h1Used = false;
+    }
+
     public function heading($content, $search = '|', $replace = 'br', $class = '')
     {
         $occurances = array_map('trim', explode($search, $content));

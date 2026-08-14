@@ -279,6 +279,9 @@ class PageController extends CoreController
             return $page;
         }
 
+        // the first block heading of this render claims the h1
+        format()->resetHeadingTag();
+
         $view = view('templates::'.$page->meta->template->source)
                     ->with(compact('page'))->render();
 
