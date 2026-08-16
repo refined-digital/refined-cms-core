@@ -1,0 +1,114 @@
+/* Entrance animations.
+   Two rules govern everything here:
+   1. The resting state is frozen — every animation ends at opacity 1 / no
+      transform, so the settled page is identical to no animation at all.
+   2. Nothing is hidden without JS. The scroll-triggered states below need JS to
+      reveal them, so they sit behind `scripting: enabled`. The load sequence
+      further down uses keyframes, which complete on their own, so it needs no
+      guard and still works with JS disabled.
+
+   Every animating selector is guarded with html:not([data-rcms-preview]) — the
+   page builder preview marks the document with that attribute, and animations
+   must not run there: the preview re-renders blocks as you type, which strips
+   the js-added reveal classes and would leave everything stuck hidden. */
+
+:root {
+  --anim-duration: 600ms;
+  --anim-rise: 1rem;
+  --anim-step: 100ms;
+  --anim-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (scripting: enabled) {
+  /* Selector list is mirrored in resources/js/components/animations.js.
+     Keep the two in sync — CSS hides from first paint, JS reveals. */
+  html:not([data-rcms-preview]) .page__block .grid > *,
+  html:not([data-rcms-preview]) .fade-in,
+  html:not([data-rcms-preview]) .fade-in-up {
+    opacity: 0;
+    /* named, not `all`: `all` picks up properties added later and blocks compositing */
+    transition:
+      opacity var(--anim-duration) var(--anim-ease),
+      transform var(--anim-duration) var(--anim-ease);
+    /* --anim-i is set by animations.js from the element's position in its own
+       parent, capped, so a long grid's last item does not wait seconds */
+    transition-delay: calc(var(--anim-i, 0) * var(--anim-step));
+  }
+
+  /* transform, not the `translate` property — .with-logo svg already uses
+     `translate` for its offsets and would be clobbered */
+  html:not([data-rcms-preview]) .page__block .grid > *,
+  html:not([data-rcms-preview]) .fade-in-up {
+    transform: translateY(var(--anim-rise));
+  }
+
+  /* must out-specify the hidden-state selectors above, or the transform wins and
+     elements settle permanently 1rem low — scoped, not a bare .is-revealed */
+  html:not([data-rcms-preview]) .page__block .grid > *.is-revealed,
+  html:not([data-rcms-preview]) .fade-in.is-revealed,
+  html:not([data-rcms-preview]) .fade-in-up.is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Above the fold there is nothing to scroll into, so these run on load as a
+   short sequence. `both` fill keeps them hidden through their delay, so there
+   is no flash before the animation starts. */
+@keyframes anim-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes anim-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(var(--anim-rise));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+html:not([data-rcms-preview]) .page__top {
+  animation: anim-fade 500ms var(--anim-ease) both;
+}
+
+/* fade only, no rise: the banner is full-bleed, so any movement exposes an edge */
+html:not([data-rcms-preview]) .banner__image,
+html:not([data-rcms-preview]) .banner__video,
+html:not([data-rcms-preview]) .banner swiper-slide {
+  animation: anim-fade 900ms var(--anim-ease) 120ms both;
+}
+
+html:not([data-rcms-preview]) .banner__content .heading {
+  animation: anim-fade-up var(--anim-duration) var(--anim-ease) 420ms both;
+
+  & + .heading {
+    animation-delay: 560ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* off, not faster — this is a vestibular accommodation, not a preference */
+  .page__block .grid > *,
+  .fade-in,
+  .fade-in-up,
+  .is-revealed,
+  .page__top,
+  .banner__image,
+  .banner__video,
+  .banner swiper-slide,
+  .banner__content .heading,
+  .banner__content .heading + .heading {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    animation: none;
+  }
+}
