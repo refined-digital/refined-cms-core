@@ -411,6 +411,30 @@
     selectedIndex.value = null;
   });
 
+  // block labels for the preview's hover/selection tag: the block name, plus
+  // its anchor id when the page anchors config is on (old Content tab format)
+  const blockLabels = computed(() => {
+    const labels = {};
+    const anchors = props.config?.show_page_anchors;
+
+    (page.value.content || []).forEach((block, index) => {
+      labels[index] = {
+        name: block.name || 'Block',
+        anchor: anchors?.enabled ? `#${anchors.class || ''}${index}` : null,
+      };
+    });
+
+    return labels;
+  });
+
+  function sendBlockMeta() {
+    postToFrame({ type: 'rcms:block-meta', labels: blockLabels.value });
+  }
+
+  watch(blockLabels, () => {
+    if (previewReady.value) sendBlockMeta();
+  });
+
   // instant client-side echo for cheap text fields; the debounced server
   // render reconciles right behind it
   function onFieldInput({ index, field, value }) {
@@ -429,6 +453,7 @@
     switch (event.data.type) {
       case 'rcms:ready':
         previewReady.value = true;
+        sendBlockMeta();
         // sync any admin-side content the saved preview doesn't have yet
         renderPreview();
         break;

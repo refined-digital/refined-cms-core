@@ -152,17 +152,62 @@ function applyEcho({ index, field, value }) {
 // ---- selection / hover -----------------------------------------------------
 
 let selectedIndex = null;
+// index -> {name, anchor}, sent by the admin
+let blockLabels = {};
+
+function copyAnchor(el) {
+  const text = el.dataset.rcmsAnchor;
+
+  const done = () => {
+    const original = el.textContent;
+    el.textContent = 'Copied!';
+    setTimeout(() => { try { el.textContent = original; } catch (e) {} }, 1200);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+
+function fallbackCopy(text, done) {
+  const area = document.createElement('textarea');
+  area.value = text;
+  document.body.appendChild(area);
+  area.select();
+  document.execCommand('copy');
+  area.remove();
+  done();
+}
 
 function makeOverlay(border, background) {
   const el = document.createElement('div');
   el.style.cssText = 'position:absolute;display:none;pointer-events:none;z-index:2147483000;'
     + `border:2px solid ${border};background:${background};border-radius:2px;`;
+
+  // block name tag pinned to the top left of the outline
+  const tag = document.createElement('div');
+  tag.style.cssText = 'position:absolute;top:-2px;left:-2px;display:none;'
+    + `background:${border};color:#fff;font:600 11px/1.7 -apple-system,BlinkMacSystemFont,sans-serif;`
+    + 'padding:1px 9px;border-radius:2px 0 3px 0;max-width:70%;'
+    + 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:0.02em;';
+  // the anchor span inside re-enables pointer events for click-to-copy
+  tag.addEventListener('click', (event) => {
+    const anchor = event.target.closest('[data-rcms-anchor]');
+    if (anchor) {
+      copyAnchor(anchor);
+    }
+  });
+  el.appendChild(tag);
+  el._tag = tag;
+
   document.body.appendChild(el);
   return el;
 }
 
 const selectOverlay = makeOverlay('#4a90d9', 'rgba(74,144,217,0.06)');
-const hoverOverlay = makeOverlay('rgba(74,144,217,0.55)', 'transparent');
+const hoverOverlay = makeOverlay('rgba(74,144,217,0.85)', 'transparent');
 
 function rangeRect(range) {
   const elements = rangeNodes(range).filter(n => n.nodeType === Node.ELEMENT_NODE);
@@ -198,6 +243,27 @@ function positionOverlay(overlay, index) {
   overlay.style.left = (rect.left + window.scrollX) + 'px';
   overlay.style.width = (rect.right - rect.left) + 'px';
   overlay.style.height = (rect.bottom - rect.top) + 'px';
+
+  const meta = blockLabels[index];
+  overlay._tag.innerHTML = '';
+
+  if (meta && (meta.name || meta.anchor)) {
+    overlay._tag.appendChild(document.createTextNode(meta.name || ''));
+
+    if (meta.anchor) {
+      const anchor = document.createElement('span');
+      anchor.textContent = meta.anchor;
+      anchor.dataset.rcmsAnchor = meta.anchor;
+      anchor.title = 'Click to copy';
+      anchor.style.cssText = 'pointer-events:auto;cursor:pointer;margin-left:8px;'
+        + 'text-decoration:underline;text-underline-offset:2px;';
+      overlay._tag.appendChild(anchor);
+    }
+
+    overlay._tag.style.display = 'block';
+  } else {
+    overlay._tag.style.display = 'none';
+  }
 }
 
 function refreshSelection() {
@@ -234,6 +300,11 @@ document.addEventListener('click', (event) => {
 document.addEventListener('submit', (event) => event.preventDefault(), true);
 
 document.addEventListener('mouseover', (event) => {
+  // moving onto an overlay's tag (e.g. to click its anchor) must not hide it
+  if (selectOverlay.contains(event.target) || hoverOverlay.contains(event.target)) {
+    return;
+  }
+
   const index = findBlockIndexFor(event.target);
   positionOverlay(hoverOverlay, index === selectedIndex ? null : index);
 });
@@ -286,6 +357,10 @@ window.addEventListener('message', (event) => {
       break;
     case 'rcms:hover':
       positionOverlay(hoverOverlay, event.data.index === selectedIndex ? null : event.data.index);
+      break;
+    case 'rcms:block-meta':
+      blockLabels = event.data.labels || {};
+      refreshSelection();
       break;
   }
 });
