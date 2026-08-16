@@ -92,7 +92,7 @@ class CreateContentBlock extends Command
     private function copyDirectory()
     {
         $this->info('Copying Module Files');
-        exec('cp -r '.base_path('vendor/refineddigital/cms/src/Modules/Content/Stubs/Content').' '.$this->appPath);
+        File::copyDirectory(base_path('vendor/refineddigital/cms/src/Modules/Content/Stubs/Content'), $this->appPath);
     }
 
     private function setStubs()

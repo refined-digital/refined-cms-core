@@ -774,6 +774,13 @@ class PageRepository extends CoreRepository
             $newSetting = $setting;
             $newSetting['content'] = $keyedSettings[$key] ?? null;
 
+            // 'type' is the modern alias for page_content_type_id - accepts the
+            // enum case, its int value, or the case name as a string ('select')
+            if (!isset($newSetting['page_content_type_id']) && isset($newSetting['type'])) {
+                $newSetting['page_content_type_id'] = PageContentTypeEnum::resolveId($newSetting['type']);
+            }
+            unset($newSetting['type']);
+
             if (isset($newSetting['options']) && $newSetting['options'] === 'forms' && function_exists('forms')) {
                 $newSetting['options'] = forms()->getForSelect('content forms');
             }

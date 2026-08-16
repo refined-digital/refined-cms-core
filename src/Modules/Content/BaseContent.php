@@ -40,11 +40,21 @@ class BaseContent
         return $this->description ?? '';
     }
 
+    /**
+     * Groups the block in the builder's add-block modal. Blocks may set
+     * protected string $category; anything without one lands in General.
+     */
+    public function getCategory(): string
+    {
+        return $this->category ?? 'General';
+    }
+
     public function getForConfig(string $class): array
     {
         $config = [
             'name' => $this->getName(),
             'class' => $class,
+            'category' => $this->getCategory(),
         ];
 
         $description = $this->getDescription();
@@ -82,6 +92,13 @@ class BaseContent
                 ...$field,
                 'field' => \Str::snake($field['name']),
             ];
+
+            // 'type' is the modern alias for page_content_type_id - accepts the
+            // enum case, its int value, or the case name as a string ('rich')
+            if (!isset($data['page_content_type_id']) && isset($data['type'])) {
+                $data['page_content_type_id'] = PageContentType::resolveId($data['type']);
+            }
+            unset($data['type']);
 
             if (
                 (int) $data['page_content_type_id'] === PageContentType::SELECT->value &&

@@ -30,4 +30,27 @@ enum PageContentType: int
 
     case COLOUR_SET = 13;
 
+    /**
+     * Resolves a field definition's 'type' into its integer id. Accepts the
+     * enum case, its int value, or the case name as a string ('rich').
+     */
+    public static function resolveId(self|int|string $type): int
+    {
+        if ($type instanceof self) {
+            return $type->value;
+        }
+
+        if (is_string($type) && !is_numeric($type)) {
+            foreach (self::cases() as $case) {
+                if (strcasecmp($case->name, $type) === 0) {
+                    return $case->value;
+                }
+            }
+
+            throw new \InvalidArgumentException('Unknown content field type "'.$type.'"');
+        }
+
+        return (int) $type;
+    }
+
 }
