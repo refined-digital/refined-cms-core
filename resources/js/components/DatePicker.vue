@@ -12,6 +12,7 @@ import { format, parse, parseISO, isValid } from 'date-fns';
 import 'flatpickr/dist/themes/material_blue.css';
 
 const props = defineProps(['field', 'value']);
+const emit = defineEmits(['update:modelValue']);
 
 const dateFormat = 'yyyy-MM-dd';
 let datePicker = null;
@@ -22,6 +23,11 @@ const config = reactive({
   dateFormat: 'Y-m-d',
   enableTime: false,
   defaultDate: '',
+  // the hidden form input keeps working as before; the emits let the
+  // workspace bind the value with v-model. onReady propagates the default
+  // date so a brand new record saves with a value
+  onChange: (dates, dateStr) => emit('update:modelValue', dateStr),
+  onReady: (dates, dateStr) => emit('update:modelValue', dateStr),
 });
 
 // parse leniently like moment did: try the exact format, then fall back to ISO

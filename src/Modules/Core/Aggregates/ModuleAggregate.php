@@ -82,6 +82,41 @@ class ModuleAggregate
         return $routes;
     }
 
+    /**
+     * Sub links of a module's menu item (e.g. Pages -> Templates) as
+     * [{name, url}], honouring the menu's user level gate. Used by the
+     * full-screen workspaces, which cover the admin sidebar.
+     */
+    public function getMenuChildrenLinks(string $route): array
+    {
+        $user = auth()->user();
+        $links = [];
+
+        foreach ($this->getMenuItems() as $item) {
+            if (!is_string($item->route ?? null) || $item->route !== $route || empty($item->children)) {
+                continue;
+            }
+
+            foreach ($item->children as $child) {
+                if (is_string($child->route) && $child->route === $route) {
+                    continue;
+                }
+                if (isset($child->max_user_level_id) && $user && $user->user_level_id > $child->max_user_level_id) {
+                    continue;
+                }
+
+                $links[] = [
+                    'name' => $child->name,
+                    'url' => is_array($child->route)
+                        ? route('refined.'.$child->route[0], $child->route[1] ?? [])
+                        : route('refined.'.$child->route.'.index'),
+                ];
+            }
+        }
+
+        return $links;
+    }
+
     private function getMenuItem($item)
     {
         $items = $this->getMenuItems();

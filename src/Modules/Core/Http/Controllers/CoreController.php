@@ -5,10 +5,18 @@ namespace RefinedDigital\CMS\Modules\Core\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use RefinedDigital\CMS\Modules\Core\Aggregates\ContentAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\CustomModuleAggregate;
+use RefinedDigital\CMS\Modules\Core\Aggregates\ModuleAggregate;
 use RefinedDigital\CMS\Modules\Core\Http\Repositories\CoreRepository;
+use RefinedDigital\CMS\Modules\Pages\Traits\HasContentBlocks;
 
 class CoreController extends Controller
 {
+    // null = automatic: models using HasContentBlocks get the full-screen
+    // workspace admin. set false on a controller to keep the classic CRUD
+    protected $workspace = null;
+
     protected $prefix;
     protected $heading = 'Set in child controller';
     protected $button = '';
@@ -76,9 +84,60 @@ class CoreController extends Controller
      */
     public function index()
     {
+        if ($this->workspaceEnabled()) {
+            return $this->loadWorkspace();
+        }
+
         // do the initial setting of vars on the child class
         $data = $this->coreRepository->getAll();
         return $this->indexSetup($data);
+    }
+
+    /**
+     * Whether this module's admin is the full-screen workspace.
+     */
+    protected function workspaceEnabled(): bool
+    {
+        if ($this->workspace === false) {
+            return false;
+        }
+
+        if (!in_array(HasContentBlocks::class, class_uses_recursive($this->model))) {
+            return false;
+        }
+
+        // the generic workspace endpoints resolve {module} through this
+        // registry, so only registered modules can use the workspace
+        $registered = app(CustomModuleAggregate::class)->getModel($this->route);
+
+        return $registered && ltrim($registered, '\\') === ltrim($this->model, '\\');
+    }
+
+    protected function loadWorkspace()
+    {
+        $module = $this->route;
+
+        $config = [
+            'module' => $module,
+            'heading' => $this->heading,
+            'button' => $this->button ?: 'Item',
+            'routes' => [
+                'list' => route('refined.workspace.list', $module),
+                'data' => route('refined.workspace.data', [$module, 'RECORD_ID']),
+                'preview' => route('refined.workspace.preview', [$module, 'RECORD_ID']),
+                'store' => route('refined.'.$module.'.store'),
+                'update' => route('refined.'.$module.'.update', 'RECORD_ID'),
+                'destroy' => route('refined.'.$module.'.destroy', 'RECORD_ID'),
+            ],
+            'palette' => app(ContentAggregate::class)->getForConfig(),
+            'moduleLinks' => app(ModuleAggregate::class)->getMenuChildrenLinks($module),
+        ];
+
+        return view('core::pages.workspace')->with([
+            'module' => $module,
+            'heading' => $this->heading,
+            'workspaceConfig' => $config,
+        ]);
     }
 
 
@@ -139,6 +198,10 @@ class CoreController extends Controller
      */
     public function create()
     {
+        if ($this->workspaceEnabled()) {
+            return redirect()->route('refined.'.$this->route.'.index', ['new' => 1]);
+        }
+
         $config = $this->getConfig();
         $item = new $this->model;
         $config['data'] = $item;
@@ -155,6 +218,10 @@ class CoreController extends Controller
     public function storeRecord(Request $request)
     {
         $item = $this->coreRepository->store($request);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => 1, 'id' => $item->id]);
+        }
 
         $route = $this->getReturnRoute($item->id, $request->get('action'));
 
@@ -173,6 +240,12 @@ class CoreController extends Controller
      */
     public function edit($item)
     {
+        if ($this->workspaceEnabled()) {
+            return redirect()->route('refined.'.$this->route.'.index', [
+                'edit' => is_object($item) ? $item->id : $item,
+            ]);
+        }
+
         $config = $this->getConfig();
         $config['data'] = $item;
 
@@ -189,6 +262,10 @@ class CoreController extends Controller
     public function updateRecord($request, $id)
     {
         $this->coreRepository->update($id, $request);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => 1, 'id' => (int) $id]);
+        }
 
         $route = $this->getReturnRoute($id, $request->get('action'));
 
@@ -233,7 +310,13 @@ class CoreController extends Controller
 
     public function destroy($id)
     {
-        if ($this->coreRepository->destroy($id)) {
+        $deleted = $this->coreRepository->destroy($id);
+
+        if (request()->wantsJson()) {
+            return response()->json(['success' => $deleted ? 1 : 0]);
+        }
+
+        if ($deleted) {
             return back()->with('status', 'Item deleted successfully');
         }
 

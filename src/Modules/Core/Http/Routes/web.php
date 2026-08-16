@@ -45,6 +45,25 @@ Route::middleware($adminMiddleware)
             'uses' => 'RefinedDigital\CMS\Modules\Core\Http\Controllers\DashboardController@index',
         ]);
 
+        // generic full-screen workspace endpoints; {module} resolves through
+        // CustomModuleAggregate to models using HasContentBlocks
+        Route::get('workspace/{module}/list', [
+            'as' => 'workspace.list',
+            'uses' => 'RefinedDigital\CMS\Modules\Core\Http\Controllers\WorkspaceController@list',
+        ]);
+        Route::get('workspace/{module}/{id}/data', [
+            'as' => 'workspace.data',
+            'uses' => 'RefinedDigital\CMS\Modules\Core\Http\Controllers\WorkspaceController@data',
+        ]);
+        Route::get('workspace/{module}/{id}/preview', [
+            'as' => 'workspace.preview',
+            'uses' => 'RefinedDigital\CMS\Modules\Core\Http\Controllers\WorkspaceController@preview',
+        ]);
+        Route::post('workspace/{module}/{id}/preview', [
+            'as' => 'workspace.preview.render',
+            'uses' => 'RefinedDigital\CMS\Modules\Core\Http\Controllers\WorkspaceController@previewRender',
+        ]);
+
         Route::namespace('RefinedDigital\\')
             ->group(function() {
                 $routeAggregate = app(RouteAggregate::class);
