@@ -1,0 +1,61 @@
+@use '../variables' as *;
+
+.dashboard {
+  padding: 40px;
+  max-width: 900px;
+
+  &__header {
+    margin-bottom: 28px;
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+    }
+
+    p {
+      margin: 0;
+      color: #888;
+    }
+  }
+
+  &__tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+  }
+
+  &__tile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 22px 20px;
+    border: 1px solid #e3e3e3;
+    border-radius: 6px;
+    background: #fff;
+    text-decoration: none;
+    color: #333;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+      border-color: #6fbf4c;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    }
+  }
+
+  &__tile-icon {
+    display: block;
+    width: 28px;
+    color: #6fbf4c;
+
+    svg {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  &__tile-name {
+    font-size: 15px;
+    font-weight: 500;
+  }
+}

@@ -38,7 +38,12 @@ Route::middleware($adminMiddleware)
     ->as('refined.')
     ->prefix($prefix)
     ->group(function(){
-        Route::redirect('/', 'refined/pages');
+        Route::redirect('/', 'refined/dashboard');
+
+        Route::get('dashboard', [
+            'as' => 'dashboard',
+            'uses' => 'RefinedDigital\CMS\Modules\Core\Http\Controllers\DashboardController@index',
+        ]);
 
         Route::namespace('RefinedDigital\\')
             ->group(function() {
