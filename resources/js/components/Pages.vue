@@ -1,121 +1,139 @@
 <template>
-  <div class="pages">
-    <aside class="app__trigger" @click="mobileMenuActive = !mobileMenuActive">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M0 88C0 74.7 10.7 64 24 64l400 0c13.3 0 24 10.7 24 24s-10.7 24-24 24L24 112C10.7 112 0 101.3 0 88zM0 248c0-13.3 10.7-24 24-24l400 0c13.3 0 24 10.7 24 24s-10.7 24-24 24L24 272c-13.3 0-24-10.7-24-24zM448 408c0 13.3-10.7 24-24 24L24 432c-13.3 0-24-10.7-24-24s10.7-24 24-24l400 0c13.3 0 24 10.7 24 24z"/></svg>
-    </aside>
-    <aside class="pages__tree" :class="mobileMenuActive ? 'pages__tree--active' : ''">
-
-      <aside class="app__trigger" @click="mobileMenuActive = !mobileMenuActive">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path fill="currentColor" d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"/></svg>
-      </aside>
-
-      <nav class="tree">
-        <ul class="tree__trunk">
-          <li class="tree__branch tree__branch--master tree__branch--has-children"
-            :class="{
-              'tree__branch--active' : holder.show,
-            }"
-            v-for="holder of pages"
-          >
-            <div>
-              <i class="fas" @click="toggleSubMenu(holder)"></i>
-              <span class="tree__leaf" @click="toggleSubMenu(holder)">{{ holder.name }}</span>
-            </div>
-
-            <rd-pages-branch :data="holder" :id="-holder.id"></rd-pages-branch>
-
-          </li>
-        </ul>
-      </nav>
-    </aside>
-    <section class="pages__content">
-      <div class="pages__header">
+  <Teleport to="body">
+  <div class="pages-workspace">
+    <header class="pages-workspace__header">
+      <div class="pages-workspace__header-left">
+        <button class="pages-workspace__tree-toggle" :class="{ 'is-open': treeOpen }" @click="treeOpen = !treeOpen" title="Toggle sitemap">
+          <i class="fa fa-bars"></i>
+        </button>
         <h3>{{ page.name }}</h3>
-        <aside>
-          <a href="" class="button button--grey button--small" @click.prevent.stop="savePage">Save</a>
-          <template v-if="!page.newPage">
-            <a href="" class="button button--grey button--small" @click.prevent.stop="viewPage">View</a>
-            <span> | </span>
-            <a href="" class="button button--grey button--small" @click.prevent.stop="addPage">Add a Page</a>
-            <span> | </span>
-            <a href="" class="button button--grey button--small" @click.prevent.stop="duplicatePage">Duplicate</a>
-          </template>
-          <template v-if="page.newPage">
-            <a href="" class="button button--red button--small" @click.prevent.stop="cancelPage">Cancel</a>
-          </template>
-          <template v-if="page.id > 1">
-            <span> | </span>
-            <a href="" class="button button--red button--small" @click.prevent.stop="deletePage">Delete</a>
-          </template>
-        </aside>
-      </div><!-- / header -->
-
-      <div class="pages__tabs">
-        <nav>
-          <ul>
-            <template v-for="item in defaultTabs">
-              <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == item.tab) }" v-if="showDefaultTab(item)" @click="switchTab(item.tab)">{{ item.name }}</li>
-            </template>
-            <template v-for="item in tabs">
-              <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == item.tab) }" v-if="showTab(item)" @click="switchTab(item.tab)">{{ item.name }}</li>
-            </template>
-            <li class="pages__tab" :class="{ ' pages__tab--active' : (tab == 'meta') }" @click="switchTab('meta')">Meta</li>
-          </ul>
-        </nav>
       </div>
 
-      <div class="pages__info">
-        <div class="pages__tab-pane" v-show="tab === 'details'">
-        <h3>Page Details</h3>
+      <nav class="pages-workspace__tabs">
+        <template v-for="item in defaultTabs">
+          <button
+            v-if="showDefaultTab(item)"
+            :class="{ 'is-active': tab === item.tab }"
+            @click="switchTab(item.tab)"
+          >{{ item.name }}</button>
+        </template>
+        <template v-for="item in tabs">
+          <button
+            v-if="showTab(item)"
+            :class="{ 'is-active': tab === item.tab }"
+            @click="switchTab(item.tab)"
+          >{{ item.name }}</button>
+        </template>
+        <button :class="{ 'is-active': tab === 'meta' }" @click="switchTab('meta')">Meta</button>
+      </nav>
 
-        <div class="form form__horz">
-          <div class="form__row form__row--inline-label">
-            <label for="form--menu-text" class="form__label">Menu Text</label>
-            <div class="form__horz-group">
+      <aside class="pages-workspace__actions">
+        <span class="page-builder__error" v-if="previewError" :title="previewError">
+          <i class="fa fa-exclamation-triangle"></i> Preview error
+        </span>
+        <a href="" class="button button--grey button--small" @click.prevent.stop="savePage">Save</a>
+        <template v-if="!page.newPage">
+          <a href="" class="button button--grey button--small" @click.prevent.stop="viewPage">View</a>
+          <a href="" class="button button--grey button--small" @click.prevent.stop="addPage">Add a Page</a>
+          <a href="" class="button button--grey button--small" @click.prevent.stop="duplicatePage">Duplicate</a>
+        </template>
+        <template v-if="page.newPage">
+          <a href="" class="button button--red button--small" @click.prevent.stop="cancelPage">Cancel</a>
+        </template>
+        <template v-if="page.id > 1 && !page.newPage">
+          <a href="" class="button button--red button--small" @click.prevent.stop="deletePage">Delete</a>
+        </template>
+        <a :href="exitUrl" class="button button--small pages-workspace__exit" title="Back to admin"><i class="fa fa-sign-out-alt"></i> Exit</a>
+      </aside>
+    </header>
+
+    <div class="pages-workspace__body">
+      <aside class="pages-workspace__tree" v-show="treeOpen">
+        <nav class="tree pages-workspace__tree-nav">
+          <ul class="tree__trunk">
+            <li class="tree__branch tree__branch--master tree__branch--has-children"
+              :class="{
+                'tree__branch--active' : holder.show,
+              }"
+              v-for="holder of pages"
+            >
+              <div>
+                <i class="fas" @click="toggleSubMenu(holder)"></i>
+                <span class="tree__leaf" @click="toggleSubMenu(holder)">{{ holder.name }}</span>
+              </div>
+
+              <rd-pages-branch :data="holder" :id="-holder.id"></rd-pages-branch>
+
+            </li>
+          </ul>
+        </nav>
+
+        <footer class="pages-workspace__tree-footer" v-if="moduleLinks && moduleLinks.length">
+          <a :href="link.url" v-for="link in moduleLinks" :key="link.url">
+            <i class="fa fa-cog"></i> {{ link.name }}
+          </a>
+        </footer>
+      </aside>
+
+      <section class="pages-workspace__panel">
+        <div class="pages-workspace__pane" v-show="tab === 'content'">
+          <div class="form__note pages-workspace__pane-note" v-if="page.newPage">
+            Save the page details first &mdash; the content editor needs a saved page.
+          </div>
+          <rd-page-builder-panel
+            v-else
+            :page="page"
+            :content="content"
+            :config="config"
+            :key="`panel--${page.id}`"
+            v-model:selected-index="selectedIndex"
+            @field-input="onFieldInput"
+            @block-hover="onBlockHover"
+            @open-block-modal="blockModalOpen = true"
+          ></rd-page-builder-panel>
+        </div>
+
+        <div class="pages-workspace__pane" v-show="tab === 'details'">
+          <h3>Page Details</h3>
+
+          <div class="form">
+            <div class="form__row">
+              <label for="form--menu-text" class="form__label">Menu Text</label>
               <input type="text" id="form--menu-text" v-model="page.name" required="required" class="form__control" @keyup="updateSlug()">
               <div class="form__note">This is used for the text in the menu.</div>
-            </div>
-          </div><!-- / form row -->
+            </div><!-- / form row -->
 
-
-            <div class="form__row form__row--inline-label" v-if="page.id > 1 || page.newPage">
+            <div class="form__row" v-if="page.id > 1 || page.newPage">
               <label for="form--active" class="form__label">Show Page</label>
-              <div class="form__horz-group">
-                <select id="form--active" v-model="page.active" required="required" class="form__control">
-                  <option :value="1">Yes</option>
-                  <option :value="0">No</option>
-                </select>
-                <div class="form__note">Do you want the page to be viewed by the public? Set to No for draft mode.</div>
-              </div>
+              <select id="form--active" v-model="page.active" required="required" class="form__control">
+                <option :value="1">Yes</option>
+                <option :value="0">No</option>
+              </select>
+              <div class="form__note">Do you want the page to be viewed by the public? Set to No for draft mode.</div>
             </div><!-- / form row -->
 
-            <div class="form__row form__row--inline-label">
+            <div class="form__row">
               <label for="form--hide-from-menu" class="form__label">Show in Menus</label>
-              <div class="form__horz-group">
-                <select id="form--hide-from-menu" v-model="page.hide_from_menu" required="required" class="form__control">
-                  <option :value="1">No</option>
-                  <option :value="0">Yes</option>
-                </select>
-                <div class="form__note">Do you want the page to be shown in menus?</div>
-              </div>
+              <select id="form--hide-from-menu" v-model="page.hide_from_menu" required="required" class="form__control">
+                <option :value="1">No</option>
+                <option :value="0">Yes</option>
+              </select>
+              <div class="form__note">Do you want the page to be shown in menus?</div>
             </div><!-- / form row -->
 
-          <template v-if="page.id > 1 || page.newPage">
+            <template v-if="page.id > 1 || page.newPage">
 
-            <div class="form__row form__row--inline-label">
-              <label for="form--hide-from-menu" class="form__label">Show in Sitemap.xml</label>
-              <div class="form__horz-group">
-                <select id="form--hide-from-menu" v-model="page.hide_from_sitemap" required="required" class="form__control">
+              <div class="form__row">
+                <label for="form--hide-from-sitemap" class="form__label">Show in Sitemap.xml</label>
+                <select id="form--hide-from-sitemap" v-model="page.hide_from_sitemap" required="required" class="form__control">
                   <option :value="1">No</option>
                   <option :value="0">Yes</option>
                 </select>
                 <div class="form__note">Do you want the page to be shown in the sitemap.xml?</div>
-              </div>
-            </div><!-- / form row -->
+              </div><!-- / form row -->
 
-            <div class="form__row form__row--inline-label">
-              <label for="form--page-type" class="form__label">Page Type</label>
-              <div class="form__horz-group">
+              <div class="form__row">
+                <label for="form--page-type" class="form__label">Page Type</label>
                 <select id="form--page-type" v-model="page.page_type" required="required" class="form__control">
                   <option :value="1">Page</option>
                   <option :value="0">Holder</option>
@@ -125,98 +143,69 @@
                   Page: A standard page<br/>
                   Holder: A menu item, not a page<br/>
                   Redirect: Sets a session and redirects to the home page</div>
-              </div>
-            </div><!-- / form row -->
+              </div><!-- / form row -->
 
-            <div class="form__row form__row--inline-label">
-              <label for="form--template" class="form__label">Template</label>
-              <div class="form__horz-group">
+              <div class="form__row">
+                <label for="form--template" class="form__label">Template</label>
                 <select id="form--template" v-model="page.meta.template_id" required="required" class="form__control">
                   <option :value="item.id" v-for="item in templates">{{ item.name }}</option>
                 </select>
                 <div class="form__note">Which layout do you need for this page?</div>
-              </div>
-            </div><!-- / form row -->
+              </div><!-- / form row -->
 
-          </template>
+            </template>
 
-          <div class="form__row form__row--inline-label" v-if="showForms()">
-            <label for="form--form" class="form__label">Form</label>
-            <div class="form__horz-group">
+            <div class="form__row" v-if="showForms()">
+              <label for="form--form" class="form__label">Form</label>
               <select id="form--form" v-model="page.form_id" required="required" class="form__control">
                 <option :value="item.id" v-for="item in forms">{{ item.name }}</option>
               </select>
               <div class="form__note">Which form do you want to display on this page?</div>
-            </div>
-          </div><!-- / form row -->
-        </div><!-- / form -->
-
+            </div><!-- / form row -->
+          </div><!-- / form -->
         </div><!-- / details -->
-        <div class="pages__tab-pane" v-show="tab === 'content'">
-          <header class="pages__tab-pane-header">
-            <h3>Page Content</h3>
-          </header>
 
-          <div class="pages__content-editor">
-            <rd-content-blocks
-              :config="config"
-              :page="page"
-              :key="`page__id--${page.id}`"
-              :content="content"
-              name="content"
-            />
-          </div><!-- content editor -->
-        </div>
-        <div class="pages__tab-pane" v-show="tab === 'meta'">
+        <div class="pages-workspace__pane" v-show="tab === 'meta'">
           <h3>Meta Data</h3>
 
-          <div class="form form__horz">
+          <div class="form">
 
-            <div class="form__row form__row--inline-label">
+            <div class="form__row">
               <label for="form--slug" class="form__label">Page URL</label>
-              <div class="form__horz-group">
-
-                <div class="form__control--url">
-                  <span>{{ url }}</span>
-                  <input type="text" id="form--slug" v-model="page.meta.uri" readonly required="required" class="form__control">
-                  <span class="copy-url" @click="copyUrl"><i class="fas fa-link"></i></span>
-                </div>
-
+              <div class="form__control--url">
+                <span>{{ url }}</span>
+                <input type="text" id="form--slug" v-model="page.meta.uri" readonly required="required" class="form__control">
+                <span class="copy-url" @click="copyUrl"><i class="fas fa-link"></i></span>
               </div>
             </div><!-- / form row -->
 
-            <div class="form__row form__row--inline-label">
+            <div class="form__row">
               <label for="form--title" class="form__label">Page Title</label>
-              <div class="form__horz-group">
-                <input type="text" id="form--title" v-model="page.meta.title" required="required" class="form__control">
-                <div class="form__note">
-                  This area appears in the title of the browser<br/>
-                  A maximum of 70 characters is allowed<br/>
-                  <img src="/vendor/refined/core/img/ui/meta-title.png"/>
-                </div>
+              <input type="text" id="form--title" v-model="page.meta.title" required="required" class="form__control">
+              <div class="form__note">
+                This area appears in the title of the browser<br/>
+                A maximum of 70 characters is allowed
               </div>
             </div><!-- / form row -->
 
-            <div class="form__row form__row--inline-label">
+            <div class="form__row">
               <label for="form--desc" class="form__label">Meta Description</label>
-              <div class="form__horz-group">
-                <textarea id="form--desc" v-model="page.meta.description" required="required" class="form__control"></textarea>
-                <div class="form__note">
-                  This area is used to describe the business to search engines<br>A maximum of <code>160</code> characters is allowed
-                </div>
+              <textarea id="form--desc" v-model="page.meta.description" required="required" class="form__control"></textarea>
+              <div class="form__note">
+                This area is used to describe the business to search engines<br>A maximum of <code>160</code> characters is allowed
               </div>
             </div><!-- / form row -->
 
           </div><!-- / form -->
-
         </div>
-        <div class="pages__tab-pane" v-show="tab === 'settings'">
+
+        <div class="pages-workspace__pane" v-show="tab === 'settings'">
           <h3>Page Settings</h3>
           <rd-pages-settings :settings="page.settings" :page="page"></rd-pages-settings>
         </div>
 
         <template v-for="item in tabs">
-          <div class="pages__tab-pane" v-show="tab === item.tab" v-if="!item.default">
+          <div class="pages-workspace__pane" v-show="tab === item.tab" v-if="!item.default">
             <h3>{{ item.name }}</h3>
             <template v-if="item.type === 'repeatable'">
               <rd-pages-repeatable
@@ -230,10 +219,10 @@
             <template v-if="item.type === 'fields'">
               <div class="pages__content-editor">
 
-                <div class="content-editor__fields form form__horz">
+                <div class="content-editor__fields form">
                   <div class="content-editor__field" v-for="(field, index) in item.fields">
 
-                    <div class="form__row form__row--inline-label" v-if="page.data[item.tab]">
+                    <div class="form__row" v-if="page.data[item.tab]">
 
                       <div class="form__label form__label--with-controls">
                         <label :for="'form--content-'+field.id" v-if="!field.hide_label">{{ field.name }}</label>
@@ -248,13 +237,34 @@
             </template>
           </div>
         </template>
-      </div><!-- / info -->
-    </section>
-  </div><!-- / pages -->
+      </section>
+
+      <section class="pages-workspace__preview">
+        <iframe
+          v-if="page.id && !page.newPage"
+          ref="frame"
+          :src="previewUrl"
+          :key="`preview--${page.id}`"
+          title="Page preview"
+        ></iframe>
+        <div class="pages-workspace__preview-empty" v-else>
+          <p>Save the page details to see a live preview.</p>
+        </div>
+      </section>
+    </div>
+
+    <rd-add-block-modal
+      v-if="blockModalOpen"
+      :content="content"
+      @add="addBlockFromModal"
+      @close="blockModalOpen = false"
+    ></rd-add-block-modal>
+  </div><!-- / pages workspace -->
+  </Teleport>
 </template>
 
 <script setup>
-  import { ref, reactive, onUpdated, onUnmounted, nextTick, provide } from 'vue';
+  import { ref, reactive, computed, watch, nextTick, provide, onUpdated, onUnmounted } from 'vue';
   import swal from 'sweetalert';
   import naturalSort from 'javascript-natural-sort';
   import _ from 'lodash';
@@ -262,8 +272,11 @@
   import { useUiStore } from '../stores/ui';
   import { usePagesImageNote } from '../composables/usePagesImageNote';
   import { usePagesRepeatable } from '../composables/usePagesRepeatable';
+  import { formatContent } from '../composables/useContentBlocks';
 
-  const props = defineProps(['siteUrl', 'publicUrl', 'config', 'modules', 'content']);
+  const props = defineProps(['siteUrl', 'publicUrl', 'config', 'modules', 'content', 'moduleLinks']);
+
+  const moduleLinks = props.moduleLinks;
 
   const ui = useUiStore();
 
@@ -301,14 +314,19 @@
   const url = ref(null);
 
   const defaultTabs = ref([
+    { tab: 'content', name: 'Content' },
     { tab: 'details', name: 'Details' },
     { tab: 'settings', name: 'Settings' },
-    { tab: 'content', name: 'Content' },
   ]);
 
   const tabs = ref([]);
 
-  const mobileMenuActive = ref(false);
+  // workspace state
+  const treeOpen = ref(true);
+  const blockModalOpen = ref(false);
+  const selectedIndex = ref(null);
+
+  const exitUrl = `${window.siteUrl}/refined/dashboard`;
 
   // compose the old mixins
   const { getImageNote } = usePagesImageNote(page);
@@ -320,10 +338,148 @@
     getRepeatableFieldIndex,
   } = usePagesRepeatable(page, { getImageNote });
 
-  // child PagesBranch / PagesRepeatable components inject these
-  provide('pages:loadPage', loadPage);
+  // child PagesBranch / PagesRepeatable components inject these; the loadPage
+  // provided to the tree is guarded so unsaved content edits aren't lost
+  provide('pages:loadPage', guardedLoadPage);
   provide('pages:toggleSubMenu', toggleSubMenu);
   provide('pages:addRepeatable', addRepeatable);
+
+  ////////////////////////////////
+  //// live preview channel
+  ///////////////////////////////
+
+  const frame = ref(null);
+  const previewError = ref(null);
+  const previewReady = ref(false);
+  // latest-wins: responses from superseded requests are dropped
+  let renderSequence = 0;
+  // snapshot of the page's content when it was loaded/saved, for dirty checks
+  let contentSnapshot = '[]';
+
+  const previewUrl = computed(() => `${window.siteUrl}/refined/pages/${page.value.id}/preview`);
+
+  function postToFrame(message) {
+    if (frame.value && frame.value.contentWindow) {
+      frame.value.contentWindow.postMessage(message, window.location.origin);
+    }
+  }
+
+  async function renderPreview() {
+    const sequence = ++renderSequence;
+
+    try {
+      const response = await axios.post(previewUrl.value, { content: page.value.content });
+
+      if (sequence !== renderSequence) {
+        return;
+      }
+
+      if (response.data.success) {
+        previewError.value = null;
+        postToFrame({ type: 'rcms:update', html: response.data.html });
+      } else {
+        // keep the last good preview, just flag it
+        previewError.value = response.data.msg || 'The preview failed to render';
+      }
+    } catch (e) {
+      if (sequence === renderSequence) {
+        previewError.value = e.message;
+      }
+    }
+  }
+
+  const debouncedRender = _.debounce(renderPreview, 150);
+
+  watch(
+    () => page.value.content,
+    () => {
+      if (previewReady.value) {
+        debouncedRender();
+      }
+    },
+    { deep: true }
+  );
+
+  watch(selectedIndex, (index) => {
+    postToFrame({ type: 'rcms:select', index });
+  });
+
+  // switching pages loads a fresh iframe; wait for its shim to say hello again
+  watch(() => page.value.id, () => {
+    previewReady.value = false;
+    previewError.value = null;
+    selectedIndex.value = null;
+  });
+
+  // instant client-side echo for cheap text fields; the debounced server
+  // render reconciles right behind it
+  function onFieldInput({ index, field, value }) {
+    postToFrame({ type: 'rcms:echo', index, field, value });
+  }
+
+  function onBlockHover(index) {
+    postToFrame({ type: 'rcms:hover', index });
+  }
+
+  function onMessage(event) {
+    if (event.origin !== window.location.origin || !event.data || event.data.source !== 'rcms-preview') {
+      return;
+    }
+
+    switch (event.data.type) {
+      case 'rcms:ready':
+        previewReady.value = true;
+        // sync any admin-side content the saved preview doesn't have yet
+        renderPreview();
+        break;
+      case 'rcms:block-click':
+        tab.value = 'content';
+        selectedIndex.value = event.data.index;
+        break;
+    }
+  }
+
+  window.addEventListener('message', onMessage);
+
+  function addBlockFromModal(item) {
+    const block = formatContent(_.cloneDeep(item));
+    page.value.content = [...(page.value.content || []), block];
+    blockModalOpen.value = false;
+    selectedIndex.value = page.value.content.length - 1;
+  }
+
+  function takeContentSnapshot() {
+    contentSnapshot = JSON.stringify(page.value.content || []);
+  }
+
+  function contentIsDirty() {
+    return JSON.stringify(page.value.content || []) !== contentSnapshot;
+  }
+
+  // wraps loadPage with an unsaved-content check; provided to the page tree
+  function guardedLoadPage(item) {
+    if (item === page.value) {
+      return;
+    }
+
+    if (!contentIsDirty()) {
+      loadPage(item);
+      return;
+    }
+
+    swal({
+      title: 'Discard unsaved changes?',
+      text: 'This page has content changes that have not been saved.',
+      icon: 'warning',
+      buttons: ['Keep editing', 'Discard'],
+      dangerMode: true,
+    }).then(discard => {
+      if (discard) {
+        page.value.content = JSON.parse(contentSnapshot);
+        loadPage(item);
+      }
+    });
+  }
 
   ////////////////////////////////
   //// page
@@ -388,15 +544,13 @@
   // load the page for editing
   function loadPage(item) {
     turnOffPages(pages.value);
-    // use this only if we decide not to use the main model
-    //page.value = clone(item);
 
     page.value = item;
-
-    //item.on = true; // use this only if we decide not to use the main model
     page.value.on = true;
 
-    tab.value = 'details';
+    // content editing needs a saved page; new pages start on details
+    tab.value = item.newPage ? 'details' : 'content';
+    selectedIndex.value = null;
 
     if (page.value.data == null) {
       page.value.data = {};
@@ -408,7 +562,6 @@
     // if the page has children, auto show the child menu
     if (item.children.length) {
       page.value.show = true;
-      // item.show = true; // use this only if we decide not to use the main model
     }
 
     // set the url string
@@ -419,6 +572,10 @@
 
     // reset the parent listing, this is so we can re-enable any page that is hidden as to not add the page to be a parent of its self
     resetParents();
+
+    // record the loaded content so page switches can warn about unsaved edits.
+    // the panel normalises ids onto the content on mount, so snapshot after
+    nextTick(() => takeContentSnapshot());
 
     contentSort = dragula([document.querySelector('.content-editor__fields')], {
       direction: 'vertical',
@@ -539,7 +696,7 @@
     newData.parent_id = page.value.id == 1 ? -1 : page.value.id;
     newData.page_holder_id = page.value.page_holder_id;
 
-    loadPage(newData);
+    guardedLoadPage(newData);
   }
 
   // delete the page
@@ -682,12 +839,6 @@
             loadPage(flatPages[r.data.leaf.id]);
             findFolder();
           }
-          else {
-            // find the page
-
-            // use this only if we decide to no use the main model
-            //findAndUpdate(pages.value, page.value);
-          }
 
           if (parent.updated) {
             moveLeaf(pages.value, page.value);
@@ -695,6 +846,9 @@
 
           // reload the parents list
           resetParents();
+
+          // the saved content is the new baseline for dirty checks
+          takeContentSnapshot();
 
           swal({
             title: 'Success',
@@ -752,32 +906,6 @@
 
   }
 
-  // finds the correct page within the listing and updates it
-  function findAndUpdate(pagesList, item) {
-    // we will maybe use this, needs a little tidying up
-    if (pagesList.length) {
-      pagesList.forEach(p => {
-        if (p.type == 'page' && item.id == p.id) {
-          p.active = item.active;
-          p.content = item.content;
-          p.form_id = item.form_id;
-          p.hide_from_menu = item.hide_from_menu;
-          p.name = item.name;
-          p.parent_id = item.parent_id;
-          p.type = item.type;
-          p.meta.description = item.meta.description;
-          p.meta.title = item.meta.title;
-          p.meta.template_id = item.meta.template_id;
-        }
-
-        if (p.children.length) {
-          findAndUpdate(p.children, item);
-        }
-      });
-    }
-
-  }
-
   // loads the parent item, used when deleting
   function loadParent(item) {
     if (typeof flatPages[item.parent_id] != 'undefined') {
@@ -807,12 +935,6 @@
     parent.updated = false;
     parent.currentParent = page.value.parent_id;
     parent.newParent = null;
-  }
-
-  // sets the parent details when updating, used for moving
-  function updateParent() {
-    parent.updated = true;
-    parent.newParent = page.value.parent_id;
   }
 
   // updates the parent ids in the db
@@ -916,7 +1038,7 @@
   // boot up the sorting for tree branches
   function initSort() {
     if (sortables == null) {
-      let elements = document.querySelectorAll('.app__body .tree__trunk--sortable');
+      let elements = document.querySelectorAll('.pages-workspace__tree .tree__trunk--sortable');
 
       let containers = [];
       if (elements.length) {
@@ -954,7 +1076,6 @@
               parent.currentParent = parentEl.dataset.id;
               parent.newParent = newParent.dataset.id;
               updateParentDB(flatPages[e.dataset.id]);
-              //moveLeaf(pages.value, flatPages[e.dataset.id], false);
             }
 
           } else {
@@ -1081,8 +1202,10 @@
               page.value.data[t.tab][index] = row;
             }
 
-            // if we have added a new field, add it to the existing data
-            if (fieldsInData.length !== fields.length) {
+            // if the config defines fields this saved row doesn't have, rebuild
+            // the row from the definitions. a length comparison misses the
+            // add-one-remove-one case, so check the actual field keys
+            if (fields.some(field => !fieldsInData.includes(field.field))) {
               let newData = {};
               fields.forEach((field, index) => {
                 let set = false;
@@ -1148,24 +1271,6 @@
   //// end page modules
   ///////////////////////////////
 
-
-  function selectAndCopy(event) {
-    const target = event.target;
-
-    // Select the content of the target element
-    const textToCopy = target.innerText || target.textContent;
-
-    // Use the modern Clipboard API to copy the text
-    navigator.clipboard.writeText(textToCopy)
-      .then(() => {
-        alert('Text copied to clipboard');
-      })
-      .catch(err => {
-        console.error('Failed to copy text: ', err);
-        alert('Failed to copy text');
-      });
-  }
-
   // created
   ui.loading = true;
   setupModules();
@@ -1212,6 +1317,8 @@
   });
 
   onUnmounted(() => {
+    window.removeEventListener('message', onMessage);
+    debouncedRender.cancel();
     if (contentSort) contentSort.destroy();
     if (sortables) sortables.destroy();
   });

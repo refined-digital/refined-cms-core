@@ -42,6 +42,8 @@ import FormEmail from './components/FormEmail.vue';
 import ColourPicker from './components/ColourPicker.vue';
 import ColourSet from './components/ColourSet.vue';
 import ContentBlocks from './components/ContentBlocks.vue';
+import PageBuilderPanel from './components/PageBuilderPanel.vue';
+import AddBlockModal from './components/AddBlockModal.vue';
 
 window.dragula = dragula;
 window.swal = swal;
@@ -174,6 +176,8 @@ app.component('rd-product-variations', ProductVariations);
 app.component('rd-colour-picker', ColourPicker);
 app.component('rd-colour-set', ColourSet);
 app.component('rd-content-blocks', ContentBlocks);
+app.component('rd-page-builder-panel', PageBuilderPanel);
+app.component('rd-add-block-modal', AddBlockModal);
 app.component('Icon', Icon);
 
 registerDirectives(app);
