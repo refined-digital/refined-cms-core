@@ -409,24 +409,6 @@ class PageRepository extends CoreRepository
             }
         }
 
-        // the lookup above only uses the last segment, so any prefix, case or
-        // slash variant of a uri resolves — an unbounded crawlable url space.
-        // collapse every variant onto the canonical path with one permanent
-        // redirect. tags and single-page sites legitimately serve a page under
-        // a non-canonical url, so they are left alone
-        if (!isset($tag) && !isset($page->is_single_page) && isset($page->page_url)) {
-            $canonicalPath = '/' . trim($page->page_url, '/');
-            // raw REQUEST_URI, because request()->path() strips the leading
-            // slashes and case this exists to catch
-            $requestPath = strtok(request()->server('REQUEST_URI') ?: '/', '?') ?: '/';
-
-            if ($requestPath !== $canonicalPath) {
-                $query = request()->getQueryString();
-
-                return redirect($canonicalPath . ($query ? '?' . $query : ''), 301);
-            }
-        }
-
         // add in some classes
         $classes = [];
         $classes[] = 'page__id--' . $page->id;

@@ -279,6 +279,26 @@ class PageController extends CoreController
             return $page;
         }
 
+        // the uri lookup only uses the last segment, so any prefix, case or
+        // slash variant of a page url resolves — an unbounded crawlable url
+        // space. collapse every variant onto the canonical path with one
+        // permanent redirect. this lives here, not in findByUri, because the
+        // builder preview and the api resolve pages through findByUri from
+        // urls that are never the page's own. tags and single-page sites
+        // legitimately serve a page under a non-canonical url
+        if (!isset($page->tag) && !isset($page->is_single_page) && isset($page->page_url)) {
+            $canonicalPath = '/' . trim($page->page_url, '/');
+            // raw REQUEST_URI, because request()->path() strips the leading
+            // slashes and case this exists to catch
+            $requestPath = strtok(request()->server('REQUEST_URI') ?: '/', '?') ?: '/';
+
+            if ($requestPath !== $canonicalPath) {
+                $query = request()->getQueryString();
+
+                return redirect($canonicalPath . ($query ? '?' . $query : ''), 301);
+            }
+        }
+
         // the first block heading of this render claims the h1
         format()->resetHeadingTag();
 
