@@ -92,6 +92,14 @@ class RefinedImage
             $this->originalExtension = $this->extension;
             $this->originalFileName = str_replace('.'.$this->extension, '', $file->file);
 
+            // photographs uploaded as png produce legacy fallbacks 10-20x
+            // heavier than jpeg. when the upload provably has no transparency
+            // the legacy derivatives are encoded as jpeg instead; modern
+            // browsers get the webp source either way
+            if ($this->extension === 'png' && $this->pngIsOpaque()) {
+                $this->extension = 'jpg';
+            }
+
             // add the alt text into the attributes
             if (isset($this->file->alt) && $this->file->alt) {
                 $this->attributes['alt'] = $this->file->alt;
@@ -286,10 +294,10 @@ class RefinedImage
 
             // AutoEncoder picks its encoder from the *origin* media type, so it can
             // never convert: a file named .avif came out holding the original jpeg
-            // bytes. Encode by the target extension when a modern format is asked
-            // for. Only the modern encoders are routed this way because png/gif/bmp
-            // take no quality argument
-            $encoder = in_array($targetExtension, $this->newTypes)
+            // bytes. Encode by the target extension when a format that takes a
+            // quality argument is asked for; png/gif/bmp take none, so they stay
+            // on AutoEncoder
+            $encoder = in_array($targetExtension, [...$this->newTypes, 'jpg', 'jpeg'])
                 ? new FileExtensionEncoder($targetExtension, quality: (int) $this->getQuality())
                 : new AutoEncoder(quality: $this->getQuality());
 
@@ -599,6 +607,63 @@ class RefinedImage
     private function isSVG()
     {
         return $this->originalExtension === 'svg';
+    }
+
+    /**
+     * Whether the loaded upload is a png with no transparency, read from the
+     * file header rather than a decode. Cached because this runs on every
+     * load() of the file.
+     */
+    private function pngIsOpaque(): bool
+    {
+        return \Cache::remember($this->getCacheKey('png-opaque-'.$this->directory), $this->cacheSecondsHigh, function () {
+            $disk = Storage::disk($this->disk);
+
+            if (! $disk->exists($this->originalFile)) {
+                return false;
+            }
+
+            $stream = $disk->readStream($this->originalFile);
+
+            if (! $stream) {
+                return false;
+            }
+
+            // 64kb comfortably covers everything before the pixel data, which
+            // is where a tRNS transparency chunk must appear
+            $bytes = fread($stream, 65536) ?: '';
+            fclose($stream);
+
+            return $bytes !== '' && ! static::pngBytesHaveTransparency($bytes);
+        });
+    }
+
+    /**
+     * Whether png header bytes declare transparency: an alpha channel in the
+     * IHDR colour type, or a tRNS chunk on palette/truecolour images. Anything
+     * unparseable claims transparency so the caller leaves the file alone.
+     *
+     * ponytail: an rgba png whose pixels are all opaque still reports
+     * transparent — detecting that needs a pixel scan, add one if it matters
+     */
+    public static function pngBytesHaveTransparency(string $bytes): bool
+    {
+        if (! str_starts_with($bytes, "\x89PNG\r\n\x1a\n") || strlen($bytes) < 26) {
+            return true;
+        }
+
+        $colourType = ord($bytes[25]);
+
+        // 4 = greyscale+alpha, 6 = truecolour+alpha
+        if ($colourType === 4 || $colourType === 6) {
+            return true;
+        }
+
+        // a tRNS chunk is only valid before the pixel data
+        $idat = strpos($bytes, 'IDAT');
+        $header = $idat === false ? $bytes : substr($bytes, 0, $idat);
+
+        return str_contains($header, 'tRNS');
     }
 
     private function getFileContents()
