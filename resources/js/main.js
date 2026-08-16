@@ -44,6 +44,9 @@ import ColourSet from './components/ColourSet.vue';
 import ContentBlocks from './components/ContentBlocks.vue';
 import PageBuilderPanel from './components/PageBuilderPanel.vue';
 import AddBlockModal from './components/AddBlockModal.vue';
+import Workspace from './components/Workspace.vue';
+import WorkspaceFormField from './components/WorkspaceFormField.vue';
+import RepeatableRows from './components/RepeatableRows.vue';
 
 window.dragula = dragula;
 window.swal = swal;
@@ -178,6 +181,9 @@ app.component('rd-colour-set', ColourSet);
 app.component('rd-content-blocks', ContentBlocks);
 app.component('rd-page-builder-panel', PageBuilderPanel);
 app.component('rd-add-block-modal', AddBlockModal);
+app.component('rd-workspace', Workspace);
+app.component('rd-workspace-form-field', WorkspaceFormField);
+app.component('rd-repeatable-rows', RepeatableRows);
 app.component('Icon', Icon);
 
 registerDirectives(app);

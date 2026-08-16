@@ -42,6 +42,12 @@ discard/keep dialog.
 - A render error (e.g. a half-typed value blowing up a blade) returns
   `{success: 0}`; the builder keeps the last good preview and shows a warning
   badge instead of breaking.
+- The preview document is marked with `data-rcms-preview` on `<html>`. Sites
+  with entrance animations MUST guard their animation rules with
+  `html:not([data-rcms-preview])` so they never engage in the preview —
+  otherwise re-rendered blocks lose their js-added reveal classes and get
+  stuck in the hidden state:
+  `html:not([data-rcms-preview]) .fade-in { opacity: 0; transition: ...; }`
 - Clicking a block in the preview selects it and opens its field form in the
   panel; selection/hover highlights are drawn as overlay boxes, never by
   mutating block DOM.
