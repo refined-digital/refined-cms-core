@@ -1,7 +1,7 @@
 # Refined CMS - Laravel Package Documentation
 
 **Package Name**: refineddigital/cms
-**Version**: 1.31.6
+**Version**: 1.36.x (always check package.json — this file drifts)
 **Type**: Laravel CMS Core Package
 **Author**: Matthias Law (matthias@refineddigital.co.nz)
 **License**: MIT
@@ -11,7 +11,7 @@
 
 ## Overview
 
-Refined CMS is a comprehensive, modular content management system built on Laravel 12+. It provides a complete admin interface, hierarchical page management, media library, user management, and extensible module architecture for building sophisticated content-driven websites.
+Refined CMS is a comprehensive, modular content management system built on Laravel 13+. It provides a complete admin interface, hierarchical page management, media library, user management, and extensible module architecture for building sophisticated content-driven websites.
 
 ### Key Characteristics
 
@@ -19,7 +19,8 @@ Refined CMS is a comprehensive, modular content management system built on Larav
 - **Repository Pattern**: Clean separation of data access logic
 - **Multi-Tenancy Support**: Built-in support for multiple sites/domains
 - **Block-Based Content**: Flexible content blocks with 11+ content types
-- **Vue.js Admin Interface**: Modern, reactive admin UI built with Vue 2.6
+- **Vue.js Admin Interface**: Modern, reactive admin UI built with Vue 3.5 + Vite
+- **Visual Page Builder**: Full-screen editing with a live server-rendered preview (see README.md)
 - **Hierarchical Structure**: Nested pages, media categories, and content organization
 - **SEO-Optimized**: Automatic URI management, meta tags, sitemap generation
 
@@ -27,42 +28,45 @@ Refined CMS is a comprehensive, modular content management system built on Larav
 
 ## System Requirements
 
-### PHP Dependencies (composer.json)
+### PHP Dependencies (composer.json — confirm there, this list drifts)
 
 ```json
 {
-  "php": "^8.2",
-  "laravel/framework": "^12.0",
+  "php": "^8.4",
+  "laravel/framework": "^13.0",
   "laravel/ui": "^4.5",
   "laravel/sanctum": "^4.0",
-  "barryvdh/laravel-debugbar": "^3.13",
-  "intervention/image": "^3.6",
-  "spatie/eloquent-sortable": "^4.2",
-  "spatie/laravel-activitylog": "^4.8",
+  "fruitcake/laravel-debugbar": "^4.2",
+  "intervention/image": "^4.1",
+  "spatie/eloquent-sortable": "^5.0",
+  "spatie/laravel-activitylog": "^5.0",
   "spatie/laravel-html": "^3.9",
   "silber/page-cache": "^1.1",
-  "spatie/laravel-sluggable": "^3.6",
+  "spatie/laravel-sluggable": "^4.0",
   "protonemedia/laravel-cross-eloquent-search": "^3.4",
-  "friendsofphp/php-cs-fixer": "^3.62"
+  "friendsofphp/php-cs-fixer": "^3.62",
+  "symfony/mailgun-mailer": "^7.0|^8.0",
+  "symfony/http-client": "^7.0|^8.0"
 }
 ```
 
 ### Frontend Dependencies (package.json)
 
-**Core Libraries**:
-- Vue.js 2.6.14 (admin UI framework)
-- jQuery 3.6.0 + jQuery UI 1.12.1
-- Axios 0.21.1 (HTTP client)
-- Laravel Mix 6.0.24 (asset compilation)
+**Core Libraries** (always confirm against package.json — this list drifts):
+- Vue 3.5 (admin UI framework, `<script setup>` SFCs)
+- Pinia (state)
+- Vite 7 (asset compilation — see vite.config.js)
+- Axios (HTTP client)
 
 **UI Components**:
-- Dragula 3.7.3 (drag-and-drop)
-- Dropzone 5.9.2 (file uploads)
-- Flatpickr 4.6.9 (date picker)
-- Trumbowyg (rich text editor)
-- SweetAlert 2.1.2 (alerts/modals)
-- Vue Multiselect 2.1.6
-- Vuedraggable 2.24.3
+- tiptap 3 (rich text editor)
+- Dragula (tree drag-and-drop)
+- Vuedraggable 4 (list reorder)
+- Dropzone (file uploads)
+- Flatpickr (date picker)
+- SweetAlert (alerts/modals)
+- Vue Multiselect
+- morphdom (page builder preview patching)
 
 ---
 
@@ -102,7 +106,7 @@ core/
 │       └── Content/          # Content block storage
 ├── composer.json
 ├── package.json
-└── webpack.mix.js
+└── vite.config.js
 ```
 
 ### Module Pattern
@@ -207,7 +211,7 @@ refined_asset()   // Multi-tenancy aware asset URLs
   - `active()`: Toggle active status
 
 **Enums**:
-- `PageContentType`: Defines content block types
+- `PageContentType`: Defines content block types. Block field definitions and `config('pages.page_settings')` entries declare theirs as `'type' => PageContentType::RICH` (enum case, int value, or case-name string like `'rich'`) via `PageContentType::resolveId()`; the legacy `'page_content_type_id'` key still works.
   - RICH: Rich text editor
   - STATIC: Static HTML
   - PLAIN: Plain text
@@ -1000,84 +1004,72 @@ Route::group(['prefix' => config('core.app_route'), 'middleware' => ['web', 'aut
 
 ## Frontend Asset Pipeline
 
-### Webpack Mix Configuration
+### Vite Configuration
 
-**File**: `webpack.mix.js`
+**File**: `vite.config.js` (Vite 7 + @vitejs/plugin-vue)
 
-```javascript
-mix
-  .setPublicPath('assets')
-  .copyDirectory('resources/img', 'assets/img')
-  .copy('resources/svg/editor/icons.svg', 'assets/svg/editor-icons.svg')
-  .js('resources/js/main.js', 'js/').vue()
-  .js('resources/js/front-end/modules/FormBuilder.js', 'assets/js')
-  .js('resources/js/front-end/plugins/FormValidate.js', 'assets/js')
-  .sass('resources/sass/main.scss', 'css')
-```
+Entries: `resources/js/main.js` (admin Vue app) and
+`resources/js/front-end/modules/FormBuilder.js`. A `copyStaticAssets()` plugin
+mirrors `resources/img` + the editor icon sprite into `assets/`, and emits the
+standalone IIFE bundles (`FormValidate.js`, `PreviewShim.js`) via esbuild.
+Output filenames are fixed (no hashing) because the admin blade loads them with
+plain `<script>` tags from the published `public/vendor/refined/core` path.
 
 **Outputs**:
-- `assets/js/main.js` - Admin UI bundle (Vue app)
+- `assets/js/main.js` - Admin UI bundle (Vue 3 app, single self-contained file)
 - `assets/js/FormBuilder.js` - Frontend form builder
-- `assets/js/FormValidate.js` - Frontend validation
+- `assets/js/FormValidate.js` - Frontend validation (IIFE)
+- `assets/js/PreviewShim.js` - Page builder preview iframe shim (IIFE, bundles morphdom)
 - `assets/css/main.css` - Admin styles
-- `assets/img/*` - Images
-- `assets/svg/editor-icons.svg` - Icon sprite
+- `assets/img/*`, `assets/svg/editor-icons.svg`
 
 ---
 
-### Vue.js Admin Interface
+### Vue Admin Interface
 
-**Main Entry**: `resources/js/main.js`
+**Main Entry**: `resources/js/main.js` (Vue 3.5, `createApp` + Pinia; components
+are `<script setup>` SFCs registered globally with an `rd-` prefix)
 
-**Components** (`resources/js/components/`):
-- `Settings.vue` - Settings management
-- `Link.vue` - Link input with validation
-- `DatePicker.vue` - Date/time picker
-- `FormRepeatable.vue` - Repeatable field groups
-- `FormEmail.vue` - Email input with validation
-- `Image.vue` - Image upload/selection
-- `Select.vue` - Enhanced select dropdown
-- `Selectize.vue` - Multi-select
-- `TextEditor.vue` - Rich text editor (Trumbowyg)
-- `PagesMenu.vue` - Page tree navigation
-- `PagesContent.vue` - Content block manager
-- `Media.vue` - Media library browser
+**Key Components** (`resources/js/components/` — see the directory for the full list):
+- `Pages.vue` - Pages admin shell (tree, tabs, save)
+- `PagesBranch.vue` - Page tree navigation
+- `PageBuilder.vue` / `PageBuilderPanel.vue` - Visual page builder overlay (see README.md)
+- `ContentBlocks.vue` - Inline content block editor (module tabs / satellite packages)
+- `ContentEditorField.vue` - Field-type switch for all PageContentType editors
+- `RichText.vue` - Rich text editor (tiptap 3)
+- `Image.vue` / `Images.vue` / `File.vue` - Media pickers
+- `Link.vue` / `LinkForm.vue` - Link picker
+- `PagesRepeatable.vue` - Repeatable field groups
+- `ColourSet.vue` / `ColourPicker.vue` - Colour fields
+- `SelectAsTags.vue` - Multiselect
+- `Media.vue` / `MediaBranch.vue` / `MediaFile.vue` - Media library
+- `Settings.vue`, `Tags.vue`, `SiteMap.vue`, form components, etc.
+
+**Composables** (`resources/js/composables/`):
+- `usePagesRepeatable.js` - Repeatable field logic
+- `usePagesImageNote.js` - Image note/caption handling
+- `useContentBlocks.js` - Shared block/field helpers (formatContent, canShow, phpFieldKey)
 
 **Directives** (`resources/js/directives/`):
-- `SortableTable` - Drag-to-reorder tables
-- `SortableContentItem` - Reorder content blocks
-- `SortableRepeatableTable` - Reorder repeatable items
-- `DraggableMedia` - Drag media items
-- `DroppableMedia` - Drop zone for media
+- `SortableTable`, `SortableContentItem`, `SortableRepeatableTable` - Drag reorder
+- `DraggableMedia` / `DroppableMedia` - Media drag-and-drop
 - `ConfirmDelete` - Confirmation dialog
 
-**Mixins** (`resources/js/mixins/`):
-- `PagesRepeatable` - Repeatable field logic
-- `PagesImageNote` - Image note/caption handling
+**State** (`resources/js/stores/`): Pinia stores; a `window.app` proxy keeps the
+legacy inline-blade config assignments working.
 
----
-
-### Trumbowyg Plugins
-
-Custom rich text editor plugins:
-
-1. **refined-insert-image**: Media library integration
-2. **refined-link**: Internal/external link picker
-3. **refined-code**: Code block formatting
+Rich text is tiptap 3 (`resources/js/tiptap/`) with media library and internal
+link integration. Trumbowyg is gone.
 
 ---
 
 ### Build Commands
 
 ```bash
-# Development (unminified)
-npm run dev
-
-# Watch mode (auto-rebuild)
-npm run watch
-
-# Production (minified + versioned)
-npm run prod
+npm run dev    # vite build --watch
+npm run watch  # alias of dev
+npm run build  # one-off build
+npm run prod   # same - output is always the fixed-filename bundle
 ```
 
 ---
@@ -1606,7 +1598,7 @@ return [
 
 **Published**: `config/rich-editor.php`
 
-Configures Trumbowyg editor:
+Configures the tiptap rich text editor:
 - Available buttons
 - Plugin settings
 - Upload paths
@@ -1772,13 +1764,13 @@ php artisan storage:link
 
 #### 6. Rich Text Editor Not Loading
 
-**Symptoms**: Textarea instead of Trumbowyg editor
+**Symptoms**: Textarea instead of the tiptap editor
 
 **Solution**:
-1. Rebuild assets: `npm run dev`
+1. Rebuild assets: `npm run build`
 2. Clear browser cache
 3. Check console for JS errors
-4. Verify Trumbowyg dependency: `npm list trumbowyg`
+4. Verify tiptap dependencies: `npm list @tiptap/vue-3`
 
 ---
 
@@ -1883,31 +1875,26 @@ Page::all()->each(function($page) {
 
 ---
 
-### 5. Asset Versioning
+### 5. Asset Loading
 
-Production builds include versioning:
+Bundle filenames are fixed (no hashing/manifest) — the admin blade loads them
+with plain `<script>`/`<link>` tags from the published vendor path, so cache
+busting is handled by the publish step, not the build:
 
-```bash
-npm run prod  # Creates manifest with hashed filenames
-```
-
-Blade usage:
 ```blade
-<script src="{{ mix('js/main.js', 'vendor/refined/core') }}"></script>
+<script src="{{ refined_asset('vendor/refined/core/js/main.js') }}"></script>
 ```
 
 ---
 
 ## Version History
 
-**Current Version**: 1.31.6
+**Current Version**: see `package.json` (this file is not bumped per release)
 
-**Recent Changes**:
-- 1.31.6: Current version
-- 1.31.5: Media category fixes
-- 1.31.4: Bug fixes
-- 1.31.3-1.31.0: Various improvements
-- 1.30.x: Cache improvements for images
+**Recent Milestones**:
+- 1.37.x (planned): Visual page builder with live preview
+- 1.36.x: Video block improvements, admin migrated to Vue 3.5 + Vite + tiptap
+- 1.31.x and earlier: Vue 2 / Laravel Mix era
 
 For full changelog, see git log:
 ```bash
