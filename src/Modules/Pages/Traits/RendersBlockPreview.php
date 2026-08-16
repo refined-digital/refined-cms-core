@@ -27,6 +27,11 @@ trait RendersBlockPreview
             abort(404);
         }
 
+        // instantiate every registered block so its constructor registers
+        // css/js with the asset aggregate - a block added in the builder then
+        // already has its styles in the preview head (addStyle dedupes)
+        app(\RefinedDigital\CMS\Modules\Core\Aggregates\ContentAggregate::class)->getForConfig();
+
         // the first block heading of this render claims the h1
         format()->resetHeadingTag();
 
