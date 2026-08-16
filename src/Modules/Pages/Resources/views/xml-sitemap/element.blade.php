@@ -2,7 +2,6 @@
     <url>
         <loc>{{ $page->url }}</loc>
         <lastmod>{{ $page->date }}</lastmod>
-        <priority>{{ $page->priority }}</priority>
     </url>
 @endif
 @if(isset($page->children) && sizeof($page->children))
