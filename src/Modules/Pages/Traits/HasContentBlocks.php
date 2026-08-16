@@ -27,69 +27,88 @@ trait HasContentBlocks
             }
 
             if ($content && is_array($content) && sizeof($content)) {
-                foreach ($content as $index => $type) {
-                    $hasFields = isset($type['fields']) && is_array($type['fields']) && sizeof($type['fields']);
-
-                    if ($hasFields) {
-                        foreach ($type['fields'] as $field) {
-                            if (!isset($field['content'])) {
-                                continue;
-                            }
-
-                            $data = $field['content'];
-
-                            if ((int) $field['page_content_type_id'] === PageContentType::REPEATABLE->value) {
-                                if (is_array($data) && sizeof($data)) {
-                                    $data = array_map(function($item) {
-                                        $fieldData = new \stdClass();
-
-                                        foreach ($item as $key => $value) {
-                                            $fieldData->{$key} = $value['content'] ?? null;
-
-                                            if (isset($value['content_colour'])) {
-                                                $fieldData->{$key.'_colour'} = $value['content_colour'];
-                                            }
-                                        }
-
-                                        return $fieldData;
-                                    }, $data);
-                                } else {
-                                    $data = [];
-                                }
-                            }
-
-
-                            $createData = [
-                                'position' => $index,
-                                'contentable_id' => $model->id,
-                                'contentable_type' => $model::class,
-                                'content_class' => $type['class'],
-                                'field' => $field['name'],
-                                'data' => [
-                                    'content' => $data
-                                ]
-                            ];
-
-                            if (isset($field['content_colour'])) {
-                                $createData['data']['colour'] = $field['content_colour'];
-                            }
-
-                            Content::create($createData);
-                        }
-                    } else {
-                        // No fields - save a marker record for this content block
-                        Content::create([
-                            'position' => $index,
-                            'contentable_id' => $model->id,
-                            'contentable_type' => $model::class,
-                            'content_class' => $type['class'],
-                            'field' => '_marker',
-                            'data' => []
-                        ]);
-                    }
+                foreach ($model->transformAdminContentToRows($content) as $row) {
+                    Content::create($row);
                 }
             }
         });
+    }
+
+    /**
+     * Converts the admin editor's content payload into contents-table row arrays.
+     * Shared by the save hook and the page builder preview (which builds
+     * in-memory Content models from these rows without persisting).
+     *
+     * @param array $content the admin JSON shape posted as page.content
+     * @return array<int, array>
+     */
+    public function transformAdminContentToRows(array $content): array
+    {
+        $rows = [];
+
+        foreach ($content as $index => $type) {
+            $hasFields = isset($type['fields']) && is_array($type['fields']) && sizeof($type['fields']);
+
+            if ($hasFields) {
+                foreach ($type['fields'] as $field) {
+                    if (!isset($field['content'])) {
+                        continue;
+                    }
+
+                    $data = $field['content'];
+
+                    if ((int) $field['page_content_type_id'] === PageContentType::REPEATABLE->value) {
+                        if (is_array($data) && sizeof($data)) {
+                            $data = array_map(function($item) {
+                                $fieldData = new \stdClass();
+
+                                foreach ($item as $key => $value) {
+                                    $fieldData->{$key} = $value['content'] ?? null;
+
+                                    if (isset($value['content_colour'])) {
+                                        $fieldData->{$key.'_colour'} = $value['content_colour'];
+                                    }
+                                }
+
+                                return $fieldData;
+                            }, $data);
+                        } else {
+                            $data = [];
+                        }
+                    }
+
+
+                    $row = [
+                        'position' => $index,
+                        'contentable_id' => $this->id,
+                        'contentable_type' => static::class,
+                        'content_class' => $type['class'],
+                        'field' => $field['name'],
+                        'data' => [
+                            'content' => $data
+                        ]
+                    ];
+
+                    if (isset($field['content_colour'])) {
+                        $row['data']['colour'] = $field['content_colour'];
+                    }
+
+                    $rows[] = $row;
+                }
+            } else {
+                // No fields - save a marker record for this content block
+                $rows[] = [
+                    'position' => $index,
+                    'contentable_id' => $this->id,
+                    'contentable_type' => static::class,
+                    'content_class' => $type['class'],
+                    'field' => '_marker',
+                    'data' => []
+                ];
+            }
+        }
+
+        return $rows;
     }
 
     /**
@@ -150,8 +169,36 @@ trait HasContentBlocks
             ->orderBy('position')
             ->get();
 
+        $data = $this->groupContentRows($content);
+
+        if (\Str::contains(request()->route()->getName(), 'refined.')) {
+            return $this->renderedContent = $this->formatForAdmin($data);
+        }
+
+        return $this->renderedContent = $this->formatForFE($data);
+    }
+
+    /**
+     * Injects pre-rendered block HTML so the content accessor serves it instead
+     * of rebuilding. Used by the page builder preview to render a template with
+     * draft content on a refined.* route, where the accessor would otherwise
+     * return the admin array shape.
+     */
+    public function setRenderedContent(string $html): void
+    {
+        $this->renderedContent = $html;
+    }
+
+    /**
+     * Groups content rows into the [position][content_class][] shape the
+     * formatters expect.
+     *
+     * @param iterable<\RefinedDigital\CMS\Modules\Content\Models\Content> $rows
+     */
+    public function groupContentRows($rows): array
+    {
         $data = [];
-        foreach ($content as $item) {
+        foreach ($rows as $item) {
             $key = $item->position;
             $key2 = $item->content_class;
             if (!isset($data[$key])){
@@ -165,11 +212,7 @@ trait HasContentBlocks
             $data[$key][$key2][] = $item;
         }
 
-        if (\Str::contains(request()->route()->getName(), 'refined.')) {
-            return $this->renderedContent = $this->formatForAdmin($data);
-        }
-
-        return $this->renderedContent = $this->formatForFE($data);
+        return $data;
     }
 
     private function formatForAdmin($data): array
@@ -252,9 +295,22 @@ trait HasContentBlocks
 
     private function formatForFE($data): string
     {
+        return $this->renderBlockRows($data);
+    }
+
+    /**
+     * Renders grouped content rows to HTML, one block blade at a time. The
+     * optional wrapper lets the page builder preview wrap each block's output
+     * (e.g. with comment markers) without affecting front end rendering.
+     *
+     * @param array $grouped rows grouped via groupContentRows()
+     * @param callable(string $html, int $index): string|null $wrap
+     */
+    public function renderBlockRows(array $grouped, ?callable $wrap = null): string
+    {
         $html = '';
         $index = 0;
-        foreach ($data as $position => $blocks) {
+        foreach ($grouped as $position => $blocks) {
             foreach ($blocks as $type => $fields) {
                 $class = new $type();
                 $content = $this->formatContent($class->getFields(), $fields);
@@ -267,17 +323,20 @@ trait HasContentBlocks
                         'page__block',
                         'page__block--'.\Str::kebab($class->getName()),
                     ];
-                    $html .= view()
+                    $blockHtml = view()
                         ->make($template)
                         ->with(compact('index'))
                         ->with(compact('classes'))
                         ->with('page', $this)
                         ->with('content', $content)
                         ->with('colours', $colours)
-                        ->with('colourStyles', $colourStyles);
+                        ->with('colourStyles', $colourStyles)
+                        ->render();
                 } else {
-                    $html .= '<p style="color:#f00">Template "'.$template.'" does not exist</p>';
+                    $blockHtml = '<p style="color:#f00">Template "'.$template.'" does not exist</p>';
                 }
+
+                $html .= $wrap ? $wrap($blockHtml, $index) : $blockHtml;
 
                 $index ++;
 

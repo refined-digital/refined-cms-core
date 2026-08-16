@@ -54,6 +54,7 @@
     "lodash": "^4.17.21",
     "lodash.kebabcase": "^4.1.1",
     "mitt": "^3.0.1",
+    "morphdom": "^2.7.8",
     "pinia": "^3.0.4",
     "pusher-js": "^8.3.0",
     "sweetalert": "^2.1.2",

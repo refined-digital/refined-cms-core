@@ -54,6 +54,16 @@ function copyStaticAssets() {
         globalName: '__refinedFormValidate',
         footer: { js: 'window.FormValidate=__refinedFormValidate.FormValidate;' },
       });
+
+      // the page builder preview shim is injected into the preview iframe as a
+      // plain <script>, so it ships the same way.
+      await esbuild.build({
+        entryPoints: [resolve('resources/js/front-end/modules/PreviewShim.js')],
+        outfile: resolve('assets/js/PreviewShim.js'),
+        bundle: true,
+        minify: true,
+        format: 'iife',
+      });
     },
   };
 }

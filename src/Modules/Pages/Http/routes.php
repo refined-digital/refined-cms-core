@@ -22,6 +22,16 @@ Route::namespace('CMS\Modules\Pages\Http\Controllers')
             'uses' => 'PageController@duplicate',
         ]);
 
+        Route::get('pages/{id}/preview', [
+            'as' => 'pages.preview',
+            'uses' => 'PagePreviewController@show',
+        ]);
+
+        Route::post('pages/{id}/preview', [
+            'as' => 'pages.preview.render',
+            'uses' => 'PagePreviewController@render',
+        ]);
+
         Route::resource('pages', 'PageController');
     })
 ;
