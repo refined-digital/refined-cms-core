@@ -597,6 +597,109 @@ class Install extends Command
             exec('rm -R '.base_path('.husky'));
         }
         exec('cp -R '.$base.'/.husky '.base_path('.husky'));
+
+        $this->updateHtaccess($base);
+    }
+
+    /**
+     * Adds the compression, caching and security-header block to public/.htaccess.
+     *
+     * Laravel's own rules are left alone rather than overwritten, so a framework
+     * update to the rewrite block arrives without us having to track it. The
+     * block is delimited by markers and replaced wholesale on re-install, which
+     * keeps this idempotent.
+     */
+    protected function updateHtaccess($base)
+    {
+        $this->output->writeln('<info>Updating .htaccess</info>');
+
+        $source = $base.'/htaccess-additions.conf';
+        $target = public_path('.htaccess');
+
+        if (!file_exists($source)) {
+            $this->output->writeln('<error>Missing htaccess-additions.conf, skipped</error>');
+
+            return;
+        }
+
+        $block = trim(file_get_contents($source));
+        $start = '# >>> refined cms defaults';
+        $end = '# <<< refined cms defaults';
+
+        if (!file_exists($target)) {
+            // no laravel .htaccess to append to, so the block is all there is.
+            // the site will not route without laravel's rewrite rules, but that
+            // is a broken install rather than something to paper over here
+            file_put_contents($target, $block."\n");
+            $this->output->writeln('<comment>public/.htaccess did not exist, wrote the managed block only</comment>');
+
+            return;
+        }
+
+        $contents = $this->insertHtaccessRedirects(file_get_contents($target), $base);
+
+        if (str_contains($contents, $start) && str_contains($contents, $end)) {
+            $pattern = '/'.preg_quote($start, '/').'.*?'.preg_quote($end, '/').'/s';
+            // callback, not a replacement string: the block contains $1 from the
+            // RewriteRule examples, which preg_replace would eat as a backreference
+            $contents = preg_replace_callback($pattern, fn () => $block, $contents);
+            $this->output->writeln('<info>Replaced the existing managed block</info>');
+        } else {
+            $contents = rtrim($contents)."\n\n".$block."\n";
+            $this->output->writeln('<info>Appended the managed block</info>');
+
+            // a project that already hand-rolled these will now have them twice.
+            // harmless in apache, confusing to read, so say so rather than
+            // guessing which copy was wanted
+            if (preg_match('/mod_(headers|deflate|expires)\.c/', substr($contents, 0, -strlen($block)))) {
+                $this->output->writeln('<comment>public/.htaccess already had compression or header rules of its own — check for duplicates outside the markers</comment>');
+            }
+        }
+
+        file_put_contents($target, $contents);
+    }
+
+    /**
+     * Drops the commented canonical-host redirects in above Laravel's rules.
+     *
+     * They have to land before the front-controller rule: in per-directory
+     * context mod_rewrite re-runs the ruleset against the rewritten uri, so a
+     * host redirect placed after it matches "index.php" and sends traffic to
+     * https://host/index.php. RewriteEngine On is the anchor — it has been the
+     * first directive in Laravel's rewrite block for as long as the file has
+     * existed, and only comments are inserted, so nothing of Laravel's moves.
+     */
+    protected function insertHtaccessRedirects($contents, $base)
+    {
+        $source = $base.'/htaccess-redirects.conf';
+        $start = '# >>> refined cms redirects';
+        $end = '# <<< refined cms redirects';
+
+        if (!file_exists($source)) {
+            return $contents;
+        }
+
+        $block = rtrim(file_get_contents($source));
+
+        if (str_contains($contents, $start) && str_contains($contents, $end)) {
+            $pattern = '/[ \t]*'.preg_quote($start, '/').'.*?'.preg_quote($end, '/').'/s';
+
+            // callback, not a replacement string: these templates are full of $1
+            // from the RewriteRule examples, and preg_replace would treat each as
+            // a backreference and silently blank it out on every re-install
+            return preg_replace_callback($pattern, fn () => $block, $contents);
+        }
+
+        if (!preg_match('/^([ \t]*)RewriteEngine\s+On.*$/mi', $contents, $match, PREG_OFFSET_CAPTURE)) {
+            $this->output->writeln('<comment>No "RewriteEngine On" found, skipped the redirect templates — add them by hand above the front controller rule</comment>');
+
+            return $contents;
+        }
+
+        $at = $match[0][1] + strlen($match[0][0]);
+        $this->output->writeln('<info>Added the commented redirect templates</info>');
+
+        return substr($contents, 0, $at)."\n\n".$block."\n".substr($contents, $at);
     }
 
     private function copy($files, $dir, $public)
