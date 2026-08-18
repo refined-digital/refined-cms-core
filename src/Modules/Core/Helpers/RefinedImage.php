@@ -2,6 +2,7 @@
 
 namespace RefinedDigital\CMS\Modules\Core\Helpers;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -228,7 +229,7 @@ class RefinedImage
 
         try {
             $size = @getimagesize(Storage::disk($this->disk)->path($storagePath));
-        } catch (\Exception $error) {
+        } catch (\Throwable $error) {
             return null;
         }
 
@@ -271,6 +272,16 @@ class RefinedImage
         // only create if we are forcing, or the file doesn't already exist
         if (! $fileExists || $this->force) {
             $fileContents = $this->getFileContents();
+
+            // a media row whose file has gone missing reads back as null, which
+            // the decoder rejects with a TypeError - caught nowhere, so the whole
+            // page dies over one broken image. raised as an exception instead, to
+            // come back out of image() as a message about that image
+            if ($fileContents === null || $fileContents === '') {
+                Log::warning('Image '.$this->file->id.' could not be read from '.$this->originalFile);
+
+                throw new \RuntimeException('Image '.$this->file->id.' could not be read from '.$this->originalFile);
+            }
 
             // load the image
             $manager = new ImageManager(new Driver);
@@ -374,7 +385,7 @@ class RefinedImage
 
             }
 
-        } catch (\Exception $error) {
+        } catch (\Throwable $error) {
             return $error->getMessage();
         }
     }
@@ -389,7 +400,7 @@ class RefinedImage
 
                 return $this->save();
             }
-        } catch (\Exception $error) {
+        } catch (\Throwable $error) {
             return $error->getMessage();
         }
     }
@@ -490,7 +501,7 @@ class RefinedImage
 
             return $html;
 
-        } catch (\Exception $error) {
+        } catch (\Throwable $error) {
             return $error->getMessage();
         }
     }

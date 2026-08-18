@@ -367,7 +367,7 @@ class Media extends CoreModel implements Sortable {
         return Cache::flexible(
             'media-file-'.$this->id.'-exitst',
             [$this->cacheSecondsLow, $this->cacheSecondsHigh],
-            fn () => Storage::disk($this->disk)->exists($this->getFileWithDirectory()))
+            fn () => Storage::disk($this->getDisk())->exists($this->getFileWithDirectory()))
         ;
     }
 }
