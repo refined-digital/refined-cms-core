@@ -42,25 +42,25 @@ class ContentServiceProvider extends ServiceProvider
         $agg
             ->registerNewField('heading', [
                 'name' => 'Heading',
-                'page_content_type_id' => PageContentType::STATIC->value,
+                'type' => PageContentType::STATIC,
             ])
             ->registerNewField('title', [
                 'name' => 'Title',
-                'page_content_type_id' => PageContentType::STATIC->value,
+                'type' => PageContentType::STATIC,
             ])
             ->registerNewField('content', [
                 'name' => 'Content',
-                'page_content_type_id' => PageContentType::RICH->value,
+                'type' => PageContentType::RICH,
             ])
             ->registerNewField('link', [
                 'name' => 'Link',
-                'page_content_type_id' => PageContentType::LINK->value,
+                'type' => PageContentType::LINK,
             ])
             ->registerNewField(
                 'background',
                 [
                     'name' => 'Background Colour',
-                    'page_content_type_id' => PageContentType::COLOUR_SET->value,
+                    'type' => PageContentType::COLOUR_SET,
                 ]
             );
 

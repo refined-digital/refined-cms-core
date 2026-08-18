@@ -19,12 +19,10 @@ class {{Name}} extends BaseContent implements ContentInterface
     public function fields(): array
     {
         return [
+            $this->getField('background'),
             $this->getField('heading'),
             $this->getField('content'),
             $this->getField('link'),
-            // custom fields use 'type' - an enum case, its int value, or the
-            // case name as a string, e.g.:
-            // ['name' => 'Sub Heading', 'type' => PageContentType::STATIC],
         ];
     }
 }
