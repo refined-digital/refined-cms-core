@@ -126,7 +126,10 @@
                   <div class="form__row form__row--inline-label">
                     <label for="form--file-file" class="form__label">File Name</label>
                     <div class="form__horz-group">
-                      <input type="text" id="form--file-file" v-model="file.file" class="form__control">
+                      <div class="form__control--url">
+                        <input type="text" id="form--file-file" v-model="fileName" class="form__control">
+                        <span class="form__file-extension">{{ fileExtension }}</span>
+                      </div>
                       <span class="form__note">Renames the file and every generated size, and repoints any url already saved in content.</span>
                     </div>
                   </div><!-- / form row -->
@@ -338,6 +341,29 @@
     },
     external_url: '',
     external_id: '',
+  });
+
+  // mirrors Str::slug on the server: lowercase, no spaces or special characters.
+  // a trailing hyphen survives so a separator can still be typed mid word
+  const slugName = (value) => (value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+/, '')
+  ;
+
+  // the extension is the file's, not the name's - editing it would change the
+  // file type, so it is shown beside the field and put back on save
+  const fileExtension = computed(() => {
+    const match = (file.value.file || '').match(/\.[^.]+$/);
+    return match ? match[0] : '';
+  });
+
+  const fileName = computed({
+    get: () => (file.value.file || '').replace(/\.[^.]+$/, ''),
+    set: (value) => {
+      const extension = fileExtension.value;
+      file.value.file = slugName(value) + extension;
+    },
   });
 
   let categoryClone = {};

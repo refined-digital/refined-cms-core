@@ -135,24 +135,34 @@ class Media extends CoreModel implements Sortable {
     }
 
     /**
-     * Keeps the stored name a slug and never lets a rename drop or change the
-     * extension - the derivatives are generated off the base name, so only that
-     * part is the user's to set.
+     * Keeps the stored name a slug and the extension the file's own. Only the
+     * name is the admin's to set - the derivatives are generated off it, and a
+     * typed extension changing the file type is an accident waiting to happen,
+     * so an existing file keeps the extension it was uploaded with.
      */
     public function setFileAttribute($value)
     {
-        $name = Str::slug(pathinfo((string) $value, PATHINFO_FILENAME));
+        $value = (string) $value;
+        $extension = strtolower(pathinfo((string) ($this->attributes['file'] ?? ''), PATHINFO_EXTENSION));
+        $typed = strtolower(pathinfo($value, PATHINFO_EXTENSION));
 
+        // anything but the file's own extension is part of the name, so a rename
+        // to "report.pdf" on a jpg gives report-pdf.jpg rather than a jpg
+        // pretending to be a pdf
+        $name = ($extension && $typed !== $extension)
+            ? Str::slug($value)
+            : Str::slug(pathinfo($value, PATHINFO_FILENAME));
+
+        if (! $extension) {
+            $extension = $typed;
+        }
+
+        // an empty name would leave a bare extension, so the current name stands
         if (! $name) {
-            $this->attributes['file'] = $value;
-
             return;
         }
 
-        $extension = pathinfo((string) $value, PATHINFO_EXTENSION)
-            ?: pathinfo((string) ($this->attributes['file'] ?? ''), PATHINFO_EXTENSION);
-
-        $this->attributes['file'] = $extension ? $name.'.'.strtolower($extension) : $name;
+        $this->attributes['file'] = $extension ? $name.'.'.$extension : $name;
     }
 
     /**
