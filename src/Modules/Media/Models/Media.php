@@ -3,7 +3,10 @@
 namespace RefinedDigital\CMS\Modules\Media\Models;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use RefinedDigital\CMS\Modules\Core\Models\CoreModel;
 use RefinedDigital\CMS\Modules\Media\Traits\SortableMediaTrait;
 use Spatie\EloquentSortable\Sortable;
@@ -52,7 +55,224 @@ class Media extends CoreModel implements Sortable {
         'mp4'
     ];
 
+    /** [from, to] of every file the current rename has moved, for undoing it */
+    protected array $movedFiles = [];
+
+    /**
+     * Tables the url rewrite never touches: php-serialised payloads, where a
+     * replacement of a different length corrupts the string, and the audit log,
+     * which records what was written at the time and must stay that way.
+     */
+    protected $urlRewriteSkipTables = [
+        'activity_log',
+        'cache',
+        'cache_locks',
+        'failed_jobs',
+        'job_batches',
+        'jobs',
+        'migrations',
+        'password_reset_tokens',
+        'personal_access_tokens',
+        'sessions',
+    ];
+
     protected $table = 'media';
+
+    protected static function booted()
+    {
+        static::updating(function (self $media) {
+            $original = $media->getOriginal('file');
+
+            if ($original && $media->isDirty('file')) {
+                $media->renameStoredFiles($original, $media->file);
+            }
+        });
+    }
+
+    /**
+     * A rename touches the file, its derivatives, every url saved in content and
+     * this row, so it is wrapped in a transaction - the updating hook does its
+     * work before the row itself is written, and a failure part way through must
+     * not leave content pointing at a name the row does not have.
+     *
+     * The database rolls itself back, the disk it knows nothing about, so the
+     * moves are undone here. This sits around the transaction rather than around
+     * the moves so it also catches a failure writing the row itself, which
+     * happens after the hook has already renamed everything.
+     */
+    public function save(array $options = [])
+    {
+        if (! $this->exists || ! $this->isDirty('file') || ! $this->getOriginal('file')) {
+            return parent::save($options);
+        }
+
+        $this->movedFiles = [];
+
+        try {
+            return DB::transaction(fn () => parent::save($options));
+        } catch (\Throwable $error) {
+            $this->revertMovedFiles();
+
+            throw $error;
+        }
+    }
+
+    /**
+     * Puts back every file the rename moved, newest move first.
+     */
+    private function revertMovedFiles(): void
+    {
+        $disk = Storage::disk($this->getDisk());
+
+        foreach (array_reverse($this->movedFiles) as [$from, $to]) {
+            if ($disk->exists($to) && ! $disk->exists($from)) {
+                $disk->move($to, $from);
+            }
+        }
+
+        $this->movedFiles = [];
+        $this->forgetFileCache();
+    }
+
+    /**
+     * Keeps the stored name a slug and never lets a rename drop or change the
+     * extension - the derivatives are generated off the base name, so only that
+     * part is the user's to set.
+     */
+    public function setFileAttribute($value)
+    {
+        $name = Str::slug(pathinfo((string) $value, PATHINFO_FILENAME));
+
+        if (! $name) {
+            $this->attributes['file'] = $value;
+
+            return;
+        }
+
+        $extension = pathinfo((string) $value, PATHINFO_EXTENSION)
+            ?: pathinfo((string) ($this->attributes['file'] ?? ''), PATHINFO_EXTENSION);
+
+        $this->attributes['file'] = $extension ? $name.'.'.strtolower($extension) : $name;
+    }
+
+    /**
+     * Renames the upload and every derivative beside it. All of them live in the
+     * media id's directory and are named off the original's base - the resizes,
+     * the webp/avif variants, the video poster and encode - so a prefix rename
+     * catches the lot without knowing how each was generated.
+     */
+    private function renameStoredFiles(string $oldFile, string $newFile): void
+    {
+        $oldBase = pathinfo($oldFile, PATHINFO_FILENAME);
+        $newBase = pathinfo($newFile, PATHINFO_FILENAME);
+
+        if (! $oldBase || ! $newBase || $oldBase === $newBase) {
+            return;
+        }
+
+        $disk = Storage::disk($this->getDisk());
+
+        foreach ($disk->files((string) $this->id) as $path) {
+            $name = basename($path);
+
+            if (! str_starts_with($name, $oldBase)) {
+                continue;
+            }
+
+            $target = $this->id.DIRECTORY_SEPARATOR.$newBase.substr($name, strlen($oldBase));
+
+            if ($path !== $target && ! $disk->exists($target)) {
+                $disk->move($path, $target);
+                // recorded so save() can put them back if anything later fails
+                $this->movedFiles[] = [$path, $target];
+            }
+        }
+
+        $this->rewriteStoredUrls($oldBase, $newBase);
+        $this->forgetFileCache();
+    }
+
+    /**
+     * Repoints urls already written into content. Rich text and link fields
+     * store the url rather than the media id, so those break on a rename unless
+     * they are rewritten.
+     *
+     * Every text column in the database is swept rather than a list of known
+     * ones, so content in custom modules is covered without registering it. The
+     * search is the file's storage path up to its base name, which catches the
+     * derivatives alongside the original, and both the absolute urls and the
+     * root-relative ones the admin writes.
+     */
+    private function rewriteStoredUrls(string $oldBase, string $newBase): void
+    {
+        $disk = Storage::disk($this->getDisk());
+        $old = parse_url($disk->url($this->id.'/'.$oldBase), PHP_URL_PATH);
+        $new = parse_url($disk->url($this->id.'/'.$newBase), PHP_URL_PATH);
+
+        if (! $old || ! $new || $old === $new) {
+            return;
+        }
+
+        $skip = array_merge($this->urlRewriteSkipTables, [$this->getTable()]);
+        $textTypes = ['char', 'varchar', 'text', 'tinytext', 'mediumtext', 'longtext', 'json', 'jsonb'];
+
+        // json encoded into a text column escapes its slashes, and the escaped
+        // form is what sits in the column. real json columns are normalised by
+        // the database and match the plain form, so both are swept
+        $searches = [
+            [$old, $new],
+            [str_replace('/', '\\/', $old), str_replace('/', '\\/', $new)],
+        ];
+
+        foreach (Schema::getTables() as $table) {
+            $tableName = $table['name'];
+
+            if (in_array($tableName, $skip)) {
+                continue;
+            }
+
+            foreach (Schema::getColumns($tableName) as $column) {
+                if (! in_array(strtolower($column['type_name']), $textTypes)) {
+                    continue;
+                }
+
+                $columnName = $this->quoteIdentifier($column['name']);
+
+                foreach ($searches as [$search, $replace]) {
+                    // an explicit escape character is needed for the escaped
+                    // form: by default a backslash in a like pattern escapes
+                    // the character after it, so the pattern would never match
+                    // the very rows it is looking for
+                    DB::statement(
+                        'update '.$this->quoteIdentifier($tableName)
+                        .' set '.$columnName.' = replace('.$columnName.', ?, ?)'
+                        .' where '.$columnName." like ? escape '~'",
+                        [$search, $replace, '%'.$search.'%']
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * Identifiers come from the schema, so this only has to survive reserved
+     * words, not injection.
+     */
+    private function quoteIdentifier(string $name): string
+    {
+        return DB::connection()->getQueryGrammar()->wrap($name);
+    }
+
+    /**
+     * Drops the per-file caches, which all key off the path and so go stale the
+     * moment the file is renamed.
+     */
+    public function forgetFileCache(): void
+    {
+        foreach (['path', 'url', 'extension', 'file-size', 'exitst'] as $key) {
+            Cache::forget('media-file-'.$this->id.'-'.$key);
+        }
+    }
 
     public function getLinkAttribute() {
         $link           = new \stdClass();

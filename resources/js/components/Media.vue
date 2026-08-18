@@ -124,6 +124,14 @@
                   </div><!-- / form row -->
 
                   <div class="form__row form__row--inline-label">
+                    <label for="form--file-file" class="form__label">File Name</label>
+                    <div class="form__horz-group">
+                      <input type="text" id="form--file-file" v-model="file.file" class="form__control">
+                      <span class="form__note">Renames the file and every generated size, and repoints any url already saved in content.</span>
+                    </div>
+                  </div><!-- / form row -->
+
+                  <div class="form__row form__row--inline-label">
                     <label for="form--file-alt" class="form__label">Alternate Text (alt text)</label>
                     <div class="form__horz-group">
                       <input type="text" id="form--file-alt" v-model="file.alt" required="required" class="form__control">
@@ -319,6 +327,7 @@
 
   const file = ref({
     name: '',
+    file: '',
     alt: '',
     description: '',
     type: '',
@@ -922,6 +931,12 @@
         .then(r => {
           ui.loading = false;
           if (r.data.success) {
+
+            // the file name is slugged server side and a rename changes the urls
+            if (r.data.file) {
+              Object.assign(file.value, r.data.file);
+              media.updateFile(r.data.file);
+            }
 
             swal({
               title: 'Success',

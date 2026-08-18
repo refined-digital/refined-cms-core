@@ -76,7 +76,7 @@ class MediaController extends CoreController
     public function update(Request $request, $id)
     {
         try {
-            $this->mediaRepository->update($id, $request);
+            $file = $this->mediaRepository->update($id, $request);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => 0,
@@ -84,8 +84,10 @@ class MediaController extends CoreController
             ]);
         }
 
+        // returned so the admin picks up the new file name and urls after a rename
         return response()->json([
             'success' => 1,
+            'file' => $file->fresh(),
         ]);
     }
 
