@@ -808,49 +808,23 @@ class Install extends Command
 
         $contents = json_decode(file_get_contents(base_path('package.json'), true));
 
-        $toDelete = [
-            'axios',
-            'vite',
-            'laravel-vite-plugin'
+        // ponytail: the app only ever gets these packages, so replace wholesale
+        $contents->devDependencies = (object) [
+            'concurrently' => '^10.0.5',
+            'glob' => '^13.0.6',
+            'laravel-vite-plugin' => '3.2.0',
+            'postcss-discard-comments' => '^8.0.4',
+            'postcss-nested' => '^8.0.1',
+            'postcss-preset-env' => '^11.4.0',
+            'prettier' => '^3.9.6',
+            'vite' => '^8.2.1',
+            'husky' => '^9.1.7',
         ];
 
-        $toAdd = [
-            'glob' => '^11.0.0',
-            'laravel-vite-plugin' => '1.0.2',
-            'postcss-discard-comments' => '^7.0.0',
-            'postcss-nested' => '^6.0.1',
-            'postcss-preset-env' => '^9.5.9',
-            'prettier' => '^3.2.5',
-            'vite' => '^5.2.1',
-            'husky' => '^9.0.11',
+        $contents->dependencies = (object) [
+            '@fancyapps/ui' => '^6.1.14',
+            'swiper' => '^14.1.0',
         ];
-
-        foreach ($toDelete as $package) {
-            if (isset($contents->devDependencies->{$package})) {
-                unset($contents->devDependencies->{$package});
-            }
-        }
-
-        foreach ($toAdd as $package => $version) {
-            if (!isset($contents->devDependencies->{$package})) {
-                $contents->devDependencies->{$package} = $version;
-            }
-        }
-
-        $toAdd = [
-            '@fancyapps/ui' => '^5.0.36',
-            'swiper' => '^11.1.1'
-        ];
-
-        if (!isset($contents->dependencies)) {
-            $contents->dependencies = new \stdClass();
-        }
-
-        foreach ($toAdd as $package => $version) {
-            if (!isset($contents->dependencies->{$package})) {
-                $contents->dependencies->{$package} = $version;
-            }
-        }
 
         // add husky related commands
         $contents->scripts->prepare = 'husky';
@@ -873,7 +847,7 @@ class Install extends Command
         $filesToDelete = [
             '0001_01_01_000000_create_users_table',
             '0001_01_01_000001_create_cache_table',
-            '0001_01_01_000002_create_jobs_table',0
+            '0001_01_01_000002_create_jobs_table',
         ];
 
         $path = database_path('migrations');

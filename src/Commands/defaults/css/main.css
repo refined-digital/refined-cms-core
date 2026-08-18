@@ -19,3 +19,9 @@
 
 
 @import 'plugins/_swiper.css';
+/*
+@import '@fancyapps/ui/dist/fancybox/fancybox.css';
+.fancybox__container {
+    z-index: 10001;
+}
+ */
