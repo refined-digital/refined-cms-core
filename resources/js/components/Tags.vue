@@ -47,19 +47,22 @@ if (props.choices) {
   });
 }
 
-// seed the initial selection
-if (typeof props.values !== 'undefined') {
-  if (Array.isArray(props.values[setType])) {
-    props.values[setType].forEach((tag) => {
-      value.value.push(tag);
-    });
-  } else if (props.asSelect) {
-    const valuesAsArray = props.values.split(delimiter).filter((item) => !!item).map((id) => parseInt(id, 10));
-    value.value = options.value.filter((option) => valuesAsArray.includes(option.id) || valuesAsArray.includes(parseInt(option.id, 10)));
-  } else {
-    tags.value = props.values[setType];
+// seed the selection. the workspace reuses this component between records, so
+// this has to re-run whenever the record's tags change, not just on setup
+function seed(values) {
+  if (props.asSelect) {
+    const ids = String(values || '').split(delimiter).filter((item) => !!item).map((id) => parseInt(id, 10));
+    value.value = options.value.filter((option) => ids.includes(parseInt(option.id, 10)));
+    return;
   }
+
+  value.value = Array.isArray(values && values[setType])
+    ? values[setType].map((tag) => ({ ...tag }))
+    : [];
 }
+
+seed(props.values);
+watch(() => props.values, seed);
 
 function addTag(input) {
   const tag = {
@@ -100,6 +103,6 @@ watch(
     emit('input', tags.value);
     emit('update:modelValue', tags.value);
   },
-  { deep: true }
+  { deep: true, immediate: true }
 );
 </script>

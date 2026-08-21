@@ -32,7 +32,8 @@ trait Taggable
 
                 // now add the tags
                 foreach (request()->get('modelTags') as $type => $tags) {
-                    $tags = array_filter(explode(',', $tags));
+                    // the tags widget submits pipe delimited; comma is the legacy format
+                    $tags = array_filter(preg_split('/[|,]/', (string) $tags));
                     if (sizeof($tags)) {
                         foreach ($tags as $tag) {
 
