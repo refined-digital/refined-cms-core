@@ -30,17 +30,19 @@ class TagServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../Config/tags.php', 'tags');
 
-        // off by default — enable with REFINED_TAGS_ENABLED=true in .env
-        if (!config('tags.enabled')) {
-            return;
-        }
-
         if (help()->isMultiTenancy()) {
             return;
         }
 
+        // routes always register: the tags form field (blog, custom modules)
+        // reads get-all-tags whether or not the admin menu item is shown
         app(RouteAggregate::class)
             ->addRouteFile('tags', __DIR__.'/../Http/routes.php');
+
+        // the menu item is off by default — REFINED_TAGS_ENABLED=true in .env
+        if (!config('tags.enabled')) {
+            return;
+        }
 
         $menuConfig = [
             'order' => 998,
