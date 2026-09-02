@@ -432,6 +432,7 @@ class PageRepository extends CoreRepository
         }
 
         $head[] = '<link rel="canonical" href="'.$canonical.'"/>';
+        $head[] = '<meta name="generator" content="Refined Digital">';
 
         $page->title = (isset($page->meta->title) && $page->meta->title) ? $page->meta->title : $page->name;
 
