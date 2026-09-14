@@ -12,6 +12,9 @@ namespace RefinedDigital\CMS\Modules\Core\Aggregates;
  *     'description' => 'Subscribe submitters to a Mailchimp audience',
  *     'processor'   => \Vendor\…\Process::class,   // implements FormBuilderIntegrationInterface
  *     'settings'    => [ ['name'=>'list_id','label'=>'List ID','type'=>'text','required'=>true] ],
+ *                             // 'type'=>'action' renders a button ('button' text, optional
+ *                             // 'note') that calls the processor's camelCase(name) method
+ *                             // with ($form, $config) and shows the string it returns
  *     'view'        => null,  // optional: front-end injection markup callback/class
  *     // Configure-modal shape:
  *     'sortable'    => true,  // false drops drag-to-order when order is meaningless
