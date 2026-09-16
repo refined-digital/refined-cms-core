@@ -267,7 +267,7 @@ trait HasContentBlocks
                             }
 
                             return $newContent;
-                        }, $item['fields'][$key]['content']);
+                        }, $item['fields'][$key]['content'] ?? []);
 
                         $item['fields'][$key]['content'] = array_map(function ($item) {
                             foreach ($item as $key => $value) {
