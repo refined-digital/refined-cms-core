@@ -12,15 +12,20 @@ trait HasContentBlocks
     {
         static::saved(function ($model) {
 
+            // only a save from the content editor carries the blocks. Any other save
+            // (an active toggle, a seeder, a script) must leave them alone, not wipe them
+            $key = request()->has('page') ? 'page.content' : 'content';
+            if (! request()->has($key)) {
+                return;
+            }
+
             // first delete all content that matches the class and the id
             Content::whereContentableType($model::class)
                 ->whereContentableId($model->id)
                 ->delete();
 
             // now loop over the data and create the content
-            $content = request()->has('page')
-                ? request()->input('page.content')
-                : request()->input('content');
+            $content = request()->input($key);
 
             if (\Str::isJson($content) && gettype($content) === 'string') {
                 $content = json_decode($content, true);
@@ -267,7 +272,7 @@ trait HasContentBlocks
                             }
 
                             return $newContent;
-                        }, $item['fields'][$key]['content'] ?? []);
+                        }, $item['fields'][$key]['content']);
 
                         $item['fields'][$key]['content'] = array_map(function ($item) {
                             foreach ($item as $key => $value) {

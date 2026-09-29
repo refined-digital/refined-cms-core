@@ -61,7 +61,7 @@ class CreateModule extends Install
     private function init()
     {
         $this->appPath = app_path('RefinedCMS');
-        $this->isPage = $this->option('isPage');
+        $this->isPage = $this->option('isPage') ?? $this->confirm('Does the module need to be page enabled?');
         $this->readableName = $this->argument('name');
 
         $this->name = Str::singular( Str::slug($this->readableName, ' ') );
