@@ -275,6 +275,11 @@ class PageRepository extends CoreRepository
 
         // if the class is a tag, we need to find the actual page
         if ($class == 'RefinedDigital\CMS\Modules\Tags\Models\Tag') {
+            // tag uris must be page/type/tag, anything shorter has no parent page to render
+            if (sizeof($uriBits) < 3) {
+                abort(404);
+            }
+
             $size = sizeof($uriBits) - 1;
             $tagReference = $uriReference;
             $tag = new \stdClass();
