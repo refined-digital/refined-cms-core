@@ -1,7 +1,6 @@
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
-import { TextStyle } from '@tiptap/extension-text-style';
 import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
 import TextAlign from '@tiptap/extension-text-align';
@@ -10,7 +9,6 @@ import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
 import { TableHeader } from '@tiptap/extension-table-header';
 import { TableCell } from '@tiptap/extension-table-cell';
-import { FontSize } from './FontSize';
 import { FieldToken } from './FieldToken';
 
 // preserves arbitrary id/class/title attributes on links and images so HTML
@@ -64,8 +62,6 @@ export function buildExtensions(config = {}) {
         HTMLAttributes: {},
       },
     }),
-    TextStyle,
-    FontSize,
     Subscript,
     Superscript,
     TextAlign.configure({
