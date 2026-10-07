@@ -51,7 +51,8 @@ import RepeatableRows from './components/RepeatableRows.vue';
 window.dragula = dragula;
 window.swal = swal;
 
-const slugify = (text) => kebabCase(text);
+// kebabCase drops '&' entirely; 'bars & clubs' should become 'bars-and-clubs' not 'bars-clubs'
+const slugify = (text) => kebabCase(String(text ?? '').replace(/&/g, ' and '));
 window.slugify = slugify;
 
 const pinia = createPinia();

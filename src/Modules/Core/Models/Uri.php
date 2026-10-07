@@ -30,9 +30,9 @@ class Uri extends Model
 
     public function getSlugOptions() : SlugOptions
     {
-        $slug = $this->name ? 'name' : 'title';
+        // Str::slug drops '&' entirely; 'bars & clubs' should become 'bars-and-clubs' not 'bars-clubs'
         return SlugOptions::create()
-                          ->generateSlugsFrom($slug)
+                          ->generateSlugsFrom(fn ($model) => str_replace('&', ' and ', $model->name ?: $model->title))
                           ->saveSlugsTo('uri');
     }
 
