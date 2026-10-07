@@ -77,7 +77,13 @@ const props = defineProps(['field', 'values', 'tagValues']);
 
 const model = computed({
   get: () => props.values[props.field.name],
-  set: (value) => { props.values[props.field.name] = value; },
+  set: (value) => {
+    props.values[props.field.name] = value;
+    // mirror the pages module: the url follows the name as it is typed
+    if (props.field.name === 'name' && 'meta[uri]' in props.values) {
+      props.values['meta[uri]'] = window.slugify(value);
+    }
+  },
 });
 
 const widget = computed(() => {

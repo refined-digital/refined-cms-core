@@ -399,6 +399,9 @@ async function save() {
       if (isNew) {
         await loadRecord(r.data.id);
       } else {
+        // the server owns the final url (unique suffixes etc), so show what was actually saved
+        const fresh = await axios.get(config.routes.data.replace('RECORD_ID', record.value.id));
+        if ('meta[uri]' in values) values['meta[uri]'] = fresh.data.meta?.uri || '';
         takeSnapshot();
       }
       swal({ title: 'Success', text: 'Successfully saved', icon: 'success' });
