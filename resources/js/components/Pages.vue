@@ -865,6 +865,11 @@
             findFolder();
           }
 
+          // the server owns the final url (unique suffixes etc), so reflect what was actually saved
+          if (r.data.leaf?.meta?.uri !== undefined) {
+            page.value.meta.uri = r.data.leaf.meta.uri;
+          }
+
           if (parent.updated) {
             moveLeaf(pages.value, page.value);
           }
