@@ -52,7 +52,7 @@ trait IsTag
     }
 
 
-    public static function findOrCreate($values, string $type = null)
+    public static function findOrCreate($values, ?string $type = null)
     {
         $tags = collect($values)->map(function ($value) use ($type) {
             if ($value instanceof Tag) {
@@ -65,7 +65,7 @@ trait IsTag
         return is_string($values) ? $tags->first() : $tags;
     }
 
-    public static function findFromString(string $name, string $type = null)
+    public static function findFromString(string $name, ?string $type = null)
     {
 
         $query = static::query()
@@ -76,7 +76,7 @@ trait IsTag
         return $query;
     }
 
-    protected static function findOrCreateFromString(string $name, string $type = null): Tag
+    protected static function findOrCreateFromString(string $name, ?string $type = null): Tag
     {
         $tag = static::findFromString($name, $type);
 
