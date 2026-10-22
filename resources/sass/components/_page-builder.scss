@@ -214,6 +214,18 @@
       margin: 0 0 14px;
       font-size: 15px;
     }
+
+    // the 400px panel is too narrow for the settings' 200px label column, so stack the label over the field
+    .form__horz .form {
+      &__row {
+        display: block;
+      }
+
+      &__label {
+        display: block;
+        margin-bottom: 8px;
+      }
+    }
   }
 
   &__pane-note {

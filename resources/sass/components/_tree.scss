@@ -1,3 +1,5 @@
+@use '../variables' as *;
+
 .tree {
   user-select: none;
 
@@ -27,11 +29,24 @@
   }
 
   &__branch {
+    // a flex row so a long title wraps beside its icon instead of dropping below it
     > div {
       padding: 0 3px;
+      display: flex;
+      align-items: flex-start;
+
+      // a tighter line height so a wrapped title reads as one page, padded back out to keep the row height
+      > span {
+        min-width: 0;
+        line-height: 1.4;
+        padding: calc((#{$systemFontSize} * #{$systemLineHeight} - #{$systemFontSize} * 1.4) / 2) 0;
+      }
     }
 
+    // centre the 16px icon on the title's first line
     > div > i {
+      flex: none;
+      margin-top: calc((#{$systemFontSize} * #{$systemLineHeight} - 16px) / 2);
       margin-right: 6px;
     }
 
