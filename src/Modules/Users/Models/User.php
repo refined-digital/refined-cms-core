@@ -85,12 +85,16 @@ class User extends Authenticatable implements Sortable
                         TextInput::make('email', 'Email')->email()->required()->note('Used for login'),
                     ]),
                 ]),
-                Block::make('Password')->schema([
-                    Row::make([
-                        Password::make('password', 'Password')->required(),
-                        Password::make('password_confirmation', 'Confirm Password')->required(),
+                // new users get a welcome email to set their own password
+                ...($this->exists ? [
+                    Block::make('Password')->schema([
+                        Row::make([
+                            Password::make('password', 'Password')
+                                ->note('Leave blank to keep the current password'),
+                            Password::make('password_confirmation', 'Confirm Password'),
+                        ]),
                     ]),
-                ]),
+                ] : []),
             ]),
         ];
     }

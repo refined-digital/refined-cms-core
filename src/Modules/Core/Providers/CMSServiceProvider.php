@@ -213,6 +213,13 @@ class CMSServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../Config/searchable-models.php', 'searchable-models');
         $this->mergeConfigFrom(__DIR__.'/../Config/colour-set.php', 'colour-set');
 
+        // welcome emails for new users share the reset token table but last 7 days,
+        // only reachable through a signed link (see NewPasswordController)
+        config(['auth.passwords.invites' => array_merge(
+            config('auth.passwords.users', []),
+            ['expire' => 60 * 24 * 7]
+        )]);
+
         // add the custom url generator if multi tenancy
         if (help()->isMultiTenancy()) {
             $this->app->extend('url', function ($service, $app) {

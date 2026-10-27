@@ -7,6 +7,9 @@ use RefinedDigital\CMS\Modules\Core\Http\Repositories\CoreRepository;
 use RefinedDigital\CMS\Modules\Users\Http\Repositories\UserRepository;
 use RefinedDigital\CMS\Modules\Users\Http\Requests\UserRequest;
 use RefinedDigital\CMS\Modules\Users\Models\User;
+use RefinedDigital\CMS\Modules\Users\Notifications\WelcomeNotification;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 
 class UserController extends CoreController
 {
@@ -81,9 +84,15 @@ class UserController extends CoreController
      */
     public function store(UserRequest $request)
     {
-        $item = $this->userRepository->store($request);
+        // nobody knows this password, the user sets their own from the welcome email
+        $item = $this->userRepository->store($request, ['password' => Str::random(40)]);
 
         $this->userRepository->syncUserGroups($item->id, $request->get('groups'));
+
+        Password::broker('invites')->sendResetLink(
+            ['email' => $item->email],
+            fn ($user, $token) => $user->notify(new WelcomeNotification($token))
+        );
         $route = $this->getReturnRoute($item->id, $request->get('action'));
 
         return redirect($route)->with('status', 'Successfully created');

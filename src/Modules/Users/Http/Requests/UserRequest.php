@@ -36,12 +36,12 @@ class UserRequest extends FormRequest
         // add the id signifier to stop the record from over riding the current record
         if ($this->method() == 'PUT' || $this->method() == 'PATCH') {
 			    $args['email']['unique'] .= ','.$this->route('user');
+        }
 
-            // if the password field is empty, then we don't need to validate
-            if (!$this->get('password')) {
-                unset($args['password']);
-                unset($args['password_confirmation']);
-            }
+        // new users set their own password from the welcome email, and on edit an empty password keeps the current one
+        if ($this->method() == 'POST' || !$this->get('password')) {
+            unset($args['password']);
+            unset($args['password_confirmation']);
         }
 
         // return the results to set for validation
