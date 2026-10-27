@@ -13,7 +13,9 @@ class Page404 {
 
     use HasSettings;
 
+    public $id = 0;
     public $title = 'Error';
+    public $content = '';
     public $classes = '';
     public $settings = [];
     public $head = '';

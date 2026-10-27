@@ -1,9 +1,10 @@
-@extends('layouts.index')
+@php
+  $page->content = refinedErrorHandler()->pageContent($page, $__env->yieldContent('message'));
+@endphp
 
+{{-- the site's general template gives the error the full page shell, layouts.index is the fallback --}}
 @section('template')
-
-    <div class="error__page--message">
-        @yield('message')
-    </div>
-
+  {!! $page->content !!}
 @stop
+
+@include(view()->exists('templates::general') ? 'templates::general' : 'layouts.index')
