@@ -120,13 +120,14 @@ const showLabel = computed(() =>
 );
 
 // options arrive either as [{label, value}] arrays or as php assoc maps
-// json-decoded to objects ({"1": "Yes"})
+// json-decoded to objects ({"1": "Yes"}). php maps with 0-based sequential
+// keys ([0 => 'No', 1 => 'Yes']) encode as plain lists, so the index is the value
 const selectOptions = computed(() => {
   const options = props.field.options;
 
   if (Array.isArray(options)) {
-    return options.map(opt =>
-      typeof opt === 'object' ? opt : { label: opt, value: opt }
+    return options.map((opt, index) =>
+      typeof opt === 'object' ? opt : { label: opt, value: index }
     );
   }
 
