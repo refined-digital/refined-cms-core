@@ -260,6 +260,10 @@ class CoreRepository
         if(sizeof($this->dates)) {
             foreach($this->dates as $date) {
                 if(isset($data[$date]) && $data[$date] != '') {
+                    if ($this->isSerialisedDate($data[$date])) {
+                        $data[$date] = Carbon::parse($data[$date])->setTimezone(config('app.timezone'));
+                        continue;
+                    }
 
                     $key = 'd/m/Y';
                     if(strlen($data[$date]) == 19 || is_numeric(strpos($data[$date], '-'))) {
@@ -277,6 +281,11 @@ class CoreRepository
         if(sizeof($this->dateTimes)) {
             foreach($this->dateTimes as $date) {
                 if(isset($data[$date]) && $data[$date] != '') {
+                    if ($this->isSerialisedDate($data[$date])) {
+                        $data[$date] = Carbon::parse($data[$date])->setTimezone(config('app.timezone'));
+                        continue;
+                    }
+
                     $key = 'd/m/Y H:i:s';
                     if(is_numeric(strpos($data[$date], '-'))) {
                         $key = 'Y-m-d H:i:s';
@@ -307,6 +316,16 @@ class CoreRepository
         }
 
         return $data;
+    }
+
+    /**
+     * A date that came through toArray() (duplicating a record with a date cast)
+     * is an iso 8601 string in utc, or already a date object.
+     */
+    private function isSerialisedDate($value): bool
+    {
+        return $value instanceof \DateTimeInterface
+            || (is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}T/', $value));
     }
 
 
