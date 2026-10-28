@@ -4,19 +4,20 @@ namespace RefinedDigital\CMS\Modules\Pages\Http\Resources\Api;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * One block from ApiContent::forModel().
+ */
 class PageContentResource extends JsonResource
 {
 
     public function toArray($request): array
     {
-        $template = \Str::camel(str_replace('templates.content.', '', $this->template));
-
-        $content = (array) $this->content;
-
         return [
-            'template' => $template,
+            'template' => \Str::camel($this->template),
             'uuid' => \Str::uuid(),
-            'content' => PageContentItemResource::collection($content)
+            // resolved one by one: a resource collection casts scalar values to arrays
+            'content' => collect((array) $this->content)
+                ->map(fn ($item) => (new PageContentItemResource($item))->toArray($request))
         ];
     }
 }

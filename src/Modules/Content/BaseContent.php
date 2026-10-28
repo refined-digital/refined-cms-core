@@ -35,6 +35,22 @@ class BaseContent
         return 'content::'.str_replace(' ', '', $this->name).'.Views.'.\Str::kebab($this->name);
     }
 
+    /**
+     * The block's template name in the headless api. Blocks may set protected string $apiTemplate.
+     */
+    public function getApiTemplate(): string
+    {
+        return $this->apiTemplate ?? \Str::kebab($this->name);
+    }
+
+    /**
+     * A JsonResource that builds the block's api content itself. Blocks may set protected string $apiResource.
+     */
+    public function getApiResource(): ?string
+    {
+        return $this->apiResource ?? null;
+    }
+
     public function getDescription(): string
     {
         return $this->description ?? '';

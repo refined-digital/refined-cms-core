@@ -29,7 +29,7 @@ class PageContentItemResource extends JsonResource
         // todo: fix this, should be using this same resource to do its thing
         if ($this->type == 9) {
             $content = [];
-            foreach ($this->content as $tKey => $row) {
+            foreach ($this->content ?? [] as $tKey => $row) {
                 $content[$tKey] = [
                     'uuid' => \Str::uuid(),
                 ];
