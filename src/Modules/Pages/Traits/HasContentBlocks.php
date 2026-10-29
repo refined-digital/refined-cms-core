@@ -176,7 +176,11 @@ trait HasContentBlocks
 
         $data = $this->groupContentRows($content);
 
-        if (\Str::contains(request()->route()->getName(), 'refined.')) {
+        // the builder preview renders the real front end on a refined.* route. besides the previewed record (served
+        // from setRenderedContent), a template can print other records' content there, e.g. a single page site's
+        // sections, so those need html too
+        $routeName = request()->route()?->getName() ?? '';
+        if (\Str::contains($routeName, 'refined.') && !request()->routeIs('refined.*.preview*')) {
             return $this->renderedContent = $this->formatForAdmin($data);
         }
 
