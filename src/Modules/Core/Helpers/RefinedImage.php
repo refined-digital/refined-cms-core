@@ -291,7 +291,9 @@ class RefinedImage
                 if ($this->type == 'fit') {
                     $image->cover(width: $width, height: $height);
                 } elseif ($this->type == 'fill') {
-                    $image->pad(width: $width, height: $height);
+                    // intervention 4 has no pad(). fill always meant crop to the size without
+                    // upscaling (v2's fit() with upsize()), which is coverDown()
+                    $image->coverDown(width: $width, height: $height);
                 }
             } else {
                 if ($width && $height) {
