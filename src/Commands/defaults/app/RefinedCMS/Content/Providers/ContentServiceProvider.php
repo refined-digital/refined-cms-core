@@ -20,15 +20,16 @@ class ContentServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        view()->addNamespace('content', [
+        // only folders that exist: view:cache fails on a missing one, and the site overrides are optional
+        view()->addNamespace('content', array_filter([
             __DIR__.'/../Blocks',
             base_path().'/resources/views/blocks',
-        ]);
+        ], 'is_dir'));
 
-        view()->addNamespace('content-templates', [
+        view()->addNamespace('content-templates', array_filter([
             __DIR__.'/../resources/templates',
             base_path().'/resources/views/blocks',
-        ]);
+        ], 'is_dir'));
     }
 
     /**

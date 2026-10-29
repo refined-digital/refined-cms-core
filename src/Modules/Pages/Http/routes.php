@@ -32,7 +32,8 @@ Route::namespace('CMS\Modules\Pages\Http\Controllers')
             'uses' => 'PagePreviewController@render',
         ]);
 
-        Route::resource('pages', 'PageController');
+        // the page tree posts to pages.duplicate above, a resource duplicate route would reuse its name
+        Route::resource('pages', 'PageController')->except(['duplicate']);
     })
 ;
 

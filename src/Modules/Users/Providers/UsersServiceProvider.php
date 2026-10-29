@@ -17,7 +17,6 @@ class UsersServiceProvider extends ServiceProvider
     {
         view()->addNamespace('users', [
             base_path().'/resources/views',
-            __DIR__.'/../Resources/views',
         ]);
 
         $this->publishes([

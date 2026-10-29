@@ -17,7 +17,6 @@ class TagServiceProvider extends ServiceProvider
     {
         view()->addNamespace('tags', [
             base_path().'/resources/views',
-            __DIR__.'/../Resources/views',
         ]);
     }
 
