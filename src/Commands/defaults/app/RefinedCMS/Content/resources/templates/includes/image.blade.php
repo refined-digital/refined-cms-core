@@ -1,4 +1,4 @@
-@if (isset($content->image) && $content->image)
+@if (isset($content->image->id) && $content->image->id)
     <figure{!! isset($class) ? ' class="'.$class.'"' : '' !!}>
         {!!
           image()
