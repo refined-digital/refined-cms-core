@@ -66,6 +66,11 @@ class EmailRepository extends CoreRepository {
         $rows = '';
         $last = array_key_last($data);
         foreach ($data as $key => $field) {
+            if (!empty($field->heading)) {
+                $rows .= '<tr><td style="padding:24px 0 6px; font-size:16px; font-weight:600; color:#111827;">'.e($field->name).'</td></tr>';
+                continue;
+            }
+
             $border = $key === $last ? '' : 'border-bottom:1px solid #eef0f2;';
             $rows .= '<tr><td style="padding:14px 0;'.$border.'">'
                 . '<div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:#9ca3af; margin-bottom:4px;">'
@@ -89,6 +94,11 @@ class EmailRepository extends CoreRepository {
         // add the field data, if any
         if (sizeof($data)) {
             foreach ($data as $field) {
+                if (!empty($field->heading)) {
+                    $fields .= PHP_EOL.$field->name.PHP_EOL.'---'.PHP_EOL;
+                    continue;
+                }
+
                 $fields .= $field->name.': '.$field->value.PHP_EOL;
             }
         }
@@ -168,7 +178,7 @@ class EmailRepository extends CoreRepository {
             $fields = $this->formatFields($request, $form);
             $content = preg_replace_callback('/\[\[field:(\d+)\]\]/', function ($m) use ($fields) {
                 $id = (int) $m[1];
-                return isset($fields[$id]) ? $fields[$id]->value : '';
+                return isset($fields[$id]) ? ($fields[$id]->value ?? '') : '';
             }, $content);
         }
 
@@ -247,7 +257,9 @@ class EmailRepository extends CoreRepository {
         // skip non-answer field types: passwords (10/11), static (19), hidden (12),
         // and group start/end (22/23). a field still shows when its
         // include_in_email toggle is on, even if the value is blank.
+        // headings (24) are kept as section titles, but only when an answer follows
         $dontAdd = [10, 11, 12, 19, 22, 23];
+        $pendingHeading = null;
         if ($form->fields && $form->fields->count()) {
             foreach ($form->fields as $field) {
                 if (in_array($field->form_field_type_id, $dontAdd)) {
@@ -261,6 +273,19 @@ class EmailRepository extends CoreRepository {
 
                 $fieldData = new \stdClass();
                 $fieldData->name = $field->name;
+
+                if ((int) $field->form_field_type_id === 24) {
+                    $fieldData->value = null;
+                    $fieldData->heading = true;
+                    $pendingHeading = [$field->id, $fieldData];
+                    continue;
+                }
+
+                if ($pendingHeading) {
+                    $data[$pendingHeading[0]] = $pendingHeading[1];
+                    $pendingHeading = null;
+                }
+
                 $fieldData->value = $this->formatField($request, $field);
                 $data[$field->id] = $fieldData;
             }
