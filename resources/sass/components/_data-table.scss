@@ -268,3 +268,21 @@
     }
   }
 }
+
+.data-table__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.data-table__filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .form__control {
+    width: auto;
+    min-width: 200px;
+  }
+}

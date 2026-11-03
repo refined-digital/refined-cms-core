@@ -13,6 +13,8 @@ class CoreRepository
 
     protected $model;
 
+    protected $filters = [];
+
     private $dates = ['date'];
     private $dateTimes = [];
 
@@ -21,11 +23,39 @@ class CoreRepository
         $this->model = $model;
     }
 
+    /**
+     * The table filters getAll narrows the listing by.
+     *
+     * @param array $filters table filter settings: name, optional scope (a model scope given the value) or field
+     */
+    public function setFilters(array $filters)
+    {
+        $this->filters = $filters;
+
+        return $this;
+    }
+
+    /**
+     * The admin listing, narrowed by any table filters set on the request.
+     */
     public function getAll()
     {
-        return $this->model::keywords()
-                           ->order()
-                           ->paging();
+        $query = $this->model::keywords();
+
+        foreach ($this->filters as $filter) {
+            $value = request()->get($filter->name);
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            if (isset($filter->scope)) {
+                $query->{$filter->scope}($value);
+            } else {
+                $query->where($filter->field ?? $filter->name, $value);
+            }
+        }
+
+        return $query->order()->paging();
     }
 
     public function getForFront()

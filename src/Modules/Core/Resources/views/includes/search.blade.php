@@ -8,6 +8,13 @@
                 ->attribute('autocomplete', 'off')
         !!}
 
+        {{-- keep the active table filters while searching --}}
+        @foreach (collect($tableSettings->filters ?? [])->pluck('name') as $filterName)
+            @if (request()->filled($filterName))
+                <input type="hidden" name="{{ $filterName }}" value="{{ request()->get($filterName) }}">
+            @endif
+        @endforeach
+
         @if(request()->has('keywords'))
             <a href="{{ $routes->search }}"><i class="fa fa-times"></i></a>
         @endif

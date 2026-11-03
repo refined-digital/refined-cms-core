@@ -88,8 +88,9 @@ class CoreController extends Controller
             return $this->loadWorkspace();
         }
 
-        // do the initial setting of vars on the child class
-        $data = $this->coreRepository->getAll();
+        // do the initial setting of vars on the child class, the table filters narrow the listing
+        $this->setup();
+        $data = $this->coreRepository->setFilters($this->table->filters ?? [])->getAll();
         return $this->indexSetup($data);
     }
 

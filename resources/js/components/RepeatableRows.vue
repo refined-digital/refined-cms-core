@@ -16,6 +16,7 @@
           <div class="repeatable-rows__bar" @click="toggle(index)">
             <i class="fa fa-sort repeatable-rows__handle" v-if="rows.length > 1" @click.stop></i>
             <i class="fa fa-chevron-right repeatable-rows__chevron"></i>
+            <img class="repeatable-rows__thumb" v-if="mediaFor(row)?.thumb" :src="mediaFor(row).thumb" alt="">
             <span class="repeatable-rows__summary">{{ summaryFor(row, index) }}</span>
             <i class="fa fa-times repeatable-rows__remove" @click.stop="$emit('remove', { row, index })"></i>
           </div>
@@ -91,6 +92,37 @@ function rowKey(row) {
   return `row-${keyMap.get(row)}`;
 }
 
+// media id => { thumb, name }, shared across rows so each file is fetched once
+const media = ref({});
+
+/**
+ * The first image cell's media, fetched on demand, so collapsed image rows show what they hold.
+ */
+function mediaFor(row) {
+  for (const key in row) {
+    const cell = row[key];
+    if (!cell || typeof cell !== 'object' || cell.page_content_type_id !== 4 || !cell.content) continue;
+
+    const id = cell.content;
+    if (!(id in media.value)) {
+      media.value[id] = null;
+      axios
+        .get(`${window.siteUrl}/refined/media/${id}`)
+        .then(r => {
+          const file = r.data?.file;
+          if (file) {
+            media.value[id] = { thumb: file.external_url || file.link?.thumb || '', name: file.name || '' };
+          }
+        })
+        .catch(() => {});
+    }
+
+    return media.value[id];
+  }
+
+  return null;
+}
+
 function summaryFor(row, index) {
   // first non-empty text-ish cell wins
   for (const key in row) {
@@ -106,6 +138,6 @@ function summaryFor(row, index) {
     }
   }
 
-  return `Item ${index + 1}`;
+  return mediaFor(row)?.name || `Item ${index + 1}`;
 }
 </script>

@@ -7,6 +7,11 @@
 <div class="app__content">
 
     <div class="block">
+        @php
+            // active table filters ride along on the sort links and the sort request
+            $filterQuery = http_build_query(request()->only(collect($tableSettings->filters ?? [])->pluck('name')->all()));
+        @endphp
+        @include('core::includes.index.filters')
 
         @if ($data->count())
             @if (isset($tableSettings->fields))
@@ -40,9 +45,9 @@
                     @if ($sortable && $showEnableSorting)
                         <div class="sort-button">
                             @if (request()->has('perPage') && request()->get('perPage') == 'all')
-                                <a href="{{ $routes->index }}" class="button button--small button--red">Cancel Sorting</a>
+                                <a href="{{ $routes->index }}{{ $filterQuery ? '?'.$filterQuery : '' }}" class="button button--small button--red">Cancel Sorting</a>
                             @else
-                                <a href="{{ $routes->index }}?perPage=all" class="button button--small button--green">Enable Sorting</a>
+                                <a href="{{ $routes->index }}?perPage=all{{ $filterQuery ? '&'.$filterQuery : '' }}" class="button button--small button--green">Enable Sorting</a>
                             @endif
                         </div>
                    @endif
@@ -53,7 +58,7 @@
                     <p>{!! $tableSettings->note !!}</p>
                   @endif
 
-                    <table{!! $sort ? ' v-sortable-table data-route="'.$routes->sort.'"' : '' !!}>
+                    <table{!! $sort ? ' v-sortable-table data-route="'.e($routes->sort.($filterQuery ? '?'.$filterQuery : '')).'"' : '' !!}>
                         <thead>
                         <tr>
                             @if ($sort)
