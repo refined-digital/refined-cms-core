@@ -10,6 +10,7 @@ class RefinedFile {
     protected $file;
     protected $disk = 'local';
     protected $originalFile = null;
+    protected $directory = null;
 
     public function load($fileId)
     {

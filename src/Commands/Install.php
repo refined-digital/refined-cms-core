@@ -874,10 +874,17 @@ class Install extends Command
         // get the contents of the file
         $appData = file_get_contents($appFile);
 
-        $search = '->withExceptions(function (Exceptions $exceptions) {';
-        $replace = '->withExceptions(function (Exceptions $exceptions) {'."\n\t".'refinedErrorHandler()->register($exceptions);';
+        if (str_contains($appData, 'refinedErrorHandler()')) {
+            return;
+        }
 
-        $appData = str_replace($search, $replace, $appData);
+        // newer skeletons type the closure (`): void {`), so match with or without the return type
+        $appData = preg_replace(
+            '/(->withExceptions\(function \(Exceptions \$exceptions\)(?:\s*:\s*void)?\s*\{)/',
+            '$1'."\n        ".'refinedErrorHandler()->register($exceptions);',
+            $appData,
+            1
+        );
 
         file_put_contents($appFile, $appData);
     }

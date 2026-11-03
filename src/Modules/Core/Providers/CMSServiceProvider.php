@@ -210,7 +210,10 @@ class CMSServiceProvider extends ServiceProvider
         }
 
         $this->mergeConfigFrom(__DIR__.'/../Config/rich-editor.php', 'rich-editor');
-        $this->mergeConfigFrom(__DIR__.'/../Config/searchable-models.php', 'searchable-models');
+        // a list, so a merge would append the default to the site's own models instead of letting the site replace it
+        if (! config()->has('searchable-models')) {
+            config(['searchable-models' => require __DIR__.'/../Config/searchable-models.php']);
+        }
         $this->mergeConfigFrom(__DIR__.'/../Config/colour-set.php', 'colour-set');
 
         // welcome emails for new users share the reset token table but last 7 days,

@@ -10,8 +10,8 @@
 
     $choices = [];
 
-    if (isset($field->options) && !is_array($field->options) && is_numeric(strpos($field->name, 'session.'))) {
-        $key = str_replace('session.', '', $field->name);
+    if (isset($field->options) && is_string($field->options) && str_starts_with($field->options, 'session.')) {
+        $key = str_replace('session.', '', $field->options);
         if (session()->has($key)) {
             $options = session()->get($key);
         }

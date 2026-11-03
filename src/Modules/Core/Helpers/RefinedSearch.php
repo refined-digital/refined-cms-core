@@ -6,8 +6,11 @@ use Illuminate\Http\Response;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use RefinedDigital\CMS\Modules\Content\Models\Content;
+use RefinedDigital\CMS\Modules\Core\Aggregates\CustomModuleAggregate;
 use RefinedDigital\CMS\Modules\Pages\Aggregates\PageAggregate;
 use RefinedDigital\CMS\Modules\Pages\Models\Page;
+use RefinedDigital\CMS\Modules\Pages\Traits\HasContentBlocks;
 use \ProtoneMedia\LaravelCrossEloquentSearch\Search;
 
 class RefinedSearch {
@@ -56,17 +59,26 @@ class RefinedSearch {
             $this->singleWord = true;
         }
 
+        // paged after the content block matches are merged in, not by the searcher
         if (request()->has('perPage')) {
-            $search->paginate((int) request()->get('perPage'));
             $this->hasPaging = true;
         }
 
         $searchableModels = array_map('unserialize', array_unique(array_map('serialize', config('searchable-models'))));
+        $blockModels = [];
         foreach ($searchableModels as $model) {
+            $terms = $model['terms'];
+
+            // content block models keep their content in the contents table, not a column, so it is searched there
+            if ($this->usesContentBlocks($model['class'])) {
+                $blockModels[] = $model['class'];
+                $terms = array_values(array_diff($terms, ['content'])) ?: ['name'];
+            }
+
             $c = $model['class']::query();
             $c->whereActive(1);
-            $search->add($c, $model['terms']);
-            $this->searchTerms = array_merge($model['terms'], $this->searchTerms);
+            $search->add($c, $terms);
+            $this->searchTerms = array_merge($terms, $this->searchTerms);
         }
 
         $this->searchTerms = array_unique($this->searchTerms);
@@ -75,16 +87,23 @@ class RefinedSearch {
             $this->singleWord = true;
         }
 
-        $results = $search->search($this->keyword);
+        $results = collect($search->search($this->keyword))
+            ->merge($this->searchContentBlocks($blockModels))
+            ->unique(fn ($result) => $result::class.':'.$result->id)
+            ->values();
 
         $data = collect([]);
         if ($results->count()) {
             $baseUrl = rtrim(config('app.url'), '/');
+            $modules = app(CustomModuleAggregate::class);
             foreach ($results as $index => $result){
                 $item = new \stdClass();
                 $item->type = class_basename($result);
                 $item->name = $this->highlight($result->name);
-                $item->link = $result->meta->uri === '/' ? $baseUrl : $baseUrl.'/'.$result->meta->uri;
+
+                // module records (team, blog...) live under their module's base page
+                $uri = trim(($modules->getSitemapBasePage($result::class) ?? '').'/'.$result->meta->uri, '/');
+                $item->link = $uri === '' ? $baseUrl : $baseUrl.'/'.$uri;
 
                 $content = new \stdClass();
                 $content->all = $this->formatContent($result);
@@ -121,8 +140,24 @@ class RefinedSearch {
     {
         $data = [];
 
+        if ($this->usesContentBlocks($result::class)) {
+            foreach ($this->contentBlockStrings($result) as $value) {
+                if (str_contains(strtolower($value), strtolower($this->keyword))) {
+                    $d = $this->highlight($this->createSnippet($value));
+                    if (!in_array($d, $data)) {
+                        $data[] = $d;
+                    }
+                }
+            }
+        }
+
         // help()->trace($this->searchTerms);
         foreach ($this->searchTerms as $key) {
+            // content on a block model is rendered html, its text was read from the contents rows above
+            if ($key === 'content' && $this->usesContentBlocks($result::class)) {
+                continue;
+            }
+
             if (isset($result->{$key}) && $result->{$key}) {
                 if(is_array($result->{$key}) && sizeof($result->{$key})) {
                     foreach($result->{$key} as $content) {
@@ -223,6 +258,61 @@ class RefinedSearch {
         $return->shortest = $shortest;
 
         return $return;
+    }
+
+    /**
+     * Whether a model keeps its content in the contents table.
+     */
+    private function usesContentBlocks(string $class): bool
+    {
+        return in_array(HasContentBlocks::class, class_uses_recursive($class));
+    }
+
+    /**
+     * Active records of the content block models whose blocks contain the keyword.
+     *
+     * @param array<int, class-string> $classes
+     */
+    private function searchContentBlocks(array $classes): Collection
+    {
+        $found = collect();
+        $keyword = '%'.strtolower(trim($this->keyword, '"')).'%';
+
+        foreach ($classes as $class) {
+            // the json column compares as binary, so lower both sides for a case insensitive match
+            $ids = Content::whereContentableType($class)
+                ->whereRaw('LOWER(CAST(data AS CHAR)) LIKE ?', [$keyword])
+                ->distinct()
+                ->pluck('contentable_id');
+
+            if ($ids->count()) {
+                $found = $found->merge($class::whereActive(1)->whereIn('id', $ids)->get());
+            }
+        }
+
+        return $found;
+    }
+
+    /**
+     * Every string stored in a record's content block fields, repeatable items included.
+     *
+     * @return array<int, string>
+     */
+    private function contentBlockStrings($result): array
+    {
+        $strings = [];
+
+        $rows = Content::whereContentableType($result::class)->whereContentableId($result->id)->pluck('data');
+
+        foreach ($rows as $row) {
+            array_walk_recursive($row, function ($value) use (&$strings) {
+                if (is_string($value) && trim(strip_tags($value)) !== '') {
+                    $strings[] = $value;
+                }
+            });
+        }
+
+        return $strings;
     }
 
     public function getKeyword()
