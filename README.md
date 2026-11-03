@@ -153,6 +153,16 @@ Tab::make('Content')->schema([
 
 > Don't mix sections, blocks, and rows at the same level inside one tab — pick one shape.
 
+#### Conditional tabs (`showWhen`)
+
+`->showWhen($field, $value)` shows a tab only while the multi-select `$field`
+(`type('select-multi')`) has `$value` selected. It updates live as options are ticked,
+without saving. If the open tab gets hidden, the editor switches to the first visible tab.
+
+```php
+Tab::make('Images: Kitchens')->showWhen('category_ids', 3)->schema([...]),
+```
+
 ### Fields
 
 All fields share a common fluent API and compile to the renderer's field definition.

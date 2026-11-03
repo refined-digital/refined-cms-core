@@ -17,6 +17,8 @@ class Tab
 {
     protected array $items = [];
 
+    protected ?array $showWhen = null;
+
     public function __construct(protected string $name)
     {
     }
@@ -34,9 +36,29 @@ class Tab
         return $this;
     }
 
+    /**
+     * Only show the tab while a multi-select field holds the given value.
+     *
+     * @param  string  $field  the multi-select field name, e.g. 'category_ids'
+     * @param  int|string  $value  the option id that must be selected
+     */
+    public function showWhen(string $field, int|string $value): static
+    {
+        $this->showWhen = ['field' => $field, 'value' => $value];
+
+        return $this;
+    }
+
+    /**
+     * Compile the tab to the legacy array shape the form blades read.
+     */
     public function toArray(): array
     {
         $tab = ['name' => $this->name];
+
+        if ($this->showWhen !== null) {
+            $tab['showWhen'] = $this->showWhen;
+        }
 
         if ($this->containsOnly(Section::class)) {
             $sections = [];

@@ -2,7 +2,7 @@ import './bootstrap';
 import '../sass/main.scss';
 import 'vue-multiselect/dist/vue-multiselect.min.css';
 import * as Vue from 'vue';
-const { createApp } = Vue;
+const { createApp, reactive, watch, onMounted } = Vue;
 import { createPinia } from 'pinia';
 import { storeToRefs } from 'pinia';
 import kebabCase from 'lodash.kebabcase';
@@ -131,8 +131,40 @@ const app = createApp({
       }
     };
 
+    // current value of each multi-select by field name, pipe-delimited like the hidden input
+    const fieldValues = reactive({});
+    eventBus.on('field-value', ({ name, value }) => {
+      fieldValues[name] = value;
+    });
+
+    const tabVisible = (field, value) => String(fieldValues[field] ?? '')
+      .split('|')
+      .includes(String(value));
+
+    // the tab nav is in-DOM markup, so read each tab's showWhen condition before mount replaces it
+    const tabConditions = [...document.querySelectorAll('#app .tab__nav li[data-tab]')].map((el) => ({
+      slug: el.dataset.tab,
+      field: el.dataset.showWhenField,
+      value: el.dataset.showWhenValue,
+    }));
+    const isTabShown = (condition) => condition.field === undefined || tabVisible(condition.field, condition.value);
+
+    // an active tab that is hidden (unticked, or restored from the session) falls back to the first visible one
+    const ensureVisibleTab = () => {
+      const active = tabConditions.find((condition) => condition.slug === ui.tab);
+      if (!active || isTabShown(active)) return;
+
+      const fallback = tabConditions.find(isTabShown);
+      if (fallback) ui.tab = fallback.slug;
+    };
+
+    // not immediate: the fields report their initial values while the app mounts
+    watch([() => ui.tab, fieldValues], ensureVisibleTab, { deep: true });
+    onMounted(ensureVisibleTab);
+
     return {
       ...uiRefs,
+      tabVisible,
       submitForm,
       copyUrl,
       updateSlug,
