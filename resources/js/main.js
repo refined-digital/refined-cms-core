@@ -141,8 +141,9 @@ const app = createApp({
       .split('|')
       .includes(String(value));
 
-    // the tab nav is in-DOM markup, so read each tab's showWhen condition before mount replaces it
-    const tabConditions = [...document.querySelectorAll('#app .tab__nav li[data-tab]')].map((el) => ({
+    // vue's mount swaps the container's markup for the rendered template, so read the tabs lazily
+    // (after render) from the data attributes instead of in setup
+    const tabConditions = () => [...document.querySelectorAll('#app .tab__nav li[data-tab]')].map((el) => ({
       slug: el.dataset.tab,
       field: el.dataset.showWhenField,
       value: el.dataset.showWhenValue,
@@ -151,10 +152,11 @@ const app = createApp({
 
     // an active tab that is hidden (unticked, or restored from the session) falls back to the first visible one
     const ensureVisibleTab = () => {
-      const active = tabConditions.find((condition) => condition.slug === ui.tab);
+      const conditions = tabConditions();
+      const active = conditions.find((condition) => condition.slug === ui.tab);
       if (!active || isTabShown(active)) return;
 
-      const fallback = tabConditions.find(isTabShown);
+      const fallback = conditions.find(isTabShown);
       if (fallback) ui.tab = fallback.slug;
     };
 

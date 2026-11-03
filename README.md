@@ -157,7 +157,8 @@ Tab::make('Content')->schema([
 
 `->showWhen($field, $value)` shows a tab only while the multi-select `$field`
 (`type('select-multi')`) has `$value` selected. It updates live as options are ticked,
-without saving. If the open tab gets hidden, the editor switches to the first visible tab.
+without saving. If the open tab gets hidden, the editor switches to the first visible tab. Only `select-multi` / tag fields announce their value, so a
+`showWhen` naming any other field, or a field not on the form, keeps the tab hidden.
 
 ```php
 Tab::make('Images: Kitchens')->showWhen('category_ids', 3)->schema([...]),
