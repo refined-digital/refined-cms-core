@@ -47,6 +47,12 @@
                     <li
                       @click="tab = '{{ Str::slug($tab->name) }}'"
                       :class="{ 'tabs__nav-item--active' : tab == '{{ Str::slug($tab->name) }}'}"
+                      data-tab="{{ Str::slug($tab->name) }}"
+                      @if (isset($tab->showWhen->field))
+                        data-show-when-field="{{ $tab->showWhen->field }}"
+                        data-show-when-value="{{ $tab->showWhen->value }}"
+                        v-show="tabVisible(@js((string) $tab->showWhen->field), @js((string) $tab->showWhen->value))"
+                      @endif
                       {!! isset($tab->attrs) ? ' '.core()->objToAttr($tab->attrs) : '' !!}
                     >{{ $tab->name }}</li>
                 @endforeach

@@ -20,6 +20,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import Multiselect from 'vue-multiselect';
+import eventBus from '../eventBus';
 
 const props = defineProps([
   'field', 'type', 'values', 'choices', 'dontAllowCreate',
@@ -102,6 +103,8 @@ watch(
     tags.value = v.join(delimiter);
     emit('input', tags.value);
     emit('update:modelValue', tags.value);
+    // lets the root app show tabs that depend on this field (Tab::showWhen)
+    eventBus.emit('field-value', { name: props.field.name, value: tags.value });
   },
   { deep: true, immediate: true }
 );
