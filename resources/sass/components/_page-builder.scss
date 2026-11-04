@@ -99,6 +99,7 @@
 
   &__tree {
     flex: 0 0 240px;
+    max-width: 400px;
     display: flex;
     flex-direction: column;
     border-right: 1px solid #ddd;
@@ -148,6 +149,7 @@
   }
 
   &__rail-name {
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
