@@ -592,11 +592,9 @@ class Install extends Command
         }
         file_put_contents(base_path('.php-cs-fixer.php'), file_get_contents($base.'/.php-cs-fixer.php'));
 
-        // copy husky
-        if (is_dir(base_path('.husky'))) {
-            exec('rm -R '.base_path('.husky'));
-        }
-        exec('cp -R '.$base.'/.husky '.base_path('.husky'));
+        // merge rather than replace, so workflows a site already has are kept
+        exec('mkdir -p '.base_path('.github'));
+        exec('cp -R '.$base.'/.github/. '.base_path('.github'));
 
         $this->updateHtaccess($base);
     }
@@ -818,7 +816,6 @@ class Install extends Command
             'postcss-preset-env' => '^11.4.0',
             'prettier' => '^3.9.6',
             'vite' => '^8.2.1',
-            'husky' => '^9.1.7',
         ];
 
         $contents->dependencies = (object) [
@@ -826,8 +823,8 @@ class Install extends Command
             'swiper' => '^14.1.0',
         ];
 
-        // add husky related commands
-        $contents->scripts->prepare = 'husky';
+        // a leftover husky prepare script would fail every npm install now husky is gone
+        unset($contents->scripts->prepare);
 
         $search = [
             '\/'
