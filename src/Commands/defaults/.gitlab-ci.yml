@@ -1,0 +1,25 @@
+deploy:
+  # the installer sets this from .nvmrc, gitlab can't read the version from it
+  image: node:24
+  stage: deploy
+  rules:
+    - if: '$DEPLOY_PATH && $CI_COMMIT_BRANCH == "main"'
+  resource_group: production
+  timeout: 15 minutes
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - .npm/
+  script:
+    - npm ci --cache .npm --prefer-offline
+    - npm run build
+    - |
+      set -o pipefail
+      install -m 700 -d ~/.ssh
+      # a file variable can lose its final newline, which ssh rejects
+      { cat "$DEPLOY_KEY"; echo; } > ~/.ssh/deploy_key
+      chmod 600 ~/.ssh/deploy_key
+      cp "$DEPLOY_KNOWN_HOSTS" ~/.ssh/known_hosts
+      tar czf - public/build | ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes "$DEPLOY_TARGET" "$DEPLOY_PATH"

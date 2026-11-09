@@ -595,6 +595,7 @@ class Install extends Command
         // merge rather than replace, so workflows a site already has are kept
         exec('mkdir -p '.base_path('.github'));
         exec('cp -R '.$base.'/.github/. '.base_path('.github'));
+        exec('cp -n '.$base.'/.gitlab-ci.yml '.base_path('.gitlab-ci.yml'));
 
         $this->updateHtaccess($base);
     }
@@ -780,6 +781,11 @@ class Install extends Command
     public function askNpm()
     {
         $this->runCommands(['node -v > .nvmrc']);
+
+        // gitlab can't read .nvmrc, so its build image has to name the version
+        $nodeVersion = ltrim(trim(file_get_contents(base_path('.nvmrc'))), 'v');
+        $gitlabCi = file_get_contents(base_path('.gitlab-ci.yml'));
+        file_put_contents(base_path('.gitlab-ci.yml'), preg_replace('/^(\s*image: node:).*$/m', '${1}'.$nodeVersion, $gitlabCi));
 
         $helper = $this->getHelper('question');
 
