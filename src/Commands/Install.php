@@ -749,10 +749,8 @@ class Install extends Command
 
     public function updateGitIgnore()
     {
-        $content = '
-.idea
-.DS_Store
-        ';
+        // end on a newline so anything appended later starts on its own line
+        $content = "\n.idea\n.DS_Store\n/.plan\n";
         $ignore = file_get_contents(base_path('.gitignore'));
         file_put_contents(base_path('.gitignore'), $ignore . $content);
     }
@@ -896,12 +894,9 @@ class Install extends Command
     {
         $this->output->writeln('<info>Updating gitignore to ignore cache</info>');
 
-        $ignore = '
-public/page-cache
-    ';
-
+        $content = "\npublic/page-cache\n";
         $ignore = file_get_contents(base_path('.gitignore'));
-        file_put_contents(base_path('.gitignore'), $ignore . $ignore);
+        file_put_contents(base_path('.gitignore'), $ignore . $content);
 
         $this->output->writeln('<info>Writing to .htaccess</info>');
 
