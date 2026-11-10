@@ -175,7 +175,8 @@ class EmailRepository extends CoreRepository {
         }
 
         if (str_contains($content, '[[field:')) {
-            $fields = $this->formatFields($request, $form);
+            // a token names its field outright, so hidden fields (e.g. a lot pulled from the url) resolve too
+            $fields = $this->formatFields($request, $form, includeHidden: true);
             $content = preg_replace_callback('/\[\[field:(\d+)\]\]/', function ($m) use ($fields) {
                 $id = (int) $m[1];
                 return isset($fields[$id]) ? ($fields[$id]->value ?? '') : '';
@@ -251,14 +252,20 @@ class EmailRepository extends CoreRepository {
     }
 
 
-    public function formatFields($request, $form)
+    /**
+     * The submitted answers keyed by field id, skipping non-answer field types.
+     *
+     * @param  bool  $includeHidden  keep hidden fields, for tokens that name a field directly
+     * @return array<int, \stdClass>
+     */
+    public function formatFields($request, $form, bool $includeHidden = false)
     {
         $data = [];
         // skip non-answer field types: passwords (10/11), static (19), hidden (12),
         // and group start/end (22/23). a field still shows when its
         // include_in_email toggle is on, even if the value is blank.
         // headings (24) are kept as section titles, but only when an answer follows
-        $dontAdd = [10, 11, 12, 19, 22, 23];
+        $dontAdd = $includeHidden ? [10, 11, 19, 22, 23] : [10, 11, 12, 19, 22, 23];
         $pendingHeading = null;
         if ($form->fields && $form->fields->count()) {
             foreach ($form->fields as $field) {
